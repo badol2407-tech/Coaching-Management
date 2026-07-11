@@ -19,11 +19,11 @@ import { PromotionPopup } from "@/components/PromotionPopup";
 import { HeroCarousel } from "@/components/HeroCarousel";
 
 const features = [
-  { icon: LayoutDashboard, title: "Real-time Dashboard", desc: "Students, fees, attendance — একনজরে সব statistics দেখুন", iconGrad: "from-blue-500 to-blue-600", accent: "from-blue-500 to-cyan-400", glow: "shadow-blue-500/25", glowHover: "group-hover:shadow-blue-500/40" },
+  { icon: LayoutDashboard, title: "Real-time Dashboard", desc: "Students, fees, attendance — একনজরে সব statistics দেখুন", iconGrad: "from-blue-500 to-blue-600", accent: "from-blue-500 to-cyan-400", glow: "shadow-blue-500/25", glowHover: "group-hover:shadow-blue-500/40", highlight: true },
   { icon: Users, title: "Student Management", desc: "Students register, update, search করুন সহজেই", iconGrad: "from-emerald-500 to-emerald-600", accent: "from-emerald-500 to-teal-400", glow: "shadow-emerald-500/25", glowHover: "group-hover:shadow-emerald-500/40" },
   { icon: GraduationCap, title: "Teacher Portal", desc: "Teachers-এর subject, salary, attendance সব track করুন", iconGrad: "from-violet-500 to-violet-600", accent: "from-violet-500 to-purple-400", glow: "shadow-violet-500/25", glowHover: "group-hover:shadow-violet-500/40" },
   { icon: CalendarCheck, title: "Attendance Tracking", desc: "প্রতিদিনের attendance digital-এ record করুন", iconGrad: "from-amber-500 to-orange-500", accent: "from-amber-400 to-orange-400", glow: "shadow-amber-500/25", glowHover: "group-hover:shadow-amber-500/40" },
-  { icon: Wallet, title: "Fee Management", desc: "Monthly fees track করুন, one-click-এ mark paid", iconGrad: "from-rose-500 to-rose-600", accent: "from-rose-500 to-pink-400", glow: "shadow-rose-500/25", glowHover: "group-hover:shadow-rose-500/40" },
+  { icon: Wallet, title: "Fee Management", desc: "Monthly fees track করুন, one-click-এ mark paid", iconGrad: "from-rose-500 to-rose-600", accent: "from-rose-500 to-pink-400", glow: "shadow-rose-500/25", glowHover: "group-hover:shadow-rose-500/40", highlight: true },
   { icon: ClipboardList, title: "Exam & Results", desc: "Exam তৈরি করুন, results enter করুন, grade দিন", iconGrad: "from-indigo-500 to-indigo-600", accent: "from-indigo-500 to-blue-400", glow: "shadow-indigo-500/25", glowHover: "group-hover:shadow-indigo-500/40" },
   { icon: Bell, title: "Notice Board", desc: "সব notices একজায়গায় — teachers ও students সবাই দেখবে", iconGrad: "from-pink-500 to-pink-600", accent: "from-pink-500 to-rose-400", glow: "shadow-pink-500/25", glowHover: "group-hover:shadow-pink-500/40" },
   { icon: Receipt, title: "Expense Tracking", desc: "Coaching center-এর সব খরচ category wise log করুন", iconGrad: "from-teal-500 to-teal-600", accent: "from-teal-500 to-emerald-400", glow: "shadow-teal-500/25", glowHover: "group-hover:shadow-teal-500/40" },
@@ -352,14 +352,14 @@ export default function LandingPage() {
               <div className="absolute -inset-8 bg-gradient-to-tr from-indigo-600/20 via-blue-500/12 to-violet-600/8 blur-3xl rounded-3xl" />
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 bg-indigo-500/6 blur-2xl rounded-full" />
 
-              {/* ── Floating badge: Fee collected ── */}
-              <div className="absolute -top-5 -right-4 z-20 flex items-center gap-2 bg-white/[0.06] backdrop-blur-xl border border-white/[0.12] text-white px-3 py-2 rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] animate-[float_4s_ease-in-out_infinite]">
-                <div className="h-6 w-6 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center shrink-0">
-                  <CheckCircle className="h-3.5 w-3.5 text-emerald-400" />
+              {/* ── Floating badge: Fee collected — gold accent for a key money stat ── */}
+              <div className="glass-panel-dark glow-gold absolute -top-5 -right-4 z-20 flex items-center gap-2 text-white px-3 py-2 rounded-xl animate-[float_4s_ease-in-out_infinite]">
+                <div className="h-6 w-6 rounded-lg bg-gold-soft border flex items-center justify-center shrink-0">
+                  <CheckCircle className="h-3.5 w-3.5 text-gold" />
                 </div>
                 <div>
-                  <div className="text-[10px] font-semibold text-emerald-300 leading-none">Fee Collected</div>
-                  <div className="text-[11px] font-bold text-white leading-tight mt-0.5">৳৮৫,৫০০</div>
+                  <div className="text-[10px] font-semibold text-gold leading-none">Fee Collected</div>
+                  <div className="stat-display text-[11px] text-white leading-tight mt-0.5">৳৮৫,৫০০</div>
                 </div>
               </div>
 
@@ -564,18 +564,19 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Stats */}
-      <section className="border-b border-border py-10 px-4 bg-slate-50 dark:bg-slate-900">
-        <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+      {/* Stats — dark premium panel with glass cards and gold key-metric accents */}
+      <section className="relative overflow-hidden py-16 px-4 bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-950">
+        <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[280px] bg-indigo-600/12 rounded-full blur-[110px]" />
+        <div className="relative max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5 text-center">
           {[
             ["৫০০+", "Coaching Centers"],
             ["১০,০০০+", "Students"],
             ["৯৯.৯%", "Uptime"],
             ["৫ মিনিট", "Setup Time"],
           ].map(([v, l]) => (
-            <div key={l}>
-              <p className="stat-display text-3xl text-primary">{v}</p>
-              <p className="text-sm text-muted-foreground mt-1">{l}</p>
+            <div key={l} className="glass-panel-dark rounded-2xl p-5 md:p-6">
+              <p className="stat-display text-gold-gradient text-2xl md:text-3xl">{v}</p>
+              <p className="text-sm text-slate-400 mt-1.5">{l}</p>
             </div>
           ))}
         </div>
@@ -625,9 +626,13 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Features */}
-      <section id="features" className="py-24 px-4 bg-slate-50 dark:bg-[#080c14]">
-        <div className="max-w-6xl mx-auto">
+      {/* Features — glassmorphism reserved for this highlight section only */}
+      <section id="features" className="relative overflow-hidden py-24 px-4 bg-slate-50 dark:bg-[#080c14]">
+        {/* Ambient glow so the glass blur has something to read against */}
+        <div className="pointer-events-none absolute top-24 left-1/4 w-[420px] h-[420px] bg-indigo-500/10 dark:bg-indigo-500/15 rounded-full blur-[120px]" />
+        <div className="pointer-events-none absolute bottom-0 right-1/4 w-[380px] h-[380px] bg-violet-500/8 dark:bg-violet-500/12 rounded-full blur-[110px]" />
+
+        <div className="relative max-w-6xl mx-auto">
           <div className="text-center mb-14">
             <div className="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-xs font-semibold px-3.5 py-1.5 rounded-full mb-4 tracking-wide uppercase">
               ✦ Features
@@ -641,12 +646,18 @@ export default function LandingPage() {
             {features.map((f) => (
               <div
                 key={f.title}
-                className="group relative p-6 rounded-2xl border border-border bg-white dark:bg-slate-900/60 hover:border-transparent hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 overflow-hidden"
+                className={`glass-panel group relative p-6 rounded-2xl hover:-translate-y-1.5 transition-all duration-300 overflow-hidden ${f.highlight ? "glow-primary" : ""}`}
               >
                 {/* Top accent gradient line — appears on hover */}
-                <div className={`absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r ${f.accent} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+                <div className={`absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r ${f.accent} ${f.highlight ? "opacity-70" : "opacity-0 group-hover:opacity-100"} transition-opacity duration-300`} />
                 {/* Subtle background glow on hover */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${f.accent} opacity-0 group-hover:opacity-[0.04] transition-opacity duration-300 rounded-2xl`} />
+                <div className={`absolute inset-0 bg-gradient-to-br ${f.accent} opacity-0 group-hover:opacity-[0.05] transition-opacity duration-300 rounded-2xl`} />
+
+                {f.highlight && (
+                  <div className="absolute top-3 right-3 text-[9px] font-bold uppercase tracking-wide text-gold bg-gold-soft border rounded-full px-2 py-0.5">
+                    Popular
+                  </div>
+                )}
 
                 {/* Icon — soft colored glow that intensifies on hover */}
                 <div className={`relative h-11 w-11 rounded-xl bg-gradient-to-br ${f.iconGrad} flex items-center justify-center mb-4 shadow-lg ${f.glow} ${f.glowHover} group-hover:scale-110 transition-all duration-300`}>
@@ -738,10 +749,10 @@ export default function LandingPage() {
             {plans.map((p) => (
               <div
                 key={p.name}
-                className={`p-6 rounded-xl border relative ${p.highlight ? "border-primary shadow-[0_20px_45px_-15px_rgba(99,102,241,0.35),0_0_0_1px_rgba(99,102,241,0.15)] ring-2 ring-primary/20" : "border-border"}`}
+                className={`p-6 rounded-xl relative ${p.highlight ? "glass-panel glow-gold" : "border border-border"}`}
               >
                 {p.highlight && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-b from-[hsl(var(--gold-light))] to-[hsl(var(--gold))] text-[#2a1c02] text-xs font-bold px-3 py-1 rounded-full shadow-sm">
                     সবচেয়ে জনপ্রিয়
                   </div>
                 )}
@@ -784,10 +795,11 @@ export default function LandingPage() {
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:64px_64px]" />
 
         <div className="relative max-w-3xl mx-auto text-center space-y-8">
-          {/* Eyebrow */}
-          <div className="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/25 text-indigo-300 text-sm px-4 py-1.5 rounded-full">
+          {/* Eyebrow — special offer, so it carries the gold accent */}
+          <div className="glass-panel-dark glow-gold inline-flex items-center gap-2 text-sm px-4 py-1.5 rounded-full">
             <span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
-            ৩০ দিনের Free Trial — কোনো risk নেই
+            <span className="text-gold font-semibold">৩০ দিনের Free Trial</span>
+            <span className="text-slate-300">— কোনো risk নেই</span>
           </div>
 
           <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl leading-[1.1]">

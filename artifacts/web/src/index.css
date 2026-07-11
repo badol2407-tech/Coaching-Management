@@ -155,6 +155,11 @@
   --chart-4: 280 65% 60%;
   --chart-5: 0 72% 51%;
 
+  /* Gold — reserved for premium emphasis: key stats, offers, standout badges. Use sparingly. */
+  --gold-light: 45 97% 68%;
+  --gold:       43 91% 56%;
+  --gold-dark:  36 85% 44%;
+
   /* Tokens */
   --app-font-sans: 'Hind Siliguri', 'Inter', ui-sans-serif, system-ui, sans-serif;
   --app-font-serif: Georgia, serif;
@@ -385,5 +390,75 @@
     font-weight: 800;
     letter-spacing: -0.02em;
     font-variant-numeric: tabular-nums;
+  }
+}
+
+/**
+ * Glassmorphism — premium translucent surfaces. Applied selectively to
+ * feature highlights, promotional cards, statistics, dashboard preview
+ * containers, and important CTA areas only. Never used as a global card style.
+ */
+@layer utilities {
+  .glass-panel {
+    background: color-mix(in srgb, hsl(var(--card)) 55%, transparent);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border: 1px solid color-mix(in srgb, hsl(var(--foreground)) 8%, transparent);
+    box-shadow:
+      0 1px 0 0 color-mix(in srgb, white 40%, transparent) inset,
+      0 12px 32px -12px rgb(0 0 0 / 0.12);
+  }
+
+  .dark .glass-panel {
+    background: color-mix(in srgb, white 5%, transparent);
+    border-color: color-mix(in srgb, white 12%, transparent);
+    box-shadow:
+      0 1px 0 0 color-mix(in srgb, white 8%, transparent) inset,
+      0 20px 44px -16px rgb(0 0 0 / 0.55);
+  }
+
+  /* Dark-surface glass — for use on already-dark sections (hero, final CTA, promo). */
+  .glass-panel-dark {
+    background: color-mix(in srgb, white 6%, transparent);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border: 1px solid color-mix(in srgb, white 12%, transparent);
+    box-shadow:
+      0 1px 0 0 color-mix(in srgb, white 8%, transparent) inset,
+      0 20px 44px -16px rgb(0 0 0 / 0.55);
+  }
+
+  /**
+   * Soft outer glow — subtle, premium ambient light. Never neon: opacity is
+   * always kept low and the blur radius wide. Used for primary CTAs,
+   * selected/featured cards, key icons, and hero visuals only.
+   */
+  .glow-primary {
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, hsl(var(--primary)) 30%, transparent),
+      0 0 36px -6px color-mix(in srgb, hsl(var(--primary)) 55%, transparent);
+  }
+
+  .glow-gold {
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, hsl(var(--gold)) 35%, transparent),
+      0 0 32px -8px color-mix(in srgb, hsl(var(--gold)) 60%, transparent);
+  }
+
+  /* Gold accent text — reserve for key statistics, premium features, and special offers. */
+  .text-gold {
+    color: hsl(var(--gold));
+  }
+
+  .text-gold-gradient {
+    background-image: linear-gradient(100deg, hsl(var(--gold-light)) 0%, hsl(var(--gold)) 55%, hsl(var(--gold-dark)) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .bg-gold-soft {
+    background: color-mix(in srgb, hsl(var(--gold)) 14%, transparent);
+    border-color: color-mix(in srgb, hsl(var(--gold)) 30%, transparent);
   }
 }
