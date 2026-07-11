@@ -14,6 +14,8 @@ export interface UserProfile {
   name: string;
   email: string;
   studentId?: string;
+  /** Set to true when the account was created by an admin with a temp password */
+  mustChangePassword?: boolean;
 }
 
 interface AuthContextType {
@@ -50,7 +52,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const orgSnap = await getDoc(doc(db, "organizations", data.orgId));
           if (orgSnap.exists()) orgName = (orgSnap.data() as any).name;
         }
-        const profile = { uid: u.uid, ...data, orgName };
+        const profile: UserProfile = {
+          uid: u.uid,
+          ...data,
+          orgName,
+          mustChangePassword: data.mustChangePassword ?? false,
+        };
         setUserProfile(profile);
         identifyUser(u.uid, { role: data.role, email: data.email, name: data.name, orgId: data.orgId, orgName });
       } else if (SUPER_ADMIN_EMAIL && u.email === SUPER_ADMIN_EMAIL) {
@@ -60,6 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           orgId: null,
           name: u.displayName ?? u.email!,
           email: u.email!,
+          mustChangePassword: false,
         };
         await setDoc(ref, { role: profile.role, orgId: null, name: profile.name, email: profile.email });
         setUserProfile(profile);

@@ -19,6 +19,7 @@ const RefundPolicy = lazy(() => import("@/pages/RefundPolicy"));
 const FAQ = lazy(() => import("@/pages/FAQ"));
 const HelpCenter = lazy(() => import("@/pages/HelpCenter"));
 const Setup = lazy(() => import("@/pages/Setup"));
+const ForceChangePassword = lazy(() => import("@/pages/ForceChangePassword"));
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const Students = lazy(() => import("@/pages/Students"));
 const AddStudents = lazy(() => import("@/pages/AddStudents"));
@@ -64,6 +65,15 @@ function AuthenticatedRoutes() {
   if (loading) return <Spinner />;
   if (!user) return <Suspense fallback={<Spinner />}><LandingPage /></Suspense>;
   if (!userProfile) return <Suspense fallback={<Spinner />}><Setup /></Suspense>;
+
+  // Force password change gate — must be cleared before accessing any dashboard
+  if (userProfile.mustChangePassword) {
+    return (
+      <Suspense fallback={<Spinner />}>
+        <ForceChangePassword />
+      </Suspense>
+    );
+  }
 
   if (userProfile.role === "super_admin") {
     return (
@@ -141,8 +151,6 @@ function AuthenticatedRoutes() {
 
 function AppRoutes() {
   return (
-    // AuthProvider wraps everything so all pages (including PaymentSuccess)
-    // can call useAuth() for Firestore writes that require userProfile.
     <AuthProvider>
       <Switch>
         {/* Public routes — available regardless of auth state */}
@@ -183,7 +191,6 @@ function App() {
   return (
     <ErrorBoundary>
       {!splashDone && <SplashScreen onDone={handleSplashDone} />}
-      {/* inert keeps assistive tech away from the app while the splash is visible */}
       <div inert={!splashDone ? true : undefined}>
         <QueryClientProvider client={queryClient}>
           <TooltipProvider>
