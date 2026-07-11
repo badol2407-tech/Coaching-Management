@@ -1,0 +1,1 @@
+- [Login Flow Architecture](login-flow-architecture.md) — all accounts pre-provisioned; single email+password popup; AuthContext auto-routes by role from Firestore
