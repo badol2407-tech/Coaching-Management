@@ -1,0 +1,2 @@
+- [Importing a GitHub repo as a Replit artifact](importing-github-repo-as-artifact.md) — file-copy pattern: scaffold fresh artifact, overwrite src/, merge deps manually, typecheck before secrets.
+- [Redesigning shared UI primitives safely](redesigning-shared-ui-primitives.md) — preserve the cva variant/size API; verify inline overrides on dark sections still fully override new base classes via twMerge.
