@@ -1,0 +1,16 @@
+{
+  "projectId": "prj_IG2YsnDCECQD9tZnGdyAk6SAzU6c",
+  "orgId": "u98ZzSKswsE70jxfcFpRe7SK",
+  "projectName": "coaching-management",
+  "settings": {
+    "createdAt": 1783443872413,
+    "framework": null,
+    "devCommand": null,
+    "installCommand": "pnpm install",
+    "buildCommand": "pnpm install && pnpm --filter @workspace/coaching-manager run build",
+    "outputDirectory": "artifacts/coaching-manager/dist/public",
+    "rootDirectory": null,
+    "directoryListing": false,
+    "nodeVersion": "24.x"
+  }
+}
