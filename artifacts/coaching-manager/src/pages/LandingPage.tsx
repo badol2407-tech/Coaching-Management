@@ -294,9 +294,9 @@ export default function LandingPage() {
 
             {/* LEFT: Content */}
             <div className="space-y-7 text-center lg:text-left">
-              <h1 className="text-4xl sm:text-5xl xl:text-[3.5rem] font-bold leading-[1.1] tracking-tight">
+              <h1 className="impact-hero text-4xl sm:text-5xl xl:text-[4.25rem] leading-[1.05]">
                 আপনার Coaching Center<br />
-                <span className="bg-gradient-to-r from-indigo-400 via-blue-400 to-indigo-300 bg-clip-text text-transparent">
+                <span className="text-gradient-hero impact-glow-indigo">
                   ডিজিটাল করুন আজই
                 </span>
               </h1>
@@ -569,7 +569,7 @@ export default function LandingPage() {
             ["৫ মিনিট", "Setup Time"],
           ].map(([v, l]) => (
             <div key={l}>
-              <p className="text-3xl font-bold text-primary">{v}</p>
+              <p className="impact-heading text-[2.25rem] text-gradient-indigo">{v}</p>
               <p className="text-sm text-muted-foreground mt-1">{l}</p>
             </div>
           ))}
@@ -600,7 +600,7 @@ export default function LandingPage() {
       <section className="py-20 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold">কিভাবে কাজ করে?</h2>
+            <h2 className="impact-heading text-3xl sm:text-4xl">কিভাবে কাজ করে?</h2>
             <p className="text-muted-foreground mt-2">মাত্র ৪টি ধাপে আপনার coaching center digital হয়ে যাবে</p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -627,7 +627,9 @@ export default function LandingPage() {
             <div className="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-xs font-semibold px-3.5 py-1.5 rounded-full mb-4 tracking-wide uppercase">
               ✦ Features
             </div>
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">সব কিছু এক Platform-এ</h2>
+            <h2 className="impact-heading text-3xl sm:text-4xl">
+              সব কিছু এক <span className="text-gradient-indigo">Platform-এ</span>
+            </h2>
             <p className="text-muted-foreground mt-3 text-base max-w-md mx-auto leading-relaxed">
               আপনার coaching center পরিচালনার জন্য দরকারী সব tools — এক জায়গায়।
             </p>
@@ -663,7 +665,7 @@ export default function LandingPage() {
             <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-semibold px-3.5 py-1.5 rounded-full mb-4 tracking-wide uppercase">
               ★ Social Proof
             </div>
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">তারা কী বলছেন?</h2>
+            <h2 className="impact-heading text-3xl sm:text-4xl">তারা কী বলছেন?</h2>
             <p className="text-muted-foreground mt-3 text-base max-w-md mx-auto leading-relaxed">
               সারা বাংলাদেশে ৫০০+ coaching center EduTrack-এর উপর ভরসা রাখছে
             </p>
@@ -726,7 +728,9 @@ export default function LandingPage() {
       <section id="pricing" className="py-20 px-4">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold">সহজ Pricing</h2>
+            <h2 className="impact-heading text-3xl sm:text-4xl">
+              সহজ <span className="text-gradient-gold impact-glow-gold">Pricing</span>
+            </h2>
             <p className="text-muted-foreground mt-2">কোনো hidden charge নেই। যেকোনো সময় upgrade বা cancel করুন।</p>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
@@ -742,7 +746,7 @@ export default function LandingPage() {
                 )}
                 <h3 className="font-bold text-lg">{p.name}</h3>
                 <div className="mt-3 mb-5">
-                  <span className="text-4xl font-bold">{p.price}</span>
+                  <span className="impact-heading text-4xl text-gradient-indigo">{p.price}</span>
                   <span className="text-muted-foreground text-sm ml-1">/{p.period}</span>
                 </div>
                 <ul className="space-y-2 mb-6">
@@ -785,9 +789,9 @@ export default function LandingPage() {
             ৩০ দিনের Free Trial — কোনো risk নেই
           </div>
 
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight leading-[1.1]">
+          <h2 className="impact-hero text-[2.5rem] sm:text-5xl lg:text-6xl leading-[1.05]">
             আজই আপনার Coaching Center<br />
-            <span className="bg-gradient-to-r from-indigo-400 via-blue-400 to-indigo-300 bg-clip-text text-transparent">
+            <span className="text-gradient-hero impact-glow-indigo">
               ডিজিটাল করুন
             </span>
           </h2>

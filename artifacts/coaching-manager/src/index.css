@@ -59,6 +59,7 @@
   --font-sans: var(--app-font-sans);
   --font-serif: var(--app-font-serif);
   --font-mono: var(--app-font-mono);
+  --font-display: var(--app-font-display);
 
   --text-xs: 0.75rem;
   --text-xs--line-height: calc(1 / 0.75);
@@ -157,6 +158,7 @@
 
   /* Tokens */
   --app-font-sans: 'Hind Siliguri', 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --app-font-display: 'Montserrat', 'Baloo Da 2', 'Hind Siliguri', ui-sans-serif, sans-serif;
   --app-font-serif: Georgia, serif;
   --app-font-mono: 'JetBrains Mono', Menlo, monospace;
   --radius: 0.5rem;
@@ -355,6 +357,57 @@
   .border.active-elevate-2:not(.no-active-interaction-elevate)::after,
   .border.hover-elevate:not(.no-hover-interaction-elevate)::after {
     inset: -1px;
+  }
+
+  /* ── Impact Typography System ───────────────────────────────────────── */
+
+  /* Display heading — major section titles */
+  .impact-heading {
+    font-family: var(--app-font-display);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+  }
+
+  /* Hero scale — largest, most dramatic */
+  .impact-hero {
+    font-family: var(--app-font-display);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+  }
+
+  /* Gradient fills — hero/dark-bg: light-to-deep indigo */
+  .text-gradient-hero {
+    background: linear-gradient(135deg, #e0e7ff 0%, #a5b4fc 35%, #818cf8 65%, #6366f1 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Gradient fills — general: mid-to-deep indigo (light-bg safe) */
+  .text-gradient-indigo {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 55%, #4338ca 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Gold/metallic — pricing, premium CTAs */
+  .text-gradient-gold {
+    background: linear-gradient(135deg, #fde68a 0%, #f59e0b 45%, #d97706 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Glow depth — works with gradient text via filter, unlike text-shadow */
+  .impact-glow-indigo {
+    filter: drop-shadow(0 2px 18px rgba(99, 102, 241, 0.45));
+  }
+
+  .impact-glow-gold {
+    filter: drop-shadow(0 2px 12px rgba(245, 158, 11, 0.5));
   }
 
   /* ── Premium button shadows ──────────────────────────────────────────── */
