@@ -370,7 +370,7 @@ export default function LandingPage() {
               </div>
 
               {/* Browser shell */}
-              <div className="relative rounded-2xl overflow-hidden border border-white/[0.09] shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_48px_96px_rgba(0,0,0,0.75)]"
+              <div className="relative rounded-2xl overflow-hidden border border-white/[0.12] shadow-[0_0_0_1px_rgba(255,255,255,0.06),0_0_100px_rgba(99,102,241,0.14),0_48px_96px_rgba(0,0,0,0.75)]"
                 style={{ transform: "perspective(1200px) rotateY(-2deg) rotateX(1deg)" }}>
 
                 {/* Browser chrome */}
@@ -560,17 +560,17 @@ export default function LandingPage() {
       </section>
 
       {/* Stats */}
-      <section className="border-b border-border py-10 px-4 bg-slate-50 dark:bg-slate-900">
-        <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+      <section className="border-b border-border py-12 px-4 bg-gradient-to-br from-indigo-50/70 via-slate-50 to-purple-50/50 dark:from-slate-900 dark:via-indigo-950/25 dark:to-slate-900">
+        <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-5">
           {[
             ["৫০০+", "Coaching Centers"],
             ["১০,০০০+", "Students"],
             ["৯৯.৯%", "Uptime"],
             ["৫ মিনিট", "Setup Time"],
           ].map(([v, l]) => (
-            <div key={l}>
+            <div key={l} className="glass-card rounded-2xl p-5 text-center">
               <p className="impact-heading text-[2.25rem] text-gradient-indigo">{v}</p>
-              <p className="text-sm text-muted-foreground mt-1">{l}</p>
+              <p className="text-sm text-muted-foreground mt-1 font-medium">{l}</p>
             </div>
           ))}
         </div>
@@ -638,7 +638,7 @@ export default function LandingPage() {
             {features.map((f) => (
               <div
                 key={f.title}
-                className="group relative p-6 rounded-2xl border border-border bg-white dark:bg-slate-900/60 hover:border-transparent hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 overflow-hidden"
+                className="group relative p-6 rounded-2xl border border-slate-200/70 dark:border-white/[0.07] bg-white/80 dark:bg-white/[0.04] backdrop-blur-sm hover:border-slate-100 dark:hover:border-white/[0.13] hover:bg-white/95 dark:hover:bg-white/[0.07] hover:shadow-[0_8px_40px_rgba(0,0,0,0.09)] dark:hover:shadow-[0_8px_40px_rgba(0,0,0,0.45)] hover:-translate-y-1.5 transition-all duration-300 overflow-hidden"
               >
                 {/* Top accent gradient line — appears on hover */}
                 <div className={`absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r ${f.accent} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
@@ -725,40 +725,46 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing */}
-      <section id="pricing" className="py-20 px-4">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="impact-heading text-3xl sm:text-4xl">
+      <section id="pricing" className="py-24 px-4 bg-gradient-to-br from-slate-900 via-indigo-950/75 to-slate-900 relative overflow-hidden">
+        {/* Ambient glows */}
+        <div className="pointer-events-none absolute top-0 left-1/4 w-[600px] h-[400px] bg-indigo-600/10 rounded-full blur-[120px]" />
+        <div className="pointer-events-none absolute bottom-0 right-1/4 w-[400px] h-[300px] bg-purple-700/8 rounded-full blur-[100px]" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.012)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.012)_1px,transparent_1px)] bg-[size:64px_64px]" />
+        <div className="relative max-w-5xl mx-auto">
+          <div className="text-center mb-14">
+            <h2 className="impact-heading text-3xl sm:text-4xl text-white">
               সহজ <span className="text-gradient-gold impact-glow-gold">Pricing</span>
             </h2>
-            <p className="text-muted-foreground mt-2">কোনো hidden charge নেই। যেকোনো সময় upgrade বা cancel করুন।</p>
+            <p className="text-slate-400 mt-3">কোনো hidden charge নেই। যেকোনো সময় upgrade বা cancel করুন।</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-6 items-start">
             {plans.map((p) => (
               <div
                 key={p.name}
-                className={`p-6 rounded-xl border relative ${p.highlight ? "border-primary shadow-xl ring-2 ring-primary/20" : "border-border"}`}
+                className={`p-7 rounded-2xl relative transition-all duration-300 hover:-translate-y-1 ${
+                  p.highlight ? "glass-dark-featured" : "glass-dark"
+                }`}
               >
                 {p.highlight && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full">
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg shadow-indigo-500/30 whitespace-nowrap">
                     সবচেয়ে জনপ্রিয়
                   </div>
                 )}
-                <h3 className="font-bold text-lg">{p.name}</h3>
+                <h3 className="font-bold text-lg text-white/90">{p.name}</h3>
                 <div className="mt-3 mb-5">
                   <span className="impact-heading text-4xl text-gradient-indigo">{p.price}</span>
-                  <span className="text-muted-foreground text-sm ml-1">/{p.period}</span>
+                  <span className="text-slate-400 text-sm ml-1">/{p.period}</span>
                 </div>
-                <ul className="space-y-2 mb-6">
+                <ul className="space-y-2.5 mb-7">
                   {p.features.map((f) => (
-                    <li key={f} className="flex items-center gap-2 text-sm">
-                      <CheckCircle className="h-4 w-4 text-green-500 shrink-0" />
+                    <li key={f} className="flex items-center gap-2.5 text-sm text-slate-300">
+                      <CheckCircle className="h-4 w-4 text-emerald-400 shrink-0" />
                       {f}
                     </li>
                   ))}
                 </ul>
                 <Button
-                  className="w-full"
+                  className={`w-full ${!p.highlight ? "bg-white/[0.08] border-white/[0.15] text-white hover:bg-white/[0.14] hover:border-white/[0.25] shadow-none" : ""}`}
                   variant={p.highlight ? "default" : "outline"}
                   onClick={() => {
                     trackFeatureUsed("pricing_cta_click", { plan: p.name });

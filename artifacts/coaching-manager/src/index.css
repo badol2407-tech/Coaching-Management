@@ -410,6 +410,57 @@
     filter: drop-shadow(0 2px 12px rgba(245, 158, 11, 0.5));
   }
 
+  /* ── Glassmorphism surfaces ─────────────────────────────────────────── */
+
+  /* Light surface — stats, promo cards on light/gradient bg */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.80);
+    box-shadow:
+      0 2px 24px rgba(0, 0, 0, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  }
+  .dark .glass-card {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow:
+      0 2px 24px rgba(0, 0, 0, 0.35),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
+  /* Dark surface — cards on dark gradient backgrounds */
+  .glass-dark {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+      0 4px 32px rgba(0, 0, 0, 0.28),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+  .glass-dark:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.13);
+  }
+
+  /* Dark featured — highlighted card with indigo ring */
+  .glass-dark-featured {
+    background: rgba(255, 255, 255, 0.10);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(99, 102, 241, 0.32);
+    box-shadow:
+      0 0 0 1px rgba(99, 102, 241, 0.18),
+      0 20px 60px rgba(99, 102, 241, 0.20),
+      inset 0 1px 0 rgba(255, 255, 255, 0.10);
+  }
+  .glass-dark-featured:hover {
+    background: rgba(255, 255, 255, 0.13);
+    border-color: rgba(99, 102, 241, 0.42);
+  }
+
   /* ── Premium button shadows ──────────────────────────────────────────── */
 
   /* Primary — indigo glow */
