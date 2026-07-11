@@ -309,7 +309,7 @@ export default function LandingPage() {
               <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
                 <Button
                   size="lg"
-                  className="h-12 px-7 text-[0.95rem] bg-indigo-500 hover:bg-indigo-400 text-white font-semibold shadow-lg shadow-indigo-500/30 transition-all duration-200 hover:shadow-indigo-400/40 hover:-translate-y-0.5"
+                  className="px-7"
                   onClick={() => openAuth("register", "hero")}
                 >
                   ফ্রি ট্রায়াল শুরু করুন <ArrowRight className="ml-2 h-4 w-4" />
@@ -317,7 +317,7 @@ export default function LandingPage() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="h-12 px-7 text-[0.95rem] border-white/20 text-white hover:bg-white/8 hover:border-white/30 backdrop-blur-sm transition-all duration-200"
+                  className="px-7 bg-white/[0.06] border-white/[0.15] text-white shadow-none hover:bg-white/[0.10] hover:border-white/[0.25] backdrop-blur-sm dark:bg-white/[0.06] dark:border-white/[0.15]"
                   onClick={() => openAuth("login", "hero")}
                 >
                   লাইভ ডেমো দেখুন
@@ -800,7 +800,7 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button
               size="lg"
-              className="h-14 px-8 text-base bg-white text-slate-900 hover:bg-slate-100 font-semibold shadow-lg shadow-white/10 hover:shadow-white/20 hover:-translate-y-0.5 transition-all duration-200"
+              className="px-8 bg-white text-slate-900 border-transparent font-semibold btn-white-glow hover:bg-slate-50 hover:-translate-y-px active:translate-y-0"
               onClick={() => openAuth("register", "final_cta")}
             >
               ফ্রি ট্রায়াল শুরু করুন <ArrowRight className="ml-2 h-4 w-4" />
@@ -808,7 +808,7 @@ export default function LandingPage() {
             <Button
               size="lg"
               variant="outline"
-              className="h-14 px-8 text-base border-white/20 text-white hover:bg-white/8 hover:border-white/35 backdrop-blur-sm transition-all duration-200"
+              className="px-8 bg-white/[0.06] border-white/[0.15] text-white shadow-none hover:bg-white/[0.10] hover:border-white/[0.25] backdrop-blur-sm dark:bg-white/[0.06] dark:border-white/[0.15]"
               onClick={() => openAuth("login", "final_cta_demo")}
             >
               লাইভ ডেমো দেখুন

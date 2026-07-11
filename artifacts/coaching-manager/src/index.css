@@ -356,4 +356,49 @@
   .border.hover-elevate:not(.no-hover-interaction-elevate)::after {
     inset: -1px;
   }
+
+  /* ── Premium button shadows ──────────────────────────────────────────── */
+
+  /* Primary — indigo glow */
+  .btn-primary-glow {
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.13) inset,
+      0 4px 14px rgba(99,102,241,.28);
+  }
+  .btn-primary-glow:hover {
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.16) inset,
+      0 8px 24px rgba(99,102,241,.42);
+  }
+  .btn-primary-glow:active {
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.08) inset,
+      0 2px 8px rgba(99,102,241,.22);
+  }
+
+  /* Outline — crisp surface lift */
+  .btn-outline-lift {
+    box-shadow:
+      0 1px 3px rgba(0,0,0,.06),
+      0 1px 0 rgba(255,255,255,.65) inset;
+  }
+  .btn-outline-lift:hover {
+    box-shadow:
+      0 2px 6px rgba(0,0,0,.08),
+      0 1px 0 rgba(255,255,255,.65) inset;
+  }
+  .btn-outline-lift:active {
+    box-shadow: 0 1px 2px rgba(0,0,0,.04);
+  }
+
+  /* White CTA on dark backgrounds */
+  .btn-white-glow {
+    box-shadow: 0 4px 20px rgba(255,255,255,.12);
+  }
+  .btn-white-glow:hover {
+    box-shadow: 0 8px 28px rgba(255,255,255,.22);
+  }
+  .btn-white-glow:active {
+    box-shadow: 0 2px 10px rgba(255,255,255,.10);
+  }
 }
