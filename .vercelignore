@@ -1,0 +1,7 @@
+node_modules
+**/node_modules
+artifacts/*/node_modules
+artifacts/*/dist
+.git
+attached_assets
+/tmp

@@ -1,0 +1,8 @@
+{
+  "installCommand": "pnpm install --frozen-lockfile=false",
+  "buildCommand": "cd artifacts/web && PORT=3000 BASE_PATH=/ pnpm run build",
+  "outputDirectory": "artifacts/web/dist/public",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
