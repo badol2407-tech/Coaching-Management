@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { GraduationCap } from "lucide-react";
 
 // ── Education icons (emoji — no import needed) ───────────────────────────────
 const ICONS = [
@@ -36,6 +37,18 @@ const iconParticles = ICONS.map((icon, i) => {
   return { ...icon, tx, ty, delay, duration, angle };
 });
 
+// How long the final "morph into navbar logo" transform takes.
+const DOCK_MS = 700;
+// Chrome (background/particles/text) fades out slightly faster than the
+// logo finishes traveling, so the real page is already gently visible
+// behind the logo as it completes its glide — feels like a reveal, not a cut.
+const CHROME_FADE_MS = 420;
+// Selector used to find the real navbar/sidebar logo box to dock into.
+const LOGO_TARGET_SELECTOR = "[data-app-logo]";
+// Give the target time to mount (e.g. auth is still resolving) before
+// giving up and falling back to a plain fade-out.
+const MAX_TARGET_WAIT_MS = 2200;
+
 const CSS = `
 @keyframes logoFlyIn {
   0%   { transform: translate(55vw, -55vh) rotate(0deg) scale(0.3); opacity: 0; }
@@ -69,11 +82,31 @@ const CSS = `
 .splash-root {
   position: fixed; inset: 0; z-index: 9999;
   display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
   overflow: hidden;
 }
 .splash-root.fading {
   animation: splashFadeOut 0.55s cubic-bezier(.4,0,.2,1) forwards;
+}
+.splash-backdrop {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+  transition: opacity ${CHROME_FADE_MS}ms cubic-bezier(.4,0,.2,1);
+}
+.splash-chrome {
+  transition: opacity ${CHROME_FADE_MS}ms cubic-bezier(.4,0,.2,1);
+}
+.splash-root.docking .splash-backdrop,
+.splash-root.docking .splash-chrome {
+  opacity: 0;
+  pointer-events: none;
+}
+/* Override the label/sub's own mount-in transition (which has its own
+   delay) so they fade out immediately and in sync once docking starts. */
+.splash-root.docking .logo-label,
+.splash-root.docking .logo-sub {
+  transition: opacity ${CHROME_FADE_MS}ms ease !important;
+  transition-delay: 0s !important;
+  opacity: 0 !important;
 }
 .logo-wrap {
   position: relative;
@@ -84,14 +117,32 @@ const CSS = `
   animation: logoPulse 0.55s cubic-bezier(.34,1.56,.64,1) forwards;
 }
 .splash-logo-icon {
+  position: relative;
   width: 96px; height: 96px;
   border-radius: 22px;
-  background: linear-gradient(135deg, #818cf8 0%, #6366f1 50%, #4338ca 100%);
+  background: hsl(var(--primary, 224 76% 58%));
   display: flex; align-items: center; justify-content: center;
   box-shadow: 0 0 40px rgba(99,102,241,0.6), 0 0 80px rgba(99,102,241,0.3);
+  will-change: transform;
+}
+.splash-logo-icon.docking {
+  transition: transform ${DOCK_MS}ms cubic-bezier(.65,0,.35,1),
+              box-shadow ${DOCK_MS}ms cubic-bezier(.65,0,.35,1);
+  box-shadow: none;
+}
+.splash-logo-gradient {
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, #818cf8 0%, #6366f1 50%, #4338ca 100%);
+  transition: opacity ${DOCK_MS}ms ease;
+}
+.splash-logo-icon.docking .splash-logo-gradient {
+  opacity: 0;
 }
 .splash-logo-icon svg {
-  width: 52px; height: 52px;
+  position: relative;
+  width: 60px; height: 60px;
+  color: white;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
 }
 .logo-label {
@@ -135,7 +186,8 @@ const CSS = `
 `;
 
 export function SplashScreen({ onDone }: { onDone: () => void }) {
-  const [phase, setPhase] = useState<"flying" | "landed" | "fading">("flying");
+  const [phase, setPhase] = useState<"flying" | "landed" | "docking" | "fading">("flying");
+  const logoIconRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!document.getElementById("splash-css")) {
@@ -145,60 +197,132 @@ export function SplashScreen({ onDone }: { onDone: () => void }) {
       document.head.appendChild(s);
     }
 
-    const t1 = setTimeout(() => setPhase("landed"), 920);
-    const t2 = setTimeout(() => setPhase("fading"), 3400);
-    const t3 = setTimeout(() => onDone(), 3950);
+    let cancelled = false;
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    let raf = 0;
 
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+    // Try to morph the splash logo into the real navbar/sidebar logo. Falls
+    // back to a plain fade-out if the target never shows up (e.g. auth is
+    // still resolving, or the destination page has no matching logo).
+    function dockIntoNavbar() {
+      const iconEl = logoIconRef.current;
+      if (!iconEl) return fadeOut();
+
+      const startedAt = performance.now();
+
+      const tryFindTarget = () => {
+        if (cancelled) return;
+        const target = document.querySelector<HTMLElement>(LOGO_TARGET_SELECTOR);
+        const targetVisible = target && target.offsetParent !== null;
+
+        if (targetVisible && target) {
+          const source = iconEl.getBoundingClientRect();
+          const dest = target.getBoundingClientRect();
+          if (source.width === 0 || dest.width === 0) {
+            raf = requestAnimationFrame(tryFindTarget);
+            return;
+          }
+
+          const scale = dest.width / source.width;
+          const deltaX = dest.left - source.left;
+          const deltaY = dest.top - source.top;
+
+          setPhase("docking");
+
+          // Let the "docking" class attach (backdrop/chrome start fading)
+          // before kicking off the transform, so the transition is picked up.
+          requestAnimationFrame(() => {
+            if (cancelled || !logoIconRef.current) return;
+            const el = logoIconRef.current;
+            el.classList.add("docking");
+            el.style.transformOrigin = "top left";
+            // Force layout so the transition animates from identity.
+            void el.offsetWidth;
+            el.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(${scale})`;
+          });
+
+          timers.push(setTimeout(() => { if (!cancelled) onDone(); }, DOCK_MS));
+          return;
+        }
+
+        if (performance.now() - startedAt > MAX_TARGET_WAIT_MS) {
+          fadeOut();
+          return;
+        }
+        raf = requestAnimationFrame(tryFindTarget);
+      };
+
+      tryFindTarget();
+    }
+
+    function fadeOut() {
+      if (cancelled) return;
+      setPhase("fading");
+      timers.push(setTimeout(() => { if (!cancelled) onDone(); }, 550));
+    }
+
+    timers.push(setTimeout(() => setPhase("landed"), 920));
+    timers.push(setTimeout(() => dockIntoNavbar(), 2400));
+
+    return () => {
+      cancelled = true;
+      timers.forEach(clearTimeout);
+      if (raf) cancelAnimationFrame(raf);
+    };
   }, [onDone]);
+
+  const isDocking = phase === "docking";
 
   return (
     <div
-      className={`splash-root${phase === "fading" ? " fading" : ""}`}
+      className={`splash-root${phase === "fading" ? " fading" : ""}${isDocking ? " docking" : ""}`}
       aria-hidden="true"
       role="presentation"
     >
-      <Stars />
+      <div className="splash-backdrop" />
 
-      {phase !== "flying" &&
-        iconParticles.map((p, i) => (
-          <span
-            key={i}
-            className="icon-particle"
-            aria-hidden="true"
-            style={{
-              "--tx": `${p.tx}px`,
-              "--ty": `${p.ty}px`,
-              "--delay": `${p.delay}s`,
-              "--dur": `${p.duration}s`,
-              "--spin": `${(i % 2 === 0 ? 1 : -1) * (120 + (i * 17) % 180)}deg`,
-            } as React.CSSProperties}
-          >
-            {p.emoji}
-          </span>
-        ))}
+      <div className="splash-chrome">
+        <Stars />
 
-      {phase !== "flying" && (
-        <div style={{ position: "absolute", top: "50%", left: "50%", width: 0, height: 0 }}>
-          <div className="ring" />
-          <div className="ring" />
-          <div className="ring" />
+        {phase !== "flying" &&
+          iconParticles.map((p, i) => (
+            <span
+              key={i}
+              className="icon-particle"
+              aria-hidden="true"
+              style={{
+                "--tx": `${p.tx}px`,
+                "--ty": `${p.ty}px`,
+                "--delay": `${p.delay}s`,
+                "--dur": `${p.duration}s`,
+                "--spin": `${(i % 2 === 0 ? 1 : -1) * (120 + (i * 17) % 180)}deg`,
+              } as React.CSSProperties}
+            >
+              {p.emoji}
+            </span>
+          ))}
+
+        {phase !== "flying" && (
+          <div style={{ position: "absolute", top: "50%", left: "50%", width: 0, height: 0 }}>
+            <div className="ring" />
+            <div className="ring" />
+            <div className="ring" />
+          </div>
+        )}
+      </div>
+
+      <div className={`logo-wrap${phase === "landed" || phase === "docking" || phase === "fading" ? " landed" : ""}`}>
+        {/* This logo box is the shared element: it morphs directly into the
+            real navbar/sidebar logo box rather than fading out. */}
+        <div ref={logoIconRef} className="splash-logo-icon">
+          <div className="splash-logo-gradient" />
+          <GraduationCap strokeWidth={1.8} />
         </div>
-      )}
 
-      <div className={`logo-wrap${phase === "landed" || phase === "fading" ? " landed" : ""}`}>
-        {/* EduTrack logo — matches the app's GraduationCap style */}
-        <div className="splash-logo-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
-            <path d="M6 12v5c3 3 9 3 12 0v-5" />
-          </svg>
-        </div>
-
-        <p className={`logo-label${phase !== "flying" ? " show" : ""}`}>
+        <p className={`splash-chrome logo-label${phase !== "flying" ? " show" : ""}`}>
           EduTrack
         </p>
-        <p className={`logo-sub${phase !== "flying" ? " show" : ""}`}>
+        <p className={`splash-chrome logo-sub${phase !== "flying" ? " show" : ""}`}>
           Smart Coaching, Every Day
         </p>
       </div>

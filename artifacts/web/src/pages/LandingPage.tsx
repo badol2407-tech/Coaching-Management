@@ -267,7 +267,7 @@ export default function LandingPage() {
       <header className="sticky top-0 z-40 bg-white/90 dark:bg-slate-950/90 backdrop-blur border-b border-border">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 font-bold text-xl">
-            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
+            <div data-app-logo="true" className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
               <GraduationCap className="h-5 w-5 text-white" />
             </div>
             EduTrack
