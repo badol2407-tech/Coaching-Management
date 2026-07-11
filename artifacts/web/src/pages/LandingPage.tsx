@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
-  signInWithEmailAndPassword, createUserWithEmailAndPassword,
-  GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail,
+  signInWithEmailAndPassword, sendPasswordResetEmail,
+  setPersistence, browserLocalPersistence, browserSessionPersistence,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
@@ -11,10 +11,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   GraduationCap, Users, CalendarCheck, Wallet, ClipboardList,
   Bell, Receipt, LayoutDashboard, ArrowRight, CheckCircle, X,
-  Loader2, Star, MessageCircle, Mail, Phone,
+  Loader2, Star, MessageCircle, Mail, Phone, Eye, EyeOff,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { trackFeatureUsed, trackLogin, trackLoginFailed, trackRegistered } from "@/lib/analytics";
+import { trackFeatureUsed, trackLogin, trackLoginFailed } from "@/lib/analytics";
 import { PromotionPopup } from "@/components/PromotionPopup";
 import { HeroCarousel } from "@/components/HeroCarousel";
 
@@ -105,13 +105,14 @@ const plans = [
   },
 ];
 
-const googleProvider = new GoogleAuthProvider();
-type AuthMode = "login" | "register" | "reset";
+type AuthMode = "login" | "reset";
 
 function AuthPanel({ defaultMode, onClose }: { defaultMode: AuthMode; onClose: () => void }) {
   const [mode, setMode] = useState<AuthMode>(defaultMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -122,33 +123,18 @@ function AuthPanel({ defaultMode, onClose }: { defaultMode: AuthMode; onClose: (
     try {
       if (mode === "reset") {
         await sendPasswordResetEmail(auth, email);
-        toast({ title: "Email পাঠানো হয়েছে!", description: "Password reset link check করুন।" });
+        toast({ title: "Reset link sent!", description: "Check your email for the password reset link." });
         setMode("login");
-      } else if (mode === "login") {
+      } else {
+        const persistence = rememberMe ? browserLocalPersistence : browserSessionPersistence;
+        await setPersistence(auth, persistence);
         await signInWithEmailAndPassword(auth, email, password);
         trackLogin("email");
-      } else {
-        await createUserWithEmailAndPassword(auth, email, password);
-        trackRegistered("email");
+        onClose();
       }
     } catch (err: any) {
-      trackLoginFailed(mode === "login" ? "email" : "email", err.code ?? "unknown");
-      toast({ title: "Error", description: friendlyError(err.code), variant: "destructive" });
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleGoogle() {
-    setLoading(true);
-    try {
-      await signInWithPopup(auth, googleProvider);
-      trackLogin("google");
-    } catch (err: any) {
-      if (err.code !== "auth/popup-closed-by-user") {
-        trackLoginFailed("google", err.code ?? "unknown");
-        toast({ title: "Google Error", description: friendlyError(err.code), variant: "destructive" });
-      }
+      trackLoginFailed("email", err.code ?? "unknown");
+      toast({ title: "Login Error", description: friendlyError(err.code), variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -156,9 +142,12 @@ function AuthPanel({ defaultMode, onClose }: { defaultMode: AuthMode; onClose: (
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <Card className="w-full max-w-md shadow-2xl">
-        <CardHeader className="text-center space-y-2 relative">
-          <button onClick={onClose} className="absolute right-4 top-4 text-muted-foreground hover:text-foreground">
+      <Card className="w-full max-w-sm shadow-2xl">
+        <CardHeader className="text-center space-y-2 relative pb-3">
+          <button
+            onClick={onClose}
+            className="absolute right-4 top-4 text-muted-foreground hover:text-foreground"
+          >
             <X className="h-5 w-5" />
           </button>
           <div className="flex justify-center">
@@ -167,59 +156,101 @@ function AuthPanel({ defaultMode, onClose }: { defaultMode: AuthMode; onClose: (
             </div>
           </div>
           <CardTitle className="text-xl">
-            {mode === "login" ? "EduTrack-এ Sign In" : mode === "register" ? "বিনামূল্যে শুরু করুন" : "Password Reset"}
+            {mode === "login" ? "Sign In to EduTrack" : "Reset Password"}
           </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            {mode === "login"
+              ? "Enter your email and password to continue"
+              : "Enter your email to receive a reset link"}
+          </p>
         </CardHeader>
+
         <CardContent className="space-y-4">
-          {mode !== "reset" && (
-            <Button variant="outline" className="w-full gap-2" onClick={handleGoogle} disabled={loading}>
-              <svg className="h-4 w-4" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-              </svg>
-              Google দিয়ে Continue
-            </Button>
-          )}
-          {mode !== "reset" && (
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">অথবা</span>
-              </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Email */}
+            <div className="space-y-1.5">
+              <Label htmlFor="auth-email">Email</Label>
+              <Input
+                id="auth-email"
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoFocus
+              />
             </div>
-          )}
-          <form onSubmit={handleSubmit} className="space-y-3">
-            <div className="space-y-1">
-              <Label>Email</Label>
-              <Input type="email" placeholder="admin@coachingcenter.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            </div>
-            {mode !== "reset" && (
-              <div className="space-y-1">
-                <Label>Password</Label>
-                <Input type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
-              </div>
-            )}
+
+            {/* Password — only in login mode */}
             {mode === "login" && (
-              <button type="button" className="text-xs text-primary hover:underline" onClick={() => setMode("reset")}>
-                Password ভুলে গেছেন?
-              </button>
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="auth-password">Password</Label>
+                  <button
+                    type="button"
+                    className="text-xs text-primary hover:underline"
+                    onClick={() => setMode("reset")}
+                  >
+                    Forgot Password?
+                  </button>
+                </div>
+                <div className="relative">
+                  <Input
+                    id="auth-password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
             )}
+
+            {/* Remember me — only in login mode */}
+            {mode === "login" && (
+              <div className="flex items-center gap-2">
+                <input
+                  id="remember-me"
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="h-4 w-4 rounded border-border accent-primary cursor-pointer"
+                />
+                <label
+                  htmlFor="remember-me"
+                  className="text-sm text-muted-foreground cursor-pointer select-none"
+                >
+                  Remember me
+                </label>
+              </div>
+            )}
+
             <Button type="submit" className="w-full" disabled={loading}>
               {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              {mode === "login" ? "Sign In" : mode === "register" ? "Free Account তৈরি করুন" : "Reset Link পাঠান"}
+              {mode === "login" ? "Login" : "Send Reset Link"}
             </Button>
           </form>
-          <p className="text-center text-sm text-muted-foreground">
-            {mode === "login" ? (
-              <>নতুন user? <button className="text-primary font-medium hover:underline" onClick={() => setMode("register")}>Register করুন</button></>
-            ) : mode === "register" ? (
-              <>Already account আছে? <button className="text-primary font-medium hover:underline" onClick={() => setMode("login")}>Sign In</button></>
-            ) : (
-              <button className="text-primary font-medium hover:underline" onClick={() => setMode("login")}>Back to Sign In</button>
-            )}
-          </p>
+
+          {mode === "reset" && (
+            <p className="text-center text-sm">
+              <button
+                className="text-primary font-medium hover:underline"
+                onClick={() => setMode("login")}
+              >
+                ← Back to Login
+              </button>
+            </p>
+          )}
         </CardContent>
       </Card>
     </div>
@@ -228,7 +259,7 @@ function AuthPanel({ defaultMode, onClose }: { defaultMode: AuthMode; onClose: (
 
 export default function LandingPage() {
   const [showAuth, setShowAuth] = useState(false);
-  const [authMode, setAuthMode] = useState<AuthMode>("register");
+  const [authMode, setAuthMode] = useState<AuthMode>("login");
 
   function openAuth(mode: AuthMode, source: string) {
     trackFeatureUsed("landing_cta_click", { mode, source });
@@ -247,7 +278,7 @@ export default function LandingPage() {
       <PromotionPopup
         onCtaClick={(cta, index) => {
           trackFeatureUsed("promo_popup_cta_click", { cta, index });
-          openAuth("register", `promo_popup_${index}`);
+          openAuth("login", `promo_popup_${index}`);
         }}
       />
 
@@ -277,7 +308,7 @@ export default function LandingPage() {
             <Button variant="ghost" size="sm" onClick={() => openAuth("login", "header")}>Login</Button>
             <Button
               size="sm"
-              onClick={() => openAuth("register", "header")}
+              onClick={() => openAuth("login", "header")}
             >
               বিনামূল্যে শুরু করুন
             </Button>
@@ -314,7 +345,7 @@ export default function LandingPage() {
                 <Button
                   size="lg"
                   className="font-display text-[0.95rem] tracking-normal"
-                  onClick={() => openAuth("register", "hero")}
+                  onClick={() => openAuth("login", "hero")}
                 >
                   ফ্রি ট্রায়াল শুরু করুন <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
@@ -558,7 +589,7 @@ export default function LandingPage() {
           <HeroCarousel
             onCtaClick={(cta, index) => {
               trackFeatureUsed("hero_carousel_cta_click", { cta, index });
-              openAuth("register", `hero_carousel_${index}`);
+              openAuth("login", `hero_carousel_${index}`);
             }}
           />
         </div>
@@ -774,7 +805,7 @@ export default function LandingPage() {
                   variant={p.highlight ? "default" : "outline"}
                   onClick={() => {
                     trackFeatureUsed("pricing_cta_click", { plan: p.name });
-                    openAuth("register", `pricing_${p.name}`);
+                    openAuth("login", `pricing_${p.name}`);
                   }}
                 >
                   {p.cta}
@@ -818,7 +849,7 @@ export default function LandingPage() {
             <Button
               size="lg"
               className="font-display h-14 px-8 text-base tracking-normal bg-white text-slate-900 border-white/40 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.5),0_2px_10px_rgba(0,0,0,0.2),0_0_40px_-8px_rgba(255,255,255,0.4)] hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.6),0_2px_12px_rgba(0,0,0,0.25),0_0_56px_-8px_rgba(255,255,255,0.55)] hover:brightness-100 hover:bg-slate-50"
-              onClick={() => openAuth("register", "final_cta")}
+              onClick={() => openAuth("login", "final_cta")}
             >
               ফ্রি ট্রায়াল শুরু করুন <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
@@ -907,7 +938,7 @@ export default function LandingPage() {
                 <li>
                   <button
                     className="hover:text-white transition-colors duration-150 text-left"
-                    onClick={() => openAuth("register", "footer_product")}
+                    onClick={() => openAuth("login", "footer_product")}
                   >
                     Free Trial
                   </button>
