@@ -1,6 +1,6 @@
 import { lazy, Suspense, useState, useCallback } from "react";
 import { SplashScreen } from "@/components/SplashScreen";
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import { Switch, Route, Redirect, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,7 +11,6 @@ import { StudentLayout } from "@/components/layout/StudentLayout";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
-const NotFound = lazy(() => import("@/pages/not-found"));
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
 const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("@/pages/TermsOfService"));
@@ -82,7 +81,7 @@ function AuthenticatedRoutes() {
           <Switch>
             <Route path="/" component={SuperAdminDashboard} />
             <Route path="/organizations" component={ManageOrganizations} />
-            <Route component={NotFound} />
+            <Route><Redirect to="/" /></Route>
           </Switch>
         </Suspense>
       </SuperAdminLayout>
@@ -102,7 +101,7 @@ function AuthenticatedRoutes() {
             <Route path="/notices" component={Notices} />
             <Route path="/homework" component={Homework} />
             <Route path="/settings" component={TeacherSettings} />
-            <Route component={NotFound} />
+            <Route><Redirect to="/" /></Route>
           </Switch>
         </Suspense>
       </TeacherLayout>
@@ -115,7 +114,7 @@ function AuthenticatedRoutes() {
         <Suspense fallback={<Spinner />}>
           <Switch>
             <Route path="/" component={StudentPortal} />
-            <Route component={NotFound} />
+            <Route><Redirect to="/" /></Route>
           </Switch>
         </Suspense>
       </StudentLayout>
@@ -142,7 +141,7 @@ function AuthenticatedRoutes() {
           <Route path="/settings" component={Settings} />
           <Route path="/subscription" component={Subscription} />
           <Route path="/help" component={HelpCenter} />
-          <Route component={NotFound} />
+          <Route><Redirect to="/" /></Route>
         </Switch>
       </Suspense>
     </AppLayout>
