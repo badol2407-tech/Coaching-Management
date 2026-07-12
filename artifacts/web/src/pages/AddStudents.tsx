@@ -8,7 +8,6 @@ import {
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/contexts/AuthContext";
 import { useListClasses } from "@/lib/class-hooks";
-import { getListTeachersQueryKey } from "@/lib/hooks";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -51,17 +50,6 @@ type AdmissionRequest = {
   batch?: string;
   guardianName?: string;
   guardianPhone?: string;
-  status: "pending" | "approved" | "rejected";
-  createdAt: string;
-};
-
-type TeacherRequest = {
-  id: string;
-  uid?: string;
-  name: string;
-  email: string;
-  phone?: string;
-  subject?: string;
   status: "pending" | "approved" | "rejected";
   createdAt: string;
 };
@@ -536,30 +524,17 @@ function AdmissionLinkTab() {
   const [loadingRequests, setLoadingRequests] = useState(false);
   const [processingId, setProcessingId] = useState<string | null>(null);
 
-  const [teacherRequests, setTeacherRequests] = useState<TeacherRequest[]>([]);
-  const [loadingTeacherRequests, setLoadingTeacherRequests] = useState(false);
-  const [processingTeacherId, setProcessingTeacherId] = useState<string | null>(null);
-
   const qc = useQueryClient();
 
   const orgId = userProfile?.orgId;
   const studentLink = orgId
     ? `${window.location.origin}/join/${orgId}/student`
     : null;
-  const teacherLink = orgId
-    ? `${window.location.origin}/join/${orgId}/teacher`
-    : null;
 
   function copyStudentLink() {
     if (!studentLink) return;
     navigator.clipboard.writeText(studentLink);
     toast({ title: "Student link copied!", description: "Share this link — only the student form (with email & password) will show." });
-  }
-
-  function copyTeacherLink() {
-    if (!teacherLink) return;
-    navigator.clipboard.writeText(teacherLink);
-    toast({ title: "Teacher link copied!", description: "Share this link — only the teacher form (with email & password) will show." });
   }
 
   async function loadRequests() {
@@ -594,37 +569,8 @@ function AdmissionLinkTab() {
     }
   }
 
-  async function loadTeacherRequests() {
-    if (!orgId) return;
-    setLoadingTeacherRequests(true);
-    try {
-      const q = query(
-        collection(db, "organizations", orgId, "teacher_requests"),
-        where("status", "==", "pending"),
-      );
-      const snap = await getDocs(q);
-      const data = snap.docs.map((d) => {
-        const r = d.data() as any;
-        return {
-          id: d.id,
-          uid: r.uid,
-          name: r.name,
-          email: r.email,
-          phone: r.phone,
-          subject: r.subject,
-          status: r.status,
-          createdAt: r.createdAt?.toDate?.()?.toISOString?.() ?? new Date().toISOString(),
-        } as TeacherRequest;
-      });
-      setTeacherRequests(data);
-    } finally {
-      setLoadingTeacherRequests(false);
-    }
-  }
-
   function refreshAll() {
     loadRequests();
-    loadTeacherRequests();
   }
 
   async function approve(req: AdmissionRequest) {
@@ -690,120 +636,32 @@ function AdmissionLinkTab() {
     }
   }
 
-  async function approveTeacher(req: TeacherRequest) {
-    if (!orgId) return;
-    setProcessingTeacherId(req.id);
-    try {
-      await addDoc(collection(db, "organizations", orgId, "teachers"), {
-        uid: req.uid ?? null,
-        name: req.name,
-        phone: req.phone ?? null,
-        email: req.email ?? null,
-        subject: req.subject ?? null,
-        salary: null,
-        joinedAt: new Date().toISOString().split("T")[0],
-        createdAt: serverTimestamp(),
-        source: "join_link",
-        hasFirebaseAuth: !!req.uid,
-      });
-      // The teacher already chose their own email/password on the join form —
-      // creating their `users/{uid}` profile here is what turns that on for login.
-      if (req.uid) {
-        await setDoc(doc(db, "users", req.uid), {
-          role: "teacher",
-          orgId,
-          name: req.name,
-          email: req.email ?? null,
-          mustChangePassword: false,
-          createdByAdmin: false,
-          createdAt: serverTimestamp(),
-        });
-      }
-      await setDoc(
-        doc(db, "organizations", orgId, "teacher_requests", req.id),
-        { status: "approved" },
-        { merge: true },
-      );
-      setTeacherRequests((r) => r.filter((x) => x.id !== req.id));
-      qc.invalidateQueries({ queryKey: getListTeachersQueryKey(orgId) });
-      toast({ title: `${req.name} approved!`, description: "Added to teacher list. They can now log in with the email & password they chose." });
-    } catch {
-      toast({ title: "Error", description: "Could not approve request.", variant: "destructive" });
-    } finally {
-      setProcessingTeacherId(null);
-    }
-  }
-
-  async function rejectTeacher(req: TeacherRequest) {
-    if (!orgId) return;
-    setProcessingTeacherId(req.id);
-    try {
-      await setDoc(
-        doc(db, "organizations", orgId, "teacher_requests", req.id),
-        { status: "rejected" },
-        { merge: true },
-      );
-      setTeacherRequests((r) => r.filter((x) => x.id !== req.id));
-      toast({ title: "Request rejected" });
-    } finally {
-      setProcessingTeacherId(null);
-    }
-  }
-
   return (
     <div className="space-y-6">
-      {/* Link cards — separate links so each form only ever shows one role */}
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="rounded-xl border bg-gradient-to-br from-primary/5 to-primary/[0.02] p-5 space-y-4">
-          <div className="flex items-start gap-3">
-            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-              <Link2 className="h-5 w-5 text-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-sm">Student Join Link</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Only students fill this up — with their own email &amp; password.
-              </p>
-            </div>
+      {/* Link card */}
+      <div className="rounded-xl border bg-gradient-to-br from-primary/5 to-primary/[0.02] p-5 space-y-4">
+        <div className="flex items-start gap-3">
+          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+            <Link2 className="h-5 w-5 text-primary" />
           </div>
-
-          <div className="flex gap-2">
-            <div className="flex-1 min-w-0 rounded-lg border bg-background px-3 py-2">
-              <p className="text-xs text-muted-foreground truncate font-mono">
-                {studentLink ?? "—"}
-              </p>
-            </div>
-            <Button size="sm" variant="outline" onClick={copyStudentLink} className="gap-1.5 shrink-0">
-              <Copy className="h-3.5 w-3.5" />
-              Copy
-            </Button>
+          <div className="flex-1 min-w-0">
+            <p className="font-semibold text-sm">Student Join Link</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Only students fill this up — with their own email &amp; password. Looking for the teacher link? Find it in the Teachers tab.
+            </p>
           </div>
         </div>
 
-        <div className="rounded-xl border bg-gradient-to-br from-primary/5 to-primary/[0.02] p-5 space-y-4">
-          <div className="flex items-start gap-3">
-            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-              <Link2 className="h-5 w-5 text-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-sm">Teacher Join Link</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Only teachers fill this up — with their own email &amp; password.
-              </p>
-            </div>
+        <div className="flex gap-2">
+          <div className="flex-1 min-w-0 rounded-lg border bg-background px-3 py-2">
+            <p className="text-xs text-muted-foreground truncate font-mono">
+              {studentLink ?? "—"}
+            </p>
           </div>
-
-          <div className="flex gap-2">
-            <div className="flex-1 min-w-0 rounded-lg border bg-background px-3 py-2">
-              <p className="text-xs text-muted-foreground truncate font-mono">
-                {teacherLink ?? "—"}
-              </p>
-            </div>
-            <Button size="sm" variant="outline" onClick={copyTeacherLink} className="gap-1.5 shrink-0">
-              <Copy className="h-3.5 w-3.5" />
-              Copy
-            </Button>
-          </div>
+          <Button size="sm" variant="outline" onClick={copyStudentLink} className="gap-1.5 shrink-0">
+            <Copy className="h-3.5 w-3.5" />
+            Copy
+          </Button>
         </div>
       </div>
 
@@ -827,10 +685,10 @@ function AdmissionLinkTab() {
             variant="ghost"
             size="sm"
             onClick={refreshAll}
-            disabled={loadingRequests || loadingTeacherRequests}
+            disabled={loadingRequests}
             className="gap-1.5 text-xs"
           >
-            <RefreshCw className={`h-3.5 w-3.5 ${loadingRequests || loadingTeacherRequests ? "animate-spin" : ""}`} />
+            <RefreshCw className={`h-3.5 w-3.5 ${loadingRequests ? "animate-spin" : ""}`} />
             Refresh
           </Button>
         </div>
@@ -914,86 +772,6 @@ function AdmissionLinkTab() {
         )}
       </div>
 
-      {/* Pending teacher requests */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <Clock className="h-4 w-4 text-muted-foreground" />
-          <h3 className="text-sm font-semibold">Pending Teacher Requests</h3>
-          {teacherRequests.length > 0 && (
-            <Badge variant="secondary" className="text-xs h-5">{teacherRequests.length}</Badge>
-          )}
-        </div>
-
-        {teacherRequests.length === 0 && !loadingTeacherRequests && (
-          <div className="rounded-xl border border-dashed bg-muted/20 py-12 text-center">
-            <UserCheck className="h-8 w-8 text-muted-foreground/40 mx-auto mb-2" />
-            <p className="text-sm text-muted-foreground font-medium">No pending teacher requests</p>
-            <p className="text-xs text-muted-foreground/70 mt-1">
-              Click Refresh after sharing the link
-            </p>
-          </div>
-        )}
-
-        {loadingTeacherRequests && (
-          <div className="rounded-xl border p-8 text-center">
-            <Loader2 className="h-6 w-6 text-muted-foreground/50 mx-auto animate-spin" />
-          </div>
-        )}
-
-        {teacherRequests.length > 0 && (
-          <div className="rounded-xl border overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/50">
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Subject</TableHead>
-                  <TableHead>Applied</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {teacherRequests.map((req) => (
-                  <TableRow key={req.id}>
-                    <TableCell className="font-medium">{req.name}</TableCell>
-                    <TableCell className="text-muted-foreground text-sm">{req.email}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="text-xs">{req.subject ?? "—"}</Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground text-xs">
-                      {new Date(req.createdAt).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => rejectTeacher(req)}
-                          disabled={processingTeacherId === req.id}
-                          className="h-7 px-3 text-xs text-destructive border-destructive/30 hover:bg-destructive/5"
-                        >
-                          Reject
-                        </Button>
-                        <Button
-                          size="sm"
-                          onClick={() => approveTeacher(req)}
-                          disabled={processingTeacherId === req.id}
-                          className="h-7 px-3 text-xs gap-1"
-                        >
-                          {processingTeacherId === req.id
-                            ? <Loader2 className="h-3 w-3 animate-spin" />
-                            : <CheckCircle2 className="h-3 w-3" />}
-                          Approve
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        )}
-      </div>
     </div>
   );
 }
@@ -1020,7 +798,7 @@ export default function AddStudents() {
       id: "admission",
       label: "Admission Link",
       icon: Link2,
-      desc: "Let students or teachers register themselves via a link",
+      desc: "Let students register themselves via a link",
     },
   ];
 
@@ -1100,7 +878,7 @@ export default function AddStudents() {
               ? "Student-এর তথ্য নিচের form-এ দিন এবং সরাসরি যোগ করুন।"
               : activeTab === "excel"
               ? "Download the template, fill it in, and upload to import students in bulk."
-              : "Share your unique link. Students or teachers self-register with their own email & password, and you approve them below."}
+              : "Share your unique link. Students self-register with their own email & password, and you approve them below."}
           </CardDescription>
         </CardHeader>
         <CardContent>
