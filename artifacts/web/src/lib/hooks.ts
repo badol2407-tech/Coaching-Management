@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  collection, getDocs, addDoc, updateDoc, deleteDoc,
+  collection, getDocs, getDoc, addDoc, updateDoc, deleteDoc,
   doc, setDoc, query, where, serverTimestamp, Timestamp,
 } from "firebase/firestore";
 import { db } from "./firebase";
@@ -86,6 +86,34 @@ export function useDeleteStudent() {
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: [userProfile?.orgId, "students"] }),
   });
+}
+
+/**
+ * Fetches the current student's own record from `organizations/{orgId}/students/{studentId}`
+ * so we can read their `batch` and restrict what routine/homework/exam/notice items they see.
+ */
+export function useMyStudentRecord() {
+  const { userProfile } = useAuth();
+  const orgId = userProfile?.orgId;
+  const studentId = userProfile?.studentId;
+  return useQuery({
+    queryKey: [orgId, "my_student_record", studentId ?? ""],
+    queryFn: async () => {
+      if (!orgId || !studentId) return null;
+      const snap = await getDoc(doc(db, "organizations", orgId, "students", studentId));
+      return snap.exists() ? ({ id: snap.id, ...snap.data() } as any) : null;
+    },
+    enabled: !!orgId && !!studentId,
+  });
+}
+
+/**
+ * Given a list of items that may carry an optional `batch` field, keep only items with
+ * no batch set (visible to everyone) or a batch matching the student's own batch.
+ */
+export function filterByMyBatch<T extends { batch?: string | null }>(items: T[], myBatch?: string | null): T[] {
+  if (!myBatch) return items;
+  return items.filter((item) => !item.batch || item.batch === myBatch);
 }
 
 // ── Teachers ──────────────────────────────────────────────────────────────────
@@ -231,6 +259,40 @@ export function useUpdateFee() {
   });
 }
 
+/** Student calls this to mark a fee record as seen (idempotent). */
+export function useMarkFeeSeen() {
+  const { userProfile } = useAuth();
+  return useMutation({
+    mutationFn: async ({ feeId }: { feeId: string }) => {
+      const orgId = userProfile?.orgId;
+      const uid = userProfile?.uid;
+      if (!orgId || !uid) return;
+      await setDoc(
+        doc(db, "organizations", orgId, "fees", feeId, "seen", uid),
+        { name: userProfile?.name ?? userProfile?.email ?? "Student", seenAt: serverTimestamp() },
+        { merge: true },
+      );
+    },
+  });
+}
+
+/** Admin/teacher calls this to fetch who has seen a specific fee record. */
+export function useFeeSeen(feeId: string | null) {
+  const { userProfile } = useAuth();
+  const orgId = userProfile?.orgId;
+  return useQuery({
+    queryKey: [orgId, "fees", feeId, "seen"],
+    queryFn: async () => {
+      if (!orgId || !feeId) return [];
+      const snap = await getDocs(collection(db, "organizations", orgId, "fees", feeId, "seen"));
+      return snap.docs
+        .map((d) => ({ uid: d.id, ...(d.data() as any), seenAt: ts((d.data() as any).seenAt) }))
+        .sort((a: any, b: any) => new Date(a.seenAt).getTime() - new Date(b.seenAt).getTime());
+    },
+    enabled: !!orgId && !!feeId,
+  });
+}
+
 // ── Exams ──────────────────────────────────────────────────────────────────────
 
 export const getListExamsQueryKey = (orgId?: string | null) => [orgId, "exams"];
@@ -260,6 +322,40 @@ export function useCreateExam() {
       return { id: ref.id };
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: [userProfile?.orgId, "exams"] }),
+  });
+}
+
+/** Student calls this to mark an exam as seen (idempotent). */
+export function useMarkExamSeen() {
+  const { userProfile } = useAuth();
+  return useMutation({
+    mutationFn: async ({ examId }: { examId: string }) => {
+      const orgId = userProfile?.orgId;
+      const uid = userProfile?.uid;
+      if (!orgId || !uid) return;
+      await setDoc(
+        doc(db, "organizations", orgId, "exams", examId, "seen", uid),
+        { name: userProfile?.name ?? userProfile?.email ?? "Student", seenAt: serverTimestamp() },
+        { merge: true },
+      );
+    },
+  });
+}
+
+/** Admin/teacher calls this to fetch who has seen a specific exam. */
+export function useExamSeen(examId: string | null) {
+  const { userProfile } = useAuth();
+  const orgId = userProfile?.orgId;
+  return useQuery({
+    queryKey: [orgId, "exams", examId, "seen"],
+    queryFn: async () => {
+      if (!orgId || !examId) return [];
+      const snap = await getDocs(collection(db, "organizations", orgId, "exams", examId, "seen"));
+      return snap.docs
+        .map((d) => ({ uid: d.id, ...(d.data() as any), seenAt: ts((d.data() as any).seenAt) }))
+        .sort((a: any, b: any) => new Date(a.seenAt).getTime() - new Date(b.seenAt).getTime());
+    },
+    enabled: !!orgId && !!examId,
   });
 }
 
@@ -494,6 +590,40 @@ export function useDeleteRoutineSlot() {
       await deleteDoc(orgDocRef(orgId, "routine", id));
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: [userProfile?.orgId, "routine"] }),
+  });
+}
+
+/** Student calls this to mark a routine slot as seen (idempotent). */
+export function useMarkRoutineSeen() {
+  const { userProfile } = useAuth();
+  return useMutation({
+    mutationFn: async ({ slotId }: { slotId: string }) => {
+      const orgId = userProfile?.orgId;
+      const uid = userProfile?.uid;
+      if (!orgId || !uid) return;
+      await setDoc(
+        doc(db, "organizations", orgId, "routine", slotId, "seen", uid),
+        { name: userProfile?.name ?? userProfile?.email ?? "Student", seenAt: serverTimestamp() },
+        { merge: true },
+      );
+    },
+  });
+}
+
+/** Admin/teacher calls this to fetch who has seen a specific routine slot. */
+export function useRoutineSeen(slotId: string | null) {
+  const { userProfile } = useAuth();
+  const orgId = userProfile?.orgId;
+  return useQuery({
+    queryKey: [orgId, "routine", slotId, "seen"],
+    queryFn: async () => {
+      if (!orgId || !slotId) return [];
+      const snap = await getDocs(collection(db, "organizations", orgId, "routine", slotId, "seen"));
+      return snap.docs
+        .map((d) => ({ uid: d.id, ...(d.data() as any), seenAt: ts((d.data() as any).seenAt) }))
+        .sort((a: any, b: any) => new Date(a.seenAt).getTime() - new Date(b.seenAt).getTime());
+    },
+    enabled: !!orgId && !!slotId,
   });
 }
 

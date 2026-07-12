@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { useListRoutine, useCreateRoutineSlot, useDeleteRoutineSlot, getListRoutineQueryKey } from "@/lib/hooks";
+import { useListRoutine, useCreateRoutineSlot, useDeleteRoutineSlot, useRoutineSeen, getListRoutineQueryKey } from "@/lib/hooks";
+import { useListClasses } from "@/lib/class-hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,8 +10,48 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/com
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Clock } from "lucide-react";
+import { Plus, Trash2, Clock, Eye, ChevronDown, ChevronUp, Loader2, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
+function SeenPanel({ slotId }: { slotId: string }) {
+  const { data: seen = [], isLoading } = useRoutineSeen(slotId);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center gap-2 py-3 px-4 text-sm text-muted-foreground">
+        <Loader2 className="h-4 w-4 animate-spin" />
+        লোড হচ্ছে…
+      </div>
+    );
+  }
+
+  if ((seen as any[]).length === 0) {
+    return (
+      <div className="py-3 px-4 text-sm text-muted-foreground flex items-center gap-2 border-t">
+        <Users className="h-4 w-4" />
+        এখনো কেউ দেখেনি
+      </div>
+    );
+  }
+
+  return (
+    <div className="border-t divide-y">
+      {(seen as any[]).map((s: any) => (
+        <div key={s.uid} className="flex items-center justify-between px-4 py-2.5">
+          <div className="flex items-center gap-2">
+            <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary">
+              {(s.name ?? "?").charAt(0).toUpperCase()}
+            </div>
+            <span className="text-sm font-medium">{s.name ?? "—"}</span>
+          </div>
+          <span className="text-xs text-muted-foreground">
+            {new Date(s.seenAt).toLocaleString("en-BD", { dateStyle: "short", timeStyle: "short" })}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 const DAYS = ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"];
 const DAY_BN: Record<string, string> = {
@@ -41,7 +82,7 @@ function subjectColor(subject: string) {
 
 const EMPTY_FORM = {
   day: "Saturday", startTime: "08:00", endTime: "09:00",
-  subject: "", teacherName: "", room: "", className: "",
+  subject: "", teacherName: "", room: "", className: "", batch: "",
 };
 
 export default function Routine() {
@@ -49,17 +90,26 @@ export default function Routine() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [form, setForm] = useState(EMPTY_FORM);
+  const [openSeenId, setOpenSeenId] = useState<string | null>(null);
   const { toast } = useToast();
   const qc = useQueryClient();
 
   const { data: allSlots = [], isLoading } = useListRoutine();
+  const { data: classes = [] } = useListClasses();
   const createSlot = useCreateRoutineSlot();
   const deleteSlot = useDeleteRoutineSlot();
   const invalidate = () => qc.invalidateQueries({ queryKey: getListRoutineQueryKey() });
 
+  const selectedClass = (classes as any[]).find((c: any) => c.name === form.className);
+  const availableBatches: string[] = selectedClass?.batches ?? [];
+
   const daySlots = (allSlots as any[])
     .filter(s => s.day === activeDay)
     .sort((a: any, b: any) => a.startTime.localeCompare(b.startTime));
+
+  function toggleSeen(id: string) {
+    setOpenSeenId((prev) => (prev === id ? null : id));
+  }
 
   function handleAdd() {
     if (!form.subject.trim()) {
@@ -67,7 +117,7 @@ export default function Routine() {
       return;
     }
     createSlot.mutate(
-      { data: { ...form, teacherName: form.teacherName || undefined, room: form.room || undefined, className: form.className || undefined } },
+      { data: { ...form, teacherName: form.teacherName || undefined, room: form.room || undefined, className: form.className || undefined, batch: form.batch || undefined } },
       {
         onSuccess: () => { toast({ title: "Period যোগ হয়েছে ✓" }); setSheetOpen(false); invalidate(); setForm(EMPTY_FORM); },
         onError: () => toast({ title: "Error হয়েছে", variant: "destructive" }),
@@ -133,27 +183,43 @@ export default function Routine() {
           daySlots.map((slot: any) => (
             <div
               key={slot.id}
-              className="flex items-center gap-3 bg-card border border-border rounded-lg px-4 py-3"
+              className="bg-card border border-border rounded-lg overflow-hidden"
             >
-              <div className="text-xs text-muted-foreground font-mono w-28 shrink-0">
-                {slot.startTime} – {slot.endTime}
+              <div className="flex items-center gap-3 px-4 py-3">
+                <div className="text-xs text-muted-foreground font-mono w-28 shrink-0">
+                  {slot.startTime} – {slot.endTime}
+                </div>
+                <Badge className={cn("shrink-0 text-xs", subjectColor(slot.subject))}>
+                  {slot.subject}
+                </Badge>
+                <div className="flex-1 min-w-0 text-sm text-muted-foreground truncate">
+                  {slot.teacherName && <span className="text-foreground font-medium">{slot.teacherName}</span>}
+                  {slot.room && <span> · Room {slot.room}</span>}
+                  {slot.className && <span> · {slot.className}</span>}
+                  {slot.batch && <span> · {slot.batch}</span>}
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 gap-1.5 text-xs shrink-0"
+                  onClick={() => toggleSeen(slot.id)}
+                >
+                  <Eye className="h-3.5 w-3.5" />
+                  কে দেখেছে?
+                  {openSeenId === slot.id
+                    ? <ChevronUp className="h-3 w-3" />
+                    : <ChevronDown className="h-3 w-3" />}
+                </Button>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="shrink-0 h-8 w-8"
+                  onClick={() => setDeleteId(slot.id)}
+                >
+                  <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                </Button>
               </div>
-              <Badge className={cn("shrink-0 text-xs", subjectColor(slot.subject))}>
-                {slot.subject}
-              </Badge>
-              <div className="flex-1 min-w-0 text-sm text-muted-foreground truncate">
-                {slot.teacherName && <span className="text-foreground font-medium">{slot.teacherName}</span>}
-                {slot.room && <span> · Room {slot.room}</span>}
-                {slot.className && <span> · {slot.className}</span>}
-              </div>
-              <Button
-                size="icon"
-                variant="ghost"
-                className="shrink-0 h-8 w-8"
-                onClick={() => setDeleteId(slot.id)}
-              >
-                <Trash2 className="h-3.5 w-3.5 text-destructive" />
-              </Button>
+              {openSeenId === slot.id && <SeenPanel slotId={slot.id} />}
             </div>
           ))
         )}
@@ -212,12 +278,36 @@ export default function Routine() {
               </div>
               <div className="space-y-1">
                 <Label>ক্লাস</Label>
-                <Input
-                  placeholder="যেমন: Class 9"
+                <Select
                   value={form.className}
-                  onChange={e => setForm(f => ({ ...f, className: e.target.value }))}
-                />
+                  onValueChange={val => setForm(f => ({ ...f, className: val, batch: "" }))}
+                >
+                  <SelectTrigger><SelectValue placeholder="Class বেছে নিন…" /></SelectTrigger>
+                  <SelectContent>
+                    {(classes as any[]).map((c: any) => (
+                      <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
+            </div>
+            <div className="space-y-1">
+              <Label>Batch (ঐচ্ছিক)</Label>
+              <Select
+                value={form.batch}
+                onValueChange={val => setForm(f => ({ ...f, batch: val }))}
+                disabled={availableBatches.length === 0}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={availableBatches.length === 0 ? "আগে Class বেছে নিন" : "Batch বেছে নিন…"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableBatches.map((b: string) => (
+                    <SelectItem key={b} value={b}>{b}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">খালি রাখলে সব batch-এর students এই period দেখবে।</p>
             </div>
           </div>
           <SheetFooter>

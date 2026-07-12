@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useListFees, useCreateFee, useUpdateFee, useListStudents, getListFeesQueryKey } from "@/lib/hooks";
+import { useListFees, useCreateFee, useUpdateFee, useListStudents, useFeeSeen, getListFeesQueryKey } from "@/lib/hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import { trackFeeAdded, trackFeeMarkedPaid } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
@@ -9,8 +9,46 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, CheckCircle } from "lucide-react";
+import { Plus, CheckCircle, Eye, Loader2, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
+function SeenCell({ feeId }: { feeId: string }) {
+  const [open, setOpen] = useState(false);
+  const { data: seen = [], isLoading } = useFeeSeen(open ? feeId : null);
+
+  return (
+    <div className="relative inline-block text-left">
+      <Button size="sm" variant="ghost" className="h-7 gap-1 text-xs" onClick={() => setOpen((v) => !v)}>
+        <Eye className="h-3.5 w-3.5" />
+        {(seen as any[]).length > 0 ? "দেখেছে" : "কে দেখেছে?"}
+      </Button>
+      {open && (
+        <div className="absolute right-0 z-20 mt-1 w-56 rounded-md border bg-popover shadow-md">
+          {isLoading ? (
+            <div className="flex items-center gap-2 py-3 px-3 text-xs text-muted-foreground">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />লোড হচ্ছে…
+            </div>
+          ) : (seen as any[]).length === 0 ? (
+            <div className="py-3 px-3 text-xs text-muted-foreground flex items-center gap-2">
+              <Users className="h-3.5 w-3.5" />এখনো দেখেনি
+            </div>
+          ) : (
+            <div className="divide-y">
+              {(seen as any[]).map((s: any) => (
+                <div key={s.uid} className="px-3 py-2 text-xs">
+                  <div className="font-medium">{s.name ?? "—"}</div>
+                  <div className="text-muted-foreground">
+                    {new Date(s.seenAt).toLocaleString("en-BD", { dateStyle: "short", timeStyle: "short" })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function Fees() {
   const [filterStatus, setFilterStatus] = useState("");
@@ -67,12 +105,13 @@ export default function Fees() {
               <TableHead>Amount</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Paid At</TableHead>
+              <TableHead>Seen</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading ? Array.from({ length: 5 }).map((_, i) => <TableRow key={i}><TableCell colSpan={6} className="h-12 animate-pulse bg-muted/30" /></TableRow>)
-              : (fees as any[]).length === 0 ? <TableRow><TableCell colSpan={6} className="text-center py-10 text-muted-foreground">No fee records</TableCell></TableRow>
+            {isLoading ? Array.from({ length: 5 }).map((_, i) => <TableRow key={i}><TableCell colSpan={7} className="h-12 animate-pulse bg-muted/30" /></TableRow>)
+              : (fees as any[]).length === 0 ? <TableRow><TableCell colSpan={7} className="text-center py-10 text-muted-foreground">No fee records</TableCell></TableRow>
               : (fees as any[]).map((f: any) => (
                 <TableRow key={f.id}>
                   <TableCell className="font-medium">{f.studentName}</TableCell>
@@ -80,6 +119,7 @@ export default function Fees() {
                   <TableCell>৳{f.amount.toLocaleString()}</TableCell>
                   <TableCell><Badge variant={f.status === "paid" ? "default" : "secondary"}>{f.status}</Badge></TableCell>
                   <TableCell className="text-muted-foreground">{f.paidAt ? new Date(f.paidAt).toLocaleDateString("en-BD") : "—"}</TableCell>
+                  <TableCell><SeenCell feeId={f.id} /></TableCell>
                   <TableCell className="text-right">
                     {f.status === "pending" && (
                       <Button size="sm" variant="outline" onClick={() => markPaid(f.id)}>

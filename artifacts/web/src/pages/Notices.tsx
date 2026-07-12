@@ -1,16 +1,18 @@
 import { useState } from "react";
 import { useListNotices, useCreateNotice, useDeleteNotice, useNoticeSeen, getListNoticesQueryKey } from "@/lib/hooks";
+import { useListClasses } from "@/lib/class-hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import { trackNoticeCreated } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Eye, ChevronDown, ChevronUp, Loader2, Users } from "lucide-react";
+import { Plus, Trash2, Eye, ChevronDown, ChevronUp, Loader2, Users, GraduationCap } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 // ── Seen Panel (per-notice) ───────────────────────────────────────────────────
@@ -60,15 +62,21 @@ function SeenPanel({ noticeId }: { noticeId: string }) {
 export default function Notices() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [form, setForm] = useState({ title: "", content: "" });
+  const [form, setForm] = useState({ title: "", content: "", batch: "" });
   const [openSeenId, setOpenSeenId] = useState<string | null>(null);
   const { toast } = useToast();
   const qc = useQueryClient();
 
   const { data: notices = [], isLoading } = useListNotices();
+  const { data: classes = [] } = useListClasses();
   const createNotice = useCreateNotice();
   const deleteNotice = useDeleteNotice();
   const invalidate = () => qc.invalidateQueries({ queryKey: getListNoticesQueryKey() });
+
+  // All distinct batches across every class — notices are targeted by batch, not class.
+  const availableBatches: string[] = Array.from(
+    new Set((classes as any[]).flatMap((c: any) => (Array.isArray(c.batches) ? c.batches : []))),
+  );
 
   function handleAdd() {
     if (!form.title.trim() || !form.content.trim()) {
@@ -76,14 +84,14 @@ export default function Notices() {
       return;
     }
     createNotice.mutate(
-      { data: form },
+      { data: { title: form.title, content: form.content, batch: form.batch || null } },
       {
         onSuccess: () => {
           trackNoticeCreated();
           toast({ title: "Notice post হয়েছে" });
           setSheetOpen(false);
           invalidate();
-          setForm({ title: "", content: "" });
+          setForm({ title: "", content: "", batch: "" });
         },
         onError: () => toast({ title: "Error", variant: "destructive" }),
       },
@@ -122,7 +130,14 @@ export default function Notices() {
           [...(notices as any[])].map((n: any) => (
             <Card key={n.id} className="overflow-hidden">
               <CardHeader className="pb-2 flex flex-row items-start justify-between gap-2">
-                <CardTitle className="text-base leading-snug">{n.title}</CardTitle>
+                <div className="space-y-1.5 min-w-0">
+                  <CardTitle className="text-base leading-snug">{n.title}</CardTitle>
+                  {n.batch && (
+                    <Badge variant="outline" className="text-xs gap-1">
+                      <GraduationCap className="h-3 w-3" />{n.batch}
+                    </Badge>
+                  )}
+                </div>
                 <div className="flex items-center gap-1 shrink-0">
                   {/* Seen button */}
                   <Button
@@ -173,6 +188,20 @@ export default function Notices() {
             <div className="space-y-1">
               <Label>Content</Label>
               <Textarea rows={5} value={form.content} onChange={e => setForm(f => ({ ...f, content: e.target.value }))} placeholder="বিস্তারিত লিখুন…" />
+            </div>
+            <div className="space-y-1">
+              <Label>Batch (ঐচ্ছিক)</Label>
+              <Select value={form.batch} onValueChange={val => setForm(f => ({ ...f, batch: val }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="সব Batch (default)" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableBatches.map((b: string) => (
+                    <SelectItem key={b} value={b}>{b}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">খালি রাখলে notice সব batch-এর students দেখবে।</p>
             </div>
           </div>
           <SheetFooter>

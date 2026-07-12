@@ -1,5 +1,9 @@
 import { useState, useEffect } from "react";
-import { useMyFees, useMyAttendance, useMyResults, useListExams, useListRoutine, useListNotices, useMarkNoticeSeen, useListHomework, useMarkHomeworkSeen } from "@/lib/hooks";
+import {
+  useMyFees, useMyAttendance, useMyResults, useListExams, useListRoutine, useListNotices,
+  useMarkNoticeSeen, useListHomework, useMarkHomeworkSeen, useMyStudentRecord, filterByMyBatch,
+  useMarkRoutineSeen, useMarkExamSeen, useMarkFeeSeen,
+} from "@/lib/hooks";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -24,12 +28,25 @@ export default function StudentPortal() {
   const { data: fees = [], isLoading: feesLoading } = useMyFees();
   const { data: attendance = [], isLoading: attLoading } = useMyAttendance();
   const { data: results = [], isLoading: resLoading } = useMyResults();
-  const { data: exams = [] } = useListExams();
-  const { data: routine = [], isLoading: routineLoading } = useListRoutine();
-  const { data: notices = [], isLoading: noticesLoading } = useListNotices();
-  const { data: homework = [], isLoading: hwLoading } = useListHomework();
+  const { data: myStudent } = useMyStudentRecord();
+  const myBatch: string | null = myStudent?.batch ?? null;
+  const { data: allExams = [] } = useListExams();
+  const { data: allRoutine = [], isLoading: routineLoading } = useListRoutine();
+  const { data: allNotices = [], isLoading: noticesLoading } = useListNotices();
+  const { data: allHomework = [], isLoading: hwLoading } = useListHomework();
+
+  // Students only see routine/homework/notices/exams that belong to their own batch
+  // (items with no batch set are treated as visible to everyone).
+  const exams = filterByMyBatch(allExams as any[], myBatch);
+  const routine = filterByMyBatch(allRoutine as any[], myBatch);
+  const notices = filterByMyBatch(allNotices as any[], myBatch);
+  const homework = filterByMyBatch(allHomework as any[], myBatch);
+
   const markNoticeSeen = useMarkNoticeSeen();
   const markHwSeen = useMarkHomeworkSeen();
+  const markRoutineSeen = useMarkRoutineSeen();
+  const markExamSeen = useMarkExamSeen();
+  const markFeeSeen = useMarkFeeSeen();
 
   // Auto-mark all notices as seen when student opens the Notices tab
   useEffect(() => {
@@ -50,6 +67,36 @@ export default function StudentPortal() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, (homework as any[]).length]);
+
+  // Auto-mark all routine slots as seen when student opens the Routine tab
+  useEffect(() => {
+    if (activeTab === "routine" && (routine as any[]).length > 0) {
+      (routine as any[]).forEach((slot: any) => {
+        markRoutineSeen.mutate({ slotId: slot.id });
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, (routine as any[]).length]);
+
+  // Auto-mark all exams as seen when student opens the Results tab (where exams are shown)
+  useEffect(() => {
+    if (activeTab === "results" && (exams as any[]).length > 0) {
+      (exams as any[]).forEach((ex: any) => {
+        markExamSeen.mutate({ examId: ex.id });
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, (exams as any[]).length]);
+
+  // Auto-mark all fee records as seen when student opens the Fees tab
+  useEffect(() => {
+    if (activeTab === "fees" && (fees as any[]).length > 0) {
+      (fees as any[]).forEach((f: any) => {
+        markFeeSeen.mutate({ feeId: f.id });
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, (fees as any[]).length]);
 
   const paidFees = (fees as any[]).filter((f) => f.status === "paid");
   const pendingFees = (fees as any[]).filter((f) => f.status === "pending");
