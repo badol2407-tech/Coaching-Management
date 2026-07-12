@@ -108,12 +108,20 @@ export function useMyStudentRecord() {
 }
 
 /**
- * Given a list of items that may carry an optional `batch` field, keep only items with
- * no batch set (visible to everyone) or a batch matching the student's own batch.
+ * Given a list of items that may carry optional `className`/`batch` fields, keep only items
+ * whose class and batch (each, if set) match the student's own class/batch. An item with no
+ * className/batch set on that field is treated as visible to everyone for that field.
  */
-export function filterByMyBatch<T extends { batch?: string | null }>(items: T[], myBatch?: string | null): T[] {
-  if (!myBatch) return items;
-  return items.filter((item) => !item.batch || item.batch === myBatch);
+export function filterByMyClassAndBatch<T extends { className?: string | null; batch?: string | null }>(
+  items: T[],
+  myClassName?: string | null,
+  myBatch?: string | null,
+): T[] {
+  return items.filter((item) => {
+    const classOk = !item.className || item.className === myClassName;
+    const batchOk = !item.batch || item.batch === myBatch;
+    return classOk && batchOk;
+  });
 }
 
 // ── Teachers ──────────────────────────────────────────────────────────────────

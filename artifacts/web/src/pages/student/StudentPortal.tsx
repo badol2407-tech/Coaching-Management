@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import {
   useMyFees, useMyAttendance, useMyResults, useListExams, useListRoutine, useListNotices,
-  useMarkNoticeSeen, useListHomework, useMarkHomeworkSeen, useMyStudentRecord, filterByMyBatch,
+  useMarkNoticeSeen, useListHomework, useMarkHomeworkSeen, useMyStudentRecord, filterByMyClassAndBatch,
   useMarkRoutineSeen, useMarkExamSeen, useMarkFeeSeen,
 } from "@/lib/hooks";
 import { useAuth } from "@/contexts/AuthContext";
@@ -29,18 +29,19 @@ export default function StudentPortal() {
   const { data: attendance = [], isLoading: attLoading } = useMyAttendance();
   const { data: results = [], isLoading: resLoading } = useMyResults();
   const { data: myStudent } = useMyStudentRecord();
+  const myClassName: string | null = myStudent?.className ?? null;
   const myBatch: string | null = myStudent?.batch ?? null;
   const { data: allExams = [] } = useListExams();
   const { data: allRoutine = [], isLoading: routineLoading } = useListRoutine();
   const { data: allNotices = [], isLoading: noticesLoading } = useListNotices();
   const { data: allHomework = [], isLoading: hwLoading } = useListHomework();
 
-  // Students only see routine/homework/notices/exams that belong to their own batch
-  // (items with no batch set are treated as visible to everyone).
-  const exams = filterByMyBatch(allExams as any[], myBatch);
-  const routine = filterByMyBatch(allRoutine as any[], myBatch);
-  const notices = filterByMyBatch(allNotices as any[], myBatch);
-  const homework = filterByMyBatch(allHomework as any[], myBatch);
+  // Students only see routine/homework/notices/exams that belong to their own class + batch
+  // (items with no class/batch set are treated as visible to everyone for that field).
+  const exams = filterByMyClassAndBatch(allExams as any[], myClassName, myBatch);
+  const routine = filterByMyClassAndBatch(allRoutine as any[], myClassName, myBatch);
+  const notices = filterByMyClassAndBatch(allNotices as any[], myClassName, myBatch);
+  const homework = filterByMyClassAndBatch(allHomework as any[], myClassName, myBatch);
 
   const markNoticeSeen = useMarkNoticeSeen();
   const markHwSeen = useMarkHomeworkSeen();

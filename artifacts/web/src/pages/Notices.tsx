@@ -62,7 +62,7 @@ function SeenPanel({ noticeId }: { noticeId: string }) {
 export default function Notices() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [form, setForm] = useState({ title: "", content: "", batch: "" });
+  const [form, setForm] = useState({ title: "", content: "", className: "", batch: "" });
   const [openSeenId, setOpenSeenId] = useState<string | null>(null);
   const { toast } = useToast();
   const qc = useQueryClient();
@@ -73,10 +73,8 @@ export default function Notices() {
   const deleteNotice = useDeleteNotice();
   const invalidate = () => qc.invalidateQueries({ queryKey: getListNoticesQueryKey() });
 
-  // All distinct batches across every class — notices are targeted by batch, not class.
-  const availableBatches: string[] = Array.from(
-    new Set((classes as any[]).flatMap((c: any) => (Array.isArray(c.batches) ? c.batches : []))),
-  );
+  const selectedClass = (classes as any[]).find((c: any) => c.name === form.className);
+  const availableBatches: string[] = selectedClass?.batches ?? [];
 
   function handleAdd() {
     if (!form.title.trim() || !form.content.trim()) {
@@ -84,14 +82,14 @@ export default function Notices() {
       return;
     }
     createNotice.mutate(
-      { data: { title: form.title, content: form.content, batch: form.batch || null } },
+      { data: { title: form.title, content: form.content, className: form.className || null, batch: form.batch || null } },
       {
         onSuccess: () => {
           trackNoticeCreated();
           toast({ title: "Notice post হয়েছে" });
           setSheetOpen(false);
           invalidate();
-          setForm({ title: "", content: "", batch: "" });
+          setForm({ title: "", content: "", className: "", batch: "" });
         },
         onError: () => toast({ title: "Error", variant: "destructive" }),
       },
@@ -132,11 +130,16 @@ export default function Notices() {
               <CardHeader className="pb-2 flex flex-row items-start justify-between gap-2">
                 <div className="space-y-1.5 min-w-0">
                   <CardTitle className="text-base leading-snug">{n.title}</CardTitle>
-                  {n.batch && (
-                    <Badge variant="outline" className="text-xs gap-1">
-                      <GraduationCap className="h-3 w-3" />{n.batch}
-                    </Badge>
-                  )}
+                  <div className="flex flex-wrap gap-1.5">
+                    {n.className && (
+                      <Badge variant="outline" className="text-xs gap-1">
+                        <GraduationCap className="h-3 w-3" />{n.className}
+                      </Badge>
+                    )}
+                    {n.batch && (
+                      <Badge variant="outline" className="text-xs">{n.batch}</Badge>
+                    )}
+                  </div>
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
                   {/* Seen button */}
@@ -190,10 +193,30 @@ export default function Notices() {
               <Textarea rows={5} value={form.content} onChange={e => setForm(f => ({ ...f, content: e.target.value }))} placeholder="বিস্তারিত লিখুন…" />
             </div>
             <div className="space-y-1">
-              <Label>Batch (ঐচ্ছিক)</Label>
-              <Select value={form.batch} onValueChange={val => setForm(f => ({ ...f, batch: val }))}>
+              <Label>Class (ঐচ্ছিক)</Label>
+              <Select
+                value={form.className}
+                onValueChange={val => setForm(f => ({ ...f, className: val, batch: "" }))}
+              >
                 <SelectTrigger>
-                  <SelectValue placeholder="সব Batch (default)" />
+                  <SelectValue placeholder="সব Class (default)" />
+                </SelectTrigger>
+                <SelectContent>
+                  {(classes as any[]).map((c: any) => (
+                    <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label>Batch (ঐচ্ছিক)</Label>
+              <Select
+                value={form.batch}
+                onValueChange={val => setForm(f => ({ ...f, batch: val }))}
+                disabled={availableBatches.length === 0}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={availableBatches.length === 0 ? "আগে Class বেছে নিন" : "সব Batch (default)"} />
                 </SelectTrigger>
                 <SelectContent>
                   {availableBatches.map((b: string) => (
@@ -201,7 +224,7 @@ export default function Notices() {
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">খালি রাখলে notice সব batch-এর students দেখবে।</p>
+              <p className="text-xs text-muted-foreground">খালি রাখলে notice সব class/batch-এর students দেখবে।</p>
             </div>
           </div>
           <SheetFooter>
