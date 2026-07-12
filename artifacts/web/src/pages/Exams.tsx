@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Plus, ChevronRight, ArrowLeft, Eye, ChevronDown, ChevronUp, Loader2, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { SECTION_OPTIONS } from "@/lib/constants";
 
 type Exam = { id: string; title: string; subject?: string | null; date: string; totalMarks: number; batch?: string | null };
 
@@ -59,7 +60,7 @@ export default function Exams() {
   const [selectedExam, setSelectedExam] = useState<Exam | null>(null);
   const [examSheetOpen, setExamSheetOpen] = useState(false);
   const [resultSheetOpen, setResultSheetOpen] = useState(false);
-  const [examForm, setExamForm] = useState({ title: "", subject: "", date: new Date().toISOString().split("T")[0], totalMarks: "100", batch: "" });
+  const [examForm, setExamForm] = useState({ title: "", subject: "", date: new Date().toISOString().split("T")[0], totalMarks: "100", className: "", section: "", batch: "" });
   const [resultForm, setResultForm] = useState({ studentId: "", marksObtained: "", grade: "" });
   const [openSeenId, setOpenSeenId] = useState<string | null>(null);
   const { toast } = useToast();
@@ -71,30 +72,39 @@ export default function Exams() {
   const createExam = useCreateExam();
   const createResult = useCreateResult();
 
-  const availableBatches: string[] = Array.from(
-    new Set((classes as any[]).flatMap((c: any) => (Array.isArray(c.batches) ? c.batches : []))),
-  );
+  const selectedExamFormClass = (classes as any[]).find((c: any) => c.name === examForm.className);
+  const availableBatches: string[] = selectedExamFormClass?.batches ?? [];
+
+  function handleExamClassChange(val: string) {
+    setExamForm((f) => ({ ...f, className: val, batch: "" }));
+  }
 
   function toggleSeen(id: string) {
     setOpenSeenId((prev) => (prev === id ? null : id));
   }
 
   function handleAddExam() {
-    if (!examForm.title || !examForm.date) { toast({ title: "Fill required fields", variant: "destructive" }); return; }
+    if (!examForm.title || !examForm.subject || !examForm.date || !examForm.totalMarks || !examForm.className || !examForm.section || !examForm.batch) {
+      toast({ title: "সব ঘর পূরণ করুন (All fields are required)", variant: "destructive" });
+      return;
+    }
     createExam.mutate(
-      { data: { title: examForm.title, subject: examForm.subject || null, date: examForm.date, totalMarks: Number(examForm.totalMarks), batch: examForm.batch || null } },
+      { data: { title: examForm.title, subject: examForm.subject, date: examForm.date, totalMarks: Number(examForm.totalMarks), className: examForm.className, section: examForm.section, batch: examForm.batch } },
       {
-        onSuccess: () => { trackExamCreated(examForm.subject || examForm.title); toast({ title: "Exam created" }); setExamSheetOpen(false); setExamForm({ title: "", subject: "", date: new Date().toISOString().split("T")[0], totalMarks: "100", batch: "" }); },
+        onSuccess: () => { trackExamCreated(examForm.subject || examForm.title); toast({ title: "Exam created" }); setExamSheetOpen(false); setExamForm({ title: "", subject: "", date: new Date().toISOString().split("T")[0], totalMarks: "100", className: "", section: "", batch: "" }); },
         onError: () => toast({ title: "Error", variant: "destructive" }),
       }
     );
   }
 
   function handleAddResult() {
-    if (!selectedExam || !resultForm.studentId || !resultForm.marksObtained) { toast({ title: "Fill required fields", variant: "destructive" }); return; }
+    if (!selectedExam || !resultForm.studentId || !resultForm.marksObtained || !resultForm.grade) {
+      toast({ title: "সব ঘর পূরণ করুন (All fields are required)", variant: "destructive" });
+      return;
+    }
     const student = (students as any[]).find((s: any) => s.id === resultForm.studentId);
     createResult.mutate(
-      { id: selectedExam.id, data: { studentId: resultForm.studentId, studentName: student?.name ?? "", marksObtained: Number(resultForm.marksObtained), grade: resultForm.grade || null } },
+      { id: selectedExam.id, data: { studentId: resultForm.studentId, studentName: student?.name ?? "", marksObtained: Number(resultForm.marksObtained), grade: resultForm.grade } },
       {
         onSuccess: () => { trackResultEntered(); toast({ title: "Result added" }); setResultSheetOpen(false); setResultForm({ studentId: "", marksObtained: "", grade: "" }); },
         onError: () => toast({ title: "Error", variant: "destructive" }),
@@ -135,14 +145,14 @@ export default function Exams() {
           <SheetContent>
             <SheetHeader><SheetTitle>Add Result</SheetTitle></SheetHeader>
             <div className="space-y-4 py-4">
-              <div className="space-y-1"><Label>Student</Label>
+              <div className="space-y-1"><Label>Student <span className="text-destructive">*</span></Label>
                 <Select value={resultForm.studentId} onValueChange={v => setResultForm(f => ({ ...f, studentId: v }))}>
                   <SelectTrigger><SelectValue placeholder="Select student" /></SelectTrigger>
                   <SelectContent>{(students as any[]).map((s: any) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
-              <div className="space-y-1"><Label>Marks Obtained</Label><Input type="number" value={resultForm.marksObtained} onChange={e => setResultForm(f => ({ ...f, marksObtained: e.target.value }))} /></div>
-              <div className="space-y-1"><Label>Grade</Label><Input value={resultForm.grade} onChange={e => setResultForm(f => ({ ...f, grade: e.target.value }))} placeholder="A+, A, B+..." /></div>
+              <div className="space-y-1"><Label>Marks Obtained <span className="text-destructive">*</span></Label><Input type="number" value={resultForm.marksObtained} onChange={e => setResultForm(f => ({ ...f, marksObtained: e.target.value }))} /></div>
+              <div className="space-y-1"><Label>Grade <span className="text-destructive">*</span></Label><Input value={resultForm.grade} onChange={e => setResultForm(f => ({ ...f, grade: e.target.value }))} placeholder="A+, A, B+..." /></div>
             </div>
             <SheetFooter><Button onClick={handleAddResult} disabled={createResult.isPending}>Add Result</Button></SheetFooter>
           </SheetContent>
@@ -168,7 +178,11 @@ export default function Exams() {
                 {e.subject && <p>Subject: {e.subject}</p>}
                 <p>Date: {e.date}</p>
                 <p>Total Marks: {e.totalMarks}</p>
-                {e.batch && <Badge variant="outline" className="text-xs mt-1">{e.batch}</Badge>}
+                <div className="flex flex-wrap gap-1.5 mt-1">
+                  {(e as any).className && <Badge variant="outline" className="text-xs">{(e as any).className}</Badge>}
+                  {(e as any).section && <Badge variant="outline" className="text-xs">{(e as any).section}</Badge>}
+                  {e.batch && <Badge variant="outline" className="text-xs">{e.batch}</Badge>}
+                </div>
               </CardContent>
               <div className="px-6 pb-3">
                 <Button
@@ -192,21 +206,45 @@ export default function Exams() {
         <SheetContent>
           <SheetHeader><SheetTitle>Create Exam</SheetTitle></SheetHeader>
           <div className="space-y-4 py-4">
-            <div className="space-y-1"><Label>Title *</Label><Input value={examForm.title} onChange={e => setExamForm(f => ({ ...f, title: e.target.value }))} /></div>
-            <div className="space-y-1"><Label>Subject</Label><Input value={examForm.subject} onChange={e => setExamForm(f => ({ ...f, subject: e.target.value }))} /></div>
-            <div className="space-y-1"><Label>Date *</Label><Input type="date" value={examForm.date} onChange={e => setExamForm(f => ({ ...f, date: e.target.value }))} /></div>
-            <div className="space-y-1"><Label>Total Marks</Label><Input type="number" value={examForm.totalMarks} onChange={e => setExamForm(f => ({ ...f, totalMarks: e.target.value }))} /></div>
+            <div className="space-y-1"><Label>Title <span className="text-destructive">*</span></Label><Input value={examForm.title} onChange={e => setExamForm(f => ({ ...f, title: e.target.value }))} /></div>
+            <div className="space-y-1"><Label>Subject <span className="text-destructive">*</span></Label><Input value={examForm.subject} onChange={e => setExamForm(f => ({ ...f, subject: e.target.value }))} /></div>
+            <div className="space-y-1"><Label>Date <span className="text-destructive">*</span></Label><Input type="date" value={examForm.date} onChange={e => setExamForm(f => ({ ...f, date: e.target.value }))} /></div>
+            <div className="space-y-1"><Label>Total Marks <span className="text-destructive">*</span></Label><Input type="number" value={examForm.totalMarks} onChange={e => setExamForm(f => ({ ...f, totalMarks: e.target.value }))} /></div>
+            {/* Class */}
             <div className="space-y-1">
-              <Label>Batch (ঐচ্ছিক)</Label>
-              <Select value={examForm.batch} onValueChange={val => setExamForm(f => ({ ...f, batch: val }))}>
-                <SelectTrigger><SelectValue placeholder="সব Batch (default)" /></SelectTrigger>
+              <Label>Class <span className="text-destructive">*</span></Label>
+              <Select value={examForm.className} onValueChange={handleExamClassChange}>
+                <SelectTrigger><SelectValue placeholder="Select class" /></SelectTrigger>
+                <SelectContent>
+                  {(classes as any[]).map((c: any) => (
+                    <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {/* Section */}
+            <div className="space-y-1">
+              <Label>Section <span className="text-destructive">*</span></Label>
+              <Select value={examForm.section} onValueChange={val => setExamForm(f => ({ ...f, section: val }))}>
+                <SelectTrigger><SelectValue placeholder="Select section" /></SelectTrigger>
+                <SelectContent>
+                  {SECTION_OPTIONS.map((s) => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {/* Batch */}
+            <div className="space-y-1">
+              <Label>Batch <span className="text-destructive">*</span></Label>
+              <Select value={examForm.batch} onValueChange={val => setExamForm(f => ({ ...f, batch: val }))} disabled={!examForm.className}>
+                <SelectTrigger><SelectValue placeholder="Select batch" /></SelectTrigger>
                 <SelectContent>
                   {availableBatches.map((b: string) => (
                     <SelectItem key={b} value={b}>{b}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">খালি রাখলে সব batch-এর students এই exam দেখবে।</p>
             </div>
           </div>
           <SheetFooter><Button onClick={handleAddExam} disabled={createExam.isPending}>Create Exam</Button></SheetFooter>

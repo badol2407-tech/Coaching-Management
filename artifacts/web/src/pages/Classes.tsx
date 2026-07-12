@@ -11,6 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Pencil, Trash2, BookOpen, Loader2, X, CalendarClock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { SECTION_OPTIONS } from "@/lib/constants";
 
 type ClassForm = {
   name: string;
@@ -22,8 +23,6 @@ type ClassForm = {
   batches: string[];
 };
 const empty: ClassForm = { name: "", section: "", teacher: "", room: "", schedule: "", studentCount: "", batches: [] };
-
-const SECTION_OPTIONS = ["Science", "Commerce", "Arts", "General"];
 
 const WEEK_DAYS = [
   { value: "Sat", label: "শনি" },

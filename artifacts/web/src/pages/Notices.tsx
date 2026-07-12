@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Trash2, Eye, ChevronDown, ChevronUp, Loader2, Users, GraduationCap } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { SECTION_OPTIONS } from "@/lib/constants";
 
 // ── Seen Panel (per-notice) ───────────────────────────────────────────────────
 
@@ -62,7 +63,7 @@ function SeenPanel({ noticeId }: { noticeId: string }) {
 export default function Notices() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [form, setForm] = useState({ title: "", content: "", className: "", batch: "" });
+  const [form, setForm] = useState({ title: "", content: "", className: "", section: "", batch: "" });
   const [openSeenId, setOpenSeenId] = useState<string | null>(null);
   const { toast } = useToast();
   const qc = useQueryClient();
@@ -76,20 +77,24 @@ export default function Notices() {
   const selectedClass = (classes as any[]).find((c: any) => c.name === form.className);
   const availableBatches: string[] = selectedClass?.batches ?? [];
 
+  function handleClassChange(val: string) {
+    setForm((f) => ({ ...f, className: val, batch: "" }));
+  }
+
   function handleAdd() {
-    if (!form.title.trim() || !form.content.trim()) {
-      toast({ title: "Title ও Content দিন", variant: "destructive" });
+    if (!form.title.trim() || !form.content.trim() || !form.className || !form.section || !form.batch) {
+      toast({ title: "সব ঘর পূরণ করুন (All fields are required)", variant: "destructive" });
       return;
     }
     createNotice.mutate(
-      { data: { title: form.title, content: form.content, className: form.className || null, batch: form.batch || null } },
+      { data: { title: form.title, content: form.content, className: form.className, section: form.section, batch: form.batch } },
       {
         onSuccess: () => {
           trackNoticeCreated();
           toast({ title: "Notice post হয়েছে" });
           setSheetOpen(false);
           invalidate();
-          setForm({ title: "", content: "", className: "", batch: "" });
+          setForm({ title: "", content: "", className: "", section: "", batch: "" });
         },
         onError: () => toast({ title: "Error", variant: "destructive" }),
       },
@@ -135,6 +140,9 @@ export default function Notices() {
                       <Badge variant="outline" className="text-xs gap-1">
                         <GraduationCap className="h-3 w-3" />{n.className}
                       </Badge>
+                    )}
+                    {n.section && (
+                      <Badge variant="outline" className="text-xs">{n.section}</Badge>
                     )}
                     {n.batch && (
                       <Badge variant="outline" className="text-xs">{n.batch}</Badge>
@@ -193,13 +201,13 @@ export default function Notices() {
               <Textarea rows={5} value={form.content} onChange={e => setForm(f => ({ ...f, content: e.target.value }))} placeholder="বিস্তারিত লিখুন…" />
             </div>
             <div className="space-y-1">
-              <Label>Class (ঐচ্ছিক)</Label>
+              <Label>Class <span className="text-destructive">*</span></Label>
               <Select
                 value={form.className}
-                onValueChange={val => setForm(f => ({ ...f, className: val, batch: "" }))}
+                onValueChange={handleClassChange}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="সব Class (default)" />
+                  <SelectValue placeholder="Class বেছে নিন" />
                 </SelectTrigger>
                 <SelectContent>
                   {(classes as any[]).map((c: any) => (
@@ -209,14 +217,30 @@ export default function Notices() {
               </Select>
             </div>
             <div className="space-y-1">
-              <Label>Batch (ঐচ্ছিক)</Label>
+              <Label>Section <span className="text-destructive">*</span></Label>
+              <Select
+                value={form.section}
+                onValueChange={val => setForm(f => ({ ...f, section: val }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Section বেছে নিন" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SECTION_OPTIONS.map((s) => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label>Batch <span className="text-destructive">*</span></Label>
               <Select
                 value={form.batch}
                 onValueChange={val => setForm(f => ({ ...f, batch: val }))}
                 disabled={availableBatches.length === 0}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={availableBatches.length === 0 ? "আগে Class বেছে নিন" : "সব Batch (default)"} />
+                  <SelectValue placeholder={availableBatches.length === 0 ? "আগে Class বেছে নিন" : "Batch বেছে নিন"} />
                 </SelectTrigger>
                 <SelectContent>
                   {availableBatches.map((b: string) => (
@@ -224,7 +248,6 @@ export default function Notices() {
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">খালি রাখলে notice সব class/batch-এর students দেখবে।</p>
             </div>
           </div>
           <SheetFooter>

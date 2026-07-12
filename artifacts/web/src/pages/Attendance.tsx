@@ -11,9 +11,9 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { SECTION_OPTIONS } from "@/lib/constants";
 
 const statusColor: Record<string, string> = { present: "default", absent: "destructive", late: "secondary" };
-const SECTION_OPTIONS = ["Science", "Commerce", "Arts", "General"];
 
 export default function Attendance() {
   const today = new Date().toISOString().split("T")[0];

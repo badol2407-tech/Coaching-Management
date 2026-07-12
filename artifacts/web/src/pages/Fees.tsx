@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useListFees, useCreateFee, useUpdateFee, useListStudents, useFeeSeen, getListFeesQueryKey } from "@/lib/hooks";
+import { useListClasses } from "@/lib/class-hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import { trackFeeAdded, trackFeeMarkedPaid } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,9 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, CheckCircle, Eye, Loader2, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { SECTION_OPTIONS } from "@/lib/constants";
+
+const emptyFeeForm = { className: "", section: "", batch: "", studentId: "", amount: "1500", month: new Date().toISOString().slice(0, 7), status: "pending" };
 
 function SeenCell({ feeId }: { feeId: string }) {
   const [open, setOpen] = useState(false);
@@ -53,23 +57,50 @@ function SeenCell({ feeId }: { feeId: string }) {
 export default function Fees() {
   const [filterStatus, setFilterStatus] = useState("");
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [form, setForm] = useState({ studentId: "", amount: "1500", month: new Date().toISOString().slice(0, 7), status: "pending" });
+  const [form, setForm] = useState(emptyFeeForm);
   const { toast } = useToast();
   const qc = useQueryClient();
 
   const { data: fees = [], isLoading } = useListFees({ status: filterStatus || undefined });
   const { data: students = [] } = useListStudents();
+  const { data: classes = [] } = useListClasses();
   const createFee = useCreateFee();
   const updateFee = useUpdateFee();
   const invalidate = () => qc.invalidateQueries({ queryKey: getListFeesQueryKey() });
 
+  const selectedClass = (classes as any[]).find((c: any) => c.name === form.className);
+  const availableBatches: string[] = selectedClass?.batches ?? [];
+
+  const eligibleStudents = useMemo(
+    () =>
+      (students as any[]).filter(
+        (s: any) => s.className === form.className && s.section === form.section && s.batch === form.batch
+      ),
+    [students, form.className, form.section, form.batch]
+  );
+
+  function handleClassChange(val: string) {
+    setForm((f) => ({ ...f, className: val, batch: "", studentId: "" }));
+  }
+
+  function handleSectionChange(val: string) {
+    setForm((f) => ({ ...f, section: val, studentId: "" }));
+  }
+
+  function handleBatchChange(val: string) {
+    setForm((f) => ({ ...f, batch: val, studentId: "" }));
+  }
+
   function handleAdd() {
-    if (!form.studentId || !form.amount || !form.month) { toast({ title: "Fill all fields", variant: "destructive" }); return; }
+    if (!form.className || !form.section || !form.batch || !form.studentId || !form.amount || !form.month || !form.status) {
+      toast({ title: "সব ঘর পূরণ করুন (All fields are required)", variant: "destructive" });
+      return;
+    }
     const student = (students as any[]).find((s: any) => s.id === form.studentId);
     createFee.mutate(
-      { data: { studentId: form.studentId, studentName: student?.name ?? "", amount: Number(form.amount), month: form.month, status: form.status } },
+      { data: { studentId: form.studentId, studentName: student?.name ?? "", className: form.className, section: form.section, batch: form.batch, amount: Number(form.amount), month: form.month, status: form.status } },
       {
-        onSuccess: () => { trackFeeAdded(Number(form.amount), form.month); toast({ title: "Fee added" }); setSheetOpen(false); invalidate(); setForm({ studentId: "", amount: "1500", month: new Date().toISOString().slice(0, 7), status: "pending" }); },
+        onSuccess: () => { trackFeeAdded(Number(form.amount), form.month); toast({ title: "Fee added" }); setSheetOpen(false); invalidate(); setForm(emptyFeeForm); },
         onError: () => toast({ title: "Error", variant: "destructive" }),
       }
     );
@@ -137,23 +168,59 @@ export default function Fees() {
         <SheetContent>
           <SheetHeader><SheetTitle>Add Fee Record</SheetTitle></SheetHeader>
           <div className="space-y-4 py-4">
+            {/* Class */}
             <div className="space-y-1">
-              <Label>Student</Label>
-              <Select value={form.studentId} onValueChange={v => setForm(f => ({ ...f, studentId: v }))}>
-                <SelectTrigger><SelectValue placeholder="Select student" /></SelectTrigger>
-                <SelectContent>{(students as any[]).map((s: any) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}</SelectContent>
+              <Label>Class <span className="text-destructive">*</span></Label>
+              <Select value={form.className} onValueChange={handleClassChange}>
+                <SelectTrigger><SelectValue placeholder="Select class" /></SelectTrigger>
+                <SelectContent>
+                  {(classes as any[]).map((c: any) => (
+                    <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {/* Section */}
+            <div className="space-y-1">
+              <Label>Section <span className="text-destructive">*</span></Label>
+              <Select value={form.section} onValueChange={handleSectionChange}>
+                <SelectTrigger><SelectValue placeholder="Select section" /></SelectTrigger>
+                <SelectContent>
+                  {SECTION_OPTIONS.map((s) => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {/* Batch */}
+            <div className="space-y-1">
+              <Label>Batch <span className="text-destructive">*</span></Label>
+              <Select value={form.batch} onValueChange={handleBatchChange} disabled={!form.className}>
+                <SelectTrigger><SelectValue placeholder="Select batch" /></SelectTrigger>
+                <SelectContent>
+                  {availableBatches.map((b: string) => (
+                    <SelectItem key={b} value={b}>{b}</SelectItem>
+                  ))}
+                </SelectContent>
               </Select>
             </div>
             <div className="space-y-1">
-              <Label>Month (YYYY-MM)</Label>
+              <Label>Student <span className="text-destructive">*</span></Label>
+              <Select value={form.studentId} onValueChange={v => setForm(f => ({ ...f, studentId: v }))} disabled={!form.batch}>
+                <SelectTrigger><SelectValue placeholder="Select student" /></SelectTrigger>
+                <SelectContent>{eligibleStudents.map((s: any) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label>Month (YYYY-MM) <span className="text-destructive">*</span></Label>
               <Input type="month" value={form.month} onChange={e => setForm(f => ({ ...f, month: e.target.value }))} />
             </div>
             <div className="space-y-1">
-              <Label>Amount (৳)</Label>
+              <Label>Amount (৳) <span className="text-destructive">*</span></Label>
               <Input type="number" value={form.amount} onChange={e => setForm(f => ({ ...f, amount: e.target.value }))} />
             </div>
             <div className="space-y-1">
-              <Label>Status</Label>
+              <Label>Status <span className="text-destructive">*</span></Label>
               <Select value={form.status} onValueChange={v => setForm(f => ({ ...f, status: v }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent><SelectItem value="pending">Pending</SelectItem><SelectItem value="paid">Paid</SelectItem></SelectContent>

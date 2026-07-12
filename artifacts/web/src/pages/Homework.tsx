@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Trash2, Eye, ChevronDown, ChevronUp, Loader2, Users, BookOpen, CalendarClock, GraduationCap } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { SECTION_OPTIONS } from "@/lib/constants";
 
 function SeenPanel({ homeworkId }: { homeworkId: string }) {
   const { data: seen = [], isLoading } = useHomeworkSeen(homeworkId);
@@ -58,7 +59,7 @@ function SeenPanel({ homeworkId }: { homeworkId: string }) {
 export default function Homework() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [form, setForm] = useState({ title: "", subject: "", description: "", dueDate: "", className: "", batch: "" });
+  const [form, setForm] = useState({ title: "", subject: "", description: "", dueDate: "", className: "", section: "", batch: "" });
   const [openSeenId, setOpenSeenId] = useState<string | null>(null);
   const { toast } = useToast();
   const qc = useQueryClient();
@@ -73,20 +74,25 @@ export default function Homework() {
   const selectedClass = (classes as any[]).find((c: any) => c.name === form.className);
   const availableBatches: string[] = selectedClass?.batches ?? [];
 
+  function handleClassChange(val: string) {
+    setForm((f) => ({ ...f, className: val, batch: "" }));
+  }
+
   function handleAdd() {
-    if (!form.title.trim() || !form.description.trim()) {
-      toast({ title: "Title ও Description দিন", variant: "destructive" });
+    if (!form.title.trim() || !form.subject.trim() || !form.description.trim() || !form.dueDate || !form.className || !form.section || !form.batch) {
+      toast({ title: "সব ঘর পূরণ করুন (All fields are required)", variant: "destructive" });
       return;
     }
     createHomework.mutate(
       {
         data: {
           title: form.title,
-          subject: form.subject || null,
+          subject: form.subject,
           description: form.description,
-          dueDate: form.dueDate || null,
-          className: form.className || null,
-          batch: form.batch || null,
+          dueDate: form.dueDate,
+          className: form.className,
+          section: form.section,
+          batch: form.batch,
         },
       },
       {
@@ -94,7 +100,7 @@ export default function Homework() {
           toast({ title: "Homework দেওয়া হয়েছে" });
           setSheetOpen(false);
           invalidate();
-          setForm({ title: "", subject: "", description: "", dueDate: "", className: "", batch: "" });
+          setForm({ title: "", subject: "", description: "", dueDate: "", className: "", section: "", batch: "" });
         },
         onError: (err: any) => toast({ title: "Error: " + (err?.message ?? "সমস্যা হয়েছে"), variant: "destructive" }),
       },
@@ -146,6 +152,9 @@ export default function Homework() {
                       <Badge variant="outline" className="text-xs gap-1">
                         <GraduationCap className="h-3 w-3" />{hw.className}
                       </Badge>
+                    )}
+                    {hw.section && (
+                      <Badge variant="outline" className="text-xs">{hw.section}</Badge>
                     )}
                     {hw.batch && (
                       <Badge variant="outline" className="text-xs">{hw.batch}</Badge>
@@ -199,26 +208,26 @@ export default function Homework() {
           <SheetHeader><SheetTitle>Homework দিন</SheetTitle></SheetHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-1">
-              <Label>Title *</Label>
+              <Label>Title <span className="text-destructive">*</span></Label>
               <Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Homework-এর বিষয়" />
             </div>
             <div className="space-y-1">
-              <Label>Subject</Label>
+              <Label>Subject <span className="text-destructive">*</span></Label>
               <Input value={form.subject} onChange={e => setForm(f => ({ ...f, subject: e.target.value }))} placeholder="যেমন: গণিত, বাংলা…" />
             </div>
             <div className="space-y-1">
-              <Label>Description *</Label>
+              <Label>Description <span className="text-destructive">*</span></Label>
               <Textarea rows={5} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Homework-এর বিস্তারিত লিখুন…" />
             </div>
             <div className="space-y-1">
-              <Label>Due Date</Label>
+              <Label>Due Date <span className="text-destructive">*</span></Label>
               <Input type="date" value={form.dueDate} onChange={e => setForm(f => ({ ...f, dueDate: e.target.value }))} />
             </div>
             <div className="space-y-1">
-              <Label>Class</Label>
+              <Label>Class <span className="text-destructive">*</span></Label>
               <Select
                 value={form.className}
-                onValueChange={val => setForm(f => ({ ...f, className: val, batch: "" }))}
+                onValueChange={handleClassChange}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Class বেছে নিন…" />
@@ -231,7 +240,23 @@ export default function Homework() {
               </Select>
             </div>
             <div className="space-y-1">
-              <Label>Batch</Label>
+              <Label>Section <span className="text-destructive">*</span></Label>
+              <Select
+                value={form.section}
+                onValueChange={val => setForm(f => ({ ...f, section: val }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Section বেছে নিন…" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SECTION_OPTIONS.map((s) => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label>Batch <span className="text-destructive">*</span></Label>
               <Select
                 value={form.batch}
                 onValueChange={val => setForm(f => ({ ...f, batch: val }))}

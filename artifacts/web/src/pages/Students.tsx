@@ -43,6 +43,7 @@ import {
   CheckCircle2, Loader2, ShieldCheck, UserPlus, RotateCcw,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { SECTION_OPTIONS } from "@/lib/constants";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -53,7 +54,6 @@ type Student = {
   enrolledAt: string; hasFirebaseAuth?: boolean; uid?: string | null;
 };
 
-const SECTION_OPTIONS = ["Science", "Commerce", "Arts", "General"];
 
 const emptyForm = {
   name: "", phone: "", email: "", address: "", className: "", section: "", batch: "",
