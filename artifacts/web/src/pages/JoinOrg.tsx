@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { SECTION_OPTIONS } from "@/lib/constants";
 
 type Status = "loading" | "form" | "submitting" | "success" | "invalid";
 type OrgClass = { name: string; batches: string[] };
@@ -34,6 +35,7 @@ export default function JoinOrg() {
   const [showPassword, setShowPassword] = useState(false);
   const [phone, setPhone] = useState("");
   const [className, setClassName] = useState("");
+  const [section, setSection] = useState("");
   const [batch, setBatch] = useState("");
   const [guardianName, setGuardianName] = useState("");
   const [guardianPhone, setGuardianPhone] = useState("");
@@ -107,6 +109,7 @@ export default function JoinOrg() {
         passwordsValid &&
         phone.trim() !== "" &&
         className.trim() !== "" &&
+        section.trim() !== "" &&
         batch.trim() !== "" &&
         guardianName.trim() !== "" &&
         guardianPhone.trim() !== ""
@@ -122,7 +125,7 @@ export default function JoinOrg() {
     // Mark all fields as touched so errors show
     setTouched(
       role === "student"
-        ? { name: true, email: true, password: true, confirmPassword: true, phone: true, className: true, batch: true, guardianName: true, guardianPhone: true }
+        ? { name: true, email: true, password: true, confirmPassword: true, phone: true, className: true, section: true, batch: true, guardianName: true, guardianPhone: true }
         : { name: true, email: true, password: true, confirmPassword: true, phone: true, subject: true },
     );
     if (!isValid) return;
@@ -156,6 +159,7 @@ export default function JoinOrg() {
           email: email.trim(),
           phone: phone.trim(),
           className: className.trim(),
+          section: section.trim(),
           batch: batch.trim(),
           guardianName: guardianName.trim(),
           guardianPhone: guardianPhone.trim(),
@@ -387,6 +391,22 @@ export default function JoinOrg() {
                         />
                       )}
                       {err("className", className) && <p className="text-xs text-destructive">Class বেছে নিন বা লিখুন</p>}
+                    </div>
+
+                    {/* Section */}
+                    <div className="space-y-1.5">
+                      <Label>Section <span className="text-destructive">*</span></Label>
+                      <Select value={section} onValueChange={(v) => { setSection(v); touch("section"); }}>
+                        <SelectTrigger onBlur={() => touch("section")}>
+                          <SelectValue placeholder="Section বেছে নিন" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {SECTION_OPTIONS.map((s) => (
+                            <SelectItem key={s} value={s}>{s}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {err("section", section) && <p className="text-xs text-destructive">Section বেছে নিন</p>}
                     </div>
 
                     {/* Batch */}

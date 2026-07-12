@@ -47,6 +47,7 @@ type AdmissionRequest = {
   email: string;
   phone?: string;
   className?: string;
+  section?: string;
   batch?: string;
   guardianName?: string;
   guardianPhone?: string;
@@ -570,6 +571,7 @@ function AdmissionLinkTab() {
           email: r.email,
           phone: r.phone,
           className: r.className,
+          section: r.section,
           batch: r.batch,
           guardianName: r.guardianName,
           guardianPhone: r.guardianPhone,
@@ -626,6 +628,7 @@ function AdmissionLinkTab() {
         phone: req.phone ?? null,
         email: req.email ?? null,
         className: req.className ?? null,
+        section: req.section ?? null,
         batch: req.batch ?? null,
         guardianName: req.guardianName ?? null,
         guardianPhone: req.guardianPhone ?? null,
@@ -819,6 +822,7 @@ function AdmissionLinkTab() {
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Class</TableHead>
+                  <TableHead>Section</TableHead>
                   <TableHead>Batch</TableHead>
                   <TableHead>Applied</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
@@ -831,6 +835,9 @@ function AdmissionLinkTab() {
                     <TableCell className="text-muted-foreground text-sm">{req.email}</TableCell>
                     <TableCell>
                       <Badge variant="outline" className="text-xs">{req.className ?? "—"}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      {req.section ? <Badge variant="outline" className="text-xs">{req.section}</Badge> : <span className="text-muted-foreground text-xs">—</span>}
                     </TableCell>
                     <TableCell>
                       {req.batch ? <Badge variant="secondary" className="text-xs">{req.batch}</Badge> : <span className="text-muted-foreground text-xs">—</span>}
