@@ -35,8 +35,14 @@ const Routine = lazy(() => import("@/pages/Routine"));
 const Subscription = lazy(() => import("@/pages/Subscription"));
 const PaymentSuccess = lazy(() => import("@/pages/PaymentSuccess"));
 const PaymentFail = lazy(() => import("@/pages/PaymentFail"));
+
+// Super Admin pages
 const SuperAdminDashboard = lazy(() => import("@/pages/super-admin/SuperAdminDashboard"));
 const ManageOrganizations = lazy(() => import("@/pages/super-admin/ManageOrganizations"));
+const ManageUsers = lazy(() => import("@/pages/super-admin/ManageUsers"));
+const PaymentHistory = lazy(() => import("@/pages/super-admin/PaymentHistory"));
+const ActivityLogs = lazy(() => import("@/pages/super-admin/ActivityLogs"));
+
 const TeacherDashboard = lazy(() => import("@/pages/teacher/TeacherDashboard"));
 const TeacherAttendance = lazy(() => import("@/pages/teacher/TeacherAttendance"));
 const TeacherStudents = lazy(() => import("@/pages/teacher/TeacherStudents"));
@@ -81,6 +87,9 @@ function AuthenticatedRoutes() {
           <Switch>
             <Route path="/" component={SuperAdminDashboard} />
             <Route path="/organizations" component={ManageOrganizations} />
+            <Route path="/users" component={ManageUsers} />
+            <Route path="/payments" component={PaymentHistory} />
+            <Route path="/activity" component={ActivityLogs} />
             <Route><Redirect to="/" /></Route>
           </Switch>
         </Suspense>

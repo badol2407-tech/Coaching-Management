@@ -1,5 +1,8 @@
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Building2, GraduationCap, LogOut, Shield } from "lucide-react";
+import {
+  LayoutDashboard, Building2, GraduationCap, LogOut, Shield,
+  Users, Activity, CreditCard,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup,
@@ -12,6 +15,9 @@ import { useAuth } from "@/contexts/AuthContext";
 const navItems = [
   { title: "Dashboard", href: "/", icon: LayoutDashboard },
   { title: "Organizations", href: "/organizations", icon: Building2 },
+  { title: "Users", href: "/users", icon: Users },
+  { title: "Payments", href: "/payments", icon: CreditCard },
+  { title: "Activity Logs", href: "/activity", icon: Activity },
 ];
 
 export function SuperAdminLayout({ children }: { children: React.ReactNode }) {
