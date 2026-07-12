@@ -1,22 +1,24 @@
 ---
 name: Login Flow Architecture
-description: How authentication and role routing works after the login flow simplification — no self-registration, no org ID entry, all accounts pre-provisioned.
+description: How authentication and role routing works, including the org-scoped self-registration join link (student/teacher) that still requires admin approval.
 ---
 
 # Login Flow Architecture
 
 ## Rule
-All accounts are pre-provisioned by an admin. No user ever self-registers or enters an Org ID.
+Super Admin and Org Admin accounts are always admin-provisioned (never self-registered). Students and teachers CAN self-register via an org-scoped join link, but their `users/{uid}` profile — which is what makes login actually work — is only created when an org admin approves the request.
 
-**Why:** The product is admin-provisioned SaaS. Teachers/students are created by org admin; org admins are created by super admin.
+**Why:** Org admins wanted students/teachers to set their own login password directly on the admission/join form instead of receiving a generated one, without opening self-registration into an unmoderated signup.
 
-**How to apply:** Any time auth flow is touched, maintain this invariant. Never add a register form or org ID input to the login popup.
+**How to apply:** Never let a self-registered account log in before admin approval. The Firebase Auth user (email+password) is created immediately at submit time (so the password is set), but `users/{uid}` (read by `AuthContext` to route by role) is only written during admin approval. Any new self-service entry point must follow this same two-step (auth account now, profile doc on approval) pattern.
 
 ## Account creation chain
 - **Super Admin** → identified by `VITE_SUPER_ADMIN_EMAIL`; Firestore profile auto-created on first login in `AuthContext.tsx`
 - **Org Admin** → created by Super Admin via `ManageOrganizations.tsx` (Firebase Auth via secondary app + `users/{uid}` Firestore profile with `role: "org_admin"`)
-- **Teacher** → created by Org Admin via `Teachers.tsx`
-- **Student** → created by Org Admin via `Students.tsx`
+- **Teacher** → created by Org Admin via `Teachers.tsx` (admin sets a temp password), OR self-registers with own email/password via `/join/:orgId` (`JoinOrg.tsx`, role="teacher") → lands in `organizations/{orgId}/teacher_requests`, approved in `AddStudents.tsx`'s Admission Link tab
+- **Student** → created by Org Admin via `Students.tsx`/`AddStudents.tsx`, OR self-registers with own email/password via the same `/join/:orgId` link (role="student") → lands in `organizations/{orgId}/admission_requests`, approved in the same tab
+
+`firestore.rules` allows public (unauthenticated) `create` on both `admission_requests` and `teacher_requests` subcollections; both require manual `firebase deploy --only firestore:rules` (see below) or the join link's teacher path will fail with permission-denied.
 
 ## Login popup (AuthPanel in LandingPage.tsx)
 - Modes: `"login"` | `"reset"` only (no register)
