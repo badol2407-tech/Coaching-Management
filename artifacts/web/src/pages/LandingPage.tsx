@@ -83,28 +83,68 @@ const testimonials = [
 
 const plans = [
   {
+    id: "free",
+    emoji: "🟢",
+    badge: null,
     name: "Free Trial",
+    tagline: "ঝুঁকি ছাড়াই শুরু করুন",
+    regularPrice: null,
     price: "৳0",
-    period: "৩০ দিন",
-    features: ["১টি Branch", "৫০ জন Student", "৩ জন Teacher", "সব core features", "Email support"],
-    cta: "বিনামূল্যে শুরু করুন",
+    period: "৭ দিনের জন্য",
+    features: [
+      "সব Premium features ব্যবহার করুন",
+      "কোনো Credit Card লাগবে না",
+      "যেকোনো সময় Cancel করুন",
+      "Full access, no limitations",
+    ],
+    cta: "ফ্রি ট্রায়াল শুরু করুন",
     highlight: false,
+    variant: "free",
   },
   {
-    name: "Basic",
-    price: "৳499",
-    period: "মাসে",
-    features: ["১টি Branch", "২০০ জন Student", "১০ জন Teacher", "সব features", "Priority support", "Data export"],
-    cta: "এখনই শুরু করুন",
+    id: "founder",
+    emoji: "⭐",
+    badge: "Most Popular",
+    name: "Founder Launch",
+    tagline: "প্রথম ১০০ Coaching Center-এর জন্য",
+    regularPrice: "৳999",
+    price: "৳749",
+    period: "/month",
+    savings: "২৫% ছাড়",
+    spotsLeft: "সীমিত আসন বাকি",
+    features: [
+      "সব Premium features",
+      "Unlimited Students & Teachers",
+      "Priority Support",
+      "Advanced Analytics",
+      "Custom Branding",
+      "Data Export",
+    ],
+    cta: "Founder Price নিন",
     highlight: true,
+    variant: "founder",
   },
   {
-    name: "Pro",
-    price: "৳999",
-    period: "মাসে",
-    features: ["একাধিক Branch", "Unlimited Students", "Unlimited Teachers", "Advanced analytics", "Dedicated support", "Custom branding"],
-    cta: "Pro নিন",
+    id: "annual",
+    emoji: "👑",
+    badge: "Best Value",
+    name: "Annual Premium",
+    tagline: "বছরে ২ মাস একদম বিনামূল্যে",
+    regularPrice: "৳11,988",
+    price: "৳9,999",
+    period: "/year",
+    savings: "৳1,989 সাশ্রয়",
+    features: [
+      "সব Founder features",
+      "২ মাস বিনামূল্যে (মাসে মাত্র ৳833)",
+      "Dedicated Account Manager",
+      "Early access to new features",
+      "Annual performance report",
+      "Invoice & billing support",
+    ],
+    cta: "Annual Plan নিন",
     highlight: false,
+    variant: "annual",
   },
 ];
 
@@ -816,49 +856,193 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing */}
-      <section id="pricing" className="py-20 px-4">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="font-display text-3xl">সহজ Pricing</h2>
-            <p className="text-muted-foreground mt-2">কোনো hidden charge নেই। যেকোনো সময় upgrade বা cancel করুন।</p>
+      <section id="pricing" className="py-24 px-4 relative overflow-hidden">
+        {/* Background glows */}
+        <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[500px] bg-indigo-500/5 rounded-full blur-[120px]" />
+        <div className="pointer-events-none absolute top-0 right-0 w-[400px] h-[400px] bg-violet-500/4 rounded-full blur-[100px]" />
+
+        <div className="max-w-6xl mx-auto relative">
+          {/* Header */}
+          <div className="text-center mb-16 space-y-4">
+            <div className="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold px-4 py-1.5 rounded-full">
+              <span className="h-1.5 w-1.5 rounded-full bg-indigo-400 animate-pulse" />
+              সীমিত সময়ের Offer — এখনই সুযোগ নিন
+            </div>
+            <h2 className="font-display text-3xl sm:text-4xl font-bold">
+              সহজ, স্বচ্ছ Pricing
+            </h2>
+            <p className="text-muted-foreground text-base max-w-md mx-auto">
+              কোনো hidden charge নেই। যেকোনো সময় cancel করুন।
+            </p>
           </div>
-          <div className="grid md:grid-cols-3 gap-6">
-            {plans.map((p) => (
-              <div
-                key={p.name}
-                className={`p-6 rounded-xl relative ${p.highlight ? "glass-panel glow-gold" : "border border-border"}`}
-              >
-                {p.highlight && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-b from-[hsl(var(--gold-light))] to-[hsl(var(--gold))] text-[#2a1c02] text-xs font-bold px-3 py-1 rounded-full shadow-sm">
-                    সবচেয়ে জনপ্রিয়
-                  </div>
-                )}
-                <h3 className="font-bold text-lg">{p.name}</h3>
-                <div className="mt-3 mb-5">
-                  <span className="text-4xl font-bold">{p.price}</span>
-                  <span className="text-muted-foreground text-sm ml-1">/{p.period}</span>
+
+          {/* Cards */}
+          <div className="grid md:grid-cols-3 gap-6 items-stretch">
+
+            {/* ── Card 1: Free Trial ── */}
+            <div className="relative flex flex-col rounded-2xl border border-border bg-card/60 backdrop-blur-sm p-7 transition-shadow hover:shadow-lg hover:shadow-black/10">
+              <div className="mb-6">
+                <span className="text-2xl">🟢</span>
+                <h3 className="font-bold text-xl mt-3">Free Trial</h3>
+                <p className="text-muted-foreground text-sm mt-1">ঝুঁকি ছাড়াই শুরু করুন</p>
+              </div>
+
+              <div className="mb-6">
+                <div className="flex items-baseline gap-1">
+                  <span className="text-5xl font-extrabold tracking-tight">৳0</span>
                 </div>
-                <ul className="space-y-2 mb-6">
-                  {p.features.map((f) => (
-                    <li key={f} className="flex items-center gap-2 text-sm">
-                      <CheckCircle className="h-4 w-4 text-green-500 shrink-0" />
-                      {f}
+                <p className="text-sm text-muted-foreground mt-1">৭ দিনের জন্য সম্পূর্ণ বিনামূল্যে</p>
+              </div>
+
+              <ul className="space-y-3 mb-8 flex-1">
+                {[
+                  "Access to all Premium features",
+                  "কোনো Credit Card লাগবে না",
+                  "যেকোনো সময় Cancel করুন",
+                  "Full access, no limitations",
+                ].map((f) => (
+                  <li key={f} className="flex items-start gap-2.5 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
+                    <span>{f}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <Button
+                variant="outline"
+                className="w-full h-11 font-semibold border-border hover:bg-accent"
+                onClick={() => {
+                  trackFeatureUsed("pricing_cta_click", { plan: "free_trial" });
+                  openAuth("login", "pricing_free_trial");
+                }}
+              >
+                ফ্রি ট্রায়াল শুরু করুন
+              </Button>
+            </div>
+
+            {/* ── Card 2: Founder Launch (Most Popular) ── */}
+            <div className="relative flex flex-col rounded-2xl p-[1.5px] bg-gradient-to-b from-amber-400/80 via-yellow-500/60 to-amber-600/40 shadow-[0_0_40px_-8px_rgba(251,191,36,0.35)] transition-shadow hover:shadow-[0_0_60px_-8px_rgba(251,191,36,0.5)]">
+              {/* Most Popular badge */}
+              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10">
+                <div className="flex items-center gap-1.5 bg-gradient-to-r from-amber-400 to-yellow-400 text-amber-950 text-xs font-bold px-4 py-1.5 rounded-full shadow-lg shadow-amber-500/30 whitespace-nowrap">
+                  ⭐ Most Popular
+                </div>
+              </div>
+
+              <div className="flex flex-col flex-1 rounded-[14px] bg-gradient-to-b from-[#1c1608] via-[#1e1a08] to-[#18160a] p-7 h-full">
+                <div className="mb-6">
+                  <span className="text-2xl">⭐</span>
+                  <h3 className="font-bold text-xl mt-3 text-amber-100">Founder Launch</h3>
+                  <p className="text-amber-400/70 text-sm mt-1">প্রথম ১০০ Coaching Center-এর জন্য</p>
+                </div>
+
+                <div className="mb-6">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-amber-500/60 text-lg line-through font-medium">৳999</span>
+                    <span className="text-xs font-semibold bg-amber-400/20 text-amber-300 px-2 py-0.5 rounded-full">২৫% ছাড়</span>
+                  </div>
+                  <div className="flex items-baseline gap-1 mt-1">
+                    <span className="text-5xl font-extrabold tracking-tight text-white">৳749</span>
+                    <span className="text-amber-400/70 text-sm">/month</span>
+                  </div>
+                  {/* Scarcity */}
+                  <div className="mt-3 flex items-center gap-2">
+                    <div className="flex-1 h-1.5 bg-amber-900/50 rounded-full overflow-hidden">
+                      <div className="h-full w-[68%] bg-gradient-to-r from-amber-400 to-yellow-400 rounded-full" />
+                    </div>
+                    <span className="text-amber-400/80 text-xs font-medium whitespace-nowrap">৬৮/১০০ নেওয়া হয়েছে</span>
+                  </div>
+                </div>
+
+                <ul className="space-y-3 mb-8 flex-1">
+                  {[
+                    "সব Premium features",
+                    "Unlimited Students & Teachers",
+                    "Priority Support",
+                    "Advanced Analytics",
+                    "Custom Branding",
+                    "Data Export",
+                  ].map((f) => (
+                    <li key={f} className="flex items-start gap-2.5 text-sm">
+                      <CheckCircle className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" />
+                      <span className="text-amber-100/90">{f}</span>
                     </li>
                   ))}
                 </ul>
+
                 <Button
-                  className="w-full"
-                  variant={p.highlight ? "default" : "outline"}
+                  className="w-full h-12 font-bold text-base bg-gradient-to-r from-amber-400 to-yellow-400 text-amber-950 border-0 shadow-lg shadow-amber-500/25 hover:from-amber-300 hover:to-yellow-300 hover:shadow-amber-400/40 transition-all"
                   onClick={() => {
-                    trackFeatureUsed("pricing_cta_click", { plan: p.name });
-                    openAuth("login", `pricing_${p.name}`);
+                    trackFeatureUsed("pricing_cta_click", { plan: "founder_launch" });
+                    openAuth("login", "pricing_founder_launch");
                   }}
                 >
-                  {p.cta}
+                  Founder Price নিন →
                 </Button>
               </div>
-            ))}
+            </div>
+
+            {/* ── Card 3: Annual Premium ── */}
+            <div className="relative flex flex-col rounded-2xl border border-indigo-500/30 bg-gradient-to-b from-indigo-950/60 to-card/60 backdrop-blur-sm p-7 transition-shadow hover:shadow-lg hover:shadow-indigo-500/10">
+              {/* Best Value badge */}
+              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10">
+                <div className="flex items-center gap-1.5 bg-gradient-to-r from-indigo-500 to-violet-500 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg shadow-indigo-500/30 whitespace-nowrap">
+                  👑 Best Value
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <span className="text-2xl">👑</span>
+                <h3 className="font-bold text-xl mt-3">Annual Premium</h3>
+                <p className="text-muted-foreground text-sm mt-1">বছরে ২ মাস একদম বিনামূল্যে</p>
+              </div>
+
+              <div className="mb-6">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-muted-foreground text-lg line-through font-medium">৳11,988</span>
+                  <span className="text-xs font-semibold bg-indigo-500/15 text-indigo-400 px-2 py-0.5 rounded-full">৳1,989 সাশ্রয়</span>
+                </div>
+                <div className="flex items-baseline gap-1 mt-1">
+                  <span className="text-5xl font-extrabold tracking-tight">৳9,999</span>
+                  <span className="text-muted-foreground text-sm">/year</span>
+                </div>
+                <p className="text-indigo-400 text-xs font-medium mt-1.5">মাসে মাত্র ৳833 — ২ মাস ফ্রি!</p>
+              </div>
+
+              <ul className="space-y-3 mb-8 flex-1">
+                {[
+                  "সব Founder features included",
+                  "২ মাস বিনামূল্যে",
+                  "Dedicated Account Manager",
+                  "Early access to new features",
+                  "Annual performance report",
+                  "Invoice & billing support",
+                ].map((f) => (
+                  <li key={f} className="flex items-start gap-2.5 text-sm">
+                    <CheckCircle className="h-4 w-4 text-indigo-400 shrink-0 mt-0.5" />
+                    <span>{f}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <Button
+                className="w-full h-11 font-semibold bg-indigo-600 hover:bg-indigo-500 text-white border-0 shadow-md shadow-indigo-500/20"
+                onClick={() => {
+                  trackFeatureUsed("pricing_cta_click", { plan: "annual_premium" });
+                  openAuth("login", "pricing_annual_premium");
+                }}
+              >
+                Annual Plan নিন
+              </Button>
+            </div>
+
           </div>
+
+          {/* Trust line */}
+          <p className="text-center text-muted-foreground text-sm mt-10 flex items-center justify-center gap-2">
+            <CheckCircle className="h-4 w-4 text-green-500" />
+            কোনো hidden fee নেই · যেকোনো সময় cancel করুন · SSL secured payment
+          </p>
         </div>
       </section>
 
