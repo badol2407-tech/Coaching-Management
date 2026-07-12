@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { doc, getDoc, getDocs, addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { GraduationCap, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
+import { createFirebaseAuthUser } from "@/lib/auth-utils";
+import { GraduationCap, CheckCircle2, Loader2, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +13,7 @@ import {
 
 type Status = "loading" | "form" | "submitting" | "success" | "invalid";
 type OrgClass = { name: string; batches: string[] };
+type JoinRole = "student" | "teacher";
 
 export default function JoinOrg() {
   const pathParts = window.location.pathname.split("/");
@@ -21,14 +23,21 @@ export default function JoinOrg() {
   const [status, setStatus] = useState<Status>("loading");
   const [orgName, setOrgName] = useState("");
   const [orgClasses, setOrgClasses] = useState<OrgClass[]>([]);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const [role, setRole] = useState<JoinRole>("student");
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [phone, setPhone] = useState("");
   const [className, setClassName] = useState("");
   const [batch, setBatch] = useState("");
   const [guardianName, setGuardianName] = useState("");
   const [guardianPhone, setGuardianPhone] = useState("");
+  const [subject, setSubject] = useState("");
 
   // Touch tracking for showing inline errors on untouched fields
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -79,45 +88,100 @@ export default function JoinOrg() {
     touch("className");
   }
 
+  function handleRoleChange(val: JoinRole) {
+    setRole(val);
+    setTouched({});
+    setErrorMsg(null);
+  }
+
   const selectedClassData = orgClasses.find((c) => c.name === className);
   const availableBatches = selectedClassData?.batches ?? [];
   const hasClasses = orgClasses.length > 0;
 
+  const passwordsValid = password.trim() !== "" && password.length >= 6 && password === confirmPassword;
+
   const isValid =
-    name.trim() !== "" &&
-    email.trim() !== "" &&
-    phone.trim() !== "" &&
-    className.trim() !== "" &&
-    batch.trim() !== "" &&
-    guardianName.trim() !== "" &&
-    guardianPhone.trim() !== "";
+    role === "student"
+      ? name.trim() !== "" &&
+        email.trim() !== "" &&
+        passwordsValid &&
+        phone.trim() !== "" &&
+        className.trim() !== "" &&
+        batch.trim() !== "" &&
+        guardianName.trim() !== "" &&
+        guardianPhone.trim() !== ""
+      : name.trim() !== "" &&
+        email.trim() !== "" &&
+        passwordsValid &&
+        phone.trim() !== "" &&
+        subject.trim() !== "";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setErrorMsg(null);
     // Mark all fields as touched so errors show
-    setTouched({ name: true, email: true, phone: true, className: true, batch: true, guardianName: true, guardianPhone: true });
+    setTouched(
+      role === "student"
+        ? { name: true, email: true, password: true, confirmPassword: true, phone: true, className: true, batch: true, guardianName: true, guardianPhone: true }
+        : { name: true, email: true, password: true, confirmPassword: true, phone: true, subject: true },
+    );
     if (!isValid) return;
     setStatus("submitting");
+
+    // 1. Create the Firebase Auth account with the email/password they chose,
+    //    so they can log in with it themselves once an admin approves.
+    let uid: string;
     try {
-      await addDoc(collection(db, "organizations", orgId!, "admission_requests"), {
-        name: name.trim(),
-        email: email.trim(),
-        phone: phone.trim(),
-        className: className.trim(),
-        batch: batch.trim(),
-        guardianName: guardianName.trim(),
-        guardianPhone: guardianPhone.trim(),
-        status: "pending",
-        source: "admission_link",
-        createdAt: serverTimestamp(),
-      });
+      uid = await createFirebaseAuthUser(email.trim(), password);
+    } catch (authErr: any) {
+      setStatus("form");
+      const code = authErr?.code ?? "";
+      if (code === "auth/email-already-in-use") {
+        setErrorMsg("এই email দিয়ে আগেই একটি account আছে। ভিন্ন email ব্যবহার করুন বা login করুন।");
+      } else if (code === "auth/weak-password") {
+        setErrorMsg("Password টি দুর্বল। অন্তত ৬ character দিয়ে চেষ্টা করুন।");
+      } else {
+        setErrorMsg("Account তৈরি করা যায়নি। আবার চেষ্টা করুন।");
+      }
+      return;
+    }
+
+    // 2. Store the request for admin review. Login only starts working once
+    //    the admin approves — that's when a `users/{uid}` profile is created.
+    try {
+      if (role === "student") {
+        await addDoc(collection(db, "organizations", orgId!, "admission_requests"), {
+          uid,
+          name: name.trim(),
+          email: email.trim(),
+          phone: phone.trim(),
+          className: className.trim(),
+          batch: batch.trim(),
+          guardianName: guardianName.trim(),
+          guardianPhone: guardianPhone.trim(),
+          status: "pending",
+          source: "admission_link",
+          createdAt: serverTimestamp(),
+        });
+      } else {
+        await addDoc(collection(db, "organizations", orgId!, "teacher_requests"), {
+          uid,
+          name: name.trim(),
+          email: email.trim(),
+          phone: phone.trim(),
+          subject: subject.trim(),
+          status: "pending",
+          source: "join_link",
+          createdAt: serverTimestamp(),
+        });
+      }
       setStatus("success");
     } catch (err: any) {
       setStatus("form");
       if (err?.code === "permission-denied") {
-        alert("Firebase Rules-এ admission_requests-এ write allow নেই। Admin-কে rules আপডেট করতে বলুন।");
+        setErrorMsg("Firebase Rules-এ request write allow নেই। Admin-কে rules আপডেট করতে বলুন।");
       } else {
-        alert("Submit করা যায়নি। আবার চেষ্টা করুন।");
+        setErrorMsg("Submit করা যায়নি। আবার চেষ্টা করুন।");
       }
     }
   }
@@ -141,7 +205,7 @@ export default function JoinOrg() {
               </div>
             </div>
             <h2 className="text-xl font-bold">Link টি সঠিক নয়</h2>
-            <p className="text-muted-foreground text-sm">এই admission link টি expire হয়েছে বা ভুল। Admin-এর কাছ থেকে নতুন link নিন।</p>
+            <p className="text-muted-foreground text-sm">এই link টি expire হয়েছে বা ভুল। Admin-এর কাছ থেকে নতুন link নিন।</p>
           </CardContent>
         </Card>
       </div>
@@ -160,10 +224,10 @@ export default function JoinOrg() {
             </div>
             <h2 className="text-2xl font-bold">আবেদন জমা হয়েছে!</h2>
             <p className="text-muted-foreground">
-              <span className="font-semibold text-foreground">{orgName}</span>-এ আপনার ভর্তির আবেদন পাঠানো হয়েছে।
+              <span className="font-semibold text-foreground">{orgName}</span>-এ আপনার {role === "student" ? "ভর্তির" : "যোগদানের"} আবেদন পাঠানো হয়েছে।
             </p>
             <div className="rounded-lg bg-muted p-3 text-sm text-muted-foreground">
-              Admin approve করার পর এই একই link দিয়ে ফিরে এসে "Student হিসেবে Join করুন" option দিয়ে login করুন।
+              Admin approve করার পর আপনি এই একই email ও password দিয়ে সরাসরি আপনার পোর্টালে login করতে পারবেন।
             </div>
           </CardContent>
         </Card>
@@ -180,8 +244,8 @@ export default function JoinOrg() {
               <GraduationCap className="h-8 w-8 text-white" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-white">{orgName}-এ ভর্তির আবেদন</h1>
-          <p className="text-slate-400 text-sm">সব তথ্য পূরণ করুন — admin approve করলে আপনি student হবেন</p>
+          <h1 className="text-2xl font-bold text-white">{orgName}-এ যোগ দিন</h1>
+          <p className="text-slate-400 text-sm">সব তথ্য পূরণ করুন — admin approve করলে আপনি login করতে পারবেন</p>
         </div>
 
         <Card>
@@ -191,6 +255,35 @@ export default function JoinOrg() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
+
+              {/* Role selector */}
+              <div className="space-y-1.5">
+                <Label>আপনি কে? <span className="text-destructive">*</span></Label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleRoleChange("student")}
+                    className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${role === "student" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:bg-muted/50"}`}
+                  >
+                    আমি Student
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleRoleChange("teacher")}
+                    className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${role === "teacher" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:bg-muted/50"}`}
+                  >
+                    আমি Teacher
+                  </button>
+                </div>
+              </div>
+
+              {errorMsg && (
+                <div className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+                  <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+                  <p>{errorMsg}</p>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 
                 {/* নাম */}
@@ -218,6 +311,45 @@ export default function JoinOrg() {
                   {err("email", email) && <p className="text-xs text-destructive">Email লিখুন</p>}
                 </div>
 
+                {/* Password */}
+                <div className="space-y-1.5">
+                  <Label>Password <span className="text-destructive">*</span></Label>
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="অন্তত ৬ character"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      onBlur={() => touch("password")}
+                      className="pr-9"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((v) => !v)}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+                      tabIndex={-1}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                  {touched.password && password.trim() === "" && <p className="text-xs text-destructive">Password লিখুন</p>}
+                  {touched.password && password.trim() !== "" && password.length < 6 && <p className="text-xs text-destructive">অন্তত ৬ character দিন</p>}
+                </div>
+
+                {/* Confirm password */}
+                <div className="space-y-1.5">
+                  <Label>Password আবার লিখুন <span className="text-destructive">*</span></Label>
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Password আবার লিখুন"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    onBlur={() => touch("confirmPassword")}
+                  />
+                  {touched.confirmPassword && confirmPassword.trim() === "" && <p className="text-xs text-destructive">Password আবার লিখুন</p>}
+                  {touched.confirmPassword && confirmPassword.trim() !== "" && password !== confirmPassword && <p className="text-xs text-destructive">Password মিলছে না</p>}
+                </div>
+
                 {/* ফোন */}
                 <div className="space-y-1.5">
                   <Label>ফোন নম্বর <span className="text-destructive">*</span></Label>
@@ -230,79 +362,94 @@ export default function JoinOrg() {
                   {err("phone", phone) && <p className="text-xs text-destructive">ফোন নম্বর লিখুন</p>}
                 </div>
 
-                {/* Class */}
-                <div className="space-y-1.5">
-                  <Label>Class <span className="text-destructive">*</span></Label>
-                  {hasClasses ? (
-                    <Select value={className} onValueChange={handleClassChange}>
-                      <SelectTrigger onBlur={() => touch("className")}>
-                        <SelectValue placeholder="Class বেছে নিন" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {orgClasses.map((c) => (
-                          <SelectItem key={c.name} value={c.name}>{c.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  ) : (
+                {role === "student" ? (
+                  <>
+                    {/* Class */}
+                    <div className="space-y-1.5">
+                      <Label>Class <span className="text-destructive">*</span></Label>
+                      {hasClasses ? (
+                        <Select value={className} onValueChange={handleClassChange}>
+                          <SelectTrigger onBlur={() => touch("className")}>
+                            <SelectValue placeholder="Class বেছে নিন" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {orgClasses.map((c) => (
+                              <SelectItem key={c.name} value={c.name}>{c.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <Input
+                          placeholder="যেমন: Class 10, HSC"
+                          value={className}
+                          onChange={(e) => setClassName(e.target.value)}
+                          onBlur={() => touch("className")}
+                        />
+                      )}
+                      {err("className", className) && <p className="text-xs text-destructive">Class বেছে নিন বা লিখুন</p>}
+                    </div>
+
+                    {/* Batch */}
+                    <div className="space-y-1.5">
+                      <Label>Batch <span className="text-destructive">*</span></Label>
+                      {hasClasses && availableBatches.length > 0 ? (
+                        <Select value={batch} onValueChange={(v) => { setBatch(v); touch("batch"); }}>
+                          <SelectTrigger onBlur={() => touch("batch")}>
+                            <SelectValue placeholder="Batch বেছে নিন" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {availableBatches.map((b) => (
+                              <SelectItem key={b} value={b}>{b}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <Input
+                          placeholder={hasClasses && className ? "এই class-এ কোনো batch নেই, নিজে লিখুন" : "যেমন: Batch A, Morning Batch"}
+                          value={batch}
+                          onChange={(e) => setBatch(e.target.value)}
+                          onBlur={() => touch("batch")}
+                        />
+                      )}
+                      {err("batch", batch) && <p className="text-xs text-destructive">Batch বেছে নিন বা লিখুন</p>}
+                    </div>
+
+                    {/* অভিভাবকের নাম */}
+                    <div className="space-y-1.5">
+                      <Label>অভিভাবকের নাম <span className="text-destructive">*</span></Label>
+                      <Input
+                        placeholder="অভিভাবকের নাম"
+                        value={guardianName}
+                        onChange={(e) => setGuardianName(e.target.value)}
+                        onBlur={() => touch("guardianName")}
+                      />
+                      {err("guardianName", guardianName) && <p className="text-xs text-destructive">অভিভাবকের নাম লিখুন</p>}
+                    </div>
+
+                    {/* অভিভাবকের ফোন */}
+                    <div className="space-y-1.5 sm:col-span-2">
+                      <Label>অভিভাবকের ফোন <span className="text-destructive">*</span></Label>
+                      <Input
+                        placeholder="01XXXXXXXXX"
+                        value={guardianPhone}
+                        onChange={(e) => setGuardianPhone(e.target.value)}
+                        onBlur={() => touch("guardianPhone")}
+                      />
+                      {err("guardianPhone", guardianPhone) && <p className="text-xs text-destructive">অভিভাবকের ফোন নম্বর লিখুন</p>}
+                    </div>
+                  </>
+                ) : (
+                  <div className="space-y-1.5 sm:col-span-2">
+                    <Label>যে বিষয় পড়ান (Subject) <span className="text-destructive">*</span></Label>
                     <Input
-                      placeholder="যেমন: Class 10, HSC"
-                      value={className}
-                      onChange={(e) => setClassName(e.target.value)}
-                      onBlur={() => touch("className")}
+                      placeholder="যেমন: Physics, Mathematics"
+                      value={subject}
+                      onChange={(e) => setSubject(e.target.value)}
+                      onBlur={() => touch("subject")}
                     />
-                  )}
-                  {err("className", className) && <p className="text-xs text-destructive">Class বেছে নিন বা লিখুন</p>}
-                </div>
-
-                {/* Batch */}
-                <div className="space-y-1.5">
-                  <Label>Batch <span className="text-destructive">*</span></Label>
-                  {hasClasses && availableBatches.length > 0 ? (
-                    <Select value={batch} onValueChange={(v) => { setBatch(v); touch("batch"); }}>
-                      <SelectTrigger onBlur={() => touch("batch")}>
-                        <SelectValue placeholder="Batch বেছে নিন" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {availableBatches.map((b) => (
-                          <SelectItem key={b} value={b}>{b}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <Input
-                      placeholder={hasClasses && className ? "এই class-এ কোনো batch নেই, নিজে লিখুন" : "যেমন: Batch A, Morning Batch"}
-                      value={batch}
-                      onChange={(e) => setBatch(e.target.value)}
-                      onBlur={() => touch("batch")}
-                    />
-                  )}
-                  {err("batch", batch) && <p className="text-xs text-destructive">Batch বেছে নিন বা লিখুন</p>}
-                </div>
-
-                {/* অভিভাবকের নাম */}
-                <div className="space-y-1.5">
-                  <Label>অভিভাবকের নাম <span className="text-destructive">*</span></Label>
-                  <Input
-                    placeholder="অভিভাবকের নাম"
-                    value={guardianName}
-                    onChange={(e) => setGuardianName(e.target.value)}
-                    onBlur={() => touch("guardianName")}
-                  />
-                  {err("guardianName", guardianName) && <p className="text-xs text-destructive">অভিভাবকের নাম লিখুন</p>}
-                </div>
-
-                {/* অভিভাবকের ফোন */}
-                <div className="space-y-1.5 sm:col-span-2">
-                  <Label>অভিভাবকের ফোন <span className="text-destructive">*</span></Label>
-                  <Input
-                    placeholder="01XXXXXXXXX"
-                    value={guardianPhone}
-                    onChange={(e) => setGuardianPhone(e.target.value)}
-                    onBlur={() => touch("guardianPhone")}
-                  />
-                  {err("guardianPhone", guardianPhone) && <p className="text-xs text-destructive">অভিভাবকের ফোন নম্বর লিখুন</p>}
-                </div>
+                    {err("subject", subject) && <p className="text-xs text-destructive">Subject লিখুন</p>}
+                  </div>
+                )}
 
               </div>
 
@@ -312,7 +459,7 @@ export default function JoinOrg() {
                 disabled={status === "submitting"}
               >
                 {status === "submitting" && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                ভর্তির আবেদন জমা দিন
+                আবেদন জমা দিন
               </Button>
             </form>
           </CardContent>

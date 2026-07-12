@@ -8,6 +8,7 @@ import {
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/contexts/AuthContext";
 import { useListClasses } from "@/lib/class-hooks";
+import { getListTeachersQueryKey } from "@/lib/hooks";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -41,6 +42,7 @@ type ImportRow = {
 
 type AdmissionRequest = {
   id: string;
+  uid?: string;
   name: string;
   email: string;
   phone?: string;
@@ -48,6 +50,17 @@ type AdmissionRequest = {
   batch?: string;
   guardianName?: string;
   guardianPhone?: string;
+  status: "pending" | "approved" | "rejected";
+  createdAt: string;
+};
+
+type TeacherRequest = {
+  id: string;
+  uid?: string;
+  name: string;
+  email: string;
+  phone?: string;
+  subject?: string;
   status: "pending" | "approved" | "rejected";
   createdAt: string;
 };
@@ -521,6 +534,11 @@ function AdmissionLinkTab() {
   const [requests, setRequests] = useState<AdmissionRequest[]>([]);
   const [loadingRequests, setLoadingRequests] = useState(false);
   const [processingId, setProcessingId] = useState<string | null>(null);
+
+  const [teacherRequests, setTeacherRequests] = useState<TeacherRequest[]>([]);
+  const [loadingTeacherRequests, setLoadingTeacherRequests] = useState(false);
+  const [processingTeacherId, setProcessingTeacherId] = useState<string | null>(null);
+
   const qc = useQueryClient();
 
   const orgId = userProfile?.orgId;
@@ -531,7 +549,7 @@ function AdmissionLinkTab() {
   function copyLink() {
     if (!admissionLink) return;
     navigator.clipboard.writeText(admissionLink);
-    toast({ title: "Link copied!", description: "Share this link with students to let them register." });
+    toast({ title: "Link copied!", description: "Share this link with students or teachers to let them register." });
   }
 
   async function loadRequests() {
@@ -547,6 +565,7 @@ function AdmissionLinkTab() {
         const r = d.data() as any;
         return {
           id: d.id,
+          uid: r.uid,
           name: r.name,
           email: r.email,
           phone: r.phone,
@@ -564,11 +583,45 @@ function AdmissionLinkTab() {
     }
   }
 
+  async function loadTeacherRequests() {
+    if (!orgId) return;
+    setLoadingTeacherRequests(true);
+    try {
+      const q = query(
+        collection(db, "organizations", orgId, "teacher_requests"),
+        where("status", "==", "pending"),
+      );
+      const snap = await getDocs(q);
+      const data = snap.docs.map((d) => {
+        const r = d.data() as any;
+        return {
+          id: d.id,
+          uid: r.uid,
+          name: r.name,
+          email: r.email,
+          phone: r.phone,
+          subject: r.subject,
+          status: r.status,
+          createdAt: r.createdAt?.toDate?.()?.toISOString?.() ?? new Date().toISOString(),
+        } as TeacherRequest;
+      });
+      setTeacherRequests(data);
+    } finally {
+      setLoadingTeacherRequests(false);
+    }
+  }
+
+  function refreshAll() {
+    loadRequests();
+    loadTeacherRequests();
+  }
+
   async function approve(req: AdmissionRequest) {
     if (!orgId) return;
     setProcessingId(req.id);
     try {
       await addDoc(collection(db, "organizations", orgId, "students"), {
+        uid: req.uid ?? null,
         name: req.name,
         phone: req.phone ?? null,
         email: req.email ?? null,
@@ -579,7 +632,21 @@ function AdmissionLinkTab() {
         enrolledAt: new Date().toISOString().split("T")[0],
         createdAt: serverTimestamp(),
         source: "admission_link",
+        hasFirebaseAuth: !!req.uid,
       });
+      // The student already chose their own email/password on the join form —
+      // creating their `users/{uid}` profile here is what turns that on for login.
+      if (req.uid) {
+        await setDoc(doc(db, "users", req.uid), {
+          role: "student",
+          orgId,
+          name: req.name,
+          email: req.email ?? null,
+          mustChangePassword: false,
+          createdByAdmin: false,
+          createdAt: serverTimestamp(),
+        });
+      }
       await setDoc(
         doc(db, "organizations", orgId, "admission_requests", req.id),
         { status: "approved" },
@@ -587,7 +654,7 @@ function AdmissionLinkTab() {
       );
       setRequests((r) => r.filter((x) => x.id !== req.id));
       qc.invalidateQueries({ queryKey: [orgId, "students"] });
-      toast({ title: `${req.name} approved!`, description: "Added to student list." });
+      toast({ title: `${req.name} approved!`, description: "Added to student list. They can now log in with the email & password they chose." });
     } catch {
       toast({ title: "Error", description: "Could not approve request.", variant: "destructive" });
     } finally {
@@ -611,6 +678,66 @@ function AdmissionLinkTab() {
     }
   }
 
+  async function approveTeacher(req: TeacherRequest) {
+    if (!orgId) return;
+    setProcessingTeacherId(req.id);
+    try {
+      await addDoc(collection(db, "organizations", orgId, "teachers"), {
+        uid: req.uid ?? null,
+        name: req.name,
+        phone: req.phone ?? null,
+        email: req.email ?? null,
+        subject: req.subject ?? null,
+        salary: null,
+        joinedAt: new Date().toISOString().split("T")[0],
+        createdAt: serverTimestamp(),
+        source: "join_link",
+        hasFirebaseAuth: !!req.uid,
+      });
+      // The teacher already chose their own email/password on the join form —
+      // creating their `users/{uid}` profile here is what turns that on for login.
+      if (req.uid) {
+        await setDoc(doc(db, "users", req.uid), {
+          role: "teacher",
+          orgId,
+          name: req.name,
+          email: req.email ?? null,
+          mustChangePassword: false,
+          createdByAdmin: false,
+          createdAt: serverTimestamp(),
+        });
+      }
+      await setDoc(
+        doc(db, "organizations", orgId, "teacher_requests", req.id),
+        { status: "approved" },
+        { merge: true },
+      );
+      setTeacherRequests((r) => r.filter((x) => x.id !== req.id));
+      qc.invalidateQueries({ queryKey: getListTeachersQueryKey(orgId) });
+      toast({ title: `${req.name} approved!`, description: "Added to teacher list. They can now log in with the email & password they chose." });
+    } catch {
+      toast({ title: "Error", description: "Could not approve request.", variant: "destructive" });
+    } finally {
+      setProcessingTeacherId(null);
+    }
+  }
+
+  async function rejectTeacher(req: TeacherRequest) {
+    if (!orgId) return;
+    setProcessingTeacherId(req.id);
+    try {
+      await setDoc(
+        doc(db, "organizations", orgId, "teacher_requests", req.id),
+        { status: "rejected" },
+        { merge: true },
+      );
+      setTeacherRequests((r) => r.filter((x) => x.id !== req.id));
+      toast({ title: "Request rejected" });
+    } finally {
+      setProcessingTeacherId(null);
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Link card */}
@@ -620,9 +747,9 @@ function AdmissionLinkTab() {
             <Link2 className="h-5 w-5 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-sm">Your Admission Link</p>
+            <p className="font-semibold text-sm">Your Join Link</p>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Share with students — they fill a form, you approve or reject below.
+              Share with students or teachers — they choose their own email &amp; password, you approve or reject below.
             </p>
           </div>
         </div>
@@ -646,12 +773,12 @@ function AdmissionLinkTab() {
         </div>
       </div>
 
-      {/* Pending requests */}
+      {/* Pending student requests */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-muted-foreground" />
-            <h3 className="text-sm font-semibold">Pending Requests</h3>
+            <h3 className="text-sm font-semibold">Pending Student Requests</h3>
             {requests.length > 0 && (
               <Badge variant="secondary" className="text-xs h-5">{requests.length}</Badge>
             )}
@@ -659,11 +786,11 @@ function AdmissionLinkTab() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={loadRequests}
-            disabled={loadingRequests}
+            onClick={refreshAll}
+            disabled={loadingRequests || loadingTeacherRequests}
             className="gap-1.5 text-xs"
           >
-            <RefreshCw className={`h-3.5 w-3.5 ${loadingRequests ? "animate-spin" : ""}`} />
+            <RefreshCw className={`h-3.5 w-3.5 ${loadingRequests || loadingTeacherRequests ? "animate-spin" : ""}`} />
             Refresh
           </Button>
         </div>
@@ -671,7 +798,7 @@ function AdmissionLinkTab() {
         {requests.length === 0 && !loadingRequests && (
           <div className="rounded-xl border border-dashed bg-muted/20 py-12 text-center">
             <UserCheck className="h-8 w-8 text-muted-foreground/40 mx-auto mb-2" />
-            <p className="text-sm text-muted-foreground font-medium">No pending requests</p>
+            <p className="text-sm text-muted-foreground font-medium">No pending student requests</p>
             <p className="text-xs text-muted-foreground/70 mt-1">
               Click Refresh after sharing the link
             </p>
@@ -742,6 +869,87 @@ function AdmissionLinkTab() {
           </div>
         )}
       </div>
+
+      {/* Pending teacher requests */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Clock className="h-4 w-4 text-muted-foreground" />
+          <h3 className="text-sm font-semibold">Pending Teacher Requests</h3>
+          {teacherRequests.length > 0 && (
+            <Badge variant="secondary" className="text-xs h-5">{teacherRequests.length}</Badge>
+          )}
+        </div>
+
+        {teacherRequests.length === 0 && !loadingTeacherRequests && (
+          <div className="rounded-xl border border-dashed bg-muted/20 py-12 text-center">
+            <UserCheck className="h-8 w-8 text-muted-foreground/40 mx-auto mb-2" />
+            <p className="text-sm text-muted-foreground font-medium">No pending teacher requests</p>
+            <p className="text-xs text-muted-foreground/70 mt-1">
+              Click Refresh after sharing the link
+            </p>
+          </div>
+        )}
+
+        {loadingTeacherRequests && (
+          <div className="rounded-xl border p-8 text-center">
+            <Loader2 className="h-6 w-6 text-muted-foreground/50 mx-auto animate-spin" />
+          </div>
+        )}
+
+        {teacherRequests.length > 0 && (
+          <div className="rounded-xl border overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/50">
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Subject</TableHead>
+                  <TableHead>Applied</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {teacherRequests.map((req) => (
+                  <TableRow key={req.id}>
+                    <TableCell className="font-medium">{req.name}</TableCell>
+                    <TableCell className="text-muted-foreground text-sm">{req.email}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="text-xs">{req.subject ?? "—"}</Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground text-xs">
+                      {new Date(req.createdAt).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => rejectTeacher(req)}
+                          disabled={processingTeacherId === req.id}
+                          className="h-7 px-3 text-xs text-destructive border-destructive/30 hover:bg-destructive/5"
+                        >
+                          Reject
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => approveTeacher(req)}
+                          disabled={processingTeacherId === req.id}
+                          className="h-7 px-3 text-xs gap-1"
+                        >
+                          {processingTeacherId === req.id
+                            ? <Loader2 className="h-3 w-3 animate-spin" />
+                            : <CheckCircle2 className="h-3 w-3" />}
+                          Approve
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -768,7 +976,7 @@ export default function AddStudents() {
       id: "admission",
       label: "Admission Link",
       icon: Link2,
-      desc: "Let students register themselves via a link",
+      desc: "Let students or teachers register themselves via a link",
     },
   ];
 
@@ -848,7 +1056,7 @@ export default function AddStudents() {
               ? "Student-এর তথ্য নিচের form-এ দিন এবং সরাসরি যোগ করুন।"
               : activeTab === "excel"
               ? "Download the template, fill it in, and upload to import students in bulk."
-              : "Share your unique link. Students self-register, and you approve them below."}
+              : "Share your unique link. Students or teachers self-register with their own email & password, and you approve them below."}
           </CardDescription>
         </CardHeader>
         <CardContent>

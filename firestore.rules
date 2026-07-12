@@ -97,6 +97,13 @@ service cloud.firestore {
         allow read, update, delete: if isOrgStaff(orgId);
       }
 
+      // Teacher join requests come from the same public join page (no auth,
+      // role="teacher") and are reviewed by org staff.
+      match /teacher_requests/{reqId} {
+        allow create: if true;
+        allow read, update, delete: if isOrgStaff(orgId);
+      }
+
       // Students: staff manage records; a student may only read their own.
       match /students/{studentId} {
         allow read: if isOrgStaff(orgId) || (isStudent(orgId) && myProfile().studentId == studentId);
