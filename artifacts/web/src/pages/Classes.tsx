@@ -5,20 +5,165 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Pencil, Trash2, BookOpen, Loader2, X } from "lucide-react";
+import { Plus, Pencil, Trash2, BookOpen, Loader2, X, CalendarClock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 type ClassForm = {
   name: string;
+  section: string;
   teacher: string;
   room: string;
   schedule: string;
   studentCount: string;
   batches: string[];
 };
-const empty: ClassForm = { name: "", teacher: "", room: "", schedule: "", studentCount: "", batches: [] };
+const empty: ClassForm = { name: "", section: "", teacher: "", room: "", schedule: "", studentCount: "", batches: [] };
+
+const SECTION_OPTIONS = ["Science", "Commerce", "Arts", "General"];
+
+const WEEK_DAYS = [
+  { value: "Sat", label: "শনি" },
+  { value: "Sun", label: "রবি" },
+  { value: "Mon", label: "সোম" },
+  { value: "Tue", label: "মঙ্গল" },
+  { value: "Wed", label: "বুধ" },
+  { value: "Thu", label: "বৃহস্পতি" },
+  { value: "Fri", label: "শুক্র" },
+];
+
+function to12h(t: string): string {
+  if (!t) return "";
+  const [hStr, m] = t.split(":");
+  let h = Number(hStr);
+  const ampm = h >= 12 ? "PM" : "AM";
+  h = h % 12 || 12;
+  return `${h}:${m}${ampm}`;
+}
+
+// ── Schedule picker: calendar-like day + time selector, with a manual fallback ──
+function ScheduleField({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const [mode, setMode] = useState<"picker" | "manual">("manual");
+  const [days, setDays] = useState<string[]>([]);
+  const [startTime, setStartTime] = useState("09:00");
+  const [endTime, setEndTime] = useState("11:00");
+  const [manualText, setManualText] = useState("");
+
+  function openDialog() {
+    setManualText(value);
+    setMode("manual");
+    setDays([]);
+    setStartTime("09:00");
+    setEndTime("11:00");
+    setOpen(true);
+  }
+
+  function toggleDay(d: string) {
+    setDays((prev) => (prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d]));
+  }
+
+  function confirm() {
+    if (mode === "manual") {
+      if (!manualText.trim()) return;
+      onChange(manualText.trim());
+    } else {
+      if (days.length === 0) return;
+      const dayLabel = WEEK_DAYS.filter((d) => days.includes(d.value)).map((d) => d.value).join("-");
+      onChange(`${dayLabel}, ${to12h(startTime)}-${to12h(endTime)}`);
+    }
+    setOpen(false);
+  }
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={openDialog}
+        className="w-full flex items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm hover:bg-muted/50 transition-colors"
+      >
+        <span className={value ? "" : "text-muted-foreground"}>
+          {value || "Schedule সেট করুন"}
+        </span>
+        <CalendarClock className="h-4 w-4 text-muted-foreground shrink-0" />
+      </button>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader><DialogTitle>Schedule সেট করুন</DialogTitle></DialogHeader>
+
+          <div className="flex gap-2 rounded-md bg-muted p-1">
+            <button
+              type="button"
+              onClick={() => setMode("picker")}
+              className={`flex-1 rounded-sm py-1.5 text-sm font-medium transition-colors ${mode === "picker" ? "bg-background shadow-sm" : "text-muted-foreground"}`}
+            >
+              Day ও Time বাছুন
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode("manual")}
+              className={`flex-1 rounded-sm py-1.5 text-sm font-medium transition-colors ${mode === "manual" ? "bg-background shadow-sm" : "text-muted-foreground"}`}
+            >
+              নিজে লিখুন
+            </button>
+          </div>
+
+          {mode === "picker" ? (
+            <div className="space-y-4 py-2">
+              <div className="space-y-2">
+                <Label>সপ্তাহের কোন দিনগুলো?</Label>
+                <div className="grid grid-cols-4 gap-2">
+                  {WEEK_DAYS.map((d) => (
+                    <button
+                      type="button"
+                      key={d.value}
+                      onClick={() => toggleDay(d.value)}
+                      className={`rounded-md border py-2 text-xs font-medium transition-colors ${
+                        days.includes(d.value)
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "border-input hover:bg-muted/50"
+                      }`}
+                    >
+                      {d.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label>শুরুর সময়</Label>
+                  <Input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
+                </div>
+                <div className="space-y-1">
+                  <Label>শেষের সময়</Label>
+                  <Input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-1 py-2">
+              <Label>Schedule (নিজে লিখুন)</Label>
+              <Input
+                placeholder="যেমন: Sat-Thu, 9am-11am"
+                value={manualText}
+                onChange={(e) => setManualText(e.target.value)}
+                autoFocus
+              />
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button type="button" onClick={confirm}>সেট করুন</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
 
 export default function Classes() {
   const { data: classes = [], isLoading } = useListClasses();
@@ -36,6 +181,7 @@ export default function Classes() {
     setEditing(c);
     setForm({
       name: c.name ?? "",
+      section: c.section ?? "",
       teacher: c.teacher ?? "",
       room: c.room ?? "",
       schedule: c.schedule ?? "",
@@ -60,12 +206,19 @@ export default function Classes() {
 
   function handleSave() {
     if (!form.name.trim()) { toast({ title: "Class-এর নাম দিন", variant: "destructive" }); return; }
+    if (!form.section) { toast({ title: "Section বাছাই করুন", variant: "destructive" }); return; }
+    if (form.batches.length === 0) { toast({ title: "অন্তত একটি Batch যোগ করুন", variant: "destructive" }); return; }
+    if (!form.teacher.trim()) { toast({ title: "Class Teacher-এর নাম দিন", variant: "destructive" }); return; }
+    if (!form.room.trim()) { toast({ title: "Room নম্বর দিন", variant: "destructive" }); return; }
+    if (!form.schedule.trim()) { toast({ title: "Schedule সেট করুন", variant: "destructive" }); return; }
+    if (!form.studentCount.trim()) { toast({ title: "মোট Students সংখ্যা দিন", variant: "destructive" }); return; }
     const data = {
       name: form.name.trim(),
-      teacher: form.teacher.trim() || null,
-      room: form.room.trim() || null,
-      schedule: form.schedule.trim() || null,
-      studentCount: form.studentCount ? Number(form.studentCount) : null,
+      section: form.section,
+      teacher: form.teacher.trim(),
+      room: form.room.trim(),
+      schedule: form.schedule.trim(),
+      studentCount: Number(form.studentCount),
       batches: form.batches,
     };
     if (editing) {
@@ -108,6 +261,7 @@ export default function Classes() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Class</TableHead>
+                  <TableHead>Section</TableHead>
                   <TableHead>Batches</TableHead>
                   <TableHead>Teacher</TableHead>
                   <TableHead>Room</TableHead>
@@ -117,10 +271,10 @@ export default function Classes() {
               </TableHeader>
               <TableBody>
                 {isLoading ? (
-                  <TableRow><TableCell colSpan={6} className="text-center py-10"><div className="animate-pulse text-muted-foreground">লোড হচ্ছে...</div></TableCell></TableRow>
+                  <TableRow><TableCell colSpan={7} className="text-center py-10"><div className="animate-pulse text-muted-foreground">লোড হচ্ছে...</div></TableCell></TableRow>
                 ) : (classes as any[]).length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-16 text-muted-foreground">
+                    <TableCell colSpan={7} className="text-center py-16 text-muted-foreground">
                       <BookOpen className="h-8 w-8 mx-auto mb-2 opacity-30" />
                       কোনো class নেই। উপরের বোতাম দিয়ে তৈরি করুন।
                     </TableCell>
@@ -129,6 +283,7 @@ export default function Classes() {
                   (classes as any[]).map((c: any) => (
                     <TableRow key={c.id}>
                       <TableCell className="font-semibold">{c.name}</TableCell>
+                      <TableCell>{c.section ? <Badge variant="outline" className="text-xs">{c.section}</Badge> : "—"}</TableCell>
                       <TableCell>
                         {Array.isArray(c.batches) && c.batches.length > 0 ? (
                           <div className="flex flex-wrap gap-1">
@@ -171,8 +326,22 @@ export default function Classes() {
               <Input placeholder="যেমন: Class 10, HSC" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
             </div>
 
+            <div className="space-y-1">
+              <Label>Section *</Label>
+              <Select value={form.section} onValueChange={(val) => setForm((f) => ({ ...f, section: val }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Section বাছাই করুন" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SECTION_OPTIONS.map((s) => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <div className="space-y-2">
-              <Label>Batches</Label>
+              <Label>Batches *</Label>
               <div className="flex gap-2">
                 <Input
                   placeholder="যেমন: Batch A, Morning Batch"
@@ -200,19 +369,19 @@ export default function Classes() {
             </div>
 
             <div className="space-y-1">
-              <Label>Class Teacher</Label>
+              <Label>Class Teacher *</Label>
               <Input placeholder="Teacher-এর নাম" value={form.teacher} onChange={(e) => setForm((f) => ({ ...f, teacher: e.target.value }))} />
             </div>
             <div className="space-y-1">
-              <Label>Room নম্বর</Label>
+              <Label>Room নম্বর *</Label>
               <Input placeholder="যেমন: 101, Ground Floor" value={form.room} onChange={(e) => setForm((f) => ({ ...f, room: e.target.value }))} />
             </div>
             <div className="space-y-1">
-              <Label>Schedule / সময়সূচী</Label>
-              <Input placeholder="যেমন: Sat-Thu, 9am-11am" value={form.schedule} onChange={(e) => setForm((f) => ({ ...f, schedule: e.target.value }))} />
+              <Label>Schedule / সময়সূচী *</Label>
+              <ScheduleField value={form.schedule} onChange={(v) => setForm((f) => ({ ...f, schedule: v }))} />
             </div>
             <div className="space-y-1">
-              <Label>মোট Students</Label>
+              <Label>মোট Students *</Label>
               <Input type="number" placeholder="0" value={form.studentCount} onChange={(e) => setForm((f) => ({ ...f, studentCount: e.target.value }))} />
             </div>
           </div>
