@@ -543,14 +543,23 @@ function AdmissionLinkTab() {
   const qc = useQueryClient();
 
   const orgId = userProfile?.orgId;
-  const admissionLink = orgId
-    ? `${window.location.origin}/join/${orgId}`
+  const studentLink = orgId
+    ? `${window.location.origin}/join/${orgId}/student`
+    : null;
+  const teacherLink = orgId
+    ? `${window.location.origin}/join/${orgId}/teacher`
     : null;
 
-  function copyLink() {
-    if (!admissionLink) return;
-    navigator.clipboard.writeText(admissionLink);
-    toast({ title: "Link copied!", description: "Share this link with students or teachers to let them register." });
+  function copyStudentLink() {
+    if (!studentLink) return;
+    navigator.clipboard.writeText(studentLink);
+    toast({ title: "Student link copied!", description: "Share this link — only the student form (with email & password) will show." });
+  }
+
+  function copyTeacherLink() {
+    if (!teacherLink) return;
+    navigator.clipboard.writeText(teacherLink);
+    toast({ title: "Teacher link copied!", description: "Share this link — only the teacher form (with email & password) will show." });
   }
 
   async function loadRequests() {
@@ -743,37 +752,65 @@ function AdmissionLinkTab() {
 
   return (
     <div className="space-y-6">
-      {/* Link card */}
-      <div className="rounded-xl border bg-gradient-to-br from-primary/5 to-primary/[0.02] p-5 space-y-4">
-        <div className="flex items-start gap-3">
-          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-            <Link2 className="h-5 w-5 text-primary" />
+      {/* Link cards — separate links so each form only ever shows one role */}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="rounded-xl border bg-gradient-to-br from-primary/5 to-primary/[0.02] p-5 space-y-4">
+          <div className="flex items-start gap-3">
+            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+              <Link2 className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-sm">Student Join Link</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Only students fill this up — with their own email &amp; password.
+              </p>
+            </div>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-semibold text-sm">Your Join Link</p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Share with students or teachers — they choose their own email &amp; password, you approve or reject below.
-            </p>
+
+          <div className="flex gap-2">
+            <div className="flex-1 min-w-0 rounded-lg border bg-background px-3 py-2">
+              <p className="text-xs text-muted-foreground truncate font-mono">
+                {studentLink ?? "—"}
+              </p>
+            </div>
+            <Button size="sm" variant="outline" onClick={copyStudentLink} className="gap-1.5 shrink-0">
+              <Copy className="h-3.5 w-3.5" />
+              Copy
+            </Button>
           </div>
         </div>
 
-        <div className="flex gap-2">
-          <div className="flex-1 min-w-0 rounded-lg border bg-background px-3 py-2">
-            <p className="text-xs text-muted-foreground truncate font-mono">
-              {admissionLink ?? "—"}
-            </p>
+        <div className="rounded-xl border bg-gradient-to-br from-primary/5 to-primary/[0.02] p-5 space-y-4">
+          <div className="flex items-start gap-3">
+            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+              <Link2 className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-sm">Teacher Join Link</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Only teachers fill this up — with their own email &amp; password.
+              </p>
+            </div>
           </div>
-          <Button size="sm" variant="outline" onClick={copyLink} className="gap-1.5 shrink-0">
-            <Copy className="h-3.5 w-3.5" />
-            Copy
-          </Button>
-        </div>
 
-        <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-          <span className="flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5 text-green-500" />Unique to your organization</span>
-          <span className="flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5 text-green-500" />Admin approval required</span>
-          <span className="flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5 text-green-500" />Works on any device</span>
+          <div className="flex gap-2">
+            <div className="flex-1 min-w-0 rounded-lg border bg-background px-3 py-2">
+              <p className="text-xs text-muted-foreground truncate font-mono">
+                {teacherLink ?? "—"}
+              </p>
+            </div>
+            <Button size="sm" variant="outline" onClick={copyTeacherLink} className="gap-1.5 shrink-0">
+              <Copy className="h-3.5 w-3.5" />
+              Copy
+            </Button>
+          </div>
         </div>
+      </div>
+
+      <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+        <span className="flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5 text-green-500" />Unique to your organization</span>
+        <span className="flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5 text-green-500" />Admin approval required</span>
+        <span className="flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5 text-green-500" />Works on any device</span>
       </div>
 
       {/* Pending student requests */}

@@ -20,13 +20,19 @@ export default function JoinOrg() {
   const pathParts = window.location.pathname.split("/");
   const joinIndex = pathParts.indexOf("join");
   const orgId = joinIndex !== -1 ? pathParts[joinIndex + 1] : undefined;
+  const roleSegment = joinIndex !== -1 ? pathParts[joinIndex + 2] : undefined;
+  // When the link itself specifies a role (e.g. /join/:orgId/teacher), lock
+  // the form to that role — no toggle, so the student link only ever shows
+  // the student form and the teacher link only ever shows the teacher form.
+  const lockedRole: JoinRole | undefined =
+    roleSegment === "student" || roleSegment === "teacher" ? roleSegment : undefined;
 
   const [status, setStatus] = useState<Status>("loading");
   const [orgName, setOrgName] = useState("");
   const [orgClasses, setOrgClasses] = useState<OrgClass[]>([]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const [role, setRole] = useState<JoinRole>("student");
+  const [role, setRole] = useState<JoinRole>(lockedRole ?? "student");
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -260,26 +266,32 @@ export default function JoinOrg() {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
 
-              {/* Role selector */}
-              <div className="space-y-1.5">
-                <Label>আপনি কে? <span className="text-destructive">*</span></Label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleRoleChange("student")}
-                    className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${role === "student" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:bg-muted/50"}`}
-                  >
-                    আমি Student
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleRoleChange("teacher")}
-                    className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${role === "teacher" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:bg-muted/50"}`}
-                  >
-                    আমি Teacher
-                  </button>
+              {/* Role selector — only shown when the link doesn't already lock a role */}
+              {lockedRole ? (
+                <div className="rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-sm font-medium text-primary">
+                  {lockedRole === "student" ? "Student ভর্তির আবেদন ফর্ম" : "Teacher যোগদানের আবেদন ফর্ম"}
                 </div>
-              </div>
+              ) : (
+                <div className="space-y-1.5">
+                  <Label>আপনি কে? <span className="text-destructive">*</span></Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleRoleChange("student")}
+                      className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${role === "student" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:bg-muted/50"}`}
+                    >
+                      আমি Student
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleRoleChange("teacher")}
+                      className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${role === "teacher" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:bg-muted/50"}`}
+                    >
+                      আমি Teacher
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {errorMsg && (
                 <div className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">

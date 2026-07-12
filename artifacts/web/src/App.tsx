@@ -171,7 +171,7 @@ function AppRoutes() {
         <Route path="/faq">
           <Suspense fallback={<Spinner />}><FAQ /></Suspense>
         </Route>
-        <Route path="/join/:code">
+        <Route path="/join/:code/:role?">
           <Suspense fallback={<Spinner />}><JoinOrg /></Suspense>
         </Route>
         {/* All other routes go through the auth-gated flow */}
