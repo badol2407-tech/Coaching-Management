@@ -71,16 +71,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const data = snap.data() as Omit<UserProfile, "uid">;
 
         // ── Super Admin gate ─────────────────────────────────────────────
-        // Grant super_admin ONLY when BOTH conditions are met:
-        //   1. Email is in the whitelist
-        //   2. Firestore role === "super_admin"
-        // If email is whitelisted but Firestore role != "super_admin",
-        // fall through to the normal login flow (no elevation).
+        // Whitelist is the single source of truth:
+        //   • If email IS in the whitelist → always super_admin (overrides
+        //     whatever role is stored in Firestore, e.g. org_admin)
+        //   • If email is NOT whitelisted but Firestore role === "super_admin"
+        //     → block (security — prevents rogue Firestore edits from elevating)
         if (data.role === "super_admin" && !isSuperAdminEmail(u.email)) {
-          // Role is super_admin in Firestore but email is NOT whitelisted.
-          // Treat as no profile → redirect to landing page for security.
+          // Firestore says super_admin but email isn't whitelisted → block.
           setUserProfile(null);
           return;
+        }
+        if (isSuperAdminEmail(u.email)) {
+          // Whitelisted email → always elevate to super_admin.
+          data.role = "super_admin";
         }
         // ────────────────────────────────────────────────────────────────
 
