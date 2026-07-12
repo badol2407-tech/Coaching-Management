@@ -1,1 +1,2 @@
 - [Login Flow Architecture](login-flow-architecture.md) — all accounts pre-provisioned; single email+password popup; AuthContext auto-routes by role from Firestore
+- [Seen-tracking & batch visibility pattern](seen-tracking-pattern.md) — "কে দেখেছে?" seen-subcollection pattern + batch-based student filtering across Notices/Homework/Routine/Fees/Exams; firestore.rules needs manual deploy
