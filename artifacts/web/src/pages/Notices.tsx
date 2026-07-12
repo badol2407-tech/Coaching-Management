@@ -193,12 +193,12 @@ export default function Notices() {
           <SheetHeader><SheetTitle>Notice Post করুন</SheetTitle></SheetHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-1">
-              <Label>Title</Label>
-              <Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Notice-এর বিষয়" />
+              <Label>Title <span className="text-destructive">*</span></Label>
+              <Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Notice-এর বিষয়" required />
             </div>
             <div className="space-y-1">
-              <Label>Content</Label>
-              <Textarea rows={5} value={form.content} onChange={e => setForm(f => ({ ...f, content: e.target.value }))} placeholder="বিস্তারিত লিখুন…" />
+              <Label>Content <span className="text-destructive">*</span></Label>
+              <Textarea rows={5} value={form.content} onChange={e => setForm(f => ({ ...f, content: e.target.value }))} placeholder="বিস্তারিত লিখুন…" required />
             </div>
             <div className="space-y-1">
               <Label>Class <span className="text-destructive">*</span></Label>
