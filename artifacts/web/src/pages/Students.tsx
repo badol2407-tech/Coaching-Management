@@ -48,13 +48,15 @@ import { useToast } from "@/hooks/use-toast";
 
 type Student = {
   id: string; name: string; phone?: string | null; email?: string | null;
-  className?: string | null; batch?: string | null;
+  className?: string | null; section?: string | null; batch?: string | null;
   guardianName?: string | null; guardianPhone?: string | null;
   enrolledAt: string; hasFirebaseAuth?: boolean; uid?: string | null;
 };
 
+const SECTION_OPTIONS = ["Science", "Commerce", "Arts", "General"];
+
 const emptyForm = {
-  name: "", phone: "", email: "", address: "", className: "", batch: "",
+  name: "", phone: "", email: "", address: "", className: "", section: "", batch: "",
   guardianName: "", guardianPhone: "",
   enrolledAt: new Date().toISOString().split("T")[0],
   password: "", passwordMode: "generate" as "manual" | "generate",
@@ -309,7 +311,7 @@ export default function Students() {
     setEditing(s);
     setForm({
       name: s.name, phone: s.phone ?? "", email: s.email ?? "", address: "",
-      className: s.className ?? "", batch: s.batch ?? "",
+      className: s.className ?? "", section: s.section ?? "", batch: s.batch ?? "",
       guardianName: s.guardianName ?? "", guardianPhone: s.guardianPhone ?? "",
       enrolledAt: s.enrolledAt, password: "", passwordMode: "generate",
     });
@@ -322,9 +324,30 @@ export default function Students() {
     setShowPassword(true);
   }
 
+  const requiredFieldDefs: { key: keyof typeof emptyForm; label: string }[] = [
+    { key: "name", label: "Full Name" },
+    { key: "email", label: "Email" },
+    { key: "phone", label: "Phone" },
+    { key: "className", label: "Class" },
+    { key: "section", label: "Section" },
+    { key: "batch", label: "Batch" },
+    { key: "guardianName", label: "Guardian Name" },
+    { key: "guardianPhone", label: "Guardian Phone" },
+    { key: "enrolledAt", label: "Enrollment Date" },
+  ];
+
+  function getMissingFields() {
+    return requiredFieldDefs.filter((f) => !String(form[f.key] ?? "").trim());
+  }
+
   async function handleSave() {
-    if (!form.name.trim()) {
-      toast({ title: "Name is required", variant: "destructive" });
+    const missing = getMissingFields();
+    if (missing.length > 0) {
+      toast({
+        title: "সব ঘর পূরণ করুন (All fields are required)",
+        description: `Missing: ${missing.map((f) => f.label).join(", ")}`,
+        variant: "destructive",
+      });
       return;
     }
     setSaving(true);
@@ -334,6 +357,7 @@ export default function Students() {
         const data: Record<string, unknown> = {
           name: form.name, phone: form.phone || null, email: form.email || null,
           address: form.address || null, className: form.className || null,
+          section: form.section || null,
           batch: form.batch || null, guardianName: form.guardianName || null,
           guardianPhone: form.guardianPhone || null, enrolledAt: form.enrolledAt,
         };
@@ -403,6 +427,7 @@ export default function Students() {
             phone: form.phone.trim() || null,
             email,
             className: form.className.trim() || null,
+            section: form.section.trim() || null,
             batch: form.batch.trim() || null,
             guardianName: form.guardianName.trim() || null,
             guardianPhone: form.guardianPhone.trim() || null,
@@ -497,6 +522,7 @@ export default function Students() {
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Class</TableHead>
+              <TableHead>Section</TableHead>
               <TableHead>Batch</TableHead>
               <TableHead>Phone</TableHead>
               <TableHead>Guardian</TableHead>
@@ -509,12 +535,12 @@ export default function Students() {
             {isLoading ? (
               Array.from({ length: 5 }).map((_, i) => (
                 <TableRow key={i}>
-                  <TableCell colSpan={8} className="h-12 animate-pulse bg-muted/30" />
+                  <TableCell colSpan={9} className="h-12 animate-pulse bg-muted/30" />
                 </TableRow>
               ))
             ) : (students as Student[]).length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-10 text-muted-foreground">
+                <TableCell colSpan={9} className="text-center py-10 text-muted-foreground">
                   {search ? "No students match your search." : "No students yet. Click \"Add Student\" to get started."}
                 </TableCell>
               </TableRow>
@@ -524,6 +550,9 @@ export default function Students() {
                   <TableCell className="font-medium">{s.name}</TableCell>
                   <TableCell>
                     <Badge variant="outline">{s.className ?? "—"}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    {s.section ? <Badge variant="outline">{s.section}</Badge> : <span className="text-muted-foreground">—</span>}
                   </TableCell>
                   <TableCell>
                     {s.batch ? <Badge variant="secondary">{s.batch}</Badge> : <span className="text-muted-foreground">—</span>}
@@ -629,7 +658,7 @@ export default function Students() {
             </div>
             {/* Phone */}
             <div className="space-y-1">
-              <Label>Phone</Label>
+              <Label>Phone <span className="text-destructive">*</span></Label>
               <Input
                 value={form.phone}
                 onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
@@ -638,7 +667,7 @@ export default function Students() {
             </div>
             {/* Class */}
             <div className="space-y-1">
-              <Label>Class</Label>
+              <Label>Class <span className="text-destructive">*</span></Label>
               {(classes as any[]).length > 0 ? (
                 <Select
                   value={form.className}
@@ -646,7 +675,6 @@ export default function Students() {
                 >
                   <SelectTrigger><SelectValue placeholder="Select class" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">— No class —</SelectItem>
                     {(classes as any[]).map((c: any) => (
                       <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
                     ))}
@@ -660,9 +688,24 @@ export default function Students() {
                 />
               )}
             </div>
+            {/* Section */}
+            <div className="space-y-1">
+              <Label>Section <span className="text-destructive">*</span></Label>
+              <Select
+                value={form.section}
+                onValueChange={(val) => setForm((f) => ({ ...f, section: val }))}
+              >
+                <SelectTrigger><SelectValue placeholder="Select section" /></SelectTrigger>
+                <SelectContent>
+                  {SECTION_OPTIONS.map((s) => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             {/* Batch */}
             <div className="space-y-1">
-              <Label>Batch</Label>
+              <Label>Batch <span className="text-destructive">*</span></Label>
               {availableBatches.length > 0 ? (
                 <Select
                   value={form.batch}
@@ -670,7 +713,6 @@ export default function Students() {
                 >
                   <SelectTrigger><SelectValue placeholder="Select batch" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">— No batch —</SelectItem>
                     {availableBatches.map((b: string) => (
                       <SelectItem key={b} value={b}>{b}</SelectItem>
                     ))}
@@ -686,7 +728,7 @@ export default function Students() {
             </div>
             {/* Guardian */}
             <div className="space-y-1">
-              <Label>Guardian Name</Label>
+              <Label>Guardian Name <span className="text-destructive">*</span></Label>
               <Input
                 value={form.guardianName}
                 onChange={(e) => setForm((f) => ({ ...f, guardianName: e.target.value }))}
@@ -694,7 +736,7 @@ export default function Students() {
               />
             </div>
             <div className="space-y-1">
-              <Label>Guardian Phone</Label>
+              <Label>Guardian Phone <span className="text-destructive">*</span></Label>
               <Input
                 value={form.guardianPhone}
                 onChange={(e) => setForm((f) => ({ ...f, guardianPhone: e.target.value }))}
@@ -703,7 +745,7 @@ export default function Students() {
             </div>
             {/* Enrolled date */}
             <div className="space-y-1">
-              <Label>Enrollment Date</Label>
+              <Label>Enrollment Date <span className="text-destructive">*</span></Label>
               <Input
                 type="date"
                 value={form.enrolledAt}
