@@ -36,12 +36,29 @@ const Subscription = lazy(() => import("@/pages/Subscription"));
 const PaymentSuccess = lazy(() => import("@/pages/PaymentSuccess"));
 const PaymentFail = lazy(() => import("@/pages/PaymentFail"));
 
-// Super Admin pages
+// Super Admin pages — Operations
 const SuperAdminDashboard = lazy(() => import("@/pages/super-admin/SuperAdminDashboard"));
 const ManageOrganizations = lazy(() => import("@/pages/super-admin/ManageOrganizations"));
 const ManageUsers = lazy(() => import("@/pages/super-admin/ManageUsers"));
 const PaymentHistory = lazy(() => import("@/pages/super-admin/PaymentHistory"));
 const ActivityLogs = lazy(() => import("@/pages/super-admin/ActivityLogs"));
+const OrgAdmins = lazy(() => import("@/pages/super-admin/OrgAdmins"));
+const TeachersList = lazy(() => import("@/pages/super-admin/TeachersList"));
+const StudentsList = lazy(() => import("@/pages/super-admin/StudentsList"));
+// Super Admin pages — Billing
+const PricingPlans = lazy(() => import("@/pages/super-admin/PricingPlans"));
+const ActiveSubscriptions = lazy(() => import("@/pages/super-admin/ActiveSubscriptions"));
+const PaidUnpaid = lazy(() => import("@/pages/super-admin/PaidUnpaid"));
+const FreeTrial = lazy(() => import("@/pages/super-admin/FreeTrial"));
+const Revenue = lazy(() => import("@/pages/super-admin/Revenue"));
+// Super Admin pages — Marketing
+const LandingPageMgmt = lazy(() => import("@/pages/super-admin/LandingPageMgmt"));
+const PopupOffers = lazy(() => import("@/pages/super-admin/PopupOffers"));
+const Testimonials = lazy(() => import("@/pages/super-admin/Testimonials"));
+const CouponCodes = lazy(() => import("@/pages/super-admin/CouponCodes"));
+const ReferralProgram = lazy(() => import("@/pages/super-admin/ReferralProgram"));
+const GrowthAnalytics = lazy(() => import("@/pages/super-admin/GrowthAnalytics"));
+const Campaigns = lazy(() => import("@/pages/super-admin/Campaigns"));
 
 const TeacherDashboard = lazy(() => import("@/pages/teacher/TeacherDashboard"));
 const TeacherAttendance = lazy(() => import("@/pages/teacher/TeacherAttendance"));
@@ -85,11 +102,35 @@ function AuthenticatedRoutes() {
       <SuperAdminLayout>
         <Suspense fallback={<Spinner />}>
           <Switch>
+            {/* Dashboard */}
             <Route path="/" component={SuperAdminDashboard} />
-            <Route path="/organizations" component={ManageOrganizations} />
-            <Route path="/users" component={ManageUsers} />
-            <Route path="/payments" component={PaymentHistory} />
-            <Route path="/activity" component={ActivityLogs} />
+            {/* Operations */}
+            <Route path="/operations/organizations" component={ManageOrganizations} />
+            <Route path="/operations/users" component={ManageUsers} />
+            <Route path="/operations/org-admins" component={OrgAdmins} />
+            <Route path="/operations/teachers" component={TeachersList} />
+            <Route path="/operations/students" component={StudentsList} />
+            <Route path="/operations/activity" component={ActivityLogs} />
+            {/* Billing & Finance */}
+            <Route path="/billing/pricing" component={PricingPlans} />
+            <Route path="/billing/subscriptions" component={ActiveSubscriptions} />
+            <Route path="/billing/paid-unpaid" component={PaidUnpaid} />
+            <Route path="/billing/free-trial" component={FreeTrial} />
+            <Route path="/billing/revenue" component={Revenue} />
+            <Route path="/billing/payments" component={PaymentHistory} />
+            {/* Marketing & Growth */}
+            <Route path="/marketing/landing" component={LandingPageMgmt} />
+            <Route path="/marketing/popups" component={PopupOffers} />
+            <Route path="/marketing/testimonials" component={Testimonials} />
+            <Route path="/marketing/coupons" component={CouponCodes} />
+            <Route path="/marketing/referrals" component={ReferralProgram} />
+            <Route path="/marketing/analytics" component={GrowthAnalytics} />
+            <Route path="/marketing/campaigns" component={Campaigns} />
+            {/* Legacy redirects */}
+            <Route path="/organizations"><Redirect to="/operations/organizations" /></Route>
+            <Route path="/users"><Redirect to="/operations/users" /></Route>
+            <Route path="/payments"><Redirect to="/billing/payments" /></Route>
+            <Route path="/activity"><Redirect to="/operations/activity" /></Route>
             <Route><Redirect to="/" /></Route>
           </Switch>
         </Suspense>

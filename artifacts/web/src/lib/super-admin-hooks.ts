@@ -9,7 +9,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  collection, getDocs, getDoc, updateDoc, deleteDoc,
+  collection, getDocs, getDoc, setDoc, updateDoc, deleteDoc,
   doc, addDoc, query, orderBy, limit, serverTimestamp,
   where, Timestamp, writeBatch,
 } from "firebase/firestore";
@@ -262,6 +262,225 @@ export function useRecentActivityLogs(limitCount = 50) {
     },
   });
 }
+
+// ── Platform Settings ──────────────────────────────────────────────────────────
+
+export function usePlatformSettings() {
+  return useQuery({
+    queryKey: ["super_admin", "platform_settings"],
+    queryFn: async () => {
+      try {
+        const snap = await getDoc(doc(db, "platform_settings", "general"));
+        return snap.exists() ? (snap.data() as any) : null;
+      } catch {
+        return null;
+      }
+    },
+  });
+}
+
+export function useUpdatePlatformSettings() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: Record<string, unknown>) => {
+      await setDoc(doc(db, "platform_settings", "general"), data, { merge: true });
+    },
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ["super_admin", "platform_settings"] }),
+  });
+}
+
+// ── Coupon Codes ───────────────────────────────────────────────────────────────
+
+export function useListCoupons() {
+  return useQuery({
+    queryKey: ["super_admin", "coupons"],
+    queryFn: async () => {
+      try {
+        const snap = await getDocs(
+          query(collection(db, "coupon_codes"), orderBy("createdAt", "desc")),
+        );
+        return snap.docs.map(mapDoc) as any[];
+      } catch {
+        return [] as any[];
+      }
+    },
+  });
+}
+
+export function useCreateCoupon() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: {
+      code: string;
+      discount: number;
+      type: string;
+      maxUses: number;
+      expiresAt?: string;
+      active: boolean;
+    }) => {
+      await addDoc(collection(db, "coupon_codes"), {
+        ...data,
+        uses: 0,
+        createdAt: serverTimestamp(),
+      });
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["super_admin", "coupons"] }),
+  });
+}
+
+export function useUpdateCoupon() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Record<string, unknown> }) => {
+      await updateDoc(doc(db, "coupon_codes", id), {
+        ...data,
+        updatedAt: serverTimestamp(),
+      });
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["super_admin", "coupons"] }),
+  });
+}
+
+export function useDeleteCoupon() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id }: { id: string }) => {
+      await deleteDoc(doc(db, "coupon_codes", id));
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["super_admin", "coupons"] }),
+  });
+}
+
+// ── Testimonials ───────────────────────────────────────────────────────────────
+
+export function useListTestimonials() {
+  return useQuery({
+    queryKey: ["super_admin", "testimonials"],
+    queryFn: async () => {
+      try {
+        const snap = await getDocs(
+          query(collection(db, "testimonials"), orderBy("createdAt", "desc")),
+        );
+        return snap.docs.map(mapDoc) as any[];
+      } catch {
+        return [] as any[];
+      }
+    },
+  });
+}
+
+export function useCreateTestimonial() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: {
+      name: string;
+      role: string;
+      text: string;
+      rating: number;
+      avatar?: string;
+      active: boolean;
+    }) => {
+      await addDoc(collection(db, "testimonials"), {
+        ...data,
+        createdAt: serverTimestamp(),
+      });
+    },
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ["super_admin", "testimonials"] }),
+  });
+}
+
+export function useUpdateTestimonial() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Record<string, unknown> }) => {
+      await updateDoc(doc(db, "testimonials", id), {
+        ...data,
+        updatedAt: serverTimestamp(),
+      });
+    },
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ["super_admin", "testimonials"] }),
+  });
+}
+
+export function useDeleteTestimonial() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id }: { id: string }) => {
+      await deleteDoc(doc(db, "testimonials", id));
+    },
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ["super_admin", "testimonials"] }),
+  });
+}
+
+// ── Popup Offers ───────────────────────────────────────────────────────────────
+
+export function useListPopupOffers() {
+  return useQuery({
+    queryKey: ["super_admin", "popup_offers"],
+    queryFn: async () => {
+      try {
+        const snap = await getDocs(
+          query(collection(db, "popup_offers"), orderBy("createdAt", "desc")),
+        );
+        return snap.docs.map(mapDoc) as any[];
+      } catch {
+        return [] as any[];
+      }
+    },
+  });
+}
+
+export function useCreatePopupOffer() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: {
+      title: string;
+      description: string;
+      cta: string;
+      active: boolean;
+      startDate?: string;
+      endDate?: string;
+    }) => {
+      await addDoc(collection(db, "popup_offers"), {
+        ...data,
+        createdAt: serverTimestamp(),
+      });
+    },
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ["super_admin", "popup_offers"] }),
+  });
+}
+
+export function useUpdatePopupOffer() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Record<string, unknown> }) => {
+      await updateDoc(doc(db, "popup_offers", id), {
+        ...data,
+        updatedAt: serverTimestamp(),
+      });
+    },
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ["super_admin", "popup_offers"] }),
+  });
+}
+
+export function useDeletePopupOffer() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id }: { id: string }) => {
+      await deleteDoc(doc(db, "popup_offers", id));
+    },
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ["super_admin", "popup_offers"] }),
+  });
+}
+
+// ── logSuperAdminAction ────────────────────────────────────────────────────────
 
 export async function logSuperAdminAction(params: {
   action: string;
