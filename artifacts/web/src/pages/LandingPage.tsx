@@ -920,57 +920,69 @@ export default function LandingPage() {
           <div className="flex flex-col md:flex-row gap-5 md:items-center justify-center">
 
             {/* ── Card 1: Free Trial — Bright frosted glass ── */}
+            {/* Outer gradient border wrapper — matches Annual/Founder structure */}
             <div
-              className="pricing-card-free relative flex flex-col rounded-2xl md:flex-1 p-7 transition-all duration-300 overflow-hidden"
+              className="pricing-card-free relative md:flex-1 self-stretch transition-all duration-300"
               style={{
-                background: "linear-gradient(160deg,rgba(255,255,255,0.92) 0%,rgba(240,253,244,0.88) 100%)",
-                border: "1.5px solid rgba(34,197,94,0.35)",
-                boxShadow: "0 20px 50px rgba(0,0,0,0.22), 0 0 0 0 rgba(34,197,94,0), inset 0 1px 0 rgba(255,255,255,1)",
+                padding: "1.5px",
+                background: "linear-gradient(150deg,rgba(34,197,94,0.7) 0%,rgba(22,163,74,0.45) 40%,rgba(21,128,61,0.28) 70%,rgba(20,184,166,0.35) 100%)",
+                borderRadius: "18px",
                 animation: "pricing-green-pulse 4s ease-in-out infinite",
-                backdropFilter: "blur(20px)",
               }}
             >
-              {/* Green top accent bar */}
-              <div className="pointer-events-none absolute top-0 left-0 right-0 h-[3px] rounded-t-2xl" style={{ background: "linear-gradient(90deg,transparent 0%,#22c55e 40%,#16a34a 60%,transparent 100%)" }} />
-              {/* Subtle green corner glow */}
-              <div className="pointer-events-none absolute top-[-30px] left-[-30px] w-[160px] h-[160px] rounded-full" style={{ background: "radial-gradient(circle,rgba(34,197,94,0.12) 0%,transparent 70%)" }} />
-              <div className="pointer-events-none absolute bottom-[-20px] right-[-20px] w-[120px] h-[120px] rounded-full" style={{ background: "radial-gradient(circle,rgba(34,197,94,0.07) 0%,transparent 70%)" }} />
-
-              <div className="mb-6 relative">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center text-xl mb-4 shadow-md" style={{ background: "linear-gradient(135deg,#dcfce7,#bbf7d0)", border: "1.5px solid rgba(34,197,94,0.4)", boxShadow: "0 4px 14px rgba(34,197,94,0.25)" }}>🟢</div>
-                <h3 className="font-black text-xl" style={{ color: "#0f172a" }}>Free Trial</h3>
-                <p className="text-sm mt-1 font-medium" style={{ color: "#475569" }}>ঝুঁকি ছাড়াই শুরু করুন</p>
-              </div>
-
-              <div className="mb-6 relative">
-                <span className="font-black tracking-tighter" style={{ fontSize: "clamp(48px,6vw,60px)", lineHeight: 1, color: "#0f172a", textShadow: "0 2px 8px rgba(34,197,94,0.18)" }}>৳0</span>
-                <p className="text-sm mt-2 font-medium" style={{ color: "#64748b" }}>৭ দিনের জন্য সম্পূর্ণ বিনামূল্যে</p>
-              </div>
-
-              <ul className="space-y-3 mb-8 flex-1 relative">
-                {[
-                  "Access to all Premium features",
-                  "কোনো Credit Card লাগবে না",
-                  "যেকোনো সময় Cancel করুন",
-                  "Full access, no limitations",
-                ].map((f) => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm font-medium" style={{ color: "#1e293b" }}>
-                    <CheckCircle className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "#16a34a" }} />
-                    <span>{f}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <button
-                className="pricing-btn-free relative w-full h-12 rounded-xl font-black text-sm transition-all duration-200"
-                style={{ background: "linear-gradient(90deg,#16a34a,#22c55e)", color: "#fff", border: "none", cursor: "pointer", boxShadow: "0 6px 20px rgba(34,197,94,0.38), inset 0 1px 0 rgba(255,255,255,0.25)", letterSpacing: "0.01em" }}
-                onClick={() => {
-                  trackFeatureUsed("pricing_cta_click", { plan: "free_trial" });
-                  openAuth("login", "pricing_free_trial");
+              {/* Inner frosted-glass content card */}
+              <div
+                className="relative flex flex-col h-full overflow-hidden"
+                style={{
+                  background: "linear-gradient(160deg,rgba(255,255,255,0.93) 0%,rgba(240,253,244,0.9) 100%)",
+                  borderRadius: "16px",
+                  padding: "28px 24px 24px",
+                  boxShadow: "0 20px 50px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,1)",
+                  backdropFilter: "blur(20px)",
                 }}
               >
-                ফ্রি ট্রায়াল শুরু করুন →
-              </button>
+                {/* Green top accent bar */}
+                <div className="pointer-events-none absolute top-0 left-0 right-0 h-[3px]" style={{ borderRadius: "16px 16px 0 0", background: "linear-gradient(90deg,transparent 0%,#22c55e 40%,#16a34a 60%,transparent 100%)" }} />
+                {/* Green corner glow blobs */}
+                <div className="pointer-events-none absolute top-[-30px] left-[-30px] w-[160px] h-[160px] rounded-full" style={{ background: "radial-gradient(circle,rgba(34,197,94,0.12) 0%,transparent 70%)" }} />
+                <div className="pointer-events-none absolute bottom-[-20px] right-[-20px] w-[120px] h-[120px] rounded-full" style={{ background: "radial-gradient(circle,rgba(34,197,94,0.07) 0%,transparent 70%)" }} />
+
+                <div className="mb-6 relative">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center text-xl mb-4" style={{ background: "linear-gradient(135deg,#dcfce7,#bbf7d0)", border: "1.5px solid rgba(34,197,94,0.4)", boxShadow: "0 4px 14px rgba(34,197,94,0.25)" }}>🟢</div>
+                  <h3 className="font-black text-xl" style={{ color: "#0f172a" }}>Free Trial</h3>
+                  <p className="text-sm mt-1 font-medium" style={{ color: "#475569" }}>ঝুঁকি ছাড়াই শুরু করুন</p>
+                </div>
+
+                <div className="mb-6 relative">
+                  <span className="font-black tracking-tighter" style={{ fontSize: "clamp(48px,6vw,60px)", lineHeight: 1, color: "#0f172a", textShadow: "0 2px 8px rgba(34,197,94,0.18)" }}>৳0</span>
+                  <p className="text-sm mt-2 font-medium" style={{ color: "#64748b" }}>৭ দিনের জন্য সম্পূর্ণ বিনামূল্যে</p>
+                </div>
+
+                <ul className="space-y-3 mb-8 flex-1 relative">
+                  {[
+                    "Access to all Premium features",
+                    "কোনো Credit Card লাগবে না",
+                    "যেকোনো সময় Cancel করুন",
+                    "Full access, no limitations",
+                  ].map((f) => (
+                    <li key={f} className="flex items-start gap-2.5 text-sm font-medium" style={{ color: "#1e293b" }}>
+                      <CheckCircle className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "#16a34a" }} />
+                      <span>{f}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <button
+                  className="pricing-btn-free relative w-full h-12 rounded-xl font-black text-sm transition-all duration-200"
+                  style={{ background: "linear-gradient(90deg,#16a34a,#22c55e)", color: "#fff", border: "none", cursor: "pointer", boxShadow: "0 6px 20px rgba(34,197,94,0.38), inset 0 1px 0 rgba(255,255,255,0.25)", letterSpacing: "0.01em" }}
+                  onClick={() => {
+                    trackFeatureUsed("pricing_cta_click", { plan: "free_trial" });
+                    openAuth("login", "pricing_free_trial");
+                  }}
+                >
+                  ফ্রি ট্রায়াল শুরু করুন →
+                </button>
+              </div>
             </div>
 
             {/* ── Card 2: Founder Launch — DOMINANT FOCAL CARD ── */}
@@ -1070,7 +1082,7 @@ export default function LandingPage() {
 
             {/* ── Card 3: Annual Premium — Rich dark purple glass ── */}
             <div
-              className="pricing-card-annual relative flex flex-col rounded-2xl md:flex-1 p-[1.5px] transition-all duration-300 overflow-hidden"
+              className="pricing-card-annual relative md:flex-1 self-stretch p-[1.5px] transition-all duration-300"
               style={{
                 background: "linear-gradient(150deg,rgba(139,92,246,0.9) 0%,rgba(99,102,241,0.6) 40%,rgba(67,56,202,0.4) 70%,rgba(109,40,217,0.5) 100%)",
                 animation: "pricing-purple-pulse 3.5s ease-in-out infinite",
@@ -1086,7 +1098,7 @@ export default function LandingPage() {
 
               {/* Inner card */}
               <div
-                className="relative flex flex-col flex-1 overflow-hidden"
+                className="relative flex flex-col h-full overflow-hidden"
                 style={{ background: "linear-gradient(160deg,#0d0b1a 0%,#110d24 30%,#0f0c1f 65%,#0a0816 100%)", borderRadius: "14px", padding: "28px 24px 24px" }}
               >
                 {/* Ambient purple radial at top */}
