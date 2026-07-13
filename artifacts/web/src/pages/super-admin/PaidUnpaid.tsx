@@ -1,6 +1,8 @@
 import { useListOrganizations, useUpdateOrganization, useAddPaymentRecord, logSuperAdminAction } from "@/lib/super-admin-hooks";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
+import { PLAN_CONFIG, getEffectiveTier } from "@/lib/plan-config";
+import { getOrgAccessStatus, formatExpiryDate, getRemainingDays } from "@/lib/subscription";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle, XCircle, CreditCard } from "lucide-react";
+import { CheckCircle, XCircle, CreditCard, CalendarClock } from "lucide-react";
 
 export default function PaidUnpaid() {
   const { data: orgs = [], isLoading } = useListOrganizations();
@@ -21,12 +23,13 @@ export default function PaidUnpaid() {
   const [payAmount, setPayAmount] = useState("");
   const [payNote, setPayNote] = useState("");
 
-  const paid = orgs.filter((o: any) => o.paymentStatus === "paid");
-  const unpaid = orgs.filter((o: any) => o.paymentStatus !== "paid");
+  const paid = (orgs as any[]).filter((o: any) => o.paymentStatus === "paid");
+  const unpaid = (orgs as any[]).filter((o: any) => o.paymentStatus !== "paid");
 
   const handleMarkPaid = async (o: any) => {
+    const tier = getEffectiveTier(o);
     setPayDialog(o);
-    setPayAmount("");
+    setPayAmount(String(PLAN_CONFIG[tier].price));
     setPayNote("");
   };
 
@@ -34,9 +37,16 @@ export default function PaidUnpaid() {
     if (!payDialog) return;
     const amount = Number(payAmount);
     if (!amount || amount <= 0) { toast({ title: "Enter a valid amount", variant: "destructive" }); return; }
+    const tier = getEffectiveTier(payDialog);
     await updateOrg.mutateAsync({ id: payDialog.id, data: { paymentStatus: "paid" } });
-    await addPayment.mutateAsync({ orgId: payDialog.id, orgName: payDialog.name, amount, plan: payDialog.plan || "free", month: new Date().toISOString().slice(0, 7), note: payNote });
-    await logSuperAdminAction({ action: "mark_paid", actorEmail: user?.email ?? "", targetId: payDialog.id, orgName: payDialog.name, details: { amount } });
+    await addPayment.mutateAsync({
+      orgId: payDialog.id, orgName: payDialog.name, amount, plan: tier,
+      month: new Date().toISOString().slice(0, 7), note: payNote,
+    });
+    await logSuperAdminAction({
+      action: "mark_paid", actorEmail: user?.email ?? "", targetId: payDialog.id,
+      orgName: payDialog.name, details: { amount },
+    });
     toast({ title: `${payDialog.name} marked as paid` });
     setPayDialog(null);
   };
@@ -72,20 +82,39 @@ export default function PaidUnpaid() {
       <div className="grid md:grid-cols-2 gap-6">
         {/* Paid */}
         <Card>
-          <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><CheckCircle className="h-4 w-4 text-emerald-400" /> Paid Organizations</CardTitle></CardHeader>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <CheckCircle className="h-4 w-4 text-emerald-400" /> Paid Organizations
+            </CardTitle>
+          </CardHeader>
           <CardContent>
-            {isLoading ? <div className="flex justify-center py-8"><div className="animate-spin h-5 w-5 border-b-2 border-primary rounded-full" /></div>
-              : paid.length === 0 ? <p className="text-center text-muted-foreground py-8 text-sm">No paid orgs</p>
+            {isLoading
+              ? <div className="flex justify-center py-8"><div className="animate-spin h-5 w-5 border-b-2 border-primary rounded-full" /></div>
+              : paid.length === 0
+              ? <p className="text-center text-muted-foreground py-8 text-sm">No paid orgs</p>
               : <div className="space-y-2">
-                {paid.map((o: any) => (
-                  <div key={o.id} className="flex items-center justify-between py-2 px-3 rounded-lg bg-accent/30 hover:bg-accent/50 transition-colors">
-                    <div>
-                      <p className="text-sm font-medium">{o.name}</p>
-                      <Badge variant="outline" className="text-xs mt-0.5 capitalize">{o.plan || "free"}</Badge>
+                {paid.map((o: any) => {
+                  const tier = getEffectiveTier(o);
+                  const remaining = getRemainingDays(o.subscriptionExpiryDate);
+                  return (
+                    <div key={o.id} className="flex items-center justify-between py-2 px-3 rounded-lg bg-accent/30 hover:bg-accent/50 transition-colors">
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium truncate">{o.name}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <Badge variant="outline" className="text-xs capitalize">{PLAN_CONFIG[tier].name}</Badge>
+                          {remaining !== null && (
+                            <span className={`text-[11px] font-medium ${remaining <= 0 ? "text-rose-400" : remaining <= 7 ? "text-amber-400" : "text-muted-foreground"}`}>
+                              {remaining > 0 ? `${remaining}d left` : "Expired"}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <Button size="sm" variant="ghost" className="h-7 text-xs text-muted-foreground hover:text-destructive shrink-0" onClick={() => handleMarkUnpaid(o)}>
+                        Mark Unpaid
+                      </Button>
                     </div>
-                    <Button size="sm" variant="ghost" className="h-7 text-xs text-muted-foreground hover:text-destructive" onClick={() => handleMarkUnpaid(o)}>Mark Unpaid</Button>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             }
           </CardContent>
@@ -93,22 +122,37 @@ export default function PaidUnpaid() {
 
         {/* Unpaid */}
         <Card>
-          <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><XCircle className="h-4 w-4 text-red-400" /> Unpaid Organizations</CardTitle></CardHeader>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <XCircle className="h-4 w-4 text-red-400" /> Unpaid Organizations
+            </CardTitle>
+          </CardHeader>
           <CardContent>
-            {isLoading ? <div className="flex justify-center py-8"><div className="animate-spin h-5 w-5 border-b-2 border-primary rounded-full" /></div>
-              : unpaid.length === 0 ? <p className="text-center text-muted-foreground py-8 text-sm">All orgs are paid! 🎉</p>
+            {isLoading
+              ? <div className="flex justify-center py-8"><div className="animate-spin h-5 w-5 border-b-2 border-primary rounded-full" /></div>
+              : unpaid.length === 0
+              ? <p className="text-center text-muted-foreground py-8 text-sm">All orgs are paid! 🎉</p>
               : <div className="space-y-2">
-                {unpaid.map((o: any) => (
-                  <div key={o.id} className="flex items-center justify-between py-2 px-3 rounded-lg bg-accent/30 hover:bg-accent/50 transition-colors">
-                    <div>
-                      <p className="text-sm font-medium">{o.name}</p>
-                      <Badge variant="outline" className="text-xs mt-0.5 capitalize">{o.plan || "free"}</Badge>
+                {unpaid.map((o: any) => {
+                  const tier = getEffectiveTier(o);
+                  const status = getOrgAccessStatus(o);
+                  return (
+                    <div key={o.id} className="flex items-center justify-between py-2 px-3 rounded-lg bg-accent/30 hover:bg-accent/50 transition-colors">
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium truncate">{o.name}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <Badge variant="outline" className="text-xs capitalize">{PLAN_CONFIG[tier].name}</Badge>
+                          {status !== "active" && (
+                            <Badge variant="destructive" className="text-[10px]">{status.replace("_"," ")}</Badge>
+                          )}
+                        </div>
+                      </div>
+                      <Button size="sm" variant="outline" className="h-7 text-xs gap-1.5 shrink-0" onClick={() => handleMarkPaid(o)}>
+                        <CreditCard className="h-3 w-3" /> Mark Paid
+                      </Button>
                     </div>
-                    <Button size="sm" variant="outline" className="h-7 text-xs gap-1.5" onClick={() => handleMarkPaid(o)}>
-                      <CreditCard className="h-3 w-3" /> Mark Paid
-                    </Button>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             }
           </CardContent>
@@ -118,7 +162,9 @@ export default function PaidUnpaid() {
       {/* Payment dialog */}
       <Dialog open={!!payDialog} onOpenChange={() => setPayDialog(null)}>
         <DialogContent className="sm:max-w-sm">
-          <DialogHeader><DialogTitle>Record Payment — {payDialog?.name}</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>Record Payment — {payDialog?.name}</DialogTitle>
+          </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-1.5">
               <Label>Amount (৳)</Label>

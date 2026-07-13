@@ -1,10 +1,23 @@
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { User, onAuthStateChanged, signOut } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { identifyUser, resetUser, trackLogout } from "@/lib/analytics";
+import { mapLegacyPlanToTier, type PlanTier } from "@/lib/plan-config";
 
 export type UserRole = "super_admin" | "org_admin" | "teacher" | "student";
+
+/**
+ * Subscription snapshot stored on the profile so layouts can gate access
+ * without an extra Firestore read.
+ */
+export interface OrgSubscription {
+  tier: PlanTier;
+  subscriptionStartDate?: string | null;
+  subscriptionExpiryDate?: string | null;
+  paymentStatus: string;
+  accountStatus: string;
+}
 
 export interface UserProfile {
   uid: string;
@@ -16,6 +29,8 @@ export interface UserProfile {
   studentId?: string;
   /** Set to true when the account was created by an admin with a temp password */
   mustChangePassword?: boolean;
+  /** Present for org_admin / teacher / student — undefined for super_admin */
+  orgSubscription?: OrgSubscription;
 }
 
 interface AuthContextType {
@@ -92,20 +107,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         //   • If email is NOT whitelisted but Firestore role === "super_admin"
         //     → block (security — prevents rogue Firestore edits from elevating)
         if (data.role === "super_admin" && !isSuperAdminEmail(u.email)) {
-          // Firestore says super_admin but email isn't whitelisted → block.
           setRealProfile(null);
           return;
         }
         if (isSuperAdminEmail(u.email)) {
-          // Whitelisted email → always elevate to super_admin.
           data.role = "super_admin";
         }
         // ────────────────────────────────────────────────────────────────
 
         let orgName: string | undefined;
+        let orgSubscription: OrgSubscription | undefined;
+
         if (data.orgId) {
           const orgSnap = await getDoc(doc(db, "organizations", data.orgId));
-          if (orgSnap.exists()) orgName = (orgSnap.data() as any).name;
+          if (orgSnap.exists()) {
+            const orgData = orgSnap.data() as any;
+            orgName = orgData.name;
+
+            // Capture subscription snapshot for the layout gate
+            // (works with both legacy plan/status fields and new tier/accountStatus)
+            orgSubscription = {
+              tier: mapLegacyPlanToTier(orgData.tier ?? orgData.plan ?? "free"),
+              subscriptionStartDate: orgData.subscriptionStartDate ?? null,
+              subscriptionExpiryDate: orgData.subscriptionExpiryDate ?? null,
+              paymentStatus: orgData.paymentStatus ?? "unpaid",
+              accountStatus: orgData.accountStatus ?? orgData.status ?? "active",
+            };
+          }
         }
 
         const profile: UserProfile = {
@@ -113,6 +141,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           ...data,
           orgName,
           mustChangePassword: data.mustChangePassword ?? false,
+          orgSubscription,
         };
         setRealProfile(profile);
         identifyUser(u.uid, { role: data.role, email: data.email, name: data.name, orgId: data.orgId, orgName });

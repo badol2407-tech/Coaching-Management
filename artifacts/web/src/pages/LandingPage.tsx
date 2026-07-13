@@ -5,6 +5,7 @@ import {
   GoogleAuthProvider, signInWithPopup,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { PLAN_CONFIG } from "@/lib/plan-config";
 
 const googleProvider = new GoogleAuthProvider();
 import { Button } from "@/components/ui/button";
@@ -959,12 +960,7 @@ export default function LandingPage() {
                 </div>
 
                 <ul className="space-y-3 mb-8 flex-1 relative">
-                  {[
-                    "Access to all Premium features",
-                    "কোনো Credit Card লাগবে না",
-                    "যেকোনো সময় Cancel করুন",
-                    "Full access, no limitations",
-                  ].map((f) => (
+                  {PLAN_CONFIG.free_trial.displayHighlights.map((f) => (
                     <li key={f} className="flex items-start gap-2.5 text-sm font-medium" style={{ color: "#1e293b" }}>
                       <CheckCircle className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "#16a34a" }} />
                       <span>{f}</span>
@@ -1052,14 +1048,7 @@ export default function LandingPage() {
                 </div>
 
                 <ul className="space-y-3 mb-7 flex-1">
-                  {[
-                    "সব Premium features",
-                    "Unlimited Students & Teachers",
-                    "Priority Support",
-                    "Advanced Analytics",
-                    "Custom Branding",
-                    "Data Export",
-                  ].map((f) => (
+                  {PLAN_CONFIG.founder_launch.displayHighlights.map((f) => (
                     <li key={f} className="flex items-start gap-2.5 text-sm" style={{ color: "rgba(254,243,199,0.82)" }}>
                       <CheckCircle className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "#fbbf24" }} />
                       <span>{f}</span>
@@ -1130,14 +1119,7 @@ export default function LandingPage() {
                 </div>
 
                 <ul className="space-y-3 mb-7 flex-1 relative">
-                  {[
-                    "সব Founder features included",
-                    "২ মাস বিনামূল্যে",
-                    "Dedicated Account Manager",
-                    "Early access to new features",
-                    "Annual performance report",
-                    "Invoice & billing support",
-                  ].map((f) => (
+                  {PLAN_CONFIG.annual_premium.displayHighlights.map((f) => (
                     <li key={f} className="flex items-start gap-2.5 text-sm font-medium" style={{ color: "rgba(233,228,255,0.88)" }}>
                       <CheckCircle className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "#a78bfa" }} />
                       <span>{f}</span>

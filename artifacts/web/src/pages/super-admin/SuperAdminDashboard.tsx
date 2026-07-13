@@ -155,19 +155,19 @@ export default function SuperAdminDashboard() {
           ) : (
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="rounded-lg border p-4 text-center">
-                <p className="text-xs text-muted-foreground mb-1">Free Plan</p>
-                <p className="text-2xl font-bold">{stats?.planBreakdown?.free ?? 0}</p>
+                <p className="text-xs text-muted-foreground mb-1">Free Trial</p>
+                <p className="text-2xl font-bold">{stats?.planBreakdown?.free_trial ?? 0}</p>
                 <p className="text-xs text-muted-foreground">organizations</p>
               </div>
               <div className="rounded-lg border p-4 text-center">
-                <p className="text-xs text-muted-foreground mb-1">Basic Plan</p>
-                <p className="text-2xl font-bold">{stats?.planBreakdown?.basic ?? 0}</p>
-                <p className="text-xs text-muted-foreground">৳{((stats?.planBreakdown?.basic ?? 0) * 499).toLocaleString()}/mo</p>
+                <p className="text-xs text-muted-foreground mb-1">Founder Launch</p>
+                <p className="text-2xl font-bold">{stats?.planBreakdown?.founder_launch ?? 0}</p>
+                <p className="text-xs text-muted-foreground">৳{((stats?.planBreakdown?.founder_launch ?? 0) * 749).toLocaleString()}/mo</p>
               </div>
               <div className="rounded-lg border p-4 text-center">
-                <p className="text-xs text-muted-foreground mb-1">Pro Plan</p>
-                <p className="text-2xl font-bold">{stats?.planBreakdown?.pro ?? 0}</p>
-                <p className="text-xs text-muted-foreground">৳{((stats?.planBreakdown?.pro ?? 0) * 999).toLocaleString()}/mo</p>
+                <p className="text-xs text-muted-foreground mb-1">Annual Premium</p>
+                <p className="text-2xl font-bold">{stats?.planBreakdown?.annual_premium ?? 0}</p>
+                <p className="text-xs text-muted-foreground">৳{((stats?.planBreakdown?.annual_premium ?? 0) * 833).toLocaleString()}/mo eq.</p>
               </div>
             </div>
           )}

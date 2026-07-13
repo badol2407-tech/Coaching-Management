@@ -8,6 +8,10 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useMobileDrawer } from "@/hooks/use-mobile-drawer";
+import { useImpersonation } from "@/contexts/ImpersonationContext";
+import { getOrgAccessStatus } from "@/lib/subscription";
+import { getEffectiveTier } from "@/lib/plan-config";
+import { SubscriptionExpiredScreen } from "@/pages/SubscriptionExpired";
 
 // Main nav — core daily-use pages only
 const navItems = [
@@ -30,6 +34,24 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, userProfile, logout } = useAuth();
   const { toast } = useToast();
   const { isOpen: mobileOpen, open: openDrawer, close: closeDrawer } = useMobileDrawer();
+  const { impersonation } = useImpersonation();
+
+  // ── Subscription gate ────────────────────────────────────────────────────────
+  // Super admins and impersonating super admins always bypass.
+  // Existing orgs without an expiryDate are also left active (safe migration).
+  if (!impersonation && userProfile && userProfile.role !== "super_admin" && userProfile.orgSubscription) {
+    const accessStatus = getOrgAccessStatus(userProfile.orgSubscription);
+    if (accessStatus !== "active") {
+      return (
+        <SubscriptionExpiredScreen
+          status={accessStatus}
+          tier={getEffectiveTier(userProfile.orgSubscription)}
+          subscriptionExpiryDate={userProfile.orgSubscription.subscriptionExpiryDate}
+        />
+      );
+    }
+  }
+  // ────────────────────────────────────────────────────────────────────────────
 
   function copyOrgId() {
     if (userProfile?.orgId) {

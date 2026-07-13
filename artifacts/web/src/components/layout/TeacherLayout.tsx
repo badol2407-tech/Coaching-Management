@@ -5,6 +5,10 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMobileDrawer } from "@/hooks/use-mobile-drawer";
+import { useImpersonation } from "@/contexts/ImpersonationContext";
+import { getOrgAccessStatus } from "@/lib/subscription";
+import { getEffectiveTier } from "@/lib/plan-config";
+import { SubscriptionExpiredScreen } from "@/pages/SubscriptionExpired";
 
 // Main nav — core teacher pages only (Settings moved to sidebar bottom)
 const navItems = [
@@ -21,6 +25,22 @@ export function TeacherLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const { user, userProfile, logout } = useAuth();
   const { isOpen: mobileOpen, open: openDrawer, close: closeDrawer } = useMobileDrawer();
+  const { impersonation } = useImpersonation();
+
+  // ── Subscription gate ────────────────────────────────────────────────────────
+  if (!impersonation && userProfile && userProfile.role !== "super_admin" && userProfile.orgSubscription) {
+    const accessStatus = getOrgAccessStatus(userProfile.orgSubscription);
+    if (accessStatus !== "active") {
+      return (
+        <SubscriptionExpiredScreen
+          status={accessStatus}
+          tier={getEffectiveTier(userProfile.orgSubscription)}
+          subscriptionExpiryDate={userProfile.orgSubscription.subscriptionExpiryDate}
+        />
+      );
+    }
+  }
+  // ────────────────────────────────────────────────────────────────────────────
 
   function isActive(href: string) {
     if (href === "/") return location === "/";

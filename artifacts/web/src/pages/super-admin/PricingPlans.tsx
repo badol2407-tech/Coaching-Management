@@ -1,25 +1,27 @@
 import { useListOrganizations } from "@/lib/super-admin-hooks";
+import { ALL_TIERS, PLAN_CONFIG, PlanTier, getEffectiveTier, getMonthlyEquivalent } from "@/lib/plan-config";
+import { getOrgAccessStatus } from "@/lib/subscription";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tag, Building2, Users, TrendingUp } from "lucide-react";
+import { Tag, Building2, TrendingUp, CheckCircle } from "lucide-react";
 
-const PLANS = [
-  { id: "free", label: "Free Trial", price: 0, color: "text-slate-400", bg: "bg-slate-500/10 border-slate-500/20", badge: "default" as const, desc: "7-day full access, no credit card" },
-  { id: "basic", label: "Founder Launch", price: 749, color: "text-amber-400", bg: "bg-amber-500/10 border-amber-500/20", badge: "default" as const, desc: "Launch price for first 100 centers" },
-  { id: "pro", label: "Annual Premium", price: 9999, color: "text-violet-400", bg: "bg-violet-500/10 border-violet-500/20", badge: "default" as const, desc: "Best value — 2 months free", priceSuffix: "/year" },
-];
+const TIER_STYLES: Record<PlanTier, { color: string; bg: string; bar: string }> = {
+  free_trial:     { color: "text-slate-400", bg: "bg-slate-500/10 border-slate-500/20",  bar: "bg-slate-400" },
+  founder_launch: { color: "text-amber-400", bg: "bg-amber-500/10 border-amber-500/20",  bar: "bg-amber-400" },
+  annual_premium: { color: "text-violet-400", bg: "bg-violet-500/10 border-violet-500/20", bar: "bg-violet-400" },
+};
 
 export default function PricingPlans() {
   const { data: orgs = [], isLoading } = useListOrganizations();
 
-  const counts = {
-    free: orgs.filter((o: any) => !o.plan || o.plan === "free").length,
-    basic: orgs.filter((o: any) => o.plan === "basic").length,
-    pro: orgs.filter((o: any) => o.plan === "pro").length,
-  };
+  const counts = ALL_TIERS.reduce((acc, t) => {
+    acc[t] = (orgs as any[]).filter((o) => getEffectiveTier(o) === t).length;
+    return acc;
+  }, {} as Record<PlanTier, number>);
 
-  const mrr =
-    counts.basic * 749 + counts.pro * Math.round(9999 / 12);
+  const mrr = (orgs as any[])
+    .filter((o: any) => o.paymentStatus === "paid" && getOrgAccessStatus(o) !== "paused")
+    .reduce((sum, o: any) => sum + getMonthlyEquivalent(getEffectiveTier(o)), 0);
 
   return (
     <div className="space-y-6">
@@ -55,11 +57,13 @@ export default function PricingPlans() {
         <Card>
           <CardContent className="pt-5 flex items-start gap-3">
             <div className="h-9 w-9 rounded-lg bg-violet-500/10 flex items-center justify-center shrink-0">
-              <Users className="h-4 w-4 text-violet-400" />
+              <CheckCircle className="h-4 w-4 text-violet-400" />
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Paid Orgs</p>
-              <p className="text-2xl font-bold mt-0.5">{counts.basic + counts.pro}</p>
+              <p className="text-2xl font-bold mt-0.5">
+                {(orgs as any[]).filter((o: any) => o.paymentStatus === "paid").length}
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -67,24 +71,26 @@ export default function PricingPlans() {
 
       {/* Plan cards */}
       <div className="grid md:grid-cols-3 gap-5">
-        {PLANS.map((plan) => {
-          const count = counts[plan.id as keyof typeof counts];
+        {ALL_TIERS.map((tier) => {
+          const cfg = PLAN_CONFIG[tier];
+          const count = counts[tier];
           const pct = orgs.length ? Math.round((count / orgs.length) * 100) : 0;
+          const styles = TIER_STYLES[tier];
+          const priceLabel = tier === "free_trial" ? "৳0 / 7 days" : tier === "founder_launch" ? "৳749/mo" : "৳9,999/yr";
+
           return (
-            <Card key={plan.id} className={`border ${plan.bg}`}>
+            <Card key={tier} className={`border ${styles.bg}`}>
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Tag className={`h-4 w-4 ${plan.color}`} />
-                    <CardTitle className="text-base">{plan.label}</CardTitle>
+                    <Tag className={`h-4 w-4 ${styles.color}`} />
+                    <CardTitle className="text-base">{cfg.name}</CardTitle>
                   </div>
-                  <Badge variant="outline" className={`text-xs ${plan.color}`}>
-                    {plan.price === 0 ? "Free" : `৳${plan.price.toLocaleString()}${plan.priceSuffix ?? "/mo"}`}
-                  </Badge>
+                  <Badge variant="outline" className={`text-xs ${styles.color}`}>{priceLabel}</Badge>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">{plan.desc}</p>
+                <p className="text-xs text-muted-foreground mt-1">{cfg.tagline}</p>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-4">
                 <div className="flex items-end justify-between">
                   <div>
                     <p className="text-3xl font-bold">{isLoading ? "…" : count}</p>
@@ -93,16 +99,23 @@ export default function PricingPlans() {
                   <p className="text-lg font-semibold text-muted-foreground">{pct}%</p>
                 </div>
                 <div className="h-2 bg-border rounded-full overflow-hidden">
-                  <div
-                    className={`h-full rounded-full transition-all duration-500 ${plan.id === "free" ? "bg-slate-400" : plan.id === "basic" ? "bg-amber-400" : "bg-violet-400"}`}
-                    style={{ width: `${pct}%` }}
-                  />
+                  <div className={`h-full rounded-full transition-all duration-500 ${styles.bar}`} style={{ width: `${pct}%` }} />
                 </div>
-                {plan.price > 0 && (
+                {cfg.price > 0 && (
                   <p className="text-xs text-muted-foreground">
-                    Revenue: ৳{(count * (plan.id === "pro" ? Math.round(plan.price / 12) : plan.price)).toLocaleString()}/mo
+                    MRR contribution: ৳{(count * getMonthlyEquivalent(tier)).toLocaleString()}/mo
                   </p>
                 )}
+
+                {/* Feature highlights */}
+                <div className="pt-1 space-y-1">
+                  {cfg.displayHighlights.slice(0, 3).map((h) => (
+                    <div key={h} className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                      <CheckCircle className={`h-3 w-3 shrink-0 ${styles.color}`} />
+                      {h}
+                    </div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
           );
@@ -121,26 +134,33 @@ export default function PricingPlans() {
                 <thead>
                   <tr className="border-b border-border text-muted-foreground">
                     <th className="text-left py-2 pr-4 font-medium">Organization</th>
-                    <th className="text-left py-2 pr-4 font-medium">Plan</th>
-                    <th className="text-left py-2 pr-4 font-medium">Status</th>
+                    <th className="text-left py-2 pr-4 font-medium">Tier</th>
+                    <th className="text-left py-2 pr-4 font-medium">Access Status</th>
                     <th className="text-left py-2 font-medium">Payment</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {orgs.map((o: any) => (
-                    <tr key={o.id} className="border-b border-border/50 hover:bg-accent/30">
-                      <td className="py-2.5 pr-4 font-medium">{o.name}</td>
-                      <td className="py-2.5 pr-4">
-                        <Badge variant="outline" className="text-xs capitalize">{o.plan || "free"}</Badge>
-                      </td>
-                      <td className="py-2.5 pr-4">
-                        <Badge variant={o.status === "paused" ? "secondary" : "default"} className="text-xs capitalize">{o.status || "active"}</Badge>
-                      </td>
-                      <td className="py-2.5">
-                        <Badge variant={o.paymentStatus === "paid" ? "default" : "destructive"} className="text-xs capitalize">{o.paymentStatus || "unpaid"}</Badge>
-                      </td>
-                    </tr>
-                  ))}
+                  {(orgs as any[]).map((o: any) => {
+                    const tier = getEffectiveTier(o);
+                    const status = getOrgAccessStatus(o);
+                    const statusLabel = { active: "Active", expired: "Expired", paused: "Paused", unpaid_blocked: "Unpaid" }[status];
+                    return (
+                      <tr key={o.id} className="border-b border-border/50 hover:bg-accent/30">
+                        <td className="py-2.5 pr-4 font-medium">{o.name}</td>
+                        <td className="py-2.5 pr-4">
+                          <Badge variant="outline" className="text-xs capitalize">{PLAN_CONFIG[tier].name}</Badge>
+                        </td>
+                        <td className="py-2.5 pr-4">
+                          <Badge variant={status === "active" ? "default" : "secondary"} className="text-xs">{statusLabel}</Badge>
+                        </td>
+                        <td className="py-2.5">
+                          <Badge variant={o.paymentStatus === "paid" ? "default" : "destructive"} className="text-xs capitalize">
+                            {o.paymentStatus || "unpaid"}
+                          </Badge>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

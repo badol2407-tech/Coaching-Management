@@ -1,10 +1,30 @@
 import { GraduationCap, LogOut, ChevronDown } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useImpersonation } from "@/contexts/ImpersonationContext";
+import { getOrgAccessStatus } from "@/lib/subscription";
+import { getEffectiveTier } from "@/lib/plan-config";
+import { SubscriptionExpiredScreen } from "@/pages/SubscriptionExpired";
 import { useState } from "react";
 
 export function StudentLayout({ children }: { children: React.ReactNode }) {
   const { user, userProfile, logout } = useAuth();
+  const { impersonation } = useImpersonation();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  // ── Subscription gate ────────────────────────────────────────────────────────
+  if (!impersonation && userProfile && userProfile.role !== "super_admin" && userProfile.orgSubscription) {
+    const accessStatus = getOrgAccessStatus(userProfile.orgSubscription);
+    if (accessStatus !== "active") {
+      return (
+        <SubscriptionExpiredScreen
+          status={accessStatus}
+          tier={getEffectiveTier(userProfile.orgSubscription)}
+          subscriptionExpiryDate={userProfile.orgSubscription.subscriptionExpiryDate}
+        />
+      );
+    }
+  }
+  // ────────────────────────────────────────────────────────────────────────────
 
   return (
     <div className="min-h-screen flex flex-col bg-background overflow-x-hidden">

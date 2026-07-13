@@ -41,12 +41,25 @@ export function useListOrganizations() {
 export function useCreateOrganization() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (data: { name: string; adminEmail: string }) => {
+    mutationFn: async (data: {
+      name: string;
+      adminEmail: string;
+      tier: string;
+      subscriptionStartDate: string;
+      subscriptionExpiryDate: string;
+    }) => {
+      const { tier, subscriptionStartDate, subscriptionExpiryDate, ...rest } = data;
+      // Write both new canonical fields AND legacy fields for backward compat
+      const legacyPlan = tier === "annual_premium" ? "pro" : tier === "founder_launch" ? "basic" : "free";
       const ref = await addDoc(collection(db, "organizations"), {
-        ...data,
+        ...rest,
         createdAt: serverTimestamp(),
+        tier,
+        plan: legacyPlan,
+        subscriptionStartDate,
+        subscriptionExpiryDate,
+        accountStatus: "active",
         status: "active",
-        plan: "free",
         paymentStatus: "unpaid",
       });
       return { id: ref.id };
@@ -87,9 +100,14 @@ export function useDeleteOrganization() {
 // ── Detailed Stats ─────────────────────────────────────────────────────────────
 
 const PLAN_PRICES: Record<string, number> = {
+  // Legacy IDs
   free: 0,
   basic: 499,
   pro: 999,
+  // New canonical IDs — annual is divided by 12 for MRR
+  free_trial: 0,
+  founder_launch: 749,
+  annual_premium: Math.round(9999 / 12), // ~833/mo equivalent
 };
 
 export function useSuperAdminDetailedStats() {
@@ -110,9 +128,9 @@ export function useSuperAdminDetailedStats() {
       const unpaidOrgs = orgs.filter((o) => o.paymentStatus !== "paid").length;
 
       const planBreakdown = {
-        free: orgs.filter((o) => !o.plan || o.plan === "free").length,
-        basic: orgs.filter((o) => o.plan === "basic").length,
-        pro: orgs.filter((o) => o.plan === "pro").length,
+        free_trial: orgs.filter((o) => (o.tier ?? o.plan) === "free_trial" || (!o.tier && (!o.plan || o.plan === "free"))).length,
+        founder_launch: orgs.filter((o) => (o.tier ?? o.plan) === "founder_launch" || (!o.tier && o.plan === "basic")).length,
+        annual_premium: orgs.filter((o) => (o.tier ?? o.plan) === "annual_premium" || (!o.tier && o.plan === "pro")).length,
       };
 
       const mrr = orgs
