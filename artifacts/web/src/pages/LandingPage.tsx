@@ -857,41 +857,81 @@ export default function LandingPage() {
 
       {/* Pricing */}
       <section id="pricing" className="py-24 px-4 relative overflow-hidden">
-        {/* Background glows */}
-        <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[500px] bg-indigo-500/5 rounded-full blur-[120px]" />
-        <div className="pointer-events-none absolute top-0 right-0 w-[400px] h-[400px] bg-violet-500/4 rounded-full blur-[100px]" />
+        {/* Cinematic background glows */}
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.012)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.012)_1px,transparent_1px)] bg-[size:56px_56px]" />
+        <div className="pointer-events-none absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] rounded-full blur-[120px]" style={{ background: "radial-gradient(ellipse, rgba(245,158,11,0.1) 0%, transparent 70%)" }} />
+        <div className="pointer-events-none absolute top-0 left-[10%] w-[350px] h-[350px] rounded-full blur-[100px]" style={{ background: "radial-gradient(circle, rgba(245,158,11,0.06) 0%, transparent 70%)" }} />
+        <div className="pointer-events-none absolute bottom-0 right-[5%] w-[400px] h-[350px] rounded-full blur-[100px]" style={{ background: "radial-gradient(circle, rgba(99,102,241,0.07) 0%, transparent 70%)" }} />
+
+        {/* Keyframe animations injected via style tag */}
+        <style>{`
+          @keyframes pricing-gold-pulse {
+            0%,100% { box-shadow: 0 0 50px -8px rgba(245,158,11,0.55), 0 0 100px -20px rgba(245,158,11,0.28), 0 40px 80px rgba(0,0,0,0.55); }
+            50%      { box-shadow: 0 0 70px -8px rgba(245,158,11,0.75), 0 0 140px -20px rgba(245,158,11,0.42), 0 40px 80px rgba(0,0,0,0.55); }
+          }
+          @keyframes pricing-shimmer {
+            0%   { transform: translateX(-120%) skewX(-15deg); }
+            100% { transform: translateX(400%) skewX(-15deg); }
+          }
+          @keyframes pricing-scan {
+            0%   { top: -2px; }
+            100% { top: 100%; }
+          }
+          @keyframes pricing-float {
+            0%,100% { transform: translateY(0px); }
+            50%      { transform: translateY(-5px); }
+          }
+          @keyframes pricing-badge-glow {
+            0%,100% { box-shadow: 0 0 14px rgba(245,158,11,0.65), 0 4px 14px rgba(0,0,0,0.45); }
+            50%      { box-shadow: 0 0 26px rgba(245,158,11,0.9),  0 4px 14px rgba(0,0,0,0.45); }
+          }
+          .pricing-card-free:hover   { transform: translateY(-4px); box-shadow: 0 28px 60px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.07); }
+          .pricing-card-annual:hover { transform: translateY(-4px); box-shadow: 0 28px 60px rgba(0,0,0,0.45), inset 0 1px 0 rgba(99,102,241,0.15); }
+          .pricing-btn-free:hover   { background: rgba(255,255,255,0.09) !important; }
+          .pricing-btn-gold:hover   { filter: brightness(1.08); }
+          .pricing-btn-indigo:hover { filter: brightness(1.1); }
+        `}</style>
 
         <div className="max-w-6xl mx-auto relative">
           {/* Header */}
           <div className="text-center mb-16 space-y-4">
-            <div className="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold px-4 py-1.5 rounded-full">
-              <span className="h-1.5 w-1.5 rounded-full bg-indigo-400 animate-pulse" />
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase" style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)", color: "#f59e0b" }}>
+              <span className="h-1.5 w-1.5 rounded-full animate-pulse" style={{ background: "#f59e0b", boxShadow: "0 0 6px #f59e0b" }} />
               সীমিত সময়ের Offer — এখনই সুযোগ নিন
             </div>
-            <h2 className="font-display text-3xl sm:text-4xl font-bold">
-              সহজ, স্বচ্ছ Pricing
+            <h2 className="font-display text-3xl sm:text-5xl font-black tracking-tight">
+              সহজ, স্বচ্ছ{" "}
+              <span style={{ background: "linear-gradient(90deg,#f59e0b,#fbbf24,#f59e0b)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Pricing</span>
             </h2>
             <p className="text-muted-foreground text-base max-w-md mx-auto">
               কোনো hidden charge নেই। যেকোনো সময় cancel করুন।
             </p>
           </div>
 
-          {/* Cards */}
-          <div className="grid md:grid-cols-3 gap-6 items-stretch">
+          {/* ── Cards — flex row so center card can be taller ── */}
+          <div className="flex flex-col md:flex-row gap-5 md:items-center justify-center">
 
             {/* ── Card 1: Free Trial ── */}
-            <div className="relative flex flex-col rounded-2xl border border-border bg-card/60 backdrop-blur-sm p-7 transition-shadow hover:shadow-lg hover:shadow-black/10">
+            <div
+              className="pricing-card-free relative flex flex-col rounded-2xl md:flex-1 p-7 backdrop-blur-sm transition-all duration-300"
+              style={{
+                background: "linear-gradient(160deg, rgba(255,255,255,0.035) 0%, rgba(255,255,255,0.01) 100%)",
+                border: "1px solid rgba(255,255,255,0.07)",
+                boxShadow: "0 20px 50px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)",
+              }}
+            >
+              {/* Top highlight line */}
+              <div className="pointer-events-none absolute top-0 left-[15%] right-[15%] h-px" style={{ background: "linear-gradient(90deg,transparent,rgba(255,255,255,0.13),transparent)" }} />
+
               <div className="mb-6">
-                <span className="text-2xl">🟢</span>
-                <h3 className="font-bold text-xl mt-3">Free Trial</h3>
-                <p className="text-muted-foreground text-sm mt-1">ঝুঁকি ছাড়াই শুরু করুন</p>
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center text-lg mb-4" style={{ background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.18)" }}>🟢</div>
+                <h3 className="font-extrabold text-xl text-foreground">Free Trial</h3>
+                <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>ঝুঁকি ছাড়াই শুরু করুন</p>
               </div>
 
               <div className="mb-6">
-                <div className="flex items-baseline gap-1">
-                  <span className="text-5xl font-extrabold tracking-tight">৳0</span>
-                </div>
-                <p className="text-sm text-muted-foreground mt-1">৭ দিনের জন্য সম্পূর্ণ বিনামূল্যে</p>
+                <span className="text-6xl font-black tracking-tighter text-white" style={{ lineHeight: 1 }}>৳0</span>
+                <p className="text-xs mt-2" style={{ color: "rgba(255,255,255,0.35)" }}>৭ দিনের জন্য সম্পূর্ণ বিনামূল্যে</p>
               </div>
 
               <ul className="space-y-3 mb-8 flex-1">
@@ -901,60 +941,92 @@ export default function LandingPage() {
                   "যেকোনো সময় Cancel করুন",
                   "Full access, no limitations",
                 ].map((f) => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm">
-                    <CheckCircle className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
+                  <li key={f} className="flex items-start gap-2.5 text-sm" style={{ color: "rgba(255,255,255,0.6)" }}>
+                    <CheckCircle className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "#22c55e" }} />
                     <span>{f}</span>
                   </li>
                 ))}
               </ul>
 
-              <Button
-                variant="outline"
-                className="w-full h-11 font-semibold border-border hover:bg-accent"
+              <button
+                className="pricing-btn-free w-full h-11 rounded-xl font-semibold text-sm transition-all duration-200"
+                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.7)", cursor: "pointer" }}
                 onClick={() => {
                   trackFeatureUsed("pricing_cta_click", { plan: "free_trial" });
                   openAuth("login", "pricing_free_trial");
                 }}
               >
                 ফ্রি ট্রায়াল শুরু করুন
-              </Button>
+              </button>
             </div>
 
-            {/* ── Card 2: Founder Launch (Most Popular) ── */}
-            <div className="relative flex flex-col rounded-2xl p-[1.5px] bg-gradient-to-b from-amber-400/80 via-yellow-500/60 to-amber-600/40 shadow-[0_0_40px_-8px_rgba(251,191,36,0.35)] transition-shadow hover:shadow-[0_0_60px_-8px_rgba(251,191,36,0.5)]">
+            {/* ── Card 2: Founder Launch — DOMINANT FOCAL CARD ── */}
+            <div
+              className="relative flex flex-col md:flex-[1.12] rounded-[22px] md:-my-5"
+              style={{
+                padding: "2px",
+                background: "linear-gradient(150deg,#fbbf24 0%,#f59e0b 35%,#d97706 65%,#b45309 100%)",
+                animation: "pricing-gold-pulse 3s ease-in-out infinite",
+                zIndex: 2,
+              }}
+            >
               {/* Most Popular badge */}
-              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10">
-                <div className="flex items-center gap-1.5 bg-gradient-to-r from-amber-400 to-yellow-400 text-amber-950 text-xs font-bold px-4 py-1.5 rounded-full shadow-lg shadow-amber-500/30 whitespace-nowrap">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
+                <div
+                  className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider px-5 py-1.5 rounded-full whitespace-nowrap"
+                  style={{ background: "linear-gradient(90deg,#fbbf24,#f59e0b)", color: "#1a0e00", animation: "pricing-badge-glow 2s ease-in-out infinite", letterSpacing: "0.07em" }}
+                >
                   ⭐ Most Popular
                 </div>
               </div>
 
-              <div className="flex flex-col flex-1 rounded-[14px] bg-gradient-to-b from-[#1c1608] via-[#1e1a08] to-[#18160a] p-7 h-full">
-                <div className="mb-6">
-                  <span className="text-2xl">⭐</span>
-                  <h3 className="font-bold text-xl mt-3 text-amber-100">Founder Launch</h3>
-                  <p className="text-amber-400/70 text-sm mt-1">প্রথম ১০০ Coaching Center-এর জন্য</p>
+              <div
+                className="relative flex flex-col flex-1 rounded-[20px] overflow-hidden"
+                style={{ background: "linear-gradient(160deg,#131008 0%,#1b1508 35%,#16110a 70%,#0e0b06 100%)", padding: "32px 26px" }}
+              >
+                {/* Inner ambient glow */}
+                <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% -10%,rgba(245,158,11,0.16) 0%,transparent 65%)" }} />
+                <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-1/2" style={{ background: "radial-gradient(ellipse at 50% 120%,rgba(245,158,11,0.05) 0%,transparent 70%)" }} />
+                {/* Shimmer */}
+                <div
+                  className="pointer-events-none absolute top-0 bottom-0 w-[28%]"
+                  style={{ left: "-40%", background: "linear-gradient(90deg,transparent,rgba(255,255,255,0.045),transparent)", animation: "pricing-shimmer 5s ease-in-out infinite", transform: "skewX(-15deg)" }}
+                />
+                {/* Scan line */}
+                <div
+                  className="pointer-events-none absolute left-0 right-0 h-px"
+                  style={{ background: "linear-gradient(90deg,transparent,rgba(245,158,11,0.3),transparent)", animation: "pricing-scan 4.5s linear infinite" }}
+                />
+
+                {/* Content */}
+                <div className="relative mb-5">
+                  <div
+                    className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl mb-4"
+                    style={{ background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.25)", animation: "pricing-float 4s ease-in-out infinite" }}
+                  >⭐</div>
+                  <h3 className="font-black text-2xl tracking-tight" style={{ color: "#fef3c7" }}>Founder Launch</h3>
+                  <p className="text-sm mt-1" style={{ color: "rgba(245,158,11,0.6)" }}>প্রথম ১০০ Coaching Center-এর জন্য</p>
                 </div>
 
-                <div className="mb-6">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-amber-500/60 text-lg line-through font-medium">৳999</span>
-                    <span className="text-xs font-semibold bg-amber-400/20 text-amber-300 px-2 py-0.5 rounded-full">২৫% ছাড়</span>
+                <div className="relative mb-5">
+                  <div className="flex items-center gap-2.5 mb-1">
+                    <span className="text-base font-semibold line-through" style={{ color: "rgba(245,158,11,0.4)" }}>৳999</span>
+                    <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.28)", color: "#fbbf24" }}>২৫% ছাড়</span>
                   </div>
-                  <div className="flex items-baseline gap-1 mt-1">
-                    <span className="text-5xl font-extrabold tracking-tight text-white">৳749</span>
-                    <span className="text-amber-400/70 text-sm">/month</span>
+                  <div className="flex items-baseline gap-2" style={{ lineHeight: 1 }}>
+                    <span className="font-black text-white" style={{ fontSize: "clamp(52px,7vw,68px)", letterSpacing: "-0.05em", textShadow: "0 0 40px rgba(245,158,11,0.45),0 0 80px rgba(245,158,11,0.2)" }}>৳749</span>
+                    <span className="text-sm font-medium" style={{ color: "rgba(245,158,11,0.6)", paddingBottom: 8 }}>/month</span>
                   </div>
-                  {/* Scarcity */}
-                  <div className="mt-3 flex items-center gap-2">
-                    <div className="flex-1 h-1.5 bg-amber-900/50 rounded-full overflow-hidden">
-                      <div className="h-full w-[68%] bg-gradient-to-r from-amber-400 to-yellow-400 rounded-full" />
+                  {/* Scarcity bar */}
+                  <div className="mt-3 flex items-center gap-2.5">
+                    <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(245,158,11,0.08)" }}>
+                      <div className="h-full w-[68%] rounded-full" style={{ background: "linear-gradient(90deg,#d97706,#fbbf24)" }} />
                     </div>
-                    <span className="text-amber-400/80 text-xs font-medium whitespace-nowrap">৬৮/১০০ নেওয়া হয়েছে</span>
+                    <span className="text-xs font-semibold whitespace-nowrap" style={{ color: "rgba(245,158,11,0.75)" }}>৬৮/১০০ নেওয়া হয়েছে</span>
                   </div>
                 </div>
 
-                <ul className="space-y-3 mb-8 flex-1">
+                <ul className="space-y-3 mb-7 flex-1">
                   {[
                     "সব Premium features",
                     "Unlimited Students & Teachers",
@@ -963,50 +1035,60 @@ export default function LandingPage() {
                     "Custom Branding",
                     "Data Export",
                   ].map((f) => (
-                    <li key={f} className="flex items-start gap-2.5 text-sm">
-                      <CheckCircle className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" />
-                      <span className="text-amber-100/90">{f}</span>
+                    <li key={f} className="flex items-start gap-2.5 text-sm" style={{ color: "rgba(254,243,199,0.82)" }}>
+                      <CheckCircle className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "#fbbf24" }} />
+                      <span>{f}</span>
                     </li>
                   ))}
                 </ul>
 
-                <Button
-                  className="w-full h-12 font-bold text-base bg-gradient-to-r from-amber-400 to-yellow-400 text-amber-950 border-0 shadow-lg shadow-amber-500/25 hover:from-amber-300 hover:to-yellow-300 hover:shadow-amber-400/40 transition-all"
+                <button
+                  className="pricing-btn-gold relative w-full h-12 rounded-xl font-black text-base transition-all duration-200 overflow-hidden"
+                  style={{ background: "linear-gradient(90deg,#f59e0b,#fbbf24)", color: "#1a0e00", border: "none", cursor: "pointer", boxShadow: "0 6px 22px rgba(245,158,11,0.4), inset 0 1px 0 rgba(255,255,255,0.22)", letterSpacing: "0.01em" }}
                   onClick={() => {
                     trackFeatureUsed("pricing_cta_click", { plan: "founder_launch" });
                     openAuth("login", "pricing_founder_launch");
                   }}
                 >
                   Founder Price নিন →
-                </Button>
+                </button>
               </div>
             </div>
 
             {/* ── Card 3: Annual Premium ── */}
-            <div className="relative flex flex-col rounded-2xl border border-indigo-500/30 bg-gradient-to-b from-indigo-950/60 to-card/60 backdrop-blur-sm p-7 transition-shadow hover:shadow-lg hover:shadow-indigo-500/10">
+            <div
+              className="pricing-card-annual relative flex flex-col rounded-2xl md:flex-1 p-7 backdrop-blur-sm transition-all duration-300 overflow-hidden"
+              style={{
+                background: "linear-gradient(160deg,rgba(99,102,241,0.08) 0%,rgba(139,92,246,0.05) 55%,rgba(255,255,255,0.01) 100%)",
+                border: "1px solid rgba(99,102,241,0.2)",
+                boxShadow: "0 20px 50px rgba(0,0,0,0.4), inset 0 1px 0 rgba(99,102,241,0.12)",
+              }}
+            >
               {/* Best Value badge */}
               <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10">
-                <div className="flex items-center gap-1.5 bg-gradient-to-r from-indigo-500 to-violet-500 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg shadow-indigo-500/30 whitespace-nowrap">
+                <div className="flex items-center gap-1.5 text-white text-xs font-black uppercase tracking-wider px-4 py-1.5 rounded-full whitespace-nowrap" style={{ background: "linear-gradient(90deg,#6366f1,#8b5cf6)", boxShadow: "0 0 18px rgba(99,102,241,0.55), 0 4px 12px rgba(0,0,0,0.4)" }}>
                   👑 Best Value
                 </div>
               </div>
+              <div className="pointer-events-none absolute top-0 left-[15%] right-[15%] h-px" style={{ background: "linear-gradient(90deg,transparent,rgba(99,102,241,0.35),transparent)" }} />
+              <div className="pointer-events-none absolute top-[-40px] right-[-40px] w-[120px] h-[120px] rounded-full" style={{ background: "radial-gradient(circle,rgba(99,102,241,0.1) 0%,transparent 70%)" }} />
 
-              <div className="mb-6">
-                <span className="text-2xl">👑</span>
-                <h3 className="font-bold text-xl mt-3">Annual Premium</h3>
-                <p className="text-muted-foreground text-sm mt-1">বছরে ২ মাস একদম বিনামূল্যে</p>
+              <div className="mb-6 mt-2">
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center text-lg mb-4" style={{ background: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.2)" }}>👑</div>
+                <h3 className="font-extrabold text-xl text-foreground">Annual Premium</h3>
+                <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>বছরে ২ মাস একদম বিনামূল্যে</p>
               </div>
 
               <div className="mb-6">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-muted-foreground text-lg line-through font-medium">৳11,988</span>
-                  <span className="text-xs font-semibold bg-indigo-500/15 text-indigo-400 px-2 py-0.5 rounded-full">৳1,989 সাশ্রয়</span>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-base font-semibold line-through" style={{ color: "rgba(255,255,255,0.28)" }}>৳11,988</span>
+                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: "rgba(99,102,241,0.14)", border: "1px solid rgba(99,102,241,0.28)", color: "#a5b4fc" }}>৳1,989 সাশ্রয়</span>
                 </div>
-                <div className="flex items-baseline gap-1 mt-1">
-                  <span className="text-5xl font-extrabold tracking-tight">৳9,999</span>
-                  <span className="text-muted-foreground text-sm">/year</span>
+                <div className="flex items-baseline gap-1.5" style={{ lineHeight: 1 }}>
+                  <span className="font-black text-white" style={{ fontSize: "clamp(44px,6vw,56px)", letterSpacing: "-0.04em" }}>৳9,999</span>
+                  <span className="text-sm font-medium" style={{ color: "rgba(255,255,255,0.38)", paddingBottom: 6 }}>/year</span>
                 </div>
-                <p className="text-indigo-400 text-xs font-medium mt-1.5">মাসে মাত্র ৳833 — ২ মাস ফ্রি!</p>
+                <p className="text-xs font-semibold mt-2" style={{ color: "#818cf8" }}>মাসে মাত্র ৳833 — ২ মাস ফ্রি!</p>
               </div>
 
               <ul className="space-y-3 mb-8 flex-1">
@@ -1018,28 +1100,29 @@ export default function LandingPage() {
                   "Annual performance report",
                   "Invoice & billing support",
                 ].map((f) => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm">
-                    <CheckCircle className="h-4 w-4 text-indigo-400 shrink-0 mt-0.5" />
+                  <li key={f} className="flex items-start gap-2.5 text-sm" style={{ color: "rgba(255,255,255,0.6)" }}>
+                    <CheckCircle className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "#818cf8" }} />
                     <span>{f}</span>
                   </li>
                 ))}
               </ul>
 
-              <Button
-                className="w-full h-11 font-semibold bg-indigo-600 hover:bg-indigo-500 text-white border-0 shadow-md shadow-indigo-500/20"
+              <button
+                className="pricing-btn-indigo w-full h-11 rounded-xl font-bold text-sm text-white transition-all duration-200"
+                style={{ background: "linear-gradient(90deg,#4f46e5,#7c3aed)", border: "none", cursor: "pointer", boxShadow: "0 6px 18px rgba(99,102,241,0.35)" }}
                 onClick={() => {
                   trackFeatureUsed("pricing_cta_click", { plan: "annual_premium" });
                   openAuth("login", "pricing_annual_premium");
                 }}
               >
                 Annual Plan নিন
-              </Button>
+              </button>
             </div>
 
           </div>
 
           {/* Trust line */}
-          <p className="text-center text-muted-foreground text-sm mt-10 flex items-center justify-center gap-2">
+          <p className="text-center text-sm mt-12 flex items-center justify-center gap-2" style={{ color: "rgba(255,255,255,0.28)" }}>
             <CheckCircle className="h-4 w-4 text-green-500" />
             কোনো hidden fee নেই · যেকোনো সময় cancel করুন · SSL secured payment
           </p>
