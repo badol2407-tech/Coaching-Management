@@ -1,0 +1,42 @@
+/* ── Shared tokens & animations for pricing-cards mockups ── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+  --gold: #f59e0b;
+  --gold-light: #fbbf24;
+  --gold-dim: rgba(245,158,11,0.15);
+  --glass-white: rgba(255,255,255,0.04);
+  --glass-border: rgba(255,255,255,0.08);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+
+@keyframes pulse-glow-gold {
+  0%, 100% { box-shadow: 0 0 40px -4px rgba(245,158,11,0.5), 0 0 80px -20px rgba(245,158,11,0.25); }
+  50%       { box-shadow: 0 0 60px -4px rgba(245,158,11,0.7), 0 0 120px -20px rgba(245,158,11,0.4); }
+}
+
+@keyframes shimmer {
+  0%   { transform: translateX(-100%) skewX(-15deg); }
+  100% { transform: translateX(300%) skewX(-15deg); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-6px); }
+}
+
+@keyframes badge-glow {
+  0%, 100% { box-shadow: 0 0 10px rgba(245,158,11,0.6), 0 0 30px rgba(245,158,11,0.3); }
+  50%       { box-shadow: 0 0 20px rgba(245,158,11,0.9), 0 0 50px rgba(245,158,11,0.5); }
+}
+
+@keyframes scan-line {
+  0%   { top: -2px; }
+  100% { top: 100%; }
+}
+
+@keyframes purple-pulse {
+  0%, 100% { box-shadow: 0 0 30px -4px rgba(139,92,246,0.4), 0 0 60px -20px rgba(139,92,246,0.2); }
+  50%       { box-shadow: 0 0 50px -4px rgba(139,92,246,0.6), 0 0 100px -20px rgba(139,92,246,0.35); }
+}
