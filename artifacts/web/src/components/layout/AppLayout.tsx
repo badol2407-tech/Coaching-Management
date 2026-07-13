@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useMobileDrawer } from "@/hooks/use-mobile-drawer";
 
 // Main nav — core daily-use pages only
 const navItems = [
@@ -29,7 +29,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const { user, userProfile, logout } = useAuth();
   const { toast } = useToast();
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const { isOpen: mobileOpen, open: openDrawer, close: closeDrawer } = useMobileDrawer();
 
   function copyOrgId() {
     if (userProfile?.orgId) {
@@ -50,12 +50,21 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const sidebarGradient = "linear-gradient(180deg, #0f172a 0%, #1e1b4b 55%, #0f172a 100%)";
 
   return (
-    <div className="min-h-screen flex bg-background">
+    <div className="min-h-screen flex bg-background overflow-x-hidden">
+
+      {/* ── Backdrop (mobile only) ── */}
+      <div
+        className={`fixed inset-0 z-40 md:hidden transition-opacity duration-300 ease-in-out ${mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+        style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }}
+        onClick={closeDrawer}
+        aria-hidden="true"
+      />
 
       {/* ── Sidebar ── */}
       <aside
-        className={`fixed md:sticky top-0 h-screen z-50 w-64 shrink-0 flex flex-col border-r border-white/10 transition-transform duration-200 md:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}
+        className={`fixed md:sticky top-0 h-screen z-50 w-64 shrink-0 flex flex-col border-r border-white/10 transition-transform duration-300 ease-in-out md:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}
         style={{ background: sidebarGradient, boxShadow: "4px 0 24px rgba(0,0,0,0.35)" }}
+        aria-label="Sidebar navigation"
       >
         {/* Logo */}
         <div className="flex items-center gap-2 h-14 px-4 border-b border-white/10 shrink-0">
@@ -68,7 +77,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               <p className="text-indigo-300/70 text-[10px] leading-none mt-0.5 truncate">{userProfile.orgName}</p>
             )}
           </div>
-          <button className="ml-auto md:hidden text-slate-400 hover:text-white" onClick={() => setMobileOpen(false)}>
+          {/* Close button — mobile only */}
+          <button
+            className="ml-auto md:hidden text-slate-400 hover:text-white p-1 rounded-md hover:bg-white/10 transition-colors"
+            onClick={closeDrawer}
+            aria-label="Close sidebar"
+          >
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -111,7 +125,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                       (e.currentTarget as HTMLElement).style.color = "rgba(148,163,184,0.85)";
                     }
                   }}
-                  onClick={() => setMobileOpen(false)}
+                  onClick={closeDrawer}
                 >
                   <item.icon className="h-4 w-4 shrink-0" />
                   <span className="truncate">{item.title}</span>
@@ -125,19 +139,19 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         {/* Bottom: Settings / Subscription / Help + profile + logout */}
         <div className="border-t border-white/10 shrink-0">
           <div className="px-2 py-2 space-y-0.5">
-            <Link href="/settings" onClick={() => setMobileOpen(false)}>
+            <Link href="/settings" onClick={closeDrawer}>
               <div className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition-colors cursor-pointer ${isSettings ? "text-indigo-300 bg-indigo-500/10" : "text-slate-400 hover:text-white hover:bg-white/5"}`}>
                 <Settings className="h-4 w-4 shrink-0" />
                 Settings
               </div>
             </Link>
-            <Link href="/subscription" onClick={() => setMobileOpen(false)}>
+            <Link href="/subscription" onClick={closeDrawer}>
               <div className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition-colors cursor-pointer ${isSubscription ? "text-indigo-300 bg-indigo-500/10" : "text-slate-400 hover:text-white hover:bg-white/5"}`}>
                 <CreditCard className="h-4 w-4 shrink-0" />
                 Subscription
               </div>
             </Link>
-            <Link href="/help" onClick={() => setMobileOpen(false)}>
+            <Link href="/help" onClick={closeDrawer}>
               <div className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition-colors cursor-pointer ${isHelp ? "text-indigo-300 bg-indigo-500/10" : "text-slate-400 hover:text-white hover:bg-white/5"}`}>
                 <HelpCircle className="h-4 w-4 shrink-0" />
                 Help
@@ -164,15 +178,15 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      {mobileOpen && (
-        <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setMobileOpen(false)} />
-      )}
-
       {/* ── Main column ── */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
         {/* Mobile top bar */}
         <header className="md:hidden sticky top-0 z-30 h-14 flex items-center gap-3 px-4 border-b border-border/60 bg-background">
-          <button onClick={() => setMobileOpen(true)} className="text-foreground">
+          <button
+            onClick={openDrawer}
+            className="text-foreground p-1.5 rounded-md hover:bg-accent transition-colors"
+            aria-label="Open sidebar"
+          >
             <Menu className="h-5 w-5" />
           </button>
           <div className="flex items-center gap-2">
@@ -183,7 +197,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto">{children}</main>
+        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-x-hidden">{children}</main>
       </div>
     </div>
   );

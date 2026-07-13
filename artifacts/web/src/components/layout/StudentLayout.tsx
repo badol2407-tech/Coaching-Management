@@ -7,7 +7,7 @@ export function StudentLayout({ children }: { children: React.ReactNode }) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background overflow-x-hidden">
 
       {/* ── Top Bar ── */}
       <header
@@ -92,7 +92,7 @@ export function StudentLayout({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* ── Page Content ── */}
-      <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto">{children}</main>
+      <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-x-hidden">{children}</main>
     </div>
   );
 }
