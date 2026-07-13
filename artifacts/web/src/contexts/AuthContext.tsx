@@ -24,6 +24,12 @@ interface AuthContextType {
   loading: boolean;
   logout: () => Promise<void>;
   refreshProfile: () => Promise<void>;
+  /**
+   * Temporarily override the active profile (used by ImpersonationContext so
+   * that all pages and layouts see the impersonated user's profile).
+   * Pass null to restore the real super admin profile.
+   */
+  setProfileOverride: (profile: UserProfile | null) => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -32,6 +38,7 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
   logout: async () => {},
   refreshProfile: async () => {},
+  setProfileOverride: () => {},
 });
 
 /**
@@ -59,8 +66,16 @@ function isSuperAdminEmail(email: string | null | undefined): boolean {
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [realProfile, setRealProfile] = useState<UserProfile | null>(null);
+  const [profileOverride, setProfileOverrideState] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // The effective profile — override wins during impersonation.
+  const userProfile = profileOverride ?? realProfile;
+
+  const setProfileOverride = useCallback((profile: UserProfile | null) => {
+    setProfileOverrideState(profile);
+  }, []);
 
   const loadProfile = useCallback(async (u: User) => {
     try {
@@ -78,7 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         //     → block (security — prevents rogue Firestore edits from elevating)
         if (data.role === "super_admin" && !isSuperAdminEmail(u.email)) {
           // Firestore says super_admin but email isn't whitelisted → block.
-          setUserProfile(null);
+          setRealProfile(null);
           return;
         }
         if (isSuperAdminEmail(u.email)) {
@@ -99,15 +114,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           orgName,
           mustChangePassword: data.mustChangePassword ?? false,
         };
-        setUserProfile(profile);
+        setRealProfile(profile);
         identifyUser(u.uid, { role: data.role, email: data.email, name: data.name, orgId: data.orgId, orgName });
       } else {
         // No Firestore profile exists — no super_admin auto-creation by email alone.
         // Redirect to Setup so the user completes onboarding.
-        setUserProfile(null);
+        setRealProfile(null);
       }
     } catch {
-      setUserProfile(null);
+      setRealProfile(null);
     }
   }, []);
 
@@ -117,7 +132,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (u) {
         await loadProfile(u);
       } else {
-        setUserProfile(null);
+        setRealProfile(null);
+        setProfileOverrideState(null);
       }
       setLoading(false);
     });
@@ -131,11 +147,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback(async () => {
     trackLogout();
     resetUser();
+    setProfileOverrideState(null);
     await signOut(auth);
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, userProfile, loading, logout, refreshProfile }}>
+    <AuthContext.Provider value={{ user, userProfile, loading, logout, refreshProfile, setProfileOverride }}>
       {children}
     </AuthContext.Provider>
   );

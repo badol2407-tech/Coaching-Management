@@ -14,8 +14,11 @@ rules_version = '2';
 //     Org Admins can only read organizations, never write them.
 //  3. All org-scoped data (students, teachers, fees, exams, etc.) is isolated
 //     per `orgId` — a user can only touch documents inside their own org.
+//     Super Admin can read all org-scoped data (needed for impersonation view).
 //  4. Anyone signed in can write their own `seen` receipt (to mark something
 //     as read); nobody can write someone else's `seen` receipt.
+//  5. Super Admin has full read/write access to all platform-level collections
+//     (super_admin_logs, platform_payments, coupon_codes, testimonials, etc.).
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -87,97 +90,134 @@ service cloud.firestore {
       // page) but only writable by org staff.
       match /classes/{classId} {
         allow read: if true;
-        allow write: if isOrgStaff(orgId);
+        allow write: if isOrgStaff(orgId) || isSuperAdmin();
       }
 
       // Admission requests come from the public join page (no auth) and are
       // reviewed by org staff.
       match /admission_requests/{reqId} {
         allow create: if true;
-        allow read, update, delete: if isOrgStaff(orgId);
+        allow read, update, delete: if isOrgStaff(orgId) || isSuperAdmin();
       }
 
       // Teacher join requests come from the same public join page (no auth,
       // role="teacher") and are reviewed by org staff.
       match /teacher_requests/{reqId} {
         allow create: if true;
-        allow read, update, delete: if isOrgStaff(orgId);
+        allow read, update, delete: if isOrgStaff(orgId) || isSuperAdmin();
       }
 
       // Students: staff manage records; a student may only read their own.
+      // Super Admin can read all for impersonation/audit view.
       match /students/{studentId} {
-        allow read: if isOrgStaff(orgId) || (isStudent(orgId) && myProfile().studentId == studentId);
-        allow write: if isOrgStaff(orgId);
+        allow read: if isOrgStaff(orgId) || isSuperAdmin() || (isStudent(orgId) && myProfile().studentId == studentId);
+        allow write: if isOrgStaff(orgId) || isSuperAdmin();
       }
 
       // Teachers: staff manage records.
       match /teachers/{teacherId} {
-        allow read: if isOrgStaff(orgId);
-        allow write: if isOrgAdmin(orgId);
+        allow read: if isOrgStaff(orgId) || isSuperAdmin();
+        allow write: if isOrgAdmin(orgId) || isSuperAdmin();
       }
 
       // Attendance, fees, results: staff manage; students may only read.
       match /attendance/{docId} {
-        allow read: if isOrgMember(orgId);
-        allow write: if isOrgStaff(orgId);
+        allow read: if isOrgMember(orgId) || isSuperAdmin();
+        allow write: if isOrgStaff(orgId) || isSuperAdmin();
       }
       match /fees/{feeId} {
-        allow read: if isOrgMember(orgId);
-        allow write: if isOrgStaff(orgId);
+        allow read: if isOrgMember(orgId) || isSuperAdmin();
+        allow write: if isOrgStaff(orgId) || isSuperAdmin();
 
         match /seen/{uid} {
-          allow read: if isOrgStaff(orgId);
+          allow read: if isOrgStaff(orgId) || isSuperAdmin();
           allow write: if isStudent(orgId) && request.auth.uid == uid;
         }
       }
       match /results/{resultId} {
-        allow read: if isOrgMember(orgId);
-        allow write: if isOrgStaff(orgId);
+        allow read: if isOrgMember(orgId) || isSuperAdmin();
+        allow write: if isOrgStaff(orgId) || isSuperAdmin();
       }
 
       // Routine, homework, notices, exams: staff manage; org members read;
       // students record their own "seen" receipt only.
       match /routine/{slotId} {
-        allow read: if isOrgMember(orgId);
-        allow write: if isOrgStaff(orgId);
+        allow read: if isOrgMember(orgId) || isSuperAdmin();
+        allow write: if isOrgStaff(orgId) || isSuperAdmin();
 
         match /seen/{uid} {
-          allow read: if isOrgStaff(orgId);
+          allow read: if isOrgStaff(orgId) || isSuperAdmin();
           allow write: if isStudent(orgId) && request.auth.uid == uid;
         }
       }
       match /homework/{hwId} {
-        allow read: if isOrgMember(orgId);
-        allow write: if isOrgStaff(orgId);
+        allow read: if isOrgMember(orgId) || isSuperAdmin();
+        allow write: if isOrgStaff(orgId) || isSuperAdmin();
 
         match /seen/{uid} {
-          allow read: if isOrgStaff(orgId);
+          allow read: if isOrgStaff(orgId) || isSuperAdmin();
           allow write: if isStudent(orgId) && request.auth.uid == uid;
         }
       }
       match /notices/{noticeId} {
-        allow read: if isOrgMember(orgId);
-        allow write: if isOrgStaff(orgId);
+        allow read: if isOrgMember(orgId) || isSuperAdmin();
+        allow write: if isOrgStaff(orgId) || isSuperAdmin();
 
         match /seen/{uid} {
-          allow read: if isOrgStaff(orgId);
+          allow read: if isOrgStaff(orgId) || isSuperAdmin();
           allow write: if isStudent(orgId) && request.auth.uid == uid;
         }
       }
       match /exams/{examId} {
-        allow read: if isOrgMember(orgId);
-        allow write: if isOrgStaff(orgId);
+        allow read: if isOrgMember(orgId) || isSuperAdmin();
+        allow write: if isOrgStaff(orgId) || isSuperAdmin();
 
         match /seen/{uid} {
-          allow read: if isOrgStaff(orgId);
+          allow read: if isOrgStaff(orgId) || isSuperAdmin();
           allow write: if isStudent(orgId) && request.auth.uid == uid;
         }
       }
 
       // Expenses are internal to admins only.
       match /expenses/{expId} {
-        allow read, write: if isOrgAdmin(orgId);
+        allow read, write: if isOrgAdmin(orgId) || isSuperAdmin();
       }
+    }
+
+    // ── Platform-level Super Admin collections ────────────────────────────────
+    // All writes require super_admin role (enforced server-side by Firestore).
+    // These power the Super Admin console UI.
+
+    match /super_admin_logs/{docId} {
+      allow read, write: if isSignedIn() && isSuperAdmin();
+    }
+
+    match /platform_payments/{docId} {
+      allow read, write: if isSignedIn() && isSuperAdmin();
+    }
+
+    match /coupon_codes/{docId} {
+      allow read, write: if isSignedIn() && isSuperAdmin();
+    }
+
+    match /testimonials/{docId} {
+      allow read: if true;  // public read for landing page display
+      allow write: if isSignedIn() && isSuperAdmin();
+    }
+
+    match /popup_offers/{docId} {
+      allow read: if true;  // public read for landing page popups
+      allow write: if isSignedIn() && isSuperAdmin();
+    }
+
+    match /platform_settings/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isSuperAdmin();
+    }
+
+    // Impersonation audit sessions — written when super admin accesses a portal.
+    match /super_admin_impersonation/{sessionId} {
+      allow read, write: if isSignedIn() && isSuperAdmin();
     }
 
     // Default deny for anything not matched above.

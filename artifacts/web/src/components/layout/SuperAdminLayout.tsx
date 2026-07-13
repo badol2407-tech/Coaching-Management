@@ -5,7 +5,7 @@ import {
   Users, Activity, CreditCard, ChevronDown,
   TrendingUp, DollarSign, BarChart3, Tag,
   Share2, Megaphone, FileText, Gift, UserCheck,
-  School, BookOpen, Target, Globe, Zap, Menu, X,
+  School, BookOpen, Target, Globe, Zap, Menu, X, Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -28,6 +28,7 @@ const modules = [
       { title: "Students", href: "/operations/students", icon: BookOpen },
       { title: "All Users", href: "/operations/users", icon: Users },
       { title: "Activity Logs", href: "/operations/activity", icon: Activity },
+      { title: "Access Portal", href: "/operations/access-portal", icon: Eye },
     ],
   },
   {

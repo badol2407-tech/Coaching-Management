@@ -9,6 +9,8 @@ import { SuperAdminLayout } from "@/components/layout/SuperAdminLayout";
 import { TeacherLayout } from "@/components/layout/TeacherLayout";
 import { StudentLayout } from "@/components/layout/StudentLayout";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { ImpersonationProvider, useImpersonation } from "@/contexts/ImpersonationContext";
+import { ImpersonationBanner } from "@/components/ImpersonationBanner";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
@@ -45,6 +47,7 @@ const ActivityLogs = lazy(() => import("@/pages/super-admin/ActivityLogs"));
 const OrgAdmins = lazy(() => import("@/pages/super-admin/OrgAdmins"));
 const TeachersList = lazy(() => import("@/pages/super-admin/TeachersList"));
 const StudentsList = lazy(() => import("@/pages/super-admin/StudentsList"));
+const AccessPortal = lazy(() => import("@/pages/super-admin/AccessPortal"));
 // Super Admin pages — Billing
 const PricingPlans = lazy(() => import("@/pages/super-admin/PricingPlans"));
 const ActiveSubscriptions = lazy(() => import("@/pages/super-admin/ActiveSubscriptions"));
@@ -81,11 +84,88 @@ function Spinner() {
   );
 }
 
+/**
+ * ImpersonatedView — renders the appropriate role's layout + routes while
+ * showing the persistent impersonation banner. The super admin stays
+ * authenticated as themselves; only the UI context (AuthContext profile) is
+ * temporarily swapped via ImpersonationContext → AuthContext.setProfileOverride.
+ */
+function ImpersonatedView() {
+  const { impersonation } = useImpersonation();
+  if (!impersonation) return null;
+
+  return (
+    <>
+      {/* Banner is rendered outside the layout so it's always above everything */}
+      <ImpersonationBanner />
+      <Suspense fallback={<Spinner />}>
+        {impersonation.role === "org_admin" && (
+          <AppLayout>
+            <Switch>
+              <Route path="/" component={Dashboard} />
+              <Route path="/students" component={Students} />
+              <Route path="/students/add" component={AddStudents} />
+              <Route path="/teachers" component={Teachers} />
+              <Route path="/classes" component={Classes} />
+              <Route path="/routine" component={Routine} />
+              <Route path="/attendance" component={Attendance} />
+              <Route path="/fees" component={Fees} />
+              <Route path="/exams" component={Exams} />
+              <Route path="/notices" component={Notices} />
+              <Route path="/homework" component={Homework} />
+              <Route path="/expenses" component={Expenses} />
+              <Route path="/settings" component={Settings} />
+              <Route path="/subscription" component={Subscription} />
+              <Route path="/help" component={HelpCenter} />
+              <Route><Redirect to="/" /></Route>
+            </Switch>
+          </AppLayout>
+        )}
+        {impersonation.role === "teacher" && (
+          <TeacherLayout>
+            <Switch>
+              <Route path="/" component={TeacherDashboard} />
+              <Route path="/attendance" component={TeacherAttendance} />
+              <Route path="/students" component={TeacherStudents} />
+              <Route path="/exams" component={TeacherExams} />
+              <Route path="/routine" component={TeacherRoutine} />
+              <Route path="/notices" component={Notices} />
+              <Route path="/homework" component={Homework} />
+              <Route path="/settings" component={TeacherSettings} />
+              <Route><Redirect to="/" /></Route>
+            </Switch>
+          </TeacherLayout>
+        )}
+        {impersonation.role === "student" && (
+          <StudentLayout>
+            <Switch>
+              <Route path="/" component={StudentPortal} />
+              <Route><Redirect to="/" /></Route>
+            </Switch>
+          </StudentLayout>
+        )}
+      </Suspense>
+    </>
+  );
+}
+
 function AuthenticatedRoutes() {
   const { user, userProfile, loading } = useAuth();
+  const { impersonation } = useImpersonation();
 
   if (loading) return <Spinner />;
   if (!user) return <Suspense fallback={<Spinner />}><LandingPage /></Suspense>;
+
+  // During impersonation, userProfile is the overridden (impersonated) profile.
+  // We need to check the *real* super admin state, so detect via impersonation context.
+  const isSuperAdminSession = impersonation !== null ||
+    (userProfile?.role === "super_admin" && !impersonation);
+
+  // If there's an active impersonation, render the impersonated view.
+  if (impersonation) {
+    return <ImpersonatedView />;
+  }
+
   if (!userProfile) return <Suspense fallback={<Spinner />}><Setup /></Suspense>;
 
   // Force password change gate — must be cleared before accessing any dashboard
@@ -111,6 +191,7 @@ function AuthenticatedRoutes() {
             <Route path="/operations/teachers" component={TeachersList} />
             <Route path="/operations/students" component={StudentsList} />
             <Route path="/operations/activity" component={ActivityLogs} />
+            <Route path="/operations/access-portal" component={AccessPortal} />
             {/* Billing & Finance */}
             <Route path="/billing/pricing" component={PricingPlans} />
             <Route path="/billing/subscriptions" component={ActiveSubscriptions} />
@@ -201,34 +282,36 @@ function AuthenticatedRoutes() {
 function AppRoutes() {
   return (
     <AuthProvider>
-      <Switch>
-        {/* Public routes — available regardless of auth state */}
-        <Route path="/payment/success">
-          <Suspense fallback={<Spinner />}><PaymentSuccess /></Suspense>
-        </Route>
-        <Route path="/payment/fail">
-          <Suspense fallback={<Spinner />}><PaymentFail /></Suspense>
-        </Route>
-        <Route path="/privacy">
-          <Suspense fallback={<Spinner />}><PrivacyPolicy /></Suspense>
-        </Route>
-        <Route path="/terms">
-          <Suspense fallback={<Spinner />}><TermsOfService /></Suspense>
-        </Route>
-        <Route path="/refund">
-          <Suspense fallback={<Spinner />}><RefundPolicy /></Suspense>
-        </Route>
-        <Route path="/faq">
-          <Suspense fallback={<Spinner />}><FAQ /></Suspense>
-        </Route>
-        <Route path="/join/:code/:role?">
-          <Suspense fallback={<Spinner />}><JoinOrg /></Suspense>
-        </Route>
-        {/* All other routes go through the auth-gated flow */}
-        <Route>
-          <AuthenticatedRoutes />
-        </Route>
-      </Switch>
+      <ImpersonationProvider>
+        <Switch>
+          {/* Public routes — available regardless of auth state */}
+          <Route path="/payment/success">
+            <Suspense fallback={<Spinner />}><PaymentSuccess /></Suspense>
+          </Route>
+          <Route path="/payment/fail">
+            <Suspense fallback={<Spinner />}><PaymentFail /></Suspense>
+          </Route>
+          <Route path="/privacy">
+            <Suspense fallback={<Spinner />}><PrivacyPolicy /></Suspense>
+          </Route>
+          <Route path="/terms">
+            <Suspense fallback={<Spinner />}><TermsOfService /></Suspense>
+          </Route>
+          <Route path="/refund">
+            <Suspense fallback={<Spinner />}><RefundPolicy /></Suspense>
+          </Route>
+          <Route path="/faq">
+            <Suspense fallback={<Spinner />}><FAQ /></Suspense>
+          </Route>
+          <Route path="/join/:code/:role?">
+            <Suspense fallback={<Spinner />}><JoinOrg /></Suspense>
+          </Route>
+          {/* All other routes go through the auth-gated flow */}
+          <Route>
+            <AuthenticatedRoutes />
+          </Route>
+        </Switch>
+      </ImpersonationProvider>
     </AuthProvider>
   );
 }
