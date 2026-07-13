@@ -885,11 +885,19 @@ export default function LandingPage() {
             0%,100% { box-shadow: 0 0 14px rgba(245,158,11,0.65), 0 4px 14px rgba(0,0,0,0.45); }
             50%      { box-shadow: 0 0 26px rgba(245,158,11,0.9),  0 4px 14px rgba(0,0,0,0.45); }
           }
-          .pricing-card-free:hover   { transform: translateY(-4px); box-shadow: 0 28px 60px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.07); }
-          .pricing-card-annual:hover { transform: translateY(-4px); box-shadow: 0 28px 60px rgba(0,0,0,0.45), inset 0 1px 0 rgba(99,102,241,0.15); }
-          .pricing-btn-free:hover   { background: rgba(255,255,255,0.09) !important; }
+          @keyframes pricing-green-pulse {
+            0%,100% { box-shadow: 0 0 0 0 rgba(34,197,94,0), 0 20px 50px rgba(0,0,0,0.22); }
+            50%      { box-shadow: 0 0 22px -4px rgba(34,197,94,0.22), 0 20px 50px rgba(0,0,0,0.22); }
+          }
+          @keyframes pricing-purple-pulse {
+            0%,100% { box-shadow: 0 0 40px -10px rgba(139,92,246,0.5), 0 0 80px -20px rgba(99,102,241,0.25), 0 30px 70px rgba(0,0,0,0.6); }
+            50%      { box-shadow: 0 0 55px -10px rgba(139,92,246,0.7), 0 0 110px -20px rgba(99,102,241,0.38), 0 30px 70px rgba(0,0,0,0.6); }
+          }
+          .pricing-card-free:hover   { transform: translateY(-5px); box-shadow: 0 30px 60px rgba(0,0,0,0.18), 0 0 30px -5px rgba(34,197,94,0.3) !important; }
+          .pricing-card-annual:hover { transform: translateY(-5px); box-shadow: 0 0 65px -10px rgba(139,92,246,0.8), 0 0 120px -20px rgba(99,102,241,0.42), 0 30px 70px rgba(0,0,0,0.6) !important; }
+          .pricing-btn-free:hover   { filter: brightness(1.06); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(34,197,94,0.45) !important; }
           .pricing-btn-gold:hover   { filter: brightness(1.08); }
-          .pricing-btn-indigo:hover { filter: brightness(1.1); }
+          .pricing-btn-indigo:hover { filter: brightness(1.12); transform: translateY(-1px); box-shadow: 0 10px 28px rgba(139,92,246,0.55) !important; }
         `}</style>
 
         <div className="max-w-6xl mx-auto relative">
@@ -911,52 +919,57 @@ export default function LandingPage() {
           {/* ── Cards — flex row so center card can be taller ── */}
           <div className="flex flex-col md:flex-row gap-5 md:items-center justify-center">
 
-            {/* ── Card 1: Free Trial ── */}
+            {/* ── Card 1: Free Trial — Bright frosted glass ── */}
             <div
-              className="pricing-card-free relative flex flex-col rounded-2xl md:flex-1 p-7 backdrop-blur-sm transition-all duration-300"
+              className="pricing-card-free relative flex flex-col rounded-2xl md:flex-1 p-7 transition-all duration-300 overflow-hidden"
               style={{
-                background: "linear-gradient(160deg, rgba(255,255,255,0.035) 0%, rgba(255,255,255,0.01) 100%)",
-                border: "1px solid rgba(255,255,255,0.07)",
-                boxShadow: "0 20px 50px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)",
+                background: "linear-gradient(160deg,rgba(255,255,255,0.92) 0%,rgba(240,253,244,0.88) 100%)",
+                border: "1.5px solid rgba(34,197,94,0.35)",
+                boxShadow: "0 20px 50px rgba(0,0,0,0.22), 0 0 0 0 rgba(34,197,94,0), inset 0 1px 0 rgba(255,255,255,1)",
+                animation: "pricing-green-pulse 4s ease-in-out infinite",
+                backdropFilter: "blur(20px)",
               }}
             >
-              {/* Top highlight line */}
-              <div className="pointer-events-none absolute top-0 left-[15%] right-[15%] h-px" style={{ background: "linear-gradient(90deg,transparent,rgba(255,255,255,0.13),transparent)" }} />
+              {/* Green top accent bar */}
+              <div className="pointer-events-none absolute top-0 left-0 right-0 h-[3px] rounded-t-2xl" style={{ background: "linear-gradient(90deg,transparent 0%,#22c55e 40%,#16a34a 60%,transparent 100%)" }} />
+              {/* Subtle green corner glow */}
+              <div className="pointer-events-none absolute top-[-30px] left-[-30px] w-[160px] h-[160px] rounded-full" style={{ background: "radial-gradient(circle,rgba(34,197,94,0.12) 0%,transparent 70%)" }} />
+              <div className="pointer-events-none absolute bottom-[-20px] right-[-20px] w-[120px] h-[120px] rounded-full" style={{ background: "radial-gradient(circle,rgba(34,197,94,0.07) 0%,transparent 70%)" }} />
 
-              <div className="mb-6">
-                <div className="w-11 h-11 rounded-xl flex items-center justify-center text-lg mb-4" style={{ background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.18)" }}>🟢</div>
-                <h3 className="font-extrabold text-xl text-foreground">Free Trial</h3>
-                <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>ঝুঁকি ছাড়াই শুরু করুন</p>
+              <div className="mb-6 relative">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center text-xl mb-4 shadow-md" style={{ background: "linear-gradient(135deg,#dcfce7,#bbf7d0)", border: "1.5px solid rgba(34,197,94,0.4)", boxShadow: "0 4px 14px rgba(34,197,94,0.25)" }}>🟢</div>
+                <h3 className="font-black text-xl" style={{ color: "#0f172a" }}>Free Trial</h3>
+                <p className="text-sm mt-1 font-medium" style={{ color: "#475569" }}>ঝুঁকি ছাড়াই শুরু করুন</p>
               </div>
 
-              <div className="mb-6">
-                <span className="text-6xl font-black tracking-tighter text-white" style={{ lineHeight: 1 }}>৳0</span>
-                <p className="text-xs mt-2" style={{ color: "rgba(255,255,255,0.35)" }}>৭ দিনের জন্য সম্পূর্ণ বিনামূল্যে</p>
+              <div className="mb-6 relative">
+                <span className="font-black tracking-tighter" style={{ fontSize: "clamp(48px,6vw,60px)", lineHeight: 1, color: "#0f172a", textShadow: "0 2px 8px rgba(34,197,94,0.18)" }}>৳0</span>
+                <p className="text-sm mt-2 font-medium" style={{ color: "#64748b" }}>৭ দিনের জন্য সম্পূর্ণ বিনামূল্যে</p>
               </div>
 
-              <ul className="space-y-3 mb-8 flex-1">
+              <ul className="space-y-3 mb-8 flex-1 relative">
                 {[
                   "Access to all Premium features",
                   "কোনো Credit Card লাগবে না",
                   "যেকোনো সময় Cancel করুন",
                   "Full access, no limitations",
                 ].map((f) => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm" style={{ color: "rgba(255,255,255,0.6)" }}>
-                    <CheckCircle className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "#22c55e" }} />
+                  <li key={f} className="flex items-start gap-2.5 text-sm font-medium" style={{ color: "#1e293b" }}>
+                    <CheckCircle className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "#16a34a" }} />
                     <span>{f}</span>
                   </li>
                 ))}
               </ul>
 
               <button
-                className="pricing-btn-free w-full h-11 rounded-xl font-semibold text-sm transition-all duration-200"
-                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.7)", cursor: "pointer" }}
+                className="pricing-btn-free relative w-full h-12 rounded-xl font-black text-sm transition-all duration-200"
+                style={{ background: "linear-gradient(90deg,#16a34a,#22c55e)", color: "#fff", border: "none", cursor: "pointer", boxShadow: "0 6px 20px rgba(34,197,94,0.38), inset 0 1px 0 rgba(255,255,255,0.25)", letterSpacing: "0.01em" }}
                 onClick={() => {
                   trackFeatureUsed("pricing_cta_click", { plan: "free_trial" });
                   openAuth("login", "pricing_free_trial");
                 }}
               >
-                ফ্রি ট্রায়াল শুরু করুন
+                ফ্রি ট্রায়াল শুরু করুন →
               </button>
             </div>
 
@@ -1055,68 +1068,82 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* ── Card 3: Annual Premium ── */}
+            {/* ── Card 3: Annual Premium — Rich dark purple glass ── */}
             <div
-              className="pricing-card-annual relative flex flex-col rounded-2xl md:flex-1 p-7 backdrop-blur-sm transition-all duration-300 overflow-hidden"
+              className="pricing-card-annual relative flex flex-col rounded-2xl md:flex-1 p-[1.5px] transition-all duration-300 overflow-hidden"
               style={{
-                background: "linear-gradient(160deg,rgba(99,102,241,0.08) 0%,rgba(139,92,246,0.05) 55%,rgba(255,255,255,0.01) 100%)",
-                border: "1px solid rgba(99,102,241,0.2)",
-                boxShadow: "0 20px 50px rgba(0,0,0,0.4), inset 0 1px 0 rgba(99,102,241,0.12)",
+                background: "linear-gradient(150deg,rgba(139,92,246,0.9) 0%,rgba(99,102,241,0.6) 40%,rgba(67,56,202,0.4) 70%,rgba(109,40,217,0.5) 100%)",
+                animation: "pricing-purple-pulse 3.5s ease-in-out infinite",
+                borderRadius: "16px",
               }}
             >
               {/* Best Value badge */}
-              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10">
-                <div className="flex items-center gap-1.5 text-white text-xs font-black uppercase tracking-wider px-4 py-1.5 rounded-full whitespace-nowrap" style={{ background: "linear-gradient(90deg,#6366f1,#8b5cf6)", boxShadow: "0 0 18px rgba(99,102,241,0.55), 0 4px 12px rgba(0,0,0,0.4)" }}>
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
+                <div className="flex items-center gap-1.5 text-white text-xs font-black uppercase tracking-wider px-5 py-1.5 rounded-full whitespace-nowrap" style={{ background: "linear-gradient(90deg,#7c3aed,#6366f1,#8b5cf6)", boxShadow: "0 0 20px rgba(139,92,246,0.75), 0 4px 14px rgba(0,0,0,0.5)", letterSpacing: "0.07em" }}>
                   👑 Best Value
                 </div>
               </div>
-              <div className="pointer-events-none absolute top-0 left-[15%] right-[15%] h-px" style={{ background: "linear-gradient(90deg,transparent,rgba(99,102,241,0.35),transparent)" }} />
-              <div className="pointer-events-none absolute top-[-40px] right-[-40px] w-[120px] h-[120px] rounded-full" style={{ background: "radial-gradient(circle,rgba(99,102,241,0.1) 0%,transparent 70%)" }} />
 
-              <div className="mb-6 mt-2">
-                <div className="w-11 h-11 rounded-xl flex items-center justify-center text-lg mb-4" style={{ background: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.2)" }}>👑</div>
-                <h3 className="font-extrabold text-xl text-foreground">Annual Premium</h3>
-                <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>বছরে ২ মাস একদম বিনামূল্যে</p>
-              </div>
-
-              <div className="mb-6">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-base font-semibold line-through" style={{ color: "rgba(255,255,255,0.28)" }}>৳11,988</span>
-                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: "rgba(99,102,241,0.14)", border: "1px solid rgba(99,102,241,0.28)", color: "#a5b4fc" }}>৳1,989 সাশ্রয়</span>
-                </div>
-                <div className="flex items-baseline gap-1.5" style={{ lineHeight: 1 }}>
-                  <span className="font-black text-white" style={{ fontSize: "clamp(44px,6vw,56px)", letterSpacing: "-0.04em" }}>৳9,999</span>
-                  <span className="text-sm font-medium" style={{ color: "rgba(255,255,255,0.38)", paddingBottom: 6 }}>/year</span>
-                </div>
-                <p className="text-xs font-semibold mt-2" style={{ color: "#818cf8" }}>মাসে মাত্র ৳833 — ২ মাস ফ্রি!</p>
-              </div>
-
-              <ul className="space-y-3 mb-8 flex-1">
-                {[
-                  "সব Founder features included",
-                  "২ মাস বিনামূল্যে",
-                  "Dedicated Account Manager",
-                  "Early access to new features",
-                  "Annual performance report",
-                  "Invoice & billing support",
-                ].map((f) => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm" style={{ color: "rgba(255,255,255,0.6)" }}>
-                    <CheckCircle className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "#818cf8" }} />
-                    <span>{f}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <button
-                className="pricing-btn-indigo w-full h-11 rounded-xl font-bold text-sm text-white transition-all duration-200"
-                style={{ background: "linear-gradient(90deg,#4f46e5,#7c3aed)", border: "none", cursor: "pointer", boxShadow: "0 6px 18px rgba(99,102,241,0.35)" }}
-                onClick={() => {
-                  trackFeatureUsed("pricing_cta_click", { plan: "annual_premium" });
-                  openAuth("login", "pricing_annual_premium");
-                }}
+              {/* Inner card */}
+              <div
+                className="relative flex flex-col flex-1 overflow-hidden"
+                style={{ background: "linear-gradient(160deg,#0d0b1a 0%,#110d24 30%,#0f0c1f 65%,#0a0816 100%)", borderRadius: "14px", padding: "28px 24px 24px" }}
               >
-                Annual Plan নিন
-              </button>
+                {/* Ambient purple radial at top */}
+                <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% -15%,rgba(139,92,246,0.22) 0%,transparent 60%)" }} />
+                {/* Bottom undertone */}
+                <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-1/2" style={{ background: "radial-gradient(ellipse at 50% 115%,rgba(99,102,241,0.1) 0%,transparent 65%)" }} />
+                {/* Top shimmer line */}
+                <div className="pointer-events-none absolute top-0 left-[10%] right-[10%] h-px" style={{ background: "linear-gradient(90deg,transparent,rgba(167,139,250,0.55),transparent)" }} />
+                {/* Corner glow blobs */}
+                <div className="pointer-events-none absolute top-[-30px] right-[-30px] w-[140px] h-[140px] rounded-full" style={{ background: "radial-gradient(circle,rgba(139,92,246,0.18) 0%,transparent 70%)" }} />
+                <div className="pointer-events-none absolute bottom-[-20px] left-[-20px] w-[100px] h-[100px] rounded-full" style={{ background: "radial-gradient(circle,rgba(99,102,241,0.1) 0%,transparent 70%)" }} />
+
+                <div className="relative mb-5 mt-2">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center text-xl mb-4" style={{ background: "linear-gradient(135deg,rgba(139,92,246,0.22),rgba(99,102,241,0.14))", border: "1.5px solid rgba(167,139,250,0.35)", boxShadow: "0 4px 16px rgba(139,92,246,0.3)" }}>👑</div>
+                  <h3 className="font-black text-2xl tracking-tight text-white">Annual Premium</h3>
+                  <p className="text-sm mt-1 font-medium" style={{ color: "rgba(196,181,253,0.75)" }}>বছরে ২ মাস একদম বিনামূল্যে</p>
+                </div>
+
+                <div className="relative mb-5">
+                  <div className="flex items-center gap-2.5 mb-1">
+                    <span className="text-base font-semibold line-through" style={{ color: "rgba(196,181,253,0.38)" }}>৳11,988</span>
+                    <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: "rgba(139,92,246,0.2)", border: "1px solid rgba(167,139,250,0.4)", color: "#c4b5fd" }}>৳1,989 সাশ্রয়</span>
+                  </div>
+                  <div className="flex items-baseline gap-2" style={{ lineHeight: 1 }}>
+                    <span className="font-black text-white" style={{ fontSize: "clamp(44px,6vw,58px)", letterSpacing: "-0.04em", textShadow: "0 0 35px rgba(167,139,250,0.5),0 0 70px rgba(139,92,246,0.25)" }}>৳9,999</span>
+                    <span className="text-sm font-medium" style={{ color: "rgba(196,181,253,0.55)", paddingBottom: 6 }}>/year</span>
+                  </div>
+                  <p className="text-xs font-bold mt-2" style={{ color: "#a78bfa", textShadow: "0 0 10px rgba(167,139,250,0.4)" }}>মাসে মাত্র ৳833 — ২ মাস ফ্রি!</p>
+                </div>
+
+                <ul className="space-y-3 mb-7 flex-1 relative">
+                  {[
+                    "সব Founder features included",
+                    "২ মাস বিনামূল্যে",
+                    "Dedicated Account Manager",
+                    "Early access to new features",
+                    "Annual performance report",
+                    "Invoice & billing support",
+                  ].map((f) => (
+                    <li key={f} className="flex items-start gap-2.5 text-sm font-medium" style={{ color: "rgba(233,228,255,0.88)" }}>
+                      <CheckCircle className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "#a78bfa" }} />
+                      <span>{f}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <button
+                  className="pricing-btn-indigo relative w-full h-12 rounded-xl font-black text-sm text-white transition-all duration-200 overflow-hidden"
+                  style={{ background: "linear-gradient(90deg,#6d28d9,#7c3aed,#6366f1)", border: "none", cursor: "pointer", boxShadow: "0 6px 22px rgba(139,92,246,0.45), inset 0 1px 0 rgba(255,255,255,0.18)", letterSpacing: "0.01em" }}
+                  onClick={() => {
+                    trackFeatureUsed("pricing_cta_click", { plan: "annual_premium" });
+                    openAuth("login", "pricing_annual_premium");
+                  }}
+                >
+                  Annual Plan নিন →
+                </button>
+              </div>
             </div>
 
           </div>
