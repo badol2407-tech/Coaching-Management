@@ -303,7 +303,13 @@ export default function ManageOrganizations() {
         await logSuperAdminAction({ action: `Deleted org "${name}"`, actorEmail: user?.email ?? "", targetId: id, targetType: "organization", orgName: name });
         toast({ title: "Organization deleted" });
       },
-      onError: () => toast({ title: "Error deleting organization", variant: "destructive" }),
+      onError: (err: any) => {
+        console.error("Delete org error:", err);
+        const msg = err?.code === "permission-denied"
+          ? "Permission denied — Firestore rules may not be deployed yet. Run: firebase deploy --only firestore:rules"
+          : (err?.message ?? "Unknown error");
+        toast({ title: "Error deleting organization", description: msg, variant: "destructive" });
+      },
     });
   }
 
