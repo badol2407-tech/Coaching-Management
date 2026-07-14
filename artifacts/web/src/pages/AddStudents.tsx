@@ -99,6 +99,7 @@ function ManualAdd() {
   const requiredFields: { key: keyof typeof form; label: string }[] = [
     { key: "name", label: "Full Name" },
     { key: "className", label: "Class" },
+    { key: "section", label: "Section" },
     { key: "batch", label: "Batch" },
     { key: "phone", label: "Phone Number" },
     { key: "email", label: "Email" },
@@ -250,9 +251,21 @@ function ManualAdd() {
           )}
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="m-section">Section</Label>
-          <Input id="m-section" placeholder="যেমন: A, B, Science, Commerce" value={form.section}
-            onChange={e => setForm(f => ({ ...f, section: e.target.value }))} />
+          <Label htmlFor="m-section">Section <span className="text-destructive">*</span></Label>
+          <Select
+            value={form.section}
+            onValueChange={val => { setForm(f => ({ ...f, section: val })); setErrors(er => ({ ...er, section: false })); }}
+          >
+            <SelectTrigger id="m-section" className={errors.section ? "border-destructive focus:ring-destructive" : ""}>
+              <SelectValue placeholder="Section বেছে নিন" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Science">Science</SelectItem>
+              <SelectItem value="Commerce">Commerce</SelectItem>
+              <SelectItem value="Arts">Arts</SelectItem>
+              <SelectItem value="General">General</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="m-batch">Batch <span className="text-destructive">*</span></Label>
