@@ -84,7 +84,7 @@ function ManualAdd() {
   const [done, setDone] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({
-    name: "", phone: "", email: "", password: "", className: "", batch: "",
+    name: "", phone: "", email: "", password: "", className: "", section: "", batch: "",
     guardianName: "", guardianPhone: "", enrolledAt: new Date().toISOString().split("T")[0],
   });
 
@@ -169,6 +169,7 @@ function ManualAdd() {
         phone: form.phone.trim() || null,
         email: form.email.trim(),
         className: form.className.trim() || null,
+        section: form.section.trim() || null,
         batch: form.batch.trim() || null,
         guardianName: form.guardianName.trim() || null,
         guardianPhone: form.guardianPhone.trim() || null,
@@ -210,7 +211,7 @@ function ManualAdd() {
           <p className="text-sm text-muted-foreground mt-1">Account created — they can now log in with their email & password.</p>
         </div>
         <div className="flex gap-3 justify-center">
-          <Button variant="outline" onClick={() => { setDone(false); setShowPassword(false); setForm({ name: "", phone: "", email: "", password: "", className: "", batch: "", guardianName: "", guardianPhone: "", enrolledAt: new Date().toISOString().split("T")[0] }); }}>
+          <Button variant="outline" onClick={() => { setDone(false); setShowPassword(false); setForm({ name: "", phone: "", email: "", password: "", className: "", section: "", batch: "", guardianName: "", guardianPhone: "", enrolledAt: new Date().toISOString().split("T")[0] }); }}>
             Add Another
           </Button>
           <Button asChild><Link href="/students">View Students</Link></Button>
@@ -233,7 +234,7 @@ function ManualAdd() {
           {(classes as any[]).length > 0 ? (
             <Select
               value={form.className}
-              onValueChange={val => { setForm(f => ({ ...f, className: val, batch: "" })); setErrors(er => ({ ...er, className: false })); }}
+              onValueChange={val => { setForm(f => ({ ...f, className: val, section: "", batch: "" })); setErrors(er => ({ ...er, className: false })); }}
             >
               <SelectTrigger id="m-class" className={errors.className ? "border-destructive focus:ring-destructive" : ""}><SelectValue placeholder="Class বেছে নিন" /></SelectTrigger>
               <SelectContent>
@@ -247,6 +248,11 @@ function ManualAdd() {
               onChange={e => { set("className")(e); setErrors(er => ({ ...er, className: false })); }}
               className={errors.className ? "border-destructive focus-visible:ring-destructive" : ""} />
           )}
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="m-section">Section</Label>
+          <Input id="m-section" placeholder="যেমন: A, B, Science, Commerce" value={form.section}
+            onChange={e => setForm(f => ({ ...f, section: e.target.value }))} />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="m-batch">Batch <span className="text-destructive">*</span></Label>
