@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useSearch } from "wouter";
 import {
   useMyFees, useMyAttendance, useMyResults, useListExams, useListRoutine, useListNotices,
   useMarkNoticeSeen, useListHomework, useMarkHomeworkSeen, useMyStudentRecord, filterByMyClassAndBatch,
@@ -23,7 +24,8 @@ const DAYS_BN: Record<string, string> = {
 
 export default function StudentPortal() {
   const { userProfile } = useAuth();
-  const [activeTab, setActiveTab] = useState("fees");
+  const search = useSearch();
+  const activeTab = new URLSearchParams(search).get("tab") ?? "dashboard";
 
   const { data: fees = [], isLoading: feesLoading } = useMyFees();
   const { data: attendance = [], isLoading: attLoading } = useMyAttendance();
@@ -154,65 +156,17 @@ export default function StudentPortal() {
         </Card>
       </div>
 
-      {/* ── Premium Sticky Tab Bar ── */}
-      <div
-        className="sticky top-14 z-30 -mx-4 md:-mx-6 lg:-mx-8 px-4 md:px-6 lg:px-8 py-2"
-        style={{
-          background: "linear-gradient(135deg, #0f172a 0%, #1a0533 50%, #0f172a 100%)",
-          boxShadow: "0 4px 24px rgba(0,0,0,0.35), 0 1px 0 rgba(168,85,247,0.12)",
-          borderBottom: "1px solid rgba(168,85,247,0.15)",
-        }}
-      >
-        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent pointer-events-none" />
-        <nav className="flex items-center gap-1 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
-          {[
-            { id: "fees",       label: "Fees",       icon: Wallet,       badge: 0 },
-            { id: "attendance", label: "Attendance", icon: CalendarCheck, badge: 0 },
-            { id: "results",    label: "Results",    icon: ClipboardList, badge: 0 },
-            { id: "routine",    label: "Routine",    icon: CalendarDays,  badge: 0 },
-            { id: "homework",   label: "Homework",   icon: NotebookPen,   badge: (homework as any[]).length },
-            { id: "notices",    label: "Notices",    icon: Bell,          badge: (notices as any[]).length },
-          ].map(({ id, label, icon: Icon, badge }) => {
-            const active = activeTab === id;
-            return (
-              <button
-                key={id}
-                onClick={() => setActiveTab(id)}
-                className="relative flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all duration-200 shrink-0"
-                style={active ? {
-                  background: "linear-gradient(135deg, rgba(168,85,247,0.28) 0%, rgba(139,92,246,0.18) 100%)",
-                  color: "#d8b4fe",
-                  border: "1px solid rgba(168,85,247,0.4)",
-                  boxShadow: "0 0 14px rgba(168,85,247,0.25), inset 0 1px 0 rgba(255,255,255,0.1)",
-                } : {
-                  color: "rgba(148,163,184,0.8)",
-                  border: "1px solid transparent",
-                }}
-              >
-                <Icon className="h-3.5 w-3.5 shrink-0" />
-                <span>{label}</span>
-                {badge > 0 && (
-                  <span
-                    className="ml-0.5 min-w-[16px] h-4 px-1 rounded-full text-[9px] font-bold flex items-center justify-center"
-                    style={active
-                      ? { background: "rgba(168,85,247,0.6)", color: "#f3e8ff" }
-                      : { background: "rgba(99,102,241,0.5)", color: "#c7d2fe" }
-                    }
-                  >
-                    {badge}
-                  </span>
-                )}
-                {active && (
-                  <span className="absolute bottom-1 left-1/2 -translate-x-1/2 h-0.5 w-4 rounded-full bg-purple-400 shadow-[0_0_6px_rgba(168,85,247,0.8)]" />
-                )}
-              </button>
-            );
-          })}
-        </nav>
-      </div>
-
       {/* ── Tab content panels ── */}
       <div className="mt-4">
+
+      {activeTab === "dashboard" && (
+        <div className="grid gap-3 sm:grid-cols-3">
+          {/* Summary cards already rendered above; this area shows a prompt to pick a section */}
+          <div className="sm:col-span-3 rounded-xl border border-dashed border-border bg-muted/30 py-8 text-center">
+            <p className="text-sm text-muted-foreground">Use the sidebar to view Fees, Attendance, Results, Routine, Homework, or Notices.</p>
+          </div>
+        </div>
+      )}
 
       {activeTab === "fees" && (
           <Card>

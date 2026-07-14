@@ -6,6 +6,7 @@ import {
   query, where,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { createFirebaseAuthUser } from "@/lib/auth-utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useListClasses } from "@/lib/class-hooks";
 import { Button } from "@/components/ui/button";
@@ -21,7 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Upload, Download, FileSpreadsheet, Link2, CheckCircle2, XCircle,
   ArrowLeft, Users, AlertCircle, Copy, RefreshCw, UserCheck, Clock,
-  Loader2, UserPlus,
+  Loader2, UserPlus, Eye, EyeOff,
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -81,8 +82,9 @@ function ManualAdd() {
   const { data: classes = [] } = useListClasses();
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({
-    name: "", phone: "", email: "", className: "", batch: "",
+    name: "", phone: "", email: "", password: "", className: "", batch: "",
     guardianName: "", guardianPhone: "", enrolledAt: new Date().toISOString().split("T")[0],
   });
 
@@ -113,6 +115,19 @@ function ManualAdd() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!userProfile?.orgId) return;
+
+    // Password validation — checked separately before field completeness
+    if (!form.password.trim()) {
+      setErrors(er => ({ ...er, password: true }));
+      toast({ title: "Password is required", description: "Enter a login password for this student.", variant: "destructive" });
+      return;
+    }
+    if (form.password.length < 6) {
+      setErrors(er => ({ ...er, password: true }));
+      toast({ title: "Password too short", description: "Password must be at least 6 characters.", variant: "destructive" });
+      return;
+    }
+
     const missing = getMissingFields();
     if (missing.length > 0) {
       setErrors(Object.fromEntries(missing.map(f => [f.key, true])));
@@ -126,10 +141,33 @@ function ManualAdd() {
     setErrors({});
     setLoading(true);
     try {
+      // Step 1 — create Firebase Auth account via secondary app so admin stays signed in
+      let uid: string;
+      try {
+        uid = await createFirebaseAuthUser(form.email.trim(), form.password);
+      } catch (authErr: any) {
+        const code = (authErr?.code ?? "") as string;
+        if (code === "auth/email-already-in-use") {
+          setErrors(er => ({ ...er, email: true }));
+          toast({ title: "Email already in use", description: "A login account with this email already exists. Use a different email.", variant: "destructive" });
+        } else if (code === "auth/weak-password") {
+          setErrors(er => ({ ...er, password: true }));
+          toast({ title: "Weak password", description: "Password must be at least 6 characters.", variant: "destructive" });
+        } else if (code === "auth/invalid-email") {
+          setErrors(er => ({ ...er, email: true }));
+          toast({ title: "Invalid email", description: "Please enter a valid email address.", variant: "destructive" });
+        } else {
+          toast({ title: "Account creation failed", description: authErr?.message ?? "Could not create login account. Try again.", variant: "destructive" });
+        }
+        return;
+      }
+
+      // Step 2 — write the student record linked to the new Firebase Auth UID
       await addDoc(collection(db, "organizations", userProfile.orgId, "students"), {
+        uid,
         name: form.name.trim(),
         phone: form.phone.trim() || null,
-        email: form.email.trim() || null,
+        email: form.email.trim(),
         className: form.className.trim() || null,
         batch: form.batch.trim() || null,
         guardianName: form.guardianName.trim() || null,
@@ -137,9 +175,22 @@ function ManualAdd() {
         enrolledAt: form.enrolledAt || new Date().toISOString().split("T")[0],
         createdAt: serverTimestamp(),
         source: "manual",
+        hasFirebaseAuth: true,
       });
+
+      // Step 3 — write the user profile so the student can log in
+      await setDoc(doc(db, "users", uid), {
+        role: "student",
+        orgId: userProfile.orgId,
+        name: form.name.trim(),
+        email: form.email.trim(),
+        mustChangePassword: false,
+        createdByAdmin: true,
+        createdAt: serverTimestamp(),
+      });
+
       qc.invalidateQueries({ queryKey: [userProfile.orgId, "students"] });
-      toast({ title: `${form.name} added!`, description: "Student is now in your list." });
+      toast({ title: `${form.name} added!`, description: "Account created — they can now log in with their email & password." });
       setDone(true);
     } catch {
       toast({ title: "Error", description: "Could not add student. Try again.", variant: "destructive" });
@@ -156,10 +207,10 @@ function ManualAdd() {
         </div>
         <div>
           <p className="text-xl font-bold">{form.name} added!</p>
-          <p className="text-sm text-muted-foreground mt-1">Student is now available in your Students list.</p>
+          <p className="text-sm text-muted-foreground mt-1">Account created — they can now log in with their email & password.</p>
         </div>
         <div className="flex gap-3 justify-center">
-          <Button variant="outline" onClick={() => { setDone(false); setForm({ name: "", phone: "", email: "", className: "", batch: "", guardianName: "", guardianPhone: "", enrolledAt: new Date().toISOString().split("T")[0] }); }}>
+          <Button variant="outline" onClick={() => { setDone(false); setShowPassword(false); setForm({ name: "", phone: "", email: "", password: "", className: "", batch: "", guardianName: "", guardianPhone: "", enrolledAt: new Date().toISOString().split("T")[0] }); }}>
             Add Another
           </Button>
           <Button asChild><Link href="/students">View Students</Link></Button>
@@ -228,6 +279,29 @@ function ManualAdd() {
           <Input id="m-email" type="email" placeholder="student@example.com" value={form.email}
             onChange={e => { set("email")(e); setErrors(er => ({ ...er, email: false })); }}
             className={errors.email ? "border-destructive focus-visible:ring-destructive" : ""} />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="m-password">Password <span className="text-destructive">*</span></Label>
+          <div className="relative">
+            <Input
+              id="m-password"
+              type={showPassword ? "text" : "password"}
+              placeholder="কমপক্ষে ৬ character"
+              value={form.password}
+              onChange={e => { setForm(f => ({ ...f, password: e.target.value })); setErrors(er => ({ ...er, password: false })); }}
+              className={`pr-10 ${errors.password ? "border-destructive focus-visible:ring-destructive" : ""}`}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(v => !v)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              tabIndex={-1}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
+          </div>
+          <p className="text-xs text-muted-foreground">Student logs in with this. Must be ≥ 6 characters.</p>
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="m-guardian">Guardian Name <span className="text-destructive">*</span></Label>

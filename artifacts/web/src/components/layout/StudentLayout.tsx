@@ -1,15 +1,33 @@
-import { GraduationCap, LogOut, ChevronDown } from "lucide-react";
+import { Link, useSearch } from "wouter";
+import {
+  LayoutDashboard, Wallet, CalendarCheck, ClipboardList,
+  CalendarDays, NotebookPen, Bell, GraduationCap, LogOut, Menu, X,
+} from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useMobileDrawer } from "@/hooks/use-mobile-drawer";
 import { useImpersonation } from "@/contexts/ImpersonationContext";
 import { getOrgAccessStatus } from "@/lib/subscription";
 import { getEffectiveTier } from "@/lib/plan-config";
 import { SubscriptionExpiredScreen } from "@/pages/SubscriptionExpired";
-import { useState } from "react";
+
+const navItems = [
+  { tab: "dashboard",  label: "Dashboard",  icon: LayoutDashboard },
+  { tab: "fees",       label: "Fees",       icon: Wallet },
+  { tab: "attendance", label: "Attendance", icon: CalendarCheck },
+  { tab: "results",    label: "Results",    icon: ClipboardList },
+  { tab: "routine",    label: "Routine",    icon: CalendarDays },
+  { tab: "homework",   label: "Homework",   icon: NotebookPen },
+  { tab: "notices",    label: "Notices",    icon: Bell },
+];
+
+const sidebarGradient = "linear-gradient(180deg, #0f172a 0%, #1a0533 55%, #0f172a 100%)";
 
 export function StudentLayout({ children }: { children: React.ReactNode }) {
   const { user, userProfile, logout } = useAuth();
   const { impersonation } = useImpersonation();
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const { isOpen: mobileOpen, open: openDrawer, close: closeDrawer } = useMobileDrawer();
+  const search = useSearch();
+  const activeTab = new URLSearchParams(search).get("tab") ?? "dashboard";
 
   // ── Subscription gate ────────────────────────────────────────────────────────
   if (!impersonation && userProfile && userProfile.role !== "super_admin" && userProfile.orgSubscription) {
@@ -27,92 +45,148 @@ export function StudentLayout({ children }: { children: React.ReactNode }) {
   // ────────────────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen flex flex-col bg-background overflow-x-hidden">
+    <div className="min-h-screen flex bg-background overflow-x-hidden">
 
-      {/* ── Top Bar ── */}
-      <header
-        className="sticky top-0 z-40 border-b border-border/60"
-        style={{
-          background: "linear-gradient(135deg, #0f172a 0%, #1a0533 50%, #0f172a 100%)",
-          boxShadow: "0 4px 24px rgba(0,0,0,0.4), 0 1px 0 rgba(168,85,247,0.15)",
-        }}
+      {/* ── Backdrop (mobile only) ── */}
+      <div
+        className={`fixed inset-0 z-40 md:hidden transition-opacity duration-300 ease-in-out ${mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+        style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }}
+        onClick={closeDrawer}
+        aria-hidden="true"
+      />
+
+      {/* ── Sidebar ── */}
+      <aside
+        className={`fixed md:sticky top-0 h-screen z-50 w-64 shrink-0 flex flex-col border-r border-white/10 transition-transform duration-300 ease-in-out md:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}
+        style={{ background: sidebarGradient, boxShadow: "4px 0 24px rgba(0,0,0,0.35)" }}
+        aria-label="Student navigation"
       >
-        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-purple-500/40 to-transparent pointer-events-none" />
-
-        <div className="flex items-center h-14 px-4 justify-between">
-
-          {/* Logo */}
-          <div className="flex items-center gap-2.5">
-            <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-purple-400 to-violet-600 flex items-center justify-center shadow-md shadow-purple-500/40">
-              <GraduationCap className="h-4 w-4 text-white" />
-            </div>
-            <div>
-              <p className="text-white font-bold text-sm leading-none">EduTrack</p>
-              {userProfile?.orgName && (
-                <p className="text-purple-300/70 text-[10px] leading-none mt-0.5">{userProfile.orgName}</p>
-              )}
-            </div>
+        {/* Logo */}
+        <div className="flex items-center gap-2 h-14 px-4 border-b border-white/10 shrink-0">
+          <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-purple-400 to-violet-600 flex items-center justify-center shadow-md shadow-purple-500/40 shrink-0">
+            <GraduationCap className="h-4 w-4 text-white" />
           </div>
-
-          {/* Student badge */}
-          <div
-            className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full"
-            style={{
-              background: "linear-gradient(135deg, rgba(168,85,247,0.15), rgba(139,92,246,0.08))",
-              border: "1px solid rgba(168,85,247,0.25)",
-            }}
-          >
-            <span className="text-xs font-semibold text-purple-300">Student Portal</span>
-          </div>
-
-          {/* User menu */}
-          <div className="relative">
-            <button
-              onClick={() => setUserMenuOpen(o => !o)}
-              className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-colors"
-              style={{ background: userMenuOpen ? "rgba(255,255,255,0.08)" : undefined }}
-            >
-              <div className="h-7 w-7 rounded-full bg-gradient-to-br from-purple-400 to-violet-500 flex items-center justify-center text-white text-xs font-bold shadow-md">
-                {(userProfile?.name || user?.email || "S")[0].toUpperCase()}
-              </div>
-              <span className="hidden sm:block text-xs text-slate-300 max-w-[80px] truncate">
-                {userProfile?.name || user?.displayName}
-              </span>
-              <ChevronDown className="h-3 w-3 text-slate-400" />
-            </button>
-
-            {userMenuOpen && (
-              <>
-                <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
-                <div
-                  className="absolute right-0 top-full mt-1.5 z-50 w-52 rounded-xl py-1 overflow-hidden"
-                  style={{
-                    background: "linear-gradient(135deg, #1e293b, #0f172a)",
-                    border: "1px solid rgba(168,85,247,0.2)",
-                    boxShadow: "0 20px 40px rgba(0,0,0,0.5)",
-                  }}
-                >
-                  <div className="px-4 py-3 border-b border-white/10">
-                    <p className="text-sm font-semibold text-white truncate">{userProfile?.name || user?.displayName}</p>
-                    <p className="text-xs text-slate-400 truncate">{user?.email}</p>
-                    <p className="text-xs text-purple-400 mt-0.5">Student</p>
-                  </div>
-                  <button
-                    onClick={() => { logout(); setUserMenuOpen(false); }}
-                    className="w-full flex items-center gap-2 px-4 py-2 text-xs text-red-400 hover:text-red-300 hover:bg-white/5 transition-colors"
-                  >
-                    <LogOut className="h-3.5 w-3.5" />
-                    Logout
-                  </button>
-                </div>
-              </>
+          <div className="min-w-0">
+            <p className="text-white font-bold text-sm leading-none">EduTrack</p>
+            {userProfile?.orgName && (
+              <p className="text-purple-300/70 text-[10px] leading-none mt-0.5 truncate">{userProfile.orgName}</p>
             )}
           </div>
+          {/* Close button — mobile only */}
+          <button
+            className="ml-auto md:hidden text-slate-400 hover:text-white p-1 rounded-md hover:bg-white/10 transition-colors"
+            onClick={closeDrawer}
+            aria-label="Close sidebar"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
-      </header>
 
-      {/* ── Page Content ── */}
-      <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-x-hidden">{children}</main>
+        {/* Student badge */}
+        <div className="px-4 py-2.5 border-b border-white/[0.07]">
+          <span
+            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold"
+            style={{
+              background: "linear-gradient(135deg, rgba(168,85,247,0.2), rgba(139,92,246,0.1))",
+              border: "1px solid rgba(168,85,247,0.3)",
+              color: "#c4b5fd",
+            }}
+          >
+            Student Portal
+          </span>
+        </div>
+
+        {/* Nav — scrollable */}
+        <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-0.5 min-h-0">
+          {navItems.map(({ tab, label, icon: Icon }) => {
+            const active = activeTab === tab;
+            return (
+              <Link key={tab} href={tab === "dashboard" ? "/" : `/?tab=${tab}`}>
+                <div
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-200 cursor-pointer select-none"
+                  style={active ? {
+                    background: "linear-gradient(135deg, rgba(168,85,247,0.22) 0%, rgba(139,92,246,0.14) 100%)",
+                    color: "#d8b4fe",
+                    border: "1px solid rgba(168,85,247,0.35)",
+                    boxShadow: "0 0 12px rgba(168,85,247,0.15), inset 0 1px 0 rgba(255,255,255,0.08)",
+                  } : { color: "rgba(148,163,184,0.85)", border: "1px solid transparent" }}
+                  onMouseEnter={e => {
+                    if (!active) {
+                      (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.06)";
+                      (e.currentTarget as HTMLElement).style.color = "#e2e8f0";
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    if (!active) {
+                      (e.currentTarget as HTMLElement).style.background = "";
+                      (e.currentTarget as HTMLElement).style.color = "rgba(148,163,184,0.85)";
+                    }
+                  }}
+                  onClick={closeDrawer}
+                >
+                  <Icon className="h-4 w-4 shrink-0" />
+                  <span className="truncate">{label}</span>
+                  {active && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-purple-400 shadow-[0_0_6px_rgba(168,85,247,0.8)] shrink-0" />}
+                </div>
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Bottom: profile + logout */}
+        <div className="border-t border-white/10 shrink-0">
+          <div className="flex items-center gap-2.5 px-3 py-3">
+            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-purple-400 to-violet-500 flex items-center justify-center text-white text-xs font-bold shadow-md shrink-0">
+              {(userProfile?.name || user?.email || "S")[0].toUpperCase()}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-white text-xs font-semibold truncate leading-tight">{userProfile?.name || user?.displayName}</p>
+              <p className="text-slate-400 text-[10px] truncate leading-tight">{user?.email}</p>
+            </div>
+            <button
+              onClick={logout}
+              className="text-red-400 hover:text-red-300 p-1.5 rounded-md hover:bg-white/5 transition-colors shrink-0"
+              title="Logout"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      {/* ── Main column ── */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
+        {/* Mobile top bar */}
+        <header className="md:hidden sticky top-0 z-30 h-14 flex items-center gap-3 px-4 border-b border-border/60 bg-background">
+          <button
+            onClick={openDrawer}
+            className="text-foreground p-1.5 rounded-md hover:bg-accent transition-colors"
+            aria-label="Open sidebar"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+          <div className="flex items-center gap-2">
+            <div className="h-6 w-6 rounded-md bg-gradient-to-br from-purple-400 to-violet-600 flex items-center justify-center">
+              <GraduationCap className="h-3.5 w-3.5 text-white" />
+            </div>
+            <span className="font-bold text-sm">EduTrack</span>
+          </div>
+          <div className="ml-auto">
+            <span
+              className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+              style={{
+                background: "rgba(168,85,247,0.15)",
+                border: "1px solid rgba(168,85,247,0.3)",
+                color: "#c4b5fd",
+              }}
+            >
+              Student
+            </span>
+          </div>
+        </header>
+
+        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-x-hidden">{children}</main>
+      </div>
     </div>
   );
 }
