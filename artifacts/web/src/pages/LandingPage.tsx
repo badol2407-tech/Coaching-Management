@@ -853,57 +853,56 @@ export default function LandingPage() {
           {/* ── Cards — flex row so center card can be taller ── */}
           <div className="flex flex-col md:flex-row gap-5 md:items-center justify-center">
 
-            {/* ── Card 1: Free Trial — Bright frosted glass ── */}
-            {/* Outer gradient border wrapper — matches Annual/Founder structure */}
+            {/* ── Card 1: Free Trial — Dark glass, same template as Annual/Founder ── */}
             <div
-              className="pricing-card-free relative md:flex-1 self-stretch transition-all duration-300"
+              className="pricing-card-free relative md:flex-1 self-stretch p-[1.5px] transition-all duration-300"
               style={{
-                padding: "1.5px",
-                background: "linear-gradient(150deg,rgba(34,197,94,0.7) 0%,rgba(22,163,74,0.45) 40%,rgba(21,128,61,0.28) 70%,rgba(20,184,166,0.35) 100%)",
-                borderRadius: "18px",
+                background: "linear-gradient(150deg,rgba(34,197,94,0.85) 0%,rgba(22,163,74,0.55) 40%,rgba(21,128,61,0.35) 70%,rgba(16,185,129,0.4) 100%)",
+                borderRadius: "16px",
                 animation: "pricing-green-pulse 4s ease-in-out infinite",
               }}
             >
-              {/* Inner frosted-glass content card */}
+              {/* Inner dark-glass content card */}
               <div
                 className="relative flex flex-col h-full overflow-hidden"
                 style={{
-                  background: "linear-gradient(160deg,rgba(255,255,255,0.93) 0%,rgba(240,253,244,0.9) 100%)",
-                  borderRadius: "16px",
+                  background: "linear-gradient(160deg,#07160d 0%,#0b2013 30%,#091c10 65%,#050f08 100%)",
+                  borderRadius: "14px",
                   padding: "28px 24px 24px",
-                  boxShadow: "0 20px 50px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,1)",
-                  backdropFilter: "blur(20px)",
                 }}
               >
-                {/* Green top accent bar */}
-                <div className="pointer-events-none absolute top-0 left-0 right-0 h-[3px]" style={{ borderRadius: "16px 16px 0 0", background: "linear-gradient(90deg,transparent 0%,#22c55e 40%,#16a34a 60%,transparent 100%)" }} />
-                {/* Green corner glow blobs */}
-                <div className="pointer-events-none absolute top-[-30px] left-[-30px] w-[160px] h-[160px] rounded-full" style={{ background: "radial-gradient(circle,rgba(34,197,94,0.12) 0%,transparent 70%)" }} />
-                <div className="pointer-events-none absolute bottom-[-20px] right-[-20px] w-[120px] h-[120px] rounded-full" style={{ background: "radial-gradient(circle,rgba(34,197,94,0.07) 0%,transparent 70%)" }} />
+                {/* Ambient green radial at top */}
+                <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% -15%,rgba(34,197,94,0.2) 0%,transparent 60%)" }} />
+                <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-1/2" style={{ background: "radial-gradient(ellipse at 50% 115%,rgba(22,163,74,0.09) 0%,transparent 65%)" }} />
+                {/* Top shimmer line */}
+                <div className="pointer-events-none absolute top-0 left-[10%] right-[10%] h-px" style={{ background: "linear-gradient(90deg,transparent,rgba(134,239,172,0.5),transparent)" }} />
+                {/* Corner glow blobs */}
+                <div className="pointer-events-none absolute top-[-30px] left-[-30px] w-[160px] h-[160px] rounded-full" style={{ background: "radial-gradient(circle,rgba(34,197,94,0.16) 0%,transparent 70%)" }} />
+                <div className="pointer-events-none absolute bottom-[-20px] right-[-20px] w-[120px] h-[120px] rounded-full" style={{ background: "radial-gradient(circle,rgba(34,197,94,0.08) 0%,transparent 70%)" }} />
 
-                <div className="mb-6 relative">
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center text-xl mb-4" style={{ background: "linear-gradient(135deg,#dcfce7,#bbf7d0)", border: "1.5px solid rgba(34,197,94,0.4)", boxShadow: "0 4px 14px rgba(34,197,94,0.25)" }}>🟢</div>
-                  <h3 className="font-black text-xl" style={{ color: "#0f172a" }}>Free Trial</h3>
-                  <p className="text-sm mt-1 font-medium" style={{ color: "#475569" }}>ঝুঁকি ছাড়াই শুরু করুন</p>
+                <div className="mb-5 mt-2 relative">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center text-xl mb-4" style={{ background: "linear-gradient(135deg,rgba(34,197,94,0.22),rgba(22,163,74,0.14))", border: "1.5px solid rgba(134,239,172,0.35)", boxShadow: "0 4px 16px rgba(34,197,94,0.3)" }}>🟢</div>
+                  <h3 className="font-black text-2xl tracking-tight text-white">Free Trial</h3>
+                  <p className="text-sm mt-1 font-medium" style={{ color: "rgba(187,247,208,0.75)" }}>ঝুঁকি ছাড়াই শুরু করুন</p>
                 </div>
 
-                <div className="mb-6 relative">
-                  <span className="font-black tracking-tighter" style={{ fontSize: "clamp(48px,6vw,60px)", lineHeight: 1, color: "#0f172a", textShadow: "0 2px 8px rgba(34,197,94,0.18)" }}>{getPricingDisplay("free_trial").price}</span>
-                  <p className="text-sm mt-2 font-medium" style={{ color: "#64748b" }}>{PLAN_CONFIG.free_trial.trialDays} দিনের জন্য সম্পূর্ণ বিনামূল্যে</p>
+                <div className="mb-5 relative">
+                  <span className="font-black text-white tracking-tighter" style={{ fontSize: "clamp(48px,6vw,60px)", lineHeight: 1, textShadow: "0 0 35px rgba(74,222,128,0.45),0 0 70px rgba(34,197,94,0.25)" }}>{getPricingDisplay("free_trial").price}</span>
+                  <p className="text-sm mt-2 font-medium" style={{ color: "rgba(187,247,208,0.65)" }}>{PLAN_CONFIG.free_trial.trialDays} দিনের জন্য সম্পূর্ণ বিনামূল্যে</p>
                 </div>
 
                 <ul className="space-y-3 mb-8 flex-1 relative">
                   {PLAN_CONFIG.free_trial.displayHighlights.map((f) => (
-                    <li key={f} className="flex items-start gap-2.5 text-sm font-medium" style={{ color: "#1e293b" }}>
-                      <CheckCircle className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "#16a34a" }} />
+                    <li key={f} className="flex items-start gap-2.5 text-sm font-medium" style={{ color: "rgba(220,252,231,0.88)" }}>
+                      <CheckCircle className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "#4ade80" }} />
                       <span>{f}</span>
                     </li>
                   ))}
                 </ul>
 
                 <button
-                  className="pricing-btn-free relative w-full h-12 rounded-xl font-black text-sm transition-all duration-200"
-                  style={{ background: "linear-gradient(90deg,#16a34a,#22c55e)", color: "#fff", border: "none", cursor: "pointer", boxShadow: "0 6px 20px rgba(34,197,94,0.38), inset 0 1px 0 rgba(255,255,255,0.25)", letterSpacing: "0.01em" }}
+                  className="pricing-btn-free relative w-full h-12 rounded-xl font-black text-sm text-white transition-all duration-200"
+                  style={{ background: "linear-gradient(90deg,#16a34a,#22c55e)", border: "none", cursor: "pointer", boxShadow: "0 6px 20px rgba(34,197,94,0.4), inset 0 1px 0 rgba(255,255,255,0.25)", letterSpacing: "0.01em" }}
                   onClick={() => {
                     trackFeatureUsed("pricing_cta_click", { plan: "free_trial" });
                     openAuth("login", "pricing_free_trial");
