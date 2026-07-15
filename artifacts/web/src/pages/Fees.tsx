@@ -1,0 +1,235 @@
+import { useMemo, useState } from "react";
+import { useListFees, useCreateFee, useUpdateFee, useListStudents, useFeeSeen, getListFeesQueryKey } from "@/lib/hooks";
+import { useListClasses } from "@/lib/class-hooks";
+import { useQueryClient } from "@tanstack/react-query";
+import { trackFeeAdded, trackFeeMarkedPaid } from "@/lib/analytics";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Plus, CheckCircle, Eye, Loader2, Users } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { SECTION_OPTIONS } from "@/lib/constants";
+
+const emptyFeeForm = { className: "", section: "", batch: "", studentId: "", amount: "1500", month: new Date().toISOString().slice(0, 7), status: "pending" };
+
+function SeenCell({ feeId }: { feeId: string }) {
+  const [open, setOpen] = useState(false);
+  const { data: seen = [], isLoading } = useFeeSeen(open ? feeId : null);
+
+  return (
+    <div className="relative inline-block text-left">
+      <Button size="sm" variant="ghost" className="h-7 gap-1 text-xs" onClick={() => setOpen((v) => !v)}>
+        <Eye className="h-3.5 w-3.5" />
+        {(seen as any[]).length > 0 ? "দেখেছে" : "কে দেখেছে?"}
+      </Button>
+      {open && (
+        <div className="absolute right-0 z-20 mt-1 w-56 rounded-md border bg-popover shadow-md">
+          {isLoading ? (
+            <div className="flex items-center gap-2 py-3 px-3 text-xs text-muted-foreground">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />লোড হচ্ছে…
+            </div>
+          ) : (seen as any[]).length === 0 ? (
+            <div className="py-3 px-3 text-xs text-muted-foreground flex items-center gap-2">
+              <Users className="h-3.5 w-3.5" />এখনো দেখেনি
+            </div>
+          ) : (
+            <div className="divide-y">
+              {(seen as any[]).map((s: any) => (
+                <div key={s.uid} className="px-3 py-2 text-xs">
+                  <div className="font-medium">{s.name ?? "—"}</div>
+                  <div className="text-muted-foreground">
+                    {new Date(s.seenAt).toLocaleString("en-BD", { dateStyle: "short", timeStyle: "short" })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function Fees() {
+  const [filterStatus, setFilterStatus] = useState("");
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [form, setForm] = useState(emptyFeeForm);
+  const { toast } = useToast();
+  const qc = useQueryClient();
+
+  const { data: fees = [], isLoading } = useListFees({ status: filterStatus || undefined });
+  const { data: students = [] } = useListStudents();
+  const { data: classes = [] } = useListClasses();
+  const createFee = useCreateFee();
+  const updateFee = useUpdateFee();
+  const invalidate = () => qc.invalidateQueries({ queryKey: getListFeesQueryKey() });
+
+  const selectedClass = (classes as any[]).find((c: any) => c.name === form.className);
+  const availableBatches: string[] = selectedClass?.batches ?? [];
+
+  const eligibleStudents = useMemo(
+    () =>
+      (students as any[]).filter(
+        (s: any) => s.className === form.className && s.section === form.section && s.batch === form.batch
+      ),
+    [students, form.className, form.section, form.batch]
+  );
+
+  function handleClassChange(val: string) {
+    setForm((f) => ({ ...f, className: val, batch: "", studentId: "" }));
+  }
+
+  function handleSectionChange(val: string) {
+    setForm((f) => ({ ...f, section: val, studentId: "" }));
+  }
+
+  function handleBatchChange(val: string) {
+    setForm((f) => ({ ...f, batch: val, studentId: "" }));
+  }
+
+  function handleAdd() {
+    if (!form.className || !form.section || !form.batch || !form.studentId || !form.amount || !form.month || !form.status) {
+      toast({ title: "সব ঘর পূরণ করুন (All fields are required)", variant: "destructive" });
+      return;
+    }
+    const student = (students as any[]).find((s: any) => s.id === form.studentId);
+    createFee.mutate(
+      { data: { studentId: form.studentId, studentName: student?.name ?? "", className: form.className, section: form.section, batch: form.batch, amount: Number(form.amount), month: form.month, status: form.status } },
+      {
+        onSuccess: () => { trackFeeAdded(Number(form.amount), form.month); toast({ title: "Fee added" }); setSheetOpen(false); invalidate(); setForm(emptyFeeForm); },
+        onError: () => toast({ title: "Error", variant: "destructive" }),
+      }
+    );
+  }
+
+  function markPaid(id: string) {
+    updateFee.mutate(
+      { id, data: { status: "paid", paidAt: new Date().toISOString() } },
+      { onSuccess: () => { trackFeeMarkedPaid(id); toast({ title: "Marked as paid" }); invalidate(); }, onError: () => toast({ title: "Error", variant: "destructive" }) }
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between gap-4">
+        <Select value={filterStatus} onValueChange={setFilterStatus}>
+          <SelectTrigger className="w-40"><SelectValue placeholder="All Status" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">All</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="paid">Paid</SelectItem>
+          </SelectContent>
+        </Select>
+        <Button onClick={() => setSheetOpen(true)}><Plus className="h-4 w-4 mr-2" />Add Fee</Button>
+      </div>
+
+      <div className="rounded-lg border bg-card">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Student</TableHead>
+              <TableHead>Month</TableHead>
+              <TableHead>Amount</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Paid At</TableHead>
+              <TableHead>Seen</TableHead>
+              <TableHead className="text-right">Action</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? Array.from({ length: 5 }).map((_, i) => <TableRow key={i}><TableCell colSpan={7} className="h-12 animate-pulse bg-muted/30" /></TableRow>)
+              : (fees as any[]).length === 0 ? <TableRow><TableCell colSpan={7} className="text-center py-10 text-muted-foreground">No fee records</TableCell></TableRow>
+              : (fees as any[]).map((f: any) => (
+                <TableRow key={f.id}>
+                  <TableCell className="font-medium">{f.studentName}</TableCell>
+                  <TableCell>{f.month}</TableCell>
+                  <TableCell>৳{f.amount.toLocaleString()}</TableCell>
+                  <TableCell><Badge variant={f.status === "paid" ? "default" : "secondary"}>{f.status}</Badge></TableCell>
+                  <TableCell className="text-muted-foreground">{f.paidAt ? new Date(f.paidAt).toLocaleDateString("en-BD") : "—"}</TableCell>
+                  <TableCell><SeenCell feeId={f.id} /></TableCell>
+                  <TableCell className="text-right">
+                    {f.status === "pending" && (
+                      <Button size="sm" variant="outline" onClick={() => markPaid(f.id)}>
+                        <CheckCircle className="h-4 w-4 mr-1" />Mark Paid
+                      </Button>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+        <SheetContent>
+          <SheetHeader><SheetTitle>Add Fee Record</SheetTitle></SheetHeader>
+          <div className="space-y-4 py-4">
+            {/* Class */}
+            <div className="space-y-1">
+              <Label>Class <span className="text-destructive">*</span></Label>
+              <Select value={form.className} onValueChange={handleClassChange}>
+                <SelectTrigger><SelectValue placeholder="Select class" /></SelectTrigger>
+                <SelectContent>
+                  {(classes as any[]).map((c: any) => (
+                    <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {/* Section */}
+            <div className="space-y-1">
+              <Label>Section <span className="text-destructive">*</span></Label>
+              <Select value={form.section} onValueChange={handleSectionChange}>
+                <SelectTrigger><SelectValue placeholder="Select section" /></SelectTrigger>
+                <SelectContent>
+                  {SECTION_OPTIONS.map((s) => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {/* Batch */}
+            <div className="space-y-1">
+              <Label>Batch <span className="text-destructive">*</span></Label>
+              <Select value={form.batch} onValueChange={handleBatchChange} disabled={!form.className}>
+                <SelectTrigger><SelectValue placeholder="Select batch" /></SelectTrigger>
+                <SelectContent>
+                  {availableBatches.map((b: string) => (
+                    <SelectItem key={b} value={b}>{b}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label>Student <span className="text-destructive">*</span></Label>
+              <Select value={form.studentId} onValueChange={v => setForm(f => ({ ...f, studentId: v }))} disabled={!form.batch}>
+                <SelectTrigger><SelectValue placeholder="Select student" /></SelectTrigger>
+                <SelectContent>{eligibleStudents.map((s: any) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label>Month (YYYY-MM) <span className="text-destructive">*</span></Label>
+              <Input type="month" value={form.month} onChange={e => setForm(f => ({ ...f, month: e.target.value }))} />
+            </div>
+            <div className="space-y-1">
+              <Label>Amount (৳) <span className="text-destructive">*</span></Label>
+              <Input type="number" value={form.amount} onChange={e => setForm(f => ({ ...f, amount: e.target.value }))} />
+            </div>
+            <div className="space-y-1">
+              <Label>Status <span className="text-destructive">*</span></Label>
+              <Select value={form.status} onValueChange={v => setForm(f => ({ ...f, status: v }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent><SelectItem value="pending">Pending</SelectItem><SelectItem value="paid">Paid</SelectItem></SelectContent>
+              </Select>
+            </div>
+          </div>
+          <SheetFooter><Button onClick={handleAdd} disabled={createFee.isPending}>Add Fee</Button></SheetFooter>
+        </SheetContent>
+      </Sheet>
+    </div>
+  );
+}

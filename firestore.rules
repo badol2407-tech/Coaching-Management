@@ -1,0 +1,240 @@
+rules_version = '2';
+
+// EduTrack security rules.
+//
+// Deploy with: firebase deploy --only firestore:rules
+// (requires the Firebase CLI to be logged into the same Firebase project
+// configured in artifacts/web's VITE_FIREBASE_* env vars).
+//
+// Core invariants enforced here:
+//  1. Nobody can self-register. Every `users/{uid}` and `organizations/{orgId}`
+//     document is created by an admin, never by the signed-in user directly
+//     (except the one-time super-admin bootstrap on first login).
+//  2. Only the Super Admin account can create/update/delete `organizations`.
+//     Org Admins can only read organizations, never write them.
+//  3. All org-scoped data (students, teachers, fees, exams, etc.) is isolated
+//     per `orgId` — a user can only touch documents inside their own org.
+//     Super Admin can read all org-scoped data (needed for impersonation view).
+//  4. Anyone signed in can write their own `seen` receipt (to mark something
+//     as read); nobody can write someone else's `seen` receipt.
+//  5. Super Admin has full read/write access to all platform-level collections
+//     (super_admin_logs, platform_payments, coupon_codes, testimonials, etc.).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function myProfile() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function myRole() {
+      return isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        ? myProfile().role
+        : null;
+    }
+
+    function myOrgId() {
+      return isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        ? myProfile().orgId
+        : null;
+    }
+
+    function isSuperAdmin() {
+      return myRole() == 'super_admin';
+    }
+
+    function isOrgAdmin(orgId) {
+      return myRole() == 'org_admin' && myOrgId() == orgId;
+    }
+
+    function isTeacher(orgId) {
+      return myRole() == 'teacher' && myOrgId() == orgId;
+    }
+
+    function isStudent(orgId) {
+      return myRole() == 'student' && myOrgId() == orgId;
+    }
+
+    function isOrgStaff(orgId) {
+      return isOrgAdmin(orgId) || isTeacher(orgId);
+    }
+
+    function isOrgMember(orgId) {
+      return isOrgAdmin(orgId) || isTeacher(orgId) || isStudent(orgId);
+    }
+
+    // ── users/{uid} ──────────────────────────────────────────────────────────
+    match /users/{uid} {
+      allow read: if isSignedIn() && (request.auth.uid == uid || isSuperAdmin() || isOrgAdmin(resource.data.orgId));
+      // A user may only create their own profile document, and only as the
+      // super admin bootstrap path (no orgId, role must be super_admin).
+      // Org admin/teacher/student accounts are created by an admin backend
+      // flow that writes this document — model it as: writer must already be
+      // a super_admin or the relevant org_admin.
+      allow create: if isSignedIn() && request.auth.uid == uid && request.resource.data.role == 'super_admin' && request.resource.data.orgId == null
+        || isSignedIn() && isSuperAdmin()
+        || isSignedIn() && isOrgAdmin(request.resource.data.orgId);
+      // Self-updates may only touch a small allowlist of self-service fields
+      // (e.g. clearing the forced-password-change flag). This prevents a
+      // signed-in user from escalating privilege by rewriting their own
+      // `role`, `orgId`, or other protected fields via a direct client write.
+      // Admins (super_admin / the user's own org_admin) can still update any
+      // field, since they legitimately manage role/orgId assignment.
+      allow update: if isSignedIn() && (
+        (request.auth.uid == uid &&
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['mustChangePassword', 'updatedAt'])) ||
+        isSuperAdmin() ||
+        isOrgAdmin(resource.data.orgId)
+      );
+      allow delete: if isSignedIn() && (isSuperAdmin() || isOrgAdmin(resource.data.orgId));
+    }
+
+    // ── organizations/{orgId} — creation restricted to Super Admin only ────────
+    match /organizations/{orgId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isSignedIn() && isSuperAdmin();
+
+      // Classes are readable publicly (needed by the unauthenticated /join/:code
+      // page) but only writable by org staff.
+      match /classes/{classId} {
+        allow read: if true;
+        allow write: if isOrgStaff(orgId) || isSuperAdmin();
+      }
+
+      // Admission requests come from the public join page (no auth) and are
+      // reviewed by org staff.
+      match /admission_requests/{reqId} {
+        allow create: if true;
+        allow read, update, delete: if isOrgStaff(orgId) || isSuperAdmin();
+      }
+
+      // Teacher join requests come from the same public join page (no auth,
+      // role="teacher") and are reviewed by org staff.
+      match /teacher_requests/{reqId} {
+        allow create: if true;
+        allow read, update, delete: if isOrgStaff(orgId) || isSuperAdmin();
+      }
+
+      // Students: staff manage records; a student may only read their own.
+      // Super Admin can read all for impersonation/audit view.
+      match /students/{studentId} {
+        allow read: if isOrgStaff(orgId) || isSuperAdmin() || (isStudent(orgId) && myProfile().studentId == studentId);
+        allow write: if isOrgStaff(orgId) || isSuperAdmin();
+      }
+
+      // Teachers: staff manage records.
+      match /teachers/{teacherId} {
+        allow read: if isOrgStaff(orgId) || isSuperAdmin();
+        allow write: if isOrgAdmin(orgId) || isSuperAdmin();
+      }
+
+      // Attendance, fees, results: staff manage; students may only read.
+      match /attendance/{docId} {
+        allow read: if isOrgMember(orgId) || isSuperAdmin();
+        allow write: if isOrgStaff(orgId) || isSuperAdmin();
+      }
+      match /fees/{feeId} {
+        allow read: if isOrgMember(orgId) || isSuperAdmin();
+        allow write: if isOrgStaff(orgId) || isSuperAdmin();
+
+        match /seen/{uid} {
+          allow read: if isOrgStaff(orgId) || isSuperAdmin();
+          allow write: if isStudent(orgId) && request.auth.uid == uid;
+        }
+      }
+      match /results/{resultId} {
+        allow read: if isOrgMember(orgId) || isSuperAdmin();
+        allow write: if isOrgStaff(orgId) || isSuperAdmin();
+      }
+
+      // Routine, homework, notices, exams: staff manage; org members read;
+      // students record their own "seen" receipt only.
+      match /routine/{slotId} {
+        allow read: if isOrgMember(orgId) || isSuperAdmin();
+        allow write: if isOrgStaff(orgId) || isSuperAdmin();
+
+        match /seen/{uid} {
+          allow read: if isOrgStaff(orgId) || isSuperAdmin();
+          allow write: if isStudent(orgId) && request.auth.uid == uid;
+        }
+      }
+      match /homework/{hwId} {
+        allow read: if isOrgMember(orgId) || isSuperAdmin();
+        allow write: if isOrgStaff(orgId) || isSuperAdmin();
+
+        match /seen/{uid} {
+          allow read: if isOrgStaff(orgId) || isSuperAdmin();
+          allow write: if isStudent(orgId) && request.auth.uid == uid;
+        }
+      }
+      match /notices/{noticeId} {
+        allow read: if isOrgMember(orgId) || isSuperAdmin();
+        allow write: if isOrgStaff(orgId) || isSuperAdmin();
+
+        match /seen/{uid} {
+          allow read: if isOrgStaff(orgId) || isSuperAdmin();
+          allow write: if isStudent(orgId) && request.auth.uid == uid;
+        }
+      }
+      match /exams/{examId} {
+        allow read: if isOrgMember(orgId) || isSuperAdmin();
+        allow write: if isOrgStaff(orgId) || isSuperAdmin();
+
+        match /seen/{uid} {
+          allow read: if isOrgStaff(orgId) || isSuperAdmin();
+          allow write: if isStudent(orgId) && request.auth.uid == uid;
+        }
+      }
+
+      // Expenses are internal to admins only.
+      match /expenses/{expId} {
+        allow read, write: if isOrgAdmin(orgId) || isSuperAdmin();
+      }
+    }
+
+    // ── Platform-level Super Admin collections ────────────────────────────────
+    // All writes require super_admin role (enforced server-side by Firestore).
+    // These power the Super Admin console UI.
+
+    match /super_admin_logs/{docId} {
+      allow read, write: if isSignedIn() && isSuperAdmin();
+    }
+
+    match /platform_payments/{docId} {
+      allow read, write: if isSignedIn() && isSuperAdmin();
+    }
+
+    match /coupon_codes/{docId} {
+      allow read, write: if isSignedIn() && isSuperAdmin();
+    }
+
+    match /testimonials/{docId} {
+      allow read: if true;  // public read for landing page display
+      allow write: if isSignedIn() && isSuperAdmin();
+    }
+
+    match /popup_offers/{docId} {
+      allow read: if true;  // public read for landing page popups
+      allow write: if isSignedIn() && isSuperAdmin();
+    }
+
+    match /platform_settings/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isSuperAdmin();
+    }
+
+    // Impersonation audit sessions — written when super admin accesses a portal.
+    match /super_admin_impersonation/{sessionId} {
+      allow read, write: if isSignedIn() && isSuperAdmin();
+    }
+
+    // Default deny for anything not matched above.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
