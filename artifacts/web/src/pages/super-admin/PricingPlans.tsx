@@ -1,5 +1,5 @@
 import { useListOrganizations } from "@/lib/super-admin-hooks";
-import { ALL_TIERS, PLAN_CONFIG, PlanTier, getEffectiveTier, getMonthlyEquivalent } from "@/lib/plan-config";
+import { ALL_TIERS, PLAN_CONFIG, PlanTier, getEffectiveTier, getMonthlyEquivalent, getTierPriceLabel } from "@/lib/plan-config";
 import { getOrgAccessStatus } from "@/lib/subscription";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -76,7 +76,7 @@ export default function PricingPlans() {
           const count = counts[tier];
           const pct = orgs.length ? Math.round((count / orgs.length) * 100) : 0;
           const styles = TIER_STYLES[tier];
-          const priceLabel = tier === "free_trial" ? "৳0 / 7 days" : tier === "founder_launch" ? "৳749/mo" : "৳9,999/yr";
+          const priceLabel = getTierPriceLabel(tier);
 
           return (
             <Card key={tier} className={`border ${styles.bg}`}>

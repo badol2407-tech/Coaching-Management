@@ -9,7 +9,7 @@ import {
 import { createFirebaseAuthUser, generateTempPassword, buildCredentialMessage, getLoginUrl } from "@/lib/auth-utils";
 import {
   ALL_TIERS, PLAN_CONFIG, PlanTier, computeExpiryDate,
-  tierToLegacyPlan, getEffectiveTier, getTierLabel,
+  tierToLegacyPlan, getEffectiveTier, getTierLabel, getTierPriceLabel,
 } from "@/lib/plan-config";
 import { getOrgAccessStatus, getRemainingDays, formatExpiryDate } from "@/lib/subscription";
 import { Button } from "@/components/ui/button";
@@ -240,7 +240,7 @@ function EditOrgSheet({
               <SelectContent>
                 {ALL_TIERS.map((t) => (
                   <SelectItem key={t} value={t}>
-                    {PLAN_CONFIG[t].name} — {t === "free_trial" ? "৳0 / 7 days" : t === "founder_launch" ? "৳749/month" : "৳9,999/year"}
+                    {PLAN_CONFIG[t].name} — {getTierPriceLabel(t)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -675,7 +675,7 @@ export default function ManageOrganizations() {
                         <div>
                           <span className="font-medium">{cfg.name}</span>
                           <span className="text-muted-foreground ml-2 text-xs">
-                            {t === "free_trial" ? "৳0 / 7 days" : t === "founder_launch" ? "৳749/month" : "৳9,999/year"}
+                            {getTierPriceLabel(t)}
                           </span>
                         </div>
                       </SelectItem>

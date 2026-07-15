@@ -253,6 +253,13 @@ export function formatBnTaka(n: number): string {
  * Landing-page pricing-card display values, all derived from PLAN_CONFIG so the
  * banner, cards, and every price shown on the page can never drift out of sync.
  */
+/** Short "price / cadence" label for admin selects and tables, e.g. "৳749/month". */
+export function getTierPriceLabel(tier: PlanTier): string {
+  const cfg = PLAN_CONFIG[tier];
+  const cadence = cfg.billingCycle === "trial" ? `/ ${cfg.trialDays} days` : cfg.billingCycle === "monthly" ? "/month" : "/year";
+  return `${formatBnTaka(cfg.price)} ${cadence}`;
+}
+
 export function getPricingDisplay(tier: PlanTier) {
   const cfg = PLAN_CONFIG[tier];
   return {

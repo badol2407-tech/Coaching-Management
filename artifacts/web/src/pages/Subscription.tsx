@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
-import { ALL_TIERS, PLAN_CONFIG, PlanTier, getEffectiveTier } from "@/lib/plan-config";
+import { ALL_TIERS, PLAN_CONFIG, PlanTier, getEffectiveTier, getPricingDisplay } from "@/lib/plan-config";
 import { getOrgAccessStatus, getRemainingDays, formatExpiryDate } from "@/lib/subscription";
 import { useToast } from "@/hooks/use-toast";
 
@@ -102,8 +102,8 @@ export default function Subscription() {
           const isCurrent = tier === currentTier;
           const isHighlighted = tier === "founder_launch";
 
-          const priceLabel = tier === "free_trial" ? "৳0" : tier === "founder_launch" ? "৳749" : "৳9,999";
-          const periodLabel = tier === "free_trial" ? "/৭ দিন" : tier === "founder_launch" ? "/month" : "/year";
+          const priceLabel = getPricingDisplay(tier).price;
+          const periodLabel = tier === "free_trial" ? `/${cfg.trialDays} দিন` : tier === "founder_launch" ? "/month" : "/year";
 
           return (
             <Card

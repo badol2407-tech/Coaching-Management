@@ -1,1 +1,2 @@
 - [Subscription System](subscription-system.md) — tier-based plan enforcement; new IDs free_trial/founder_launch/annual_premium; legacy mapping in plan-config.ts; gate in all 3 layouts
+- [Pricing single-source-of-truth](pricing-single-source.md) — never hardcode tier prices in UI; always derive from plan-config.ts display helpers
