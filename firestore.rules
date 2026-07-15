@@ -77,7 +77,16 @@ service cloud.firestore {
       allow create: if isSignedIn() && request.auth.uid == uid && request.resource.data.role == 'super_admin' && request.resource.data.orgId == null
         || isSignedIn() && isSuperAdmin()
         || isSignedIn() && isOrgAdmin(request.resource.data.orgId);
-      allow update: if isSignedIn() && (request.auth.uid == uid || isSuperAdmin() || isOrgAdmin(resource.data.orgId));
+      // Self-updates are restricted to non-privileged fields only (e.g. clearing
+      // the forced-password-change flag) — a signed-in user must never be able
+      // to rewrite their own role/orgId and grant themselves elevated access.
+      allow update: if isSignedIn() && (
+        (request.auth.uid == uid &&
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['mustChangePassword', 'updatedAt'])) ||
+        isSuperAdmin() ||
+        isOrgAdmin(resource.data.orgId)
+      );
       allow delete: if isSignedIn() && (isSuperAdmin() || isOrgAdmin(resource.data.orgId));
     }
 

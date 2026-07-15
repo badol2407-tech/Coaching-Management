@@ -1,2 +1,7 @@
 User-agent: *
 Allow: /
+Disallow: /join/
+Disallow: /payment/success
+Disallow: /payment/fail
+
+Sitemap: /sitemap.xml

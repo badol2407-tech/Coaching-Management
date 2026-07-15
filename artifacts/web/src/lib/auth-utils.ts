@@ -88,7 +88,7 @@ export interface CredentialMessageParams {
 export function buildCredentialMessage(p: CredentialMessageParams): string {
   return `Welcome to ${p.orgName}
 
-Your Coaching Manager account has been created successfully.
+Your EduTrack account has been created successfully.
 
 Role: ${p.role}
 Name: ${p.name}

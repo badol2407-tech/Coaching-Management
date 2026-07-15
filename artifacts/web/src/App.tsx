@@ -316,9 +316,18 @@ function AppRoutes() {
   );
 }
 
+const SPLASH_SESSION_KEY = "edutrack_splash_shown";
+
 function App() {
-  const [splashDone, setSplashDone] = useState(false);
-  const handleSplashDone = useCallback(() => setSplashDone(true), []);
+  // Show the splash animation only once per browser session — repeat visits
+  // (navigations, refreshes) within the same tab session skip it entirely.
+  const [splashDone, setSplashDone] = useState(
+    () => sessionStorage.getItem(SPLASH_SESSION_KEY) === "1",
+  );
+  const handleSplashDone = useCallback(() => {
+    sessionStorage.setItem(SPLASH_SESSION_KEY, "1");
+    setSplashDone(true);
+  }, []);
 
   return (
     <ErrorBoundary>

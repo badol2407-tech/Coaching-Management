@@ -21,6 +21,7 @@ import { useToast } from "@/hooks/use-toast";
 import { trackFeatureUsed, trackLogin, trackLoginFailed } from "@/lib/analytics";
 import { PromotionPopup } from "@/components/PromotionPopup";
 import { HeroCarousel } from "@/components/HeroCarousel";
+import { usePublicTestimonials } from "@/lib/public-hooks";
 
 const features = [
   { icon: LayoutDashboard, title: "Real-time Dashboard", desc: "Students, fees, attendance — একনজরে সব statistics দেখুন", iconGrad: "from-blue-500 to-blue-600", accent: "from-blue-500 to-cyan-400", glow: "shadow-blue-500/25", glowHover: "group-hover:shadow-blue-500/40", highlight: true },
@@ -38,48 +39,6 @@ const steps = [
   { num: "২", title: "Organization Setup করুন", desc: "আপনার coaching center-এর নাম দিন। Organization Code পাবেন।" },
   { num: "৩", title: "Team যোগ করুন", desc: "Teachers ও Students-দের Organization Code দিন — তারা join করবে।" },
   { num: "৪", title: "Manage করুন", desc: "Attendance, fees, exams সব digital-এ manage করুন।" },
-];
-
-const testimonials = [
-  {
-    coachingName: "Bright Future Academy",
-    coachingLocation: "ঢাকা",
-    coachingLogoUrl: "/orgs/org-1.png",
-    coachingGrad: "from-blue-500 to-indigo-600",
-    name: "Md. Karim Uddin",
-    role: "Principal & Founder",
-    avatarUrl: "/avatars/reviewer-1.jpg",
-    avatarGrad: "from-blue-400 to-blue-600",
-    text: "EduTrack ব্যবহারের পর fee collection ৪৫% বেড়ে গেছে। আগে খাতায় হিসাব রাখতাম — এখন সব phone-এ instant দেখি। Absent students-দের list এক click-এই পাই। Setup-এ মাত্র ৫ মিনিট লেগেছে।",
-    rating: 5,
-    verified: true,
-  },
-  {
-    coachingName: "Spectrum Coaching Centre",
-    coachingLocation: "চট্টগ্রাম",
-    coachingLogoUrl: "/orgs/org-2.png",
-    coachingGrad: "from-emerald-500 to-teal-600",
-    name: "Nasrin Akter",
-    role: "Director",
-    avatarUrl: "/avatars/reviewer-2.jpg",
-    avatarGrad: "from-rose-400 to-rose-600",
-    text: "Teacher ও student-দের আলাদা portal সবচেয়ে পছন্দের feature। Attendance নেওয়া এখন মাত্র ২ মিনিটের কাজ। Parents-দের directly fee reminder পাঠাতে পারি — অনেক সময় বাঁচে।",
-    rating: 5,
-    verified: true,
-  },
-  {
-    coachingName: "Pioneer Institute",
-    coachingLocation: "সিলেট",
-    coachingLogoUrl: "/orgs/org-3.png",
-    coachingGrad: "from-amber-500 to-orange-600",
-    name: "Rafiq Hassan",
-    role: "Owner & Admin",
-    avatarUrl: "/avatars/reviewer-3.jpg",
-    avatarGrad: "from-violet-400 to-violet-600",
-    text: "Dashboard দেখেই বুঝি কোন student fees দেয়নি, কে বেশি absent। আগে এই হিসাব বের করতে ঘণ্টা লাগত। এখন সব data এক জায়গায়, সিদ্ধান্ত নেওয়া অনেক সহজ।",
-    rating: 5,
-    verified: true,
-  },
 ];
 
 type AuthMode = "login" | "reset";
@@ -410,7 +369,7 @@ export default function LandingPage() {
                 </div>
                 <div>
                   <div className="text-[10px] font-semibold text-gold leading-none">Fee Collected</div>
-                  <div className="stat-display text-[11px] text-white leading-tight mt-0.5">৳৮৫,৫০০</div>
+                  <div className="stat-display text-[11px] text-white leading-tight mt-0.5">৳৭৩,২০০</div>
                 </div>
               </div>
 
@@ -723,71 +682,10 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-24 px-4 bg-slate-50 dark:bg-[#080c14]">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-14">
-            <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-semibold px-3.5 py-1.5 rounded-full mb-4 tracking-wide uppercase">
-              ★ Social Proof
-            </div>
-            <h2 className="font-display text-3xl sm:text-4xl">তারা কী বলছেন?</h2>
-            <p className="text-muted-foreground mt-3 text-base max-w-md mx-auto leading-relaxed">
-              সারা বাংলাদেশে ৫০০+ coaching center EduTrack-এর উপর ভরসা রাখছে
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {testimonials.map((t) => (
-              <div
-                key={t.name}
-                className="group bg-white dark:bg-slate-900/70 border border-border rounded-2xl p-6 flex flex-col gap-5 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
-              >
-                {/* Header: coaching logo + stars */}
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className={`h-10 w-10 rounded-xl bg-gradient-to-br ${t.coachingGrad} flex items-center justify-center shrink-0 shadow-md p-1.5`}>
-                      <img src={t.coachingLogoUrl} alt={t.coachingName} className="w-full h-full object-contain" />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="text-[13px] font-semibold leading-tight truncate">{t.coachingName}</div>
-                      <div className="text-[11px] text-muted-foreground mt-0.5">{t.coachingLocation}</div>
-                    </div>
-                  </div>
-                  <div className="flex gap-0.5 shrink-0 pt-0.5">
-                    {Array.from({ length: t.rating }).map((_, i) => (
-                      <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                    ))}
-                  </div>
-                </div>
-
-                {/* Quote */}
-                <p className="text-[0.875rem] text-muted-foreground leading-relaxed flex-1">
-                  "{t.text}"
-                </p>
-
-                {/* Footer: avatar + identity + verified */}
-                <div className="flex items-center justify-between pt-4 border-t border-border">
-                  <div className="flex items-center gap-2.5">
-                    <div className="h-8 w-8 rounded-full overflow-hidden shrink-0 shadow-sm border border-border">
-                      <img src={t.avatarUrl} alt={t.name} className="w-full h-full object-cover object-center" />
-                    </div>
-                    <div>
-                      <div className="text-[13px] font-semibold leading-tight">{t.name}</div>
-                      <div className="text-[11px] text-muted-foreground">{t.role}</div>
-                    </div>
-                  </div>
-                  {t.verified && (
-                    <div className="flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold shrink-0">
-                      <CheckCircle className="h-3.5 w-3.5" />
-                      Verified
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Testimonials — pulled live from the admin-managed testimonials collection.
+          Renders nothing if there are no active reviews yet; never falls back
+          to fabricated names/quotes. */}
+      <TestimonialsSection />
 
       {/* Pricing */}
       <section id="pricing" className="py-24 px-4 relative overflow-hidden">
@@ -969,13 +867,6 @@ export default function LandingPage() {
                   <div className="flex items-baseline gap-2" style={{ lineHeight: 1 }}>
                     <span className="font-black text-white" style={{ fontSize: "clamp(52px,7vw,68px)", letterSpacing: "-0.05em", textShadow: "0 0 40px rgba(245,158,11,0.45),0 0 80px rgba(245,158,11,0.2)" }}>{getPricingDisplay("founder_launch").price}</span>
                     <span className="text-sm font-medium" style={{ color: "rgba(245,158,11,0.6)", paddingBottom: 8 }}>/month</span>
-                  </div>
-                  {/* Scarcity bar */}
-                  <div className="mt-3 flex items-center gap-2.5">
-                    <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(245,158,11,0.08)" }}>
-                      <div className="h-full w-[68%] rounded-full" style={{ background: "linear-gradient(90deg,#d97706,#fbbf24)" }} />
-                    </div>
-                    <span className="text-xs font-semibold whitespace-nowrap" style={{ color: "rgba(245,158,11,0.75)" }}>৬৮/১০০ নেওয়া হয়েছে</span>
                   </div>
                 </div>
 
@@ -1287,6 +1178,76 @@ export default function LandingPage() {
         </div>
       </footer>
     </div>
+  );
+}
+
+function TestimonialsSection() {
+  const { data: testimonials = [], isLoading } = usePublicTestimonials();
+
+  // Honest empty state: no reviews yet means no section, never fabricated ones.
+  if (!isLoading && testimonials.length === 0) return null;
+
+  return (
+    <section className="py-24 px-4 bg-slate-50 dark:bg-[#080c14]">
+      <div className="max-w-5xl mx-auto">
+        <div className="text-center mb-14">
+          <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-semibold px-3.5 py-1.5 rounded-full mb-4 tracking-wide uppercase">
+            ★ Social Proof
+          </div>
+          <h2 className="font-display text-3xl sm:text-4xl">তারা কী বলছেন?</h2>
+          <p className="text-muted-foreground mt-3 text-base max-w-md mx-auto leading-relaxed">
+            EduTrack ব্যবহারকারী coaching center-দের মতামত
+          </p>
+        </div>
+
+        {isLoading ? (
+          <div className="grid md:grid-cols-3 gap-6">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="h-56 rounded-2xl bg-white/60 dark:bg-slate-900/40 border border-border animate-pulse" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-3 gap-6">
+            {testimonials.map((t) => (
+              <div
+                key={t.id}
+                className="group bg-white dark:bg-slate-900/70 border border-border rounded-2xl p-6 flex flex-col gap-5 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex gap-0.5 shrink-0 pt-0.5">
+                    {Array.from({ length: t.rating || 5 }).map((_, i) => (
+                      <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Quote */}
+                <p className="text-[0.875rem] text-muted-foreground leading-relaxed flex-1">
+                  "{t.text}"
+                </p>
+
+                {/* Footer: avatar + identity */}
+                <div className="flex items-center gap-2.5 pt-4 border-t border-border">
+                  {t.avatar ? (
+                    <div className="h-8 w-8 rounded-full overflow-hidden shrink-0 shadow-sm border border-border">
+                      <img src={t.avatar} alt={t.name} className="w-full h-full object-cover object-center" />
+                    </div>
+                  ) : (
+                    <div className="h-8 w-8 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-[11px] font-bold text-white shrink-0">
+                      {t.name?.charAt(0)?.toUpperCase() ?? "?"}
+                    </div>
+                  )}
+                  <div>
+                    <div className="text-[13px] font-semibold leading-tight">{t.name}</div>
+                    {t.role && <div className="text-[11px] text-muted-foreground">{t.role}</div>}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
   );
 }
 

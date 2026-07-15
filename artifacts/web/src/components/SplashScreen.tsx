@@ -32,22 +32,24 @@ const iconParticles = ICONS.map((icon, i) => {
   const rad = (angle * Math.PI) / 180;
   const tx = Math.round(r * Math.cos(rad));
   const ty = Math.round(r * Math.sin(rad));
-  const delay = 0.95 + (i / ICONS.length) * 0.25;
-  const duration = 0.9 + ((i * 13) % 30) / 100;
+  const delay = 0.55 + (i / ICONS.length) * 0.15;
+  const duration = 0.55 + ((i * 13) % 30) / 100;
   return { ...icon, tx, ty, delay, duration, angle };
 });
 
 // How long the final "morph into navbar logo" transform takes.
-const DOCK_MS = 700;
+// Splash is capped at ~1.5-2s total (once per browser session — see
+// sessionStorage gate in App.tsx), so every stage here is intentionally short.
+const DOCK_MS = 450;
 // Chrome (background/particles/text) fades out slightly faster than the
 // logo finishes traveling, so the real page is already gently visible
 // behind the logo as it completes its glide — feels like a reveal, not a cut.
-const CHROME_FADE_MS = 420;
+const CHROME_FADE_MS = 280;
 // Selector used to find the real navbar/sidebar logo box to dock into.
 const LOGO_TARGET_SELECTOR = "[data-app-logo]";
 // Give the target time to mount (e.g. auth is still resolving) before
 // giving up and falling back to a plain fade-out.
-const MAX_TARGET_WAIT_MS = 2200;
+const MAX_TARGET_WAIT_MS = 500;
 
 const CSS = `
 @keyframes logoFlyIn {
@@ -111,7 +113,7 @@ const CSS = `
 .logo-wrap {
   position: relative;
   display: flex; flex-direction: column; align-items: center; gap: 14px;
-  animation: logoFlyIn 0.92s cubic-bezier(.22,.68,0,1.2) forwards;
+  animation: logoFlyIn 0.55s cubic-bezier(.22,.68,0,1.2) forwards;
 }
 .logo-wrap.landed {
   animation: logoPulse 0.55s cubic-bezier(.34,1.56,.64,1) forwards;
@@ -151,7 +153,7 @@ const CSS = `
   font-size: 24px; font-weight: 700;
   letter-spacing: 0.04em;
   opacity: 0;
-  transition: opacity 0.3s ease 0.85s;
+  transition: opacity 0.25s ease 0.5s;
 }
 .logo-label.show { opacity: 1; }
 .logo-sub {
@@ -161,7 +163,7 @@ const CSS = `
   letter-spacing: 0.12em;
   text-transform: uppercase;
   opacity: 0;
-  transition: opacity 0.3s ease 1.0s;
+  transition: opacity 0.25s ease 0.6s;
 }
 .logo-sub.show { opacity: 1; }
 .ring {
@@ -258,11 +260,11 @@ export function SplashScreen({ onDone }: { onDone: () => void }) {
     function fadeOut() {
       if (cancelled) return;
       setPhase("fading");
-      timers.push(setTimeout(() => { if (!cancelled) onDone(); }, 550));
+      timers.push(setTimeout(() => { if (!cancelled) onDone(); }, 400));
     }
 
-    timers.push(setTimeout(() => setPhase("landed"), 920));
-    timers.push(setTimeout(() => dockIntoNavbar(), 2400));
+    timers.push(setTimeout(() => setPhase("landed"), 550));
+    timers.push(setTimeout(() => dockIntoNavbar(), 900));
 
     return () => {
       cancelled = true;
