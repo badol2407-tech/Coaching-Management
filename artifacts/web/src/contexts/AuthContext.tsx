@@ -26,6 +26,7 @@ export interface UserProfile {
   orgName?: string;
   name: string;
   email: string;
+  photoUrl?: string | null;
   studentId?: string;
   /** Set to true when the account was created by an admin with a temp password */
   mustChangePassword?: boolean;

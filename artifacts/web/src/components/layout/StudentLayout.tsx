@@ -149,12 +149,22 @@ export function StudentLayout({ children }: { children: React.ReactNode }) {
           <div className={`flex items-center gap-2.5 px-3 py-3 transition-all duration-300 ${
             expanded ? "md:flex-row md:px-3 md:gap-2.5" : "md:flex-col md:px-0 md:gap-1.5 md:py-2 md:items-center"
           }`}>
-            <div
-              title={!expanded ? (userProfile?.name || user?.email || "") : undefined}
-              className="h-8 w-8 rounded-full bg-gradient-to-br from-purple-400 to-violet-500 flex items-center justify-center text-white text-xs font-bold shadow-md shrink-0"
-            >
-              {(userProfile?.name || user?.email || "S")[0].toUpperCase()}
-            </div>
+            {userProfile?.photoUrl ? (
+              <img
+                src={userProfile.photoUrl}
+                alt={userProfile.name || "Student"}
+                title={!expanded ? (userProfile?.name || user?.email || "") : undefined}
+                className="h-8 w-8 rounded-full object-cover shadow-md shrink-0"
+                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+              />
+            ) : (
+              <div
+                title={!expanded ? (userProfile?.name || user?.email || "") : undefined}
+                className="h-8 w-8 rounded-full bg-gradient-to-br from-purple-400 to-violet-500 flex items-center justify-center text-white text-xs font-bold shadow-md shrink-0"
+              >
+                {(userProfile?.name || user?.email || "S")[0].toUpperCase()}
+              </div>
+            )}
             <div className={`min-w-0 flex-1 overflow-hidden transition-all duration-200 max-w-[120px] opacity-100 ${expanded ? "md:max-w-[120px] md:opacity-100" : "md:max-w-0 md:opacity-0 md:flex-none"}`}>
               <p className="text-white text-xs font-semibold truncate leading-tight">{userProfile?.name || user?.displayName}</p>
               <p className="text-slate-400 text-[10px] truncate leading-tight">{user?.email}</p>
