@@ -5,7 +5,7 @@ import {
   Wallet, ClipboardList, Bell, Receipt, LogOut, Copy,
   BookOpen, Settings, CalendarRange, CreditCard, HelpCircle,
   UserPlus, NotebookPen, Menu, X, ChevronRight, ChevronLeft,
-  IdCard,
+  IdCard, FileBarChart2,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -29,6 +29,7 @@ const navItems = [
   { title: "Homework",    href: "/homework",    icon: NotebookPen },
   { title: "Expenses",    href: "/expenses",    icon: Receipt },
   { title: "ID Cards",    href: "/id-cards",    icon: IdCard },
+  { title: "Reports",     href: "/reports",     icon: FileBarChart2 },
 ];
 
 const bottomItems = [

@@ -71,6 +71,7 @@ const TeacherExams = lazy(() => import("@/pages/teacher/TeacherExams"));
 const TeacherRoutine = lazy(() => import("@/pages/teacher/TeacherRoutine"));
 const TeacherSettings = lazy(() => import("@/pages/teacher/TeacherSettings"));
 const StudentIdCard = lazy(() => import("@/pages/StudentIdCard"));
+const Reports = lazy(() => import("@/pages/Reports"));
 const StudentPortal = lazy(() => import("@/pages/student/StudentPortal"));
 const JoinOrg = lazy(() => import("@/pages/JoinOrg"));
 
@@ -121,6 +122,7 @@ function ImpersonatedView() {
               <Route path="/subscription" component={Subscription} />
               <Route path="/help" component={HelpCenter} />
               <Route path="/id-cards" component={StudentIdCard} />
+              <Route path="/reports" component={Reports} />
               <Route><Redirect to="/" /></Route>
             </Switch>
           </AppLayout>
@@ -270,6 +272,7 @@ function AuthenticatedRoutes() {
           <Route path="/subscription" component={Subscription} />
           <Route path="/help" component={HelpCenter} />
           <Route path="/id-cards" component={StudentIdCard} />
+          <Route path="/reports" component={Reports} />
           <Route><Redirect to="/" /></Route>
         </Switch>
       </Suspense>
