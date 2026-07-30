@@ -1,0 +1,7 @@
+- [Coaching App Architecture](coaching-app-architecture.md) — main app is artifacts/web (React+Vite+Firebase); api-server is separate and not used by the main app
+- [GitHub push quirk](github-push-quirk.md) — remote was not configured; must set origin to https://github.com/badol2407-tech/Coaching-Management.git before gitPush
+- [Vercel deployment](vercel-deployment.md) — deploy via scripts/deploy-vercel.mjs (builds first, then uploads dist/public); production alias coaching-management-three.vercel.app
+- [Fee Management implementation](fee-management.md) — installments stored as array on fee doc; status: pending/partial/paid; hooks: useAddInstallment, useBulkCreateFees, useGetIncomeSummary added to lib/hooks.ts
+- [White screen fix](white-screen-fix.md) — Vercel deploy script uses handle:filesystem + SPA fallback route order to serve assets correctly
+- [OpenAPI/Zod quirks](openapi-zod-quirks.md) — coaching-app and api-server use OpenAPI codegen; artifacts/web uses Firebase directly (no codegen)
+- [Edutrack architecture](edutrack-architecture.md) — multi-role app: super_admin, org_admin, teacher, student; orgId scopes all Firestore collections
