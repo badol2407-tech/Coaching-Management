@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRoute, useLocation } from "wouter";
 import { doc, getDoc, updateDoc, setDoc } from "firebase/firestore";
-import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
-import { db, storage } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -83,8 +82,7 @@ export default function StudentProfile() {
   // Edit sheet state
   const [editOpen, setEditOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [photoFile, setPhotoFile] = useState<File | null>(null);
-  const [localPhotoPreview, setLocalPhotoPreview] = useState<string | null>(null);
+  const [compressing, setCompressing] = useState(false);
   const photoFileRef = useRef<HTMLInputElement>(null);
   const [editForm, setEditForm] = useState({
     name: "", phone: "", address: "", className: "", section: "", batch: "",
@@ -111,14 +109,29 @@ export default function StudentProfile() {
       .finally(() => setLoading(false));
   }, [studentId, orgId]);
 
+  // Compress an image file to a JPEG data-URL (max 400 px on longest side).
+  // Stored directly in Firestore — no Firebase Storage dependency.
+  function compressImage(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const blobUrl = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(blobUrl);
+        const MAX = 400;
+        const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL("image/jpeg", 0.8));
+      };
+      img.onerror = () => { URL.revokeObjectURL(blobUrl); reject(new Error("load")); };
+      img.src = blobUrl;
+    });
+  }
+
   function openEdit() {
     if (!student) return;
-    // Revoke any leftover local preview from a previous edit session
-    if (localPhotoPreview) {
-      URL.revokeObjectURL(localPhotoPreview);
-      setLocalPhotoPreview(null);
-    }
-    setPhotoFile(null);
     setEditForm({
       name: student.name ?? "",
       phone: student.phone ?? "",
@@ -142,36 +155,7 @@ export default function StudentProfile() {
     if (!studentId || !orgId) return;
     setSaving(true);
     try {
-      // Upload the staged photo file now (only on Save, not on selection)
-      let finalPhotoUrl = editForm.photoUrl || null;
-      if (photoFile) {
-        try {
-          const path = `organizations/${orgId}/student-photos/${Date.now()}_${photoFile.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
-          const sRef = storageRef(storage, path);
-          // Race the upload against a 25-second timeout so a hanging Storage
-          // request doesn't freeze the Save button forever.
-          await Promise.race([
-            uploadBytes(sRef, photoFile),
-            new Promise<never>((_, reject) =>
-              setTimeout(() => reject(new Error("timeout")), 25000)
-            ),
-          ]);
-          finalPhotoUrl = await getDownloadURL(sRef);
-        } catch (err: any) {
-          const isTimeout = err?.message === "timeout";
-          toast({
-            title: isTimeout
-              ? "Photo upload timed out. Save will proceed without the new photo."
-              : "Photo upload failed. Check Firebase Storage rules.",
-            variant: "destructive",
-          });
-          // Fall through — save other fields using the existing photoUrl
-          finalPhotoUrl = editForm.photoUrl || null;
-          // Clear the pending file so the form resets cleanly
-          if (localPhotoPreview) { URL.revokeObjectURL(localPhotoPreview); setLocalPhotoPreview(null); }
-          setPhotoFile(null);
-        }
-      }
+      const finalPhotoUrl = editForm.photoUrl || null;
 
       const data: Record<string, unknown> = {
         name: editForm.name,
@@ -196,16 +180,9 @@ export default function StudentProfile() {
         try {
           await setDoc(doc(db, "users", student.uid), { photoUrl: finalPhotoUrl }, { merge: true });
         } catch {
-          // Non-fatal — portal avatar sync failed silently
+          // Non-fatal
         }
       }
-
-      // Clean up local object URL
-      if (localPhotoPreview) {
-        URL.revokeObjectURL(localPhotoPreview);
-        setLocalPhotoPreview(null);
-      }
-      setPhotoFile(null);
 
       setStudent((prev) => prev ? { ...prev, ...data, id: prev.id } as StudentDoc : prev);
       toast({ title: "Student updated!" });
@@ -452,42 +429,53 @@ export default function StudentProfile() {
                 <ImagePlus className="h-3.5 w-3.5 text-muted-foreground" /> Student Photo
               </Label>
               <div className="flex items-center gap-3">
-                {(localPhotoPreview || editForm.photoUrl) ? (
+                {editForm.photoUrl ? (
                   <img
-                    src={localPhotoPreview || editForm.photoUrl}
+                    src={editForm.photoUrl}
                     alt="Preview"
                     className="h-14 w-14 rounded-full object-cover border shrink-0"
                     onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                   />
                 ) : (
                   <div className="h-14 w-14 rounded-full bg-muted flex items-center justify-center shrink-0 border">
-                    <UserCircle className="h-7 w-7 text-muted-foreground" />
+                    {compressing
+                      ? <Loader2 className="h-5 w-5 text-muted-foreground animate-spin" />
+                      : <UserCircle className="h-7 w-7 text-muted-foreground" />}
                   </div>
                 )}
                 <div className="flex-1 space-y-1.5">
                   <Button
                     type="button" variant="outline" size="sm"
+                    disabled={compressing}
                     onClick={() => photoFileRef.current?.click()}
                     className="gap-2 w-full"
                   >
-                    <ImagePlus className="h-3.5 w-3.5" />
-                    {photoFile ? "Change Photo" : "Upload Photo"}
+                    {compressing
+                      ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Processing…</>
+                      : <><ImagePlus className="h-3.5 w-3.5" /> {editForm.photoUrl ? "Change Photo" : "Upload Photo"}</>}
                   </Button>
                   <input
                     ref={photoFileRef} type="file" accept="image/*" className="hidden"
-                    onChange={(e) => {
+                    onChange={async (e) => {
                       const f = e.target.files?.[0];
                       if (!f) return;
-                      if (localPhotoPreview) URL.revokeObjectURL(localPhotoPreview);
-                      setPhotoFile(f);
-                      setLocalPhotoPreview(URL.createObjectURL(f));
+                      setCompressing(true);
+                      try {
+                        const dataUrl = await compressImage(f);
+                        setEditForm((prev) => ({ ...prev, photoUrl: dataUrl }));
+                      } catch {
+                        toast({ title: "Could not read the image. Try a different file.", variant: "destructive" });
+                      } finally {
+                        setCompressing(false);
+                        // Reset input so the same file can be re-selected if needed
+                        e.target.value = "";
+                      }
                     }}
                   />
                   <Input
-                    value={localPhotoPreview ? "" : editForm.photoUrl}
-                    disabled={!!localPhotoPreview}
+                    value={editForm.photoUrl.startsWith("data:") ? "" : editForm.photoUrl}
                     onChange={(e) => setEditForm((f) => ({ ...f, photoUrl: e.target.value }))}
-                    placeholder={localPhotoPreview ? "Photo ready — will upload on Save" : "or paste photo URL"}
+                    placeholder={editForm.photoUrl.startsWith("data:") ? "Photo ready" : "or paste photo URL"}
                     className="text-xs h-8"
                   />
                 </div>
