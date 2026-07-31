@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRoute, useLocation } from "wouter";
 import { doc, getDoc, updateDoc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { uploadStudentPhoto, uploadErrorMessage, MAX_FILE_MB } from "@/lib/image-upload";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -82,7 +83,8 @@ export default function StudentProfile() {
   // Edit sheet state
   const [editOpen, setEditOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [compressing, setCompressing] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const photoFileRef = useRef<HTMLInputElement>(null);
   const [editForm, setEditForm] = useState({
     name: "", phone: "", address: "", className: "", section: "", batch: "",
@@ -109,36 +111,24 @@ export default function StudentProfile() {
       .finally(() => setLoading(false));
   }, [studentId, orgId]);
 
-  // Compress an image file to a JPEG data-URL (max 800 px on longest side).
-  // Accepts JPEG/JPG/PNG up to 10 MB. Stored in Firestore — no Firebase Storage needed.
-  const MAX_FILE_MB = 10;
-  const ACCEPTED_TYPES = ["image/jpeg", "image/jpg", "image/png"];
-
-  function compressImage(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      if (file.size > MAX_FILE_MB * 1024 * 1024) {
-        reject(new Error("size"));
-        return;
-      }
-      if (!ACCEPTED_TYPES.includes(file.type)) {
-        reject(new Error("type"));
-        return;
-      }
-      const img = new Image();
-      const blobUrl = URL.createObjectURL(file);
-      img.onload = () => {
-        URL.revokeObjectURL(blobUrl);
-        const MAX = 800;
-        const scale = Math.min(1, MAX / Math.max(img.width, img.height));
-        const canvas = document.createElement("canvas");
-        canvas.width = Math.round(img.width * scale);
-        canvas.height = Math.round(img.height * scale);
-        canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL("image/jpeg", 0.85));
-      };
-      img.onerror = () => { URL.revokeObjectURL(blobUrl); reject(new Error("load")); };
-      img.src = blobUrl;
-    });
+  async function handlePhotoFileSelected(file: File) {
+    if (!orgId) return;
+    setUploadingPhoto(true);
+    setUploadProgress(0);
+    try {
+      const downloadUrl = await uploadStudentPhoto(file, orgId, {
+        onProgress: setUploadProgress,
+        maxMB: MAX_FILE_MB,
+      });
+      setEditForm((prev) => ({ ...prev, photoUrl: downloadUrl }));
+      toast({ title: "Photo uploaded successfully!" });
+    } catch (err) {
+      toast({ title: uploadErrorMessage(err), variant: "destructive" });
+    } finally {
+      setUploadingPhoto(false);
+      setUploadProgress(0);
+      if (photoFileRef.current) photoFileRef.current.value = "";
+    }
   }
 
   function openEdit() {
@@ -449,7 +439,7 @@ export default function StudentProfile() {
                   />
                 ) : (
                   <div className="h-14 w-14 rounded-full bg-muted flex items-center justify-center shrink-0 border">
-                    {compressing
+                    {uploadingPhoto
                       ? <Loader2 className="h-5 w-5 text-muted-foreground animate-spin" />
                       : <UserCircle className="h-7 w-7 text-muted-foreground" />}
                   </div>
@@ -457,40 +447,36 @@ export default function StudentProfile() {
                 <div className="flex-1 space-y-1.5">
                   <Button
                     type="button" variant="outline" size="sm"
-                    disabled={compressing}
+                    disabled={uploadingPhoto}
                     onClick={() => photoFileRef.current?.click()}
                     className="gap-2 w-full"
                   >
-                    {compressing
-                      ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Processing…</>
+                    {uploadingPhoto
+                      ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> {uploadProgress > 0 ? `Uploading ${uploadProgress}%…` : "Uploading…"}</>
                       : <><ImagePlus className="h-3.5 w-3.5" /> {editForm.photoUrl ? "Change Photo" : "Upload Photo"}</>}
                   </Button>
                   <input
-                    ref={photoFileRef} type="file" accept="image/jpeg,image/jpg,image/png" className="hidden"
-                    onChange={async (e) => {
+                    ref={photoFileRef}
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png"
+                    className="hidden"
+                    onChange={(e) => {
                       const f = e.target.files?.[0];
-                      if (!f) return;
-                      setCompressing(true);
-                      try {
-                        const dataUrl = await compressImage(f);
-                        setEditForm((prev) => ({ ...prev, photoUrl: dataUrl }));
-                      } catch (err: any) {
-                        const msg =
-                          err?.message === "size" ? `File too large. Maximum is ${MAX_FILE_MB} MB.` :
-                          err?.message === "type" ? "Only JPEG and PNG files are supported." :
-                          "Could not read the image. Try a different file.";
-                        toast({ title: msg, variant: "destructive" });
-                      } finally {
-                        setCompressing(false);
-                        // Reset input so the same file can be re-selected if needed
-                        e.target.value = "";
-                      }
+                      if (f) handlePhotoFileSelected(f);
                     }}
                   />
+                  {uploadingPhoto && uploadProgress > 0 && (
+                    <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
+                      <div
+                        className="h-1.5 bg-primary rounded-full transition-all duration-300"
+                        style={{ width: `${uploadProgress}%` }}
+                      />
+                    </div>
+                  )}
                   <Input
-                    value={editForm.photoUrl.startsWith("data:") ? "" : editForm.photoUrl}
+                    value={editForm.photoUrl}
                     onChange={(e) => setEditForm((f) => ({ ...f, photoUrl: e.target.value }))}
-                    placeholder={editForm.photoUrl.startsWith("data:") ? "Photo ready" : "or paste photo URL"}
+                    placeholder="or paste photo URL"
                     className="text-xs h-8"
                   />
                 </div>

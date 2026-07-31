@@ -9,8 +9,8 @@ import {
   collection, addDoc, serverTimestamp, doc, setDoc,
 } from "firebase/firestore";
 import { sendPasswordResetEmail } from "firebase/auth";
-import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
-import { auth, db, storage } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
+import { uploadStudentPhoto, uploadErrorMessage, MAX_FILE_MB } from "@/lib/image-upload";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   createFirebaseAuthUser, generateTempPassword,
@@ -338,20 +338,37 @@ export default function Students() {
     return (students as Student[]).filter((s) => s.batch === batchFilter);
   }, [students, batchFilter]);
 
+  const [uploadProgress, setUploadProgress] = useState(0);
+
   async function handlePhotoUpload(file: File) {
     if (!file || !orgId) return;
+    // Validate file type up front
+    const mime = file.type.toLowerCase();
+    if (!["image/jpeg", "image/jpg", "image/png"].includes(mime)) {
+      toast({ title: "Only JPEG and PNG files are supported.", variant: "destructive" });
+      if (photoFileRef.current) photoFileRef.current.value = "";
+      return;
+    }
+    if (file.size > MAX_FILE_MB * 1024 * 1024) {
+      toast({ title: `File too large. Maximum is ${MAX_FILE_MB} MB.`, variant: "destructive" });
+      if (photoFileRef.current) photoFileRef.current.value = "";
+      return;
+    }
     setUploadingPhoto(true);
+    setUploadProgress(0);
     try {
-      const path = `organizations/${orgId}/student-photos/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
-      const sRef = storageRef(storage, path);
-      await uploadBytes(sRef, file);
-      const url = await getDownloadURL(sRef);
+      const url = await uploadStudentPhoto(file, orgId, {
+        onProgress: setUploadProgress,
+        maxMB: MAX_FILE_MB,
+      });
       setForm((f) => ({ ...f, photoUrl: url, photoFile: null }));
       toast({ title: "Photo uploaded!" });
-    } catch {
-      toast({ title: "Photo upload failed. Check Firebase Storage rules.", variant: "destructive" });
+    } catch (err) {
+      toast({ title: uploadErrorMessage(err), variant: "destructive" });
     } finally {
       setUploadingPhoto(false);
+      setUploadProgress(0);
+      if (photoFileRef.current) photoFileRef.current.value = "";
     }
   }
 
@@ -415,13 +432,20 @@ export default function Students() {
     }
     setSaving(true);
     try {
-      // Upload photo file first if one was selected
+      // Upload photo file first if one was selected (handled separately by handlePhotoUpload;
+      // this fallback handles the edge case where photoFile is still set)
       let finalPhotoUrl = form.photoUrl;
       if (form.photoFile && orgId) {
-        const path = `organizations/${orgId}/student-photos/${Date.now()}_${form.photoFile.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
-        const sRef = storageRef(storage, path);
-        await uploadBytes(sRef, form.photoFile);
-        finalPhotoUrl = await getDownloadURL(sRef);
+        try {
+          finalPhotoUrl = await uploadStudentPhoto(form.photoFile, orgId, {
+            onProgress: setUploadProgress,
+            maxMB: MAX_FILE_MB,
+          });
+        } catch (err) {
+          toast({ title: uploadErrorMessage(err), variant: "destructive" });
+          setSaving(false);
+          return;
+        }
       }
 
       if (editing) {
@@ -989,12 +1013,22 @@ export default function Students() {
                     ) : (
                       <ImagePlus className="h-3.5 w-3.5" />
                     )}
-                    {uploadingPhoto ? "Uploading…" : "Upload Photo"}
+                    {uploadingPhoto
+                      ? uploadProgress > 0 ? `Uploading ${uploadProgress}%…` : "Uploading…"
+                      : "Upload Photo"}
                   </Button>
+                  {uploadingPhoto && uploadProgress > 0 && (
+                    <div className="w-full bg-muted rounded-full h-1 overflow-hidden">
+                      <div
+                        className="h-1 bg-primary rounded-full transition-all duration-300"
+                        style={{ width: `${uploadProgress}%` }}
+                      />
+                    </div>
+                  )}
                   <input
                     ref={photoFileRef}
                     type="file"
-                    accept="image/*"
+                    accept="image/jpeg,image/jpg,image/png"
                     className="hidden"
                     onChange={(e) => {
                       const file = e.target.files?.[0];
