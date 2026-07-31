@@ -148,12 +148,28 @@ export default function StudentProfile() {
         try {
           const path = `organizations/${orgId}/student-photos/${Date.now()}_${photoFile.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
           const sRef = storageRef(storage, path);
-          await uploadBytes(sRef, photoFile);
+          // Race the upload against a 25-second timeout so a hanging Storage
+          // request doesn't freeze the Save button forever.
+          await Promise.race([
+            uploadBytes(sRef, photoFile),
+            new Promise<never>((_, reject) =>
+              setTimeout(() => reject(new Error("timeout")), 25000)
+            ),
+          ]);
           finalPhotoUrl = await getDownloadURL(sRef);
-        } catch {
-          toast({ title: "Photo upload failed. Check Firebase Storage rules.", variant: "destructive" });
-          setSaving(false);
-          return;
+        } catch (err: any) {
+          const isTimeout = err?.message === "timeout";
+          toast({
+            title: isTimeout
+              ? "Photo upload timed out. Save will proceed without the new photo."
+              : "Photo upload failed. Check Firebase Storage rules.",
+            variant: "destructive",
+          });
+          // Fall through — save other fields using the existing photoUrl
+          finalPhotoUrl = editForm.photoUrl || null;
+          // Clear the pending file so the form resets cleanly
+          if (localPhotoPreview) { URL.revokeObjectURL(localPhotoPreview); setLocalPhotoPreview(null); }
+          setPhotoFile(null);
         }
       }
 
