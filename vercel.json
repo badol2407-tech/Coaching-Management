@@ -7,6 +7,8 @@
   ],
   "env": {
     "PORT": "3000",
-    "BASE_PATH": "/"
+    "BASE_PATH": "/",
+    "VITE_CLOUDINARY_CLOUD_NAME": "q07yfr92",
+    "VITE_CLOUDINARY_UPLOAD_PRESET": "w1jhadcv"
   }
 }

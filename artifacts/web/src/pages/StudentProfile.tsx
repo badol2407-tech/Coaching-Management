@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRoute, useLocation } from "wouter";
 import { doc, getDoc, updateDoc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { uploadStudentPhoto, uploadErrorMessage, MAX_FILE_MB } from "@/lib/image-upload";
+import { uploadStudentPhoto, uploadErrorMessage, deleteCloudinaryImage, MAX_FILE_MB } from "@/lib/image-upload";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -47,6 +47,7 @@ type StudentDoc = {
   emergencyContact?: string | null;
   emergencyPhone?: string | null;
   photoUrl?: string | null;
+  cloudinaryPublicId?: string | null;
   createdAt?: any;
   source?: string | null;
 };
@@ -90,7 +91,7 @@ export default function StudentProfile() {
     name: "", phone: "", address: "", className: "", section: "", batch: "",
     guardianName: "", guardianPhone: "", enrolledAt: "",
     rollNumber: "", emergencyContact: "", emergencyPhone: "",
-    photoUrl: "", status: "active" as "active" | "inactive",
+    photoUrl: "", cloudinaryPublicId: "", status: "active" as "active" | "inactive",
   });
 
   const studentId = (params as any)?.id as string | undefined;
@@ -116,11 +117,18 @@ export default function StudentProfile() {
     setUploadingPhoto(true);
     setUploadProgress(0);
     try {
-      const downloadUrl = await uploadStudentPhoto(file, orgId, {
+      const { url, publicId } = await uploadStudentPhoto(file, orgId, {
         onProgress: setUploadProgress,
         maxMB: MAX_FILE_MB,
       });
-      setEditForm((prev) => ({ ...prev, photoUrl: downloadUrl }));
+      // Delete any previously pending upload that was never saved
+      setEditForm((prev) => {
+        const prevPendingId = prev.cloudinaryPublicId;
+        if (prevPendingId && prevPendingId !== student?.cloudinaryPublicId) {
+          deleteCloudinaryImage(prevPendingId);
+        }
+        return { ...prev, photoUrl: url, cloudinaryPublicId: publicId };
+      });
       toast({ title: "Photo uploaded successfully!" });
     } catch (err) {
       toast({ title: uploadErrorMessage(err), variant: "destructive" });
@@ -147,6 +155,7 @@ export default function StudentProfile() {
       emergencyContact: student.emergencyContact ?? "",
       emergencyPhone: student.emergencyPhone ?? "",
       photoUrl: student.photoUrl ?? "",
+      cloudinaryPublicId: student.cloudinaryPublicId ?? "",
       status: (student.status ?? "active") as "active" | "inactive",
     });
     setEditOpen(true);
@@ -157,6 +166,12 @@ export default function StudentProfile() {
     setSaving(true);
     try {
       const finalPhotoUrl = editForm.photoUrl || null;
+      const finalCloudinaryPublicId = editForm.cloudinaryPublicId || null;
+
+      // Delete the old Cloudinary image when the photo has been replaced
+      if (student?.cloudinaryPublicId && finalPhotoUrl !== (student.photoUrl ?? null)) {
+        await deleteCloudinaryImage(student.cloudinaryPublicId);
+      }
 
       const data: Record<string, unknown> = {
         name: editForm.name,
@@ -172,6 +187,7 @@ export default function StudentProfile() {
         emergencyContact: editForm.emergencyContact || null,
         emergencyPhone: editForm.emergencyPhone || null,
         photoUrl: finalPhotoUrl,
+        cloudinaryPublicId: finalCloudinaryPublicId,
         status: editForm.status,
       };
       await updateDoc(doc(db, "organizations", orgId, "students", studentId), data);
@@ -179,7 +195,7 @@ export default function StudentProfile() {
       // Sync photoUrl to the student's auth user doc so the portal sidebar picks it up
       if (student?.uid && finalPhotoUrl !== undefined) {
         try {
-          await setDoc(doc(db, "users", student.uid), { photoUrl: finalPhotoUrl }, { merge: true });
+          await setDoc(doc(db, "users", student.uid), { photoUrl: finalPhotoUrl, cloudinaryPublicId: finalCloudinaryPublicId }, { merge: true });
         } catch {
           // Non-fatal
         }

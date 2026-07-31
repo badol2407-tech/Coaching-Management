@@ -1,7 +1,7 @@
 import { initializeApp, getApps } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
-import { getStorage } from "firebase/storage";
+// Note: Firebase Storage has been removed — all image uploads now go through Cloudinary.
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY ?? import.meta.env.VITE_FIREBASE_API,
@@ -17,4 +17,3 @@ const firebaseConfig = {
 const app = getApps().length ? getApps()[0]! : initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-export const storage = getStorage(app);

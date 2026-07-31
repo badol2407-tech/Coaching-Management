@@ -10,7 +10,7 @@ import {
 } from "firebase/firestore";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
-import { uploadStudentPhoto, uploadErrorMessage, MAX_FILE_MB } from "@/lib/image-upload";
+import { uploadStudentPhoto, uploadErrorMessage, deleteCloudinaryImage, MAX_FILE_MB } from "@/lib/image-upload";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   createFirebaseAuthUser, generateTempPassword,
@@ -63,6 +63,7 @@ type Student = {
   emergencyContact?: string | null;
   emergencyPhone?: string | null;
   photoUrl?: string | null;
+  cloudinaryPublicId?: string | null;
 };
 
 
@@ -77,6 +78,7 @@ const emptyForm = {
   emergencyContact: "",
   emergencyPhone: "",
   photoUrl: "",
+  cloudinaryPublicId: "",
   photoFile: null as File | null,
 };
 
@@ -344,8 +346,12 @@ export default function Students() {
     if (!file || !orgId) return;
     // Validate file type up front
     const mime = file.type.toLowerCase();
-    if (!["image/jpeg", "image/jpg", "image/png"].includes(mime)) {
-      toast({ title: "Only JPEG and PNG files are supported.", variant: "destructive" });
+    const supportedTypes = [
+      "image/jpeg","image/jpg","image/png","image/webp",
+      "image/gif","image/bmp","image/tiff","image/heic","image/heif","image/avif",
+    ];
+    if (!supportedTypes.includes(mime)) {
+      toast({ title: "Unsupported file type. Use JPEG, PNG, WEBP, GIF, BMP, TIFF, HEIC, HEIF, or AVIF.", variant: "destructive" });
       if (photoFileRef.current) photoFileRef.current.value = "";
       return;
     }
@@ -357,11 +363,18 @@ export default function Students() {
     setUploadingPhoto(true);
     setUploadProgress(0);
     try {
-      const url = await uploadStudentPhoto(file, orgId, {
+      const { url, publicId } = await uploadStudentPhoto(file, orgId, {
         onProgress: setUploadProgress,
         maxMB: MAX_FILE_MB,
       });
-      setForm((f) => ({ ...f, photoUrl: url, photoFile: null }));
+      // If there was a previously pending (not-yet-saved) Cloudinary upload, clean it up
+      setForm((f) => {
+        const prevPendingId = f.cloudinaryPublicId;
+        if (prevPendingId && prevPendingId !== editing?.cloudinaryPublicId) {
+          deleteCloudinaryImage(prevPendingId);
+        }
+        return { ...f, photoUrl: url, cloudinaryPublicId: publicId, photoFile: null };
+      });
       toast({ title: "Photo uploaded!" });
     } catch (err) {
       toast({ title: uploadErrorMessage(err), variant: "destructive" });
@@ -393,6 +406,7 @@ export default function Students() {
       emergencyContact: s.emergencyContact ?? "",
       emergencyPhone: s.emergencyPhone ?? "",
       photoUrl: s.photoUrl ?? "",
+      cloudinaryPublicId: s.cloudinaryPublicId ?? "",
       photoFile: null,
     });
     setShowPassword(false);
@@ -435,12 +449,15 @@ export default function Students() {
       // Upload photo file first if one was selected (handled separately by handlePhotoUpload;
       // this fallback handles the edge case where photoFile is still set)
       let finalPhotoUrl = form.photoUrl;
+      let finalCloudinaryPublicId = form.cloudinaryPublicId;
       if (form.photoFile && orgId) {
         try {
-          finalPhotoUrl = await uploadStudentPhoto(form.photoFile, orgId, {
+          const result = await uploadStudentPhoto(form.photoFile, orgId, {
             onProgress: setUploadProgress,
             maxMB: MAX_FILE_MB,
           });
+          finalPhotoUrl = result.url;
+          finalCloudinaryPublicId = result.publicId;
         } catch (err) {
           toast({ title: uploadErrorMessage(err), variant: "destructive" });
           setSaving(false);
@@ -462,7 +479,12 @@ export default function Students() {
           emergencyContact: form.emergencyContact || null,
           emergencyPhone: form.emergencyPhone || null,
           photoUrl: finalPhotoUrl || null,
+          cloudinaryPublicId: finalCloudinaryPublicId || null,
         };
+        // Delete the old Cloudinary image when the photo is replaced
+        if (editing.cloudinaryPublicId && finalPhotoUrl !== (editing.photoUrl ?? "")) {
+          await deleteCloudinaryImage(editing.cloudinaryPublicId);
+        }
         await updateStudent.mutateAsync({ id: editing.id, data });
         trackStudentUpdated();
         toast({ title: "Student updated" });
@@ -544,6 +566,7 @@ export default function Students() {
             emergencyContact: form.emergencyContact.trim() || null,
             emergencyPhone: form.emergencyPhone.trim() || null,
             photoUrl: finalPhotoUrl?.trim() || null,
+            cloudinaryPublicId: finalCloudinaryPublicId?.trim() || null,
           }
         );
 
