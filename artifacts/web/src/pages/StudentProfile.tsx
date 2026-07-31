@@ -109,21 +109,32 @@ export default function StudentProfile() {
       .finally(() => setLoading(false));
   }, [studentId, orgId]);
 
-  // Compress an image file to a JPEG data-URL (max 400 px on longest side).
-  // Stored directly in Firestore — no Firebase Storage dependency.
+  // Compress an image file to a JPEG data-URL (max 800 px on longest side).
+  // Accepts JPEG/JPG/PNG up to 10 MB. Stored in Firestore — no Firebase Storage needed.
+  const MAX_FILE_MB = 10;
+  const ACCEPTED_TYPES = ["image/jpeg", "image/jpg", "image/png"];
+
   function compressImage(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
+      if (file.size > MAX_FILE_MB * 1024 * 1024) {
+        reject(new Error("size"));
+        return;
+      }
+      if (!ACCEPTED_TYPES.includes(file.type)) {
+        reject(new Error("type"));
+        return;
+      }
       const img = new Image();
       const blobUrl = URL.createObjectURL(file);
       img.onload = () => {
         URL.revokeObjectURL(blobUrl);
-        const MAX = 400;
+        const MAX = 800;
         const scale = Math.min(1, MAX / Math.max(img.width, img.height));
         const canvas = document.createElement("canvas");
         canvas.width = Math.round(img.width * scale);
         canvas.height = Math.round(img.height * scale);
         canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL("image/jpeg", 0.8));
+        resolve(canvas.toDataURL("image/jpeg", 0.85));
       };
       img.onerror = () => { URL.revokeObjectURL(blobUrl); reject(new Error("load")); };
       img.src = blobUrl;
@@ -455,7 +466,7 @@ export default function StudentProfile() {
                       : <><ImagePlus className="h-3.5 w-3.5" /> {editForm.photoUrl ? "Change Photo" : "Upload Photo"}</>}
                   </Button>
                   <input
-                    ref={photoFileRef} type="file" accept="image/*" className="hidden"
+                    ref={photoFileRef} type="file" accept="image/jpeg,image/jpg,image/png" className="hidden"
                     onChange={async (e) => {
                       const f = e.target.files?.[0];
                       if (!f) return;
@@ -463,8 +474,12 @@ export default function StudentProfile() {
                       try {
                         const dataUrl = await compressImage(f);
                         setEditForm((prev) => ({ ...prev, photoUrl: dataUrl }));
-                      } catch {
-                        toast({ title: "Could not read the image. Try a different file.", variant: "destructive" });
+                      } catch (err: any) {
+                        const msg =
+                          err?.message === "size" ? `File too large. Maximum is ${MAX_FILE_MB} MB.` :
+                          err?.message === "type" ? "Only JPEG and PNG files are supported." :
+                          "Could not read the image. Try a different file.";
+                        toast({ title: msg, variant: "destructive" });
                       } finally {
                         setCompressing(false);
                         // Reset input so the same file can be re-selected if needed
