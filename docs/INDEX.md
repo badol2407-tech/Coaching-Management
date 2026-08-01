@@ -53,10 +53,11 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 4. [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) and the relevant foundation handbook
 5. [PATTERN_LIBRARY.md](./PATTERN_LIBRARY.md)
 6. [COMPONENT_SPECIFICATIONS.md](./COMPONENT_SPECIFICATIONS.md)
-7. The relevant behavior handbook: [SEARCH_EXPERIENCE.md](./SEARCH_EXPERIENCE.md), [FILTER_SYSTEM.md](./FILTER_SYSTEM.md), [TABLE_DESIGN_GUIDE.md](./TABLE_DESIGN_GUIDE.md), or [NOTIFICATION_SYSTEM.md](./NOTIFICATION_SYSTEM.md)
-8. [COPYWRITING_GUIDELINES.md](./COPYWRITING_GUIDELINES.md)
-9. [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md) and [ACCESSIBILITY_TESTING.md](./ACCESSIBILITY_TESTING.md)
-10. [QUALITY_GATES.md](./QUALITY_GATES.md)
+7. The relevant component handbook under [components/](./components/), when one exists
+8. The relevant behavior handbook: [SEARCH_EXPERIENCE.md](./SEARCH_EXPERIENCE.md), [FILTER_SYSTEM.md](./FILTER_SYSTEM.md), [TABLE_DESIGN_GUIDE.md](./TABLE_DESIGN_GUIDE.md), or [NOTIFICATION_SYSTEM.md](./NOTIFICATION_SYSTEM.md)
+9. [COPYWRITING_GUIDELINES.md](./COPYWRITING_GUIDELINES.md)
+10. [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md) and [ACCESSIBILITY_TESTING.md](./ACCESSIBILITY_TESTING.md)
+11. [QUALITY_GATES.md](./QUALITY_GATES.md)
 
 ### Building a feature
 
@@ -81,6 +82,7 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 | Design interactions and recovery | [Interaction Design](./INTERACTION_DESIGN.md) |
 | Define states, feedback, or recovery | [State System](./STATE_SYSTEM.md), [Feedback System](./FEEDBACK_SYSTEM.md), and [Error Handling](./ERROR_HANDLING.md) |
 | Use a reusable UI pattern | [Pattern Library](./PATTERN_LIBRARY.md) |
+| Implement a primitive component | [Component Specifications](./COMPONENT_SPECIFICATIONS.md) and the relevant [component handbook](./components/) |
 | Apply the visual system | [Design System Guide](./DESIGN_SYSTEM_GUIDE.md) |
 | Apply foundation tokens | [Design Tokens](./DESIGN_TOKENS.md), [Spacing System](./SPACING_SYSTEM.md), and [Layout Grid](./LAYOUT_GRID.md) |
 | Write interface copy | [Copywriting Guidelines](./COPYWRITING_GUIDELINES.md) |
@@ -101,6 +103,7 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 | [AI_UX_GUIDELINES.md](./AI_UX_GUIDELINES.md) | Defines transparent, safe, human-controlled AI Assistant behavior. |
 | [COLOR_SYSTEM.md](./COLOR_SYSTEM.md) | Defines semantic color roles and non-color status communication. |
 | [COMPONENT_SPECIFICATIONS.md](./COMPONENT_SPECIFICATIONS.md) | Defines reusable component contracts and states. |
+| [components/](./components/) | Defines implementation-ready handbooks for the approved primitive components only. |
 | [COPYWRITING_GUIDELINES.md](./COPYWRITING_GUIDELINES.md) | Defines clear, honest, canonical product language. |
 | [DASHBOARD_DESIGN_GUIDE.md](./DASHBOARD_DESIGN_GUIDE.md) | Defines Dashboard priorities, metrics, scope, and states. |
 | [DATA_VISUALIZATION_GUIDE.md](./DATA_VISUALIZATION_GUIDE.md) | Defines honest and accessible Reports and Analytics presentation. |

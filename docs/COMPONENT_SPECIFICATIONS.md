@@ -8,6 +8,7 @@ related_documents:
   - ./ACCESSIBILITY_STANDARDS.md
   - ./INTERACTION_DESIGN.md
   - ./PATTERN_LIBRARY.md
+  - ./components/
 review_frequency: Quarterly and before component API or token changes
 owner: Product Design, Design Systems, and Frontend Engineering
 version: 1.0.0
@@ -21,6 +22,12 @@ canonical_terms: Button, Link, Input, Select, Search, Table, List, Dialog, Sheet
 
 This file defines the minimum contract shared components must satisfy. Product-specific patterns may add requirements but may not weaken accessibility, safety, user control, trust, or clarity.
 
+## Component handbook contract
+
+The approved primitive component handbooks live under [components/](./components/). Each handbook uses the same template and is the implementation-level companion to this specification. It must define purpose, non-goals, anatomy, variants, states, interaction, accessibility, responsive behavior, content constraints, module examples, and review evidence.
+
+Handbooks are subordinate to [DESIGN_SYSTEM_GUIDE.md](./DESIGN_SYSTEM_GUIDE.md), [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md), [INTERACTION_DESIGN.md](./INTERACTION_DESIGN.md), [STATE_SYSTEM.md](./STATE_SYSTEM.md), and [FORM_DESIGN_GUIDE.md](./FORM_DESIGN_GUIDE.md). They clarify a component; they do not establish competing thresholds or exceptions.
+
 ## Button and link
 
 **Contract:** Name the action, expose focus, support keyboard activation, show pending and disabled states, and separate destructive actions.
@@ -29,6 +36,8 @@ This file defines the minimum contract shared components must satisfy. Product-s
 
 **Measure:** No icon-only primary action; no duplicate submission; destructive action has scope confirmation.
 
+See [components/Button.md](./components/Button.md), [components/Icon Button.md](./components/Icon%20Button.md), and [components/Link.md](./components/Link.md).
+
 ## Input, select, and search
 
 **Contract:** Persistent label, instruction, constraint, error association, keyboard operation, clear action where useful, and visible applied scope.
@@ -36,6 +45,18 @@ This file defines the minimum contract shared components must satisfy. Product-s
 **Examples:** Student and Teacher Search identifies the dataset; Attendance selects date and session; Fee inputs show currency; Exam inputs show grading rule; Report Filters summarize scope; Authentication inputs explain recovery.
 
 **Measure:** Complete with keyboard and screen reader; errors preserve input.
+
+See [components/Text Field.md](./components/Text%20Field.md), [components/Textarea.md](./components/Textarea.md), [components/Password Field.md](./components/Password%20Field.md), [components/Search Field.md](./components/Search%20Field.md), [components/Select.md](./components/Select.md), [components/Multi Select.md](./components/Multi%20Select.md), and [components/Autocomplete.md](./components/Autocomplete.md).
+
+## Choice and range controls
+
+**Contract:** Expose the question, current value, available choices, constraints, and committed versus draft state. Do not require precision pointer input or color-only interpretation.
+
+**Examples:** Attendance status uses [Radio](./components/Radio.md) when one option must be chosen, a [Checkbox](./components/Checkbox.md) for independent selections, a [Switch](./components/Switch.md) for an immediate setting, and a [Slider](./components/Slider.md) only when a continuous range is meaningful.
+
+**Measure:** Keyboard, screen-reader, touch, zoom, validation, and recovery behavior are equivalent to pointer behavior.
+
+See [components/Checkbox.md](./components/Checkbox.md), [components/Radio.md](./components/Radio.md), [components/Switch.md](./components/Switch.md), and [components/Slider.md](./components/Slider.md).
 
 ## Table and list
 

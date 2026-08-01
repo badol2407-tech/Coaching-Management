@@ -44,7 +44,7 @@ PRODUCT_GOVERNANCE -----> DECISION_LOG / CHANGELOG
          +--> INTERACTION AND PATTERNS
          |      INTERACTION_DESIGN --> STATE_SYSTEM --> FEEDBACK_SYSTEM
          |                                               --> ERROR_HANDLING / LOADING_STATES / EMPTY_STATES
-         |                         --> PATTERN_LIBRARY --> COMPONENT_SPECIFICATIONS
+         |                         --> PATTERN_LIBRARY --> COMPONENT_SPECIFICATIONS --> components/
          |                                               --> DESIGN_SYSTEM_GUIDE
          |      FORM_DESIGN_GUIDE --> SEARCH_EXPERIENCE / FILTER_SYSTEM
          |      MOBILE_UX_GUIDE --> RESPONSIVE_SYSTEM
@@ -81,7 +81,8 @@ INDEX is the navigation homepage for every layer.
 | Navigation and route behavior | [NAVIGATION_STANDARDS.md](./NAVIGATION_STANDARDS.md) | Information Architecture, Accessibility, Mobile |
 | Interaction states and recovery | [INTERACTION_DESIGN.md](./INTERACTION_DESIGN.md) and [STATE_SYSTEM.md](./STATE_SYSTEM.md) | Feedback, Error Handling, Loading States, Empty States, Components, Forms, Motion, Patterns |
 | Reusable workflow patterns | [PATTERN_LIBRARY.md](./PATTERN_LIBRARY.md) | Components, Design System, Interaction |
-| Component contracts | [COMPONENT_SPECIFICATIONS.md](./COMPONENT_SPECIFICATIONS.md) | Accessibility, Design System, State, Feedback |
+| Component contracts | [COMPONENT_SPECIFICATIONS.md](./COMPONENT_SPECIFICATIONS.md) | Accessibility, Design System, State, Feedback, component handbooks |
+| Primitive component implementation | [components/](./components/) | Component Specifications, Design System, Accessibility, Form Design, Interaction |
 | Semantic visual tokens | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | Spacing, Layout, Iconography, Elevation, Color, Typography, Motion, Components, Accessibility |
 | Search and narrowing data | [SEARCH_EXPERIENCE.md](./SEARCH_EXPERIENCE.md) and [FILTER_SYSTEM.md](./FILTER_SYSTEM.md) | Forms, Tables, Dashboard, Data Visualization, Accessibility |
 | Tables and structured data | [TABLE_DESIGN_GUIDE.md](./TABLE_DESIGN_GUIDE.md) | Components, Search, Filters, Responsive, Data Visualization |
@@ -98,4 +99,6 @@ INDEX is the navigation homepage for every layer.
 - Link to the canonical owner when repeating a principle for context.
 - Do not create a second threshold for a requirement owned by a release-gate handbook.
 - If a new Enterprise Module introduces a term, add it to [GLOSSARY.md](./GLOSSARY.md) before using it in another handbook.
+- Component handbooks under [components/](./components/) may clarify an implementation contract but may not override a higher-level standard.
+- Add a component handbook only when the component is approved in [COMPONENT_SPECIFICATIONS.md](./COMPONENT_SPECIFICATIONS.md); do not create parallel component documentation elsewhere.
 - If a change affects a dependency, update the dependent document’s Related documents metadata and record the change.

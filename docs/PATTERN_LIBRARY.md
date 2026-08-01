@@ -8,6 +8,7 @@ related_documents:
   - ./COMPONENT_SPECIFICATIONS.md
   - ./INTERACTION_DESIGN.md
   - ./ACCESSIBILITY_STANDARDS.md
+  - ./components/
 review_frequency: Quarterly and after pattern, component, or workflow changes
 owner: Product Design and Design Systems
 version: 1.0.0
@@ -28,6 +29,20 @@ Use when operational work needs attention. Show scope, count, reason, owner, nex
 ## Search and filtered list
 
 Use when users need to locate Students, Teachers, Attendance, Fees, Exams, Reports, Notifications, or future records. Provide a labeled Search field, relevant Filters, result status, clear/reset, empty/no-result distinction, and preserved scope.
+
+Compose [Search Field](./components/Search%20Field.md), [Autocomplete](./components/Autocomplete.md), [Select](./components/Select.md), and [Multi Select](./components/Multi%20Select.md) according to [SEARCH_EXPERIENCE.md](./SEARCH_EXPERIENCE.md) and [FILTER_SYSTEM.md](./FILTER_SYSTEM.md).
+
+## Field composition
+
+Use for data-entry and edit workflows. Pair a persistent label, concise instruction, control, validation message, and recovery action. Use [Text Field](./components/Text%20Field.md), [Textarea](./components/Textarea.md), [Password Field](./components/Password%20Field.md), or [Select](./components/Select.md) based on the data type; preserve safe input when validation or network errors occur.
+
+## Selection and preference
+
+Use [Checkbox](./components/Checkbox.md) for independent choices, [Radio](./components/Radio.md) for mutually exclusive choices, and [Switch](./components/Switch.md) for a clearly understood setting that can change immediately. Use [Slider](./components/Slider.md) only when the value is inherently ordered and a precise alternative is available.
+
+## Action and navigation
+
+Use [Button](./components/Button.md) for in-place actions and [Link](./components/Link.md) for navigation or resource references. Use [Icon Button](./components/Icon%20Button.md) only when its accessible name and consequence are unambiguous.
 
 ## Record detail
 
@@ -57,4 +72,4 @@ Show AI disclosure, source scope, generated state, uncertainty, human review, ed
 
 Transform—not merely shrink—tables, sidebars, filters, dialogs, charts, and forms. Preserve identity, scope, primary action, status, and recovery. See [MOBILE_UX_GUIDE.md](./MOBILE_UX_GUIDE.md).
 
-Every pattern implementation must cite the relevant component specifications and review checklist.
+Every pattern implementation must cite the relevant component specification, component handbook, and review checklist.
