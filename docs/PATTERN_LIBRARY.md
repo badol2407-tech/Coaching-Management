@@ -1,7 +1,7 @@
 ---
 title: EduTrack Pattern Library
 purpose: Define reusable, evidence-based workflow patterns for common product tasks.
-scope: Dashboard exceptions, Search and list, Filters, detail, financial review, reporting, analytics, Notifications, rosters, bulk actions, confirmation, drafts, empty states, data tables, calendaring, schedules, period context, file uploads, floating actions, temporal display, AI Assistant, and mobile.
+scope: Dashboard exceptions, Search and list, Filters, detail, financial review, reporting, analytics, Notifications, rosters, bulk actions, confirmation, drafts, empty states, data tables, calendaring, schedules, period context, file uploads, floating actions, AI Assistant, Roles and Permissions, Settings, Audit Logs, Integrations, Import and Export, Backup and Recovery, Multi-Tenancy, Future Enterprise Modules, and mobile.
 audience: Product, Design, Engineering, Content, QA, Accessibility, and reviewers.
 related_documents:
   - ./DESIGN_SYSTEM_GUIDE.md
@@ -14,18 +14,18 @@ related_documents:
   - ./components/
 review_frequency: Quarterly and after pattern, component, or workflow changes
 owner: Product Design and Design Systems
-version: 1.3.0
+version: 1.4.0
 status: Binding reusable-pattern standard
 last_updated: 2026-08-01
 normative_level: Binding standard
-canonical_terms: pattern, Dashboard, Search, Filters, Fees, Reports, Analytics, Notifications, bulk action, confirmation, draft, empty state, AI Assistant, mobile, Table, Data Grid, Pagination, Charts, Calendar, Timeline, Date Picker, Time Picker, File Upload, FAB, Classes, Subjects, Routine, Academic Sessions
+canonical_terms: pattern, Dashboard, Search, Filters, Fees, Reports, Analytics, Notifications, bulk action, confirmation, draft, empty state, AI Assistant, Roles and Permissions, Settings, Audit Logs, Integrations, Import, Export, Backup, Recovery, Multi-Tenancy, Future Enterprise Modules, mobile, Table, Data Grid, Pagination, Charts, Calendar, Timeline, Date Picker, Time Picker, File Upload, FAB, Classes, Subjects, Routine, Academic Sessions
 ---
 
 # EduTrack Pattern Library
 
 Patterns are reusable solutions to recurring user problems. Use an existing pattern before inventing a new one; document an exception when the domain genuinely differs.
 
-Core module specifications in [modules/](./modules/) compose these patterns for Dashboard, Students, Teachers, Organization, Authentication, Profile, Attendance, Exams, Classes, Subjects, Routine, Academic Sessions, Fees, Reports, Analytics, Notifications, Search, and Filters. The module specifications do not create competing pattern standards.
+Core module specifications in [modules/](./modules/) compose these patterns for Dashboard, Students, Teachers, Organization, Authentication, Profile, Attendance, Exams, Classes, Subjects, Routine, Academic Sessions, Fees, Reports, Analytics, Notifications, Search, Filters, AI Assistant, Roles and Permissions, Settings, Audit Logs, Integrations, Import and Export, Backup and Recovery, Multi-Tenancy, and Future Enterprise Modules. The module specifications do not create competing pattern standards.
 
 ## Dashboard exception review
 
@@ -70,6 +70,22 @@ Use for Reports and Analytics when users need a stated question, source, period,
 ## Notification delivery and attention
 
 Use for Notifications that communicate informational, success, warning, error, security, or required-action state. Identify source, recipient scope, consequence, time, delivery status, and next action; preserve privacy, idempotency, read state, retry, and recovery. Do not use repeated Notifications, badges, or urgency language to manipulate attention. Follow [NOTIFICATION_SYSTEM.md](./NOTIFICATION_SYSTEM.md), [FEEDBACK_SYSTEM.md](./FEEDBACK_SYSTEM.md), and [SECURITY_UX.md](./SECURITY_UX.md).
+
+## Permission and settings governance
+
+Use for Roles and Permissions and Settings when users must understand capability, scope, owner, default, effective time, consequence, approval, audit, and recovery. Keep Role, Permission, setting, policy, Personal, Workspace, and Organization responsibilities distinct; do not treat hidden controls as authorization or create a second Permission standard. Follow [PERMISSION_DESIGN.md](./PERMISSION_DESIGN.md), [FORM_DESIGN_GUIDE.md](./FORM_DESIGN_GUIDE.md), [SECURITY_UX.md](./SECURITY_UX.md), and [STATE_SYSTEM.md](./STATE_SYSTEM.md).
+
+## Audit and enterprise operations
+
+Use for Audit Logs, Integrations, Import and Export, and Backup and Recovery when a consequential or operational action needs identity, source, scope, state, progress, result, retention, and recovery. Separate transport or job success from source-record or business outcome; preserve actor, approval, before/after where applicable, and audit context. Follow [PRODUCT_GOVERNANCE.md](./PRODUCT_GOVERNANCE.md), [ENGINEERING_STANDARDS.md](./ENGINEERING_STANDARDS.md), [PERMISSION_DESIGN.md](./PERMISSION_DESIGN.md), and [SECURITY_UX.md](./SECURITY_UX.md).
+
+## Organization and tenancy context
+
+Use for Multi-Tenancy and any cross-Organization or Workspace workflow. Keep active Organization and Workspace visible, recheck scope at every boundary, preserve safe context during switching, and distinguish no access from no records without enumeration. Follow [INFORMATION_ARCHITECTURE.md](./INFORMATION_ARCHITECTURE.md), [NAVIGATION_STANDARDS.md](./NAVIGATION_STANDARDS.md), [SEARCH_EXPERIENCE.md](./SEARCH_EXPERIENCE.md), [FILTER_SYSTEM.md](./FILTER_SYSTEM.md), and [SECURITY_UX.md](./SECURITY_UX.md).
+
+## Future-module proposal and review
+
+Use for Future Enterprise Modules when a capability is still being proposed, piloted, released, migrated, deprecated, or retired. Record problem, evidence, affected Roles and Organizations, source of truth, dependencies, owning standards, risks, exceptions, review authority, rollout, rollback, support, and deprecation. Follow [PRODUCT_GOVERNANCE.md](./PRODUCT_GOVERNANCE.md), [QUALITY_GATES.md](./QUALITY_GATES.md), and [REVIEW_CHECKLISTS.md](./REVIEW_CHECKLISTS.md); a pattern does not approve a release.
 
 ## File import and upload
 
@@ -171,5 +187,14 @@ Use the relevant module specification to apply the patterns to an end-to-end pro
 | [Notifications](./modules/Notifications.md) | Search and filtered list, focused detail, feedback/status, delivery recovery, consequential confirmation, reviewable AI, and mobile conversion. |
 | [Search](./modules/Search.md) | Search and filtered list, field composition, suggestions, structured data, empty/no-result distinction, reviewable AI, and mobile conversion. |
 | [Filters](./modules/Filters.md) | Search and filtered list, field composition, dependent controls, temporal input, structured data, empty/no-match distinction, reviewable AI, and mobile conversion. |
+| [AI Assistant](./modules/AI_Assistant.md) | Reviewable AI assistance, source context, generated status, uncertainty, citations, approved action handoff, and mobile conversion. |
+| [Roles and Permissions](./modules/Roles_and_Permissions.md) | Search and filtered list, structured access data, consequential confirmation, approval review, audit, recovery, and mobile conversion. |
+| [Settings](./modules/Settings.md) | Category navigation, field composition, policy review, consequential confirmation, draft/recovery, reviewable AI, and mobile conversion. |
+| [Audit Logs](./modules/Audit_Logs.md) | Search and filtered list, structured data, Timeline, record detail, investigation, export review, audit, and mobile conversion. |
+| [Integrations](./modules/Integrations.md) | Search and filtered list, field composition, structured mapping data, sync progress, consequential confirmation, recovery, and mobile conversion. |
+| [Import and Export](./modules/Import_Export.md) | File upload, Search and filtered list, structured validation, mapping review, progress, consequential confirmation, recovery, and mobile conversion. |
+| [Backup and Recovery](./modules/Backup_and_Recovery.md) | Search and filtered list, temporal/event display, record detail, progress, restore confirmation, validation, rollback, and mobile conversion. |
+| [Multi-Tenancy](./modules/Multi_Tenancy.md) | Context switching, Search and filtered list, record detail, consequential confirmation, migration review, recovery, and mobile conversion. |
+| [Future Enterprise Modules](./modules/Future_Enterprise_Modules.md) | Proposal/review, Search and filtered list, structured evidence, Timeline, consequential confirmation, draft/recovery, and mobile conversion. |
 
 Every pattern implementation must cite the relevant component specification, component handbook, and review checklist.

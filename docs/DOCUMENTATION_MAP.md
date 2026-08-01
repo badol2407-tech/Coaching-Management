@@ -10,7 +10,7 @@ related_documents:
   - ./DECISION_LOG.md
 review_frequency: Quarterly and after documentation architecture changes
 owner: Product Governance Council
-version: 1.3.0
+version: 1.4.0
 status: Active architecture map
 last_updated: 2026-08-01
 normative_level: Governance reference
@@ -71,6 +71,8 @@ PRODUCT_GOVERNANCE -----> DECISION_LOG / CHANGELOG
          |      Dashboard / Students / Teachers / Organization / Authentication / Profile
           |      Attendance / Exams / Classes / Subjects / Routine / Academic Sessions
           |      Fees / Reports / Analytics / Notifications / Search / Filters
+          |      AI Assistant / Roles and Permissions / Settings / Audit Logs / Integrations
+          |      Import and Export / Backup and Recovery / Multi-Tenancy / Future Enterprise Modules
          |      (consume canonical structure, interaction, component, state, security, AI, and review standards)
          |
         +--> REVIEW
@@ -144,6 +146,15 @@ Every module below consumes the same canonical structure, interaction, component
 | [Notifications](./modules/Notifications.md) | Taxonomy, privacy, delivery, idempotency, read state, preferences, and recovery | [Notifications](./modules/Notifications.md) |
 | [Search](./modules/Search.md) | Named datasets, scoped queries, matching, suggestions, history, privacy, and deep links | [Search](./modules/Search.md) |
 | [Filters](./modules/Filters.md) | Criteria, operators, AND/OR logic, active state, serialization, and result semantics | [Filters](./modules/Filters.md) |
+| [AI Assistant](./modules/AI_Assistant.md) | Generated assistance, source scope, uncertainty, human review, privacy, and approved action handoffs | [AI Assistant](./modules/AI_Assistant.md) |
+| [Roles and Permissions](./modules/Roles_and_Permissions.md) | Role catalog, capabilities, scope, assignment, approval, inheritance, revocation, and review | [Roles and Permissions](./modules/Roles_and_Permissions.md) |
+| [Settings](./modules/Settings.md) | Personal, Workspace, Organization, policy, security, Notification, integration, and system configuration | [Settings](./modules/Settings.md) |
+| [Audit Logs](./modules/Audit_Logs.md) | Actor, target, scope, action, before/after, approval, result, integrity, search, export, and retention | [Audit Logs](./modules/Audit_Logs.md) |
+| [Integrations](./modules/Integrations.md) | Approved providers, consent, scopes, mappings, sync, webhooks, failures, disconnect, and recovery | [Integrations](./modules/Integrations.md) |
+| [Import and Export](./modules/Import_Export.md) | Dataset movement, schema, mapping, preview, validation, partial results, downloads, retention, and audit | [Import and Export](./modules/Import_Export.md) |
+| [Backup and Recovery](./modules/Backup_and_Recovery.md) | Snapshot identity, freshness, integrity, restore planning, verification, rollback, retention, and recovery | [Backup and Recovery](./modules/Backup_and_Recovery.md) |
+| [Multi-Tenancy](./modules/Multi_Tenancy.md) | Organization and Workspace isolation, context switching, cross-Organization controls, migration, and support access | [Multi-Tenancy](./modules/Multi_Tenancy.md) |
+| [Future Enterprise Modules](./modules/Future_Enterprise_Modules.md) | Proposal, source of truth, dependency, review, evidence, pilot, release, migration, deprecation, and retirement | [Future Enterprise Modules](./modules/Future_Enterprise_Modules.md) |
 
 ## Dependency rules
 

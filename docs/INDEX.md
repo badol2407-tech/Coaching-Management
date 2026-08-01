@@ -11,11 +11,11 @@ related_documents:
   - ./REVIEW_CHECKLISTS.md
 review_frequency: Quarterly and after documentation architecture or governance changes
 owner: Product Governance Council
-version: 1.3.0
+version: 1.4.0
 status: Active documentation homepage
 last_updated: 2026-08-01
 normative_level: Navigation and orientation
-canonical_terms: Dashboard, Students, Teachers, Attendance, Fees, Exams, Reports, Analytics, Notifications, Organization, Profile, Settings, Classes, Subjects, Routine, Academic Sessions, Search, Filters, AI Assistant, Enterprise Module, Permission, Role, Workspace
+canonical_terms: Dashboard, Students, Teachers, Attendance, Fees, Exams, Reports, Analytics, Notifications, Organization, Profile, Settings, Classes, Subjects, Routine, Academic Sessions, Search, Filters, AI Assistant, Roles and Permissions, Audit Logs, Integrations, Import, Export, Backup, Recovery, Multi-Tenancy, Future Enterprise Modules, Enterprise Module, Permission, Role, Workspace
 ---
 
 # EduTrack Documentation
@@ -30,7 +30,7 @@ EduTrack documentation is a governed system of product principles, release stand
 4. **Product structure and interaction** — Information Architecture, Navigation, Interaction, Forms, Search, Filters, Tables, Mobile, Responsive, Patterns, and Copywriting explain how the product behaves.
 5. **Design system foundations and data** — Design Tokens, Spacing, Layout, Iconography, Elevation, State, Feedback, Notifications, Tables, Color, Typography, Motion, Gestalt, Dashboard, and Data Visualization define reusable expression and domain presentation.
 6. **Safety, resilience, and localization** — Error, Loading, Empty, Permission, Security, Internationalization, and accessibility testing handbooks define implementation-ready quality behavior.
-7. **Core module specifications** — The module handbooks under [modules/](./modules/) translate the canonical standards into role, scope, journey, screen, permission, state, AI, security, performance, and acceptance contracts for Dashboard, Students, Teachers, Organization, Authentication, Profile, Attendance, Exams, Classes, Subjects, Routine, Academic Sessions, Fees, Reports, Analytics, Notifications, Search, and Filters.
+7. **Core module specifications** — The module handbooks under [modules/](./modules/) translate the canonical standards into role, scope, journey, screen, permission, state, AI, security, performance, and acceptance contracts for Dashboard, Students, Teachers, Organization, Authentication, Profile, Attendance, Exams, Classes, Subjects, Routine, Academic Sessions, Fees, Reports, Analytics, Notifications, Search, Filters, AI Assistant, Roles and Permissions, Settings, Audit Logs, Integrations, Import and Export, Backup and Recovery, Multi-Tenancy, and Future Enterprise Modules.
 8. **Review guidance** — [REVIEW_CHECKLISTS.md](./REVIEW_CHECKLISTS.md), [QUALITY_GATES.md](./QUALITY_GATES.md), [USABILITY_HEURISTICS.md](./USABILITY_HEURISTICS.md), and [UX_LAWS.md](./UX_LAWS.md) help teams inspect work. Review guidance cannot override a release gate.
 
 See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and ownership matrix.
@@ -66,7 +66,7 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 2. [ENGINEERING_STANDARDS.md](./ENGINEERING_STANDARDS.md)
 3. [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md)
 4. The relevant domain handbook: [DASHBOARD_DESIGN_GUIDE.md](./DASHBOARD_DESIGN_GUIDE.md), [DATA_VISUALIZATION_GUIDE.md](./DATA_VISUALIZATION_GUIDE.md), [FORM_DESIGN_GUIDE.md](./FORM_DESIGN_GUIDE.md), or [AI_UX_GUIDELINES.md](./AI_UX_GUIDELINES.md)
-5. The relevant [core module specification](./modules/) when the work affects Dashboard, Students, Teachers, Organization, Authentication, Profile, Attendance, Exams, Classes, Subjects, Routine, Academic Sessions, Fees, Reports, Analytics, Notifications, Search, or Filters
+5. The relevant [core module specification](./modules/) when the work affects Dashboard, Students, Teachers, Organization, Authentication, Profile, Attendance, Exams, Classes, Subjects, Routine, Academic Sessions, Fees, Reports, Analytics, Notifications, Search, Filters, AI Assistant, Roles and Permissions, Settings, Audit Logs, Integrations, Import and Export, Backup and Recovery, Multi-Tenancy, or Future Enterprise Modules
 6. [REVIEW_CHECKLISTS.md](./REVIEW_CHECKLISTS.md)
 
 ## Quick navigation
@@ -113,6 +113,15 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 | Specify Notifications behavior | [Notifications module](./modules/Notifications.md) |
 | Specify Search behavior | [Search module](./modules/Search.md) |
 | Specify Filters behavior | [Filters module](./modules/Filters.md) |
+| Specify AI Assistant behavior | [AI Assistant module](./modules/AI_Assistant.md) |
+| Specify Roles and Permissions behavior | [Roles and Permissions module](./modules/Roles_and_Permissions.md) |
+| Specify Settings behavior | [Settings module](./modules/Settings.md) |
+| Specify Audit Logs behavior | [Audit Logs module](./modules/Audit_Logs.md) |
+| Specify Integrations behavior | [Integrations module](./modules/Integrations.md) |
+| Specify Import and Export behavior | [Import and Export module](./modules/Import_Export.md) |
+| Specify Backup and Recovery behavior | [Backup and Recovery module](./modules/Backup_and_Recovery.md) |
+| Specify Multi-Tenancy behavior | [Multi-Tenancy module](./modules/Multi_Tenancy.md) |
+| Govern future Enterprise Modules | [Future Enterprise Modules](./modules/Future_Enterprise_Modules.md) |
 | Understand changes over time | [Changelog](./CHANGELOG.md) and [Decision Log](./DECISION_LOG.md) |
 
 ## Handbook directory
@@ -189,6 +198,15 @@ The core module specifications translate the canonical standards into module-spe
 | [Notifications](./modules/Notifications.md) | Relevant, private, accessible, idempotent, and reviewable workflow communication. |
 | [Search](./modules/Search.md) | Scoped, accessible, private, and recoverable discovery across authorized datasets. |
 | [Filters](./modules/Filters.md) | Transparent, serializable, accessible, and scoped narrowing of authorized datasets. |
+| [AI Assistant](./modules/AI_Assistant.md) | Transparent, scoped, human-controlled assistance with generated status, source context, uncertainty, and review. |
+| [Roles and Permissions](./modules/Roles_and_Permissions.md) | Least-privilege, scoped, auditable, and recoverable access governance. |
+| [Settings](./modules/Settings.md) | Discoverable, scoped, reviewable, and recoverable personal, Workspace, Organization, and policy configuration. |
+| [Audit Logs](./modules/Audit_Logs.md) | Authorized, append-oriented accountability records with actor, scope, action, result, integrity, and retention. |
+| [Integrations](./modules/Integrations.md) | Governed, consent-aware, scoped, observable, and recoverable connections to approved external systems. |
+| [Import and Export](./modules/Import_Export.md) | Scoped, reviewable, privacy-preserving, and recoverable movement of approved data. |
+| [Backup and Recovery](./modules/Backup_and_Recovery.md) | Governed, tested, observable, and auditable preservation and restoration of approved data and configuration. |
+| [Multi-Tenancy](./modules/Multi_Tenancy.md) | Organization and Workspace isolation, context selection, lifecycle, and cross-Organization safety. |
+| [Future Enterprise Modules](./modules/Future_Enterprise_Modules.md) | Governed proposal, review, rollout, migration, deprecation, and retirement of future enterprise capabilities. |
 
 ## Component handbook directory
 
