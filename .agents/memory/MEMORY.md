@@ -1,0 +1,1 @@
+- [Documentation architecture](documentation-architecture.md) — keep permanent product principles in the constitution and implementation standards in focused `/docs` handbooks
