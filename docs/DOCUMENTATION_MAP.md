@@ -10,7 +10,7 @@ related_documents:
   - ./DECISION_LOG.md
 review_frequency: Quarterly and after documentation architecture changes
 owner: Product Governance Council
-version: 1.0.0
+version: 1.1.0
 status: Active architecture map
 last_updated: 2026-08-01
 normative_level: Governance reference
@@ -45,9 +45,17 @@ PRODUCT_GOVERNANCE -----> DECISION_LOG / CHANGELOG
          |      INTERACTION_DESIGN --> STATE_SYSTEM --> FEEDBACK_SYSTEM
          |                                               --> ERROR_HANDLING / LOADING_STATES / EMPTY_STATES
          |                         --> PATTERN_LIBRARY --> COMPONENT_SPECIFICATIONS --> components/
-         |                                                                                 |
-         |                                                                                 +--> navigation / disclosure / surface / collection / overlay / feedback / loading / recovery / status / identity handbooks
-         |                                               --> DESIGN_SYSTEM_GUIDE
+         |                                                                                  |
+         |                                                                                  +--> actions: Button, Icon Button, Link, FAB
+         |                                                                                  +--> form inputs: Text Field, Textarea, Password Field, Search Field, Select, Multi Select, Autocomplete, Checkbox, Radio, Switch, Slider, Date Picker, Time Picker, File Upload
+         |                                                                                  +--> navigation: Sidebar, Top Navigation, Bottom Navigation, Breadcrumb, Tabs
+         |                                                                                  +--> disclosure: Accordion, Dropdown, Menu, Command Palette
+         |                                                                                  +--> surfaces: Card, List, Drawer, Dialog, Popover, Tooltip
+         |                                                                                  +--> data: Table, Data Grid, Pagination, Charts
+         |                                                                                  +--> temporal: Calendar, Timeline
+         |                                                                                  +--> feedback/loading/recovery: Toast, Banner, Alert, Progress, Skeleton, Loading Spinner, Empty State, Error State
+         |                                                                                  +--> status/identity: Badge, Chip, Tag, Avatar
+         |                               --> DESIGN_SYSTEM_GUIDE
          |      FORM_DESIGN_GUIDE --> SEARCH_EXPERIENCE / FILTER_SYSTEM
          |      MOBILE_UX_GUIDE --> RESPONSIVE_SYSTEM
         |
@@ -85,10 +93,19 @@ INDEX is the navigation homepage for every layer.
 | Reusable workflow patterns | [PATTERN_LIBRARY.md](./PATTERN_LIBRARY.md) | Components, Design System, Interaction |
 | Component contracts | [COMPONENT_SPECIFICATIONS.md](./COMPONENT_SPECIFICATIONS.md) | Accessibility, Design System, State, Feedback, component handbooks |
 | Primitive component implementation | [components/](./components/) | Component Specifications, Design System, Accessibility, Form Design, Interaction |
-| Feedback, loading, recovery, status, and identity components | [components/](./components/) | Feedback, Loading, Empty, Error, Color, Notification, Accessibility, State |
+| Action components (Button, Icon Button, Link, FAB) | [components/](./components/) | Component Specifications, Accessibility, Mobile, Permission Design |
+| Form input components (Text Field, Textarea, Password Field, Search Field, Select, Multi Select, Autocomplete, Checkbox, Radio, Switch, Slider, Date Picker, Time Picker, File Upload) | [components/](./components/) | Form Design, Accessibility, Internationalization, Engineering Standards |
+| Navigation components (Sidebar, Top Navigation, Bottom Navigation, Breadcrumb, Tabs) | [components/](./components/) | Navigation Standards, Accessibility, Responsive, Mobile |
+| Disclosure and command components (Accordion, Dropdown, Menu, Command Palette) | [components/](./components/) | Interaction Design, Accessibility, Elevation, Responsive |
+| Surface and overlay components (Card, List, Drawer, Dialog, Popover, Tooltip) | [components/](./components/) | Interaction Design, Accessibility, Elevation, State |
+| Data display components (Table, Data Grid, Pagination, Charts) | [components/](./components/) | Table Design Guide, Data Visualization Guide, Accessibility, Responsive |
+| Temporal and scheduling components (Calendar, Timeline) | [components/](./components/) | Form Design, Internationalization, Permission Design, Accessibility |
+| Feedback, loading, and recovery components (Toast, Banner, Alert, Progress, Skeleton, Loading Spinner, Empty State, Error State) | [components/](./components/) | Feedback, Loading, Empty, Error, Color, Notification, Accessibility, State |
+| Status and identity components (Badge, Chip, Tag, Avatar) | [components/](./components/) | Color System, Ethical UX, Accessibility |
 | Semantic visual tokens | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | Spacing, Layout, Iconography, Elevation, Color, Typography, Motion, Components, Accessibility |
 | Search and narrowing data | [SEARCH_EXPERIENCE.md](./SEARCH_EXPERIENCE.md) and [FILTER_SYSTEM.md](./FILTER_SYSTEM.md) | Forms, Tables, Dashboard, Data Visualization, Accessibility |
-| Tables and structured data | [TABLE_DESIGN_GUIDE.md](./TABLE_DESIGN_GUIDE.md) | Components, Search, Filters, Responsive, Data Visualization |
+| Tables and structured data | [TABLE_DESIGN_GUIDE.md](./TABLE_DESIGN_GUIDE.md) | Table, Data Grid, Pagination components; Search, Filters, Responsive, Data Visualization |
+| Data visualization and charts | [DATA_VISUALIZATION_GUIDE.md](./DATA_VISUALIZATION_GUIDE.md) | Charts component, Dashboard, Accessibility, Color System |
 | Notifications and point-of-action feedback | [NOTIFICATION_SYSTEM.md](./NOTIFICATION_SYSTEM.md) and [FEEDBACK_SYSTEM.md](./FEEDBACK_SYSTEM.md) | State, Interaction, Ethical UX, Security, Accessibility |
 | Permission and security communication | [PERMISSION_DESIGN.md](./PERMISSION_DESIGN.md) and [SECURITY_UX.md](./SECURITY_UX.md) | Governance, Engineering, Ethical UX, Authentication, Privacy |
 | Responsive and localized behavior | [RESPONSIVE_SYSTEM.md](./RESPONSIVE_SYSTEM.md) and [INTERNATIONALIZATION.md](./INTERNATIONALIZATION.md) | Mobile, Layout, Spacing, Typography, Copywriting, Accessibility |
@@ -106,4 +123,8 @@ INDEX is the navigation homepage for every layer.
 - Add a component handbook only when the component is approved in [COMPONENT_SPECIFICATIONS.md](./COMPONENT_SPECIFICATIONS.md); do not create parallel component documentation elsewhere.
 - Navigation, disclosure, surface, collection, and overlay handbooks remain subordinate to the canonical Navigation, Interaction, State, Responsive, Accessibility, Elevation, Table, and Form handbooks.
 - Feedback, loading, recovery, status, and identity handbooks remain subordinate to the canonical Feedback, Loading, Empty, Error, Color, Notification, State, and Accessibility handbooks.
-- If a change affects a dependency, update the dependent document’s Related documents metadata and record the change.
+- Data display components (Table, Data Grid, Pagination, Charts) are subordinate to TABLE_DESIGN_GUIDE.md and DATA_VISUALIZATION_GUIDE.md in addition to the standard component hierarchy.
+- Temporal components (Calendar, Timeline) are subordinate to FORM_DESIGN_GUIDE.md, INTERNATIONALIZATION.md, and PERMISSION_DESIGN.md.
+- File Upload is subordinate to FORM_DESIGN_GUIDE.md, ENGINEERING_STANDARDS.md, and ETHICAL_UX_GUIDELINES.md.
+- FAB is subordinate to MOBILE_UX_GUIDE.md, RESPONSIVE_SYSTEM.md, and PERMISSION_DESIGN.md.
+- If a change affects a dependency, update the dependent document's Related documents metadata and record the change.

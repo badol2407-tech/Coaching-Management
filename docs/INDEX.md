@@ -11,7 +11,7 @@ related_documents:
   - ./REVIEW_CHECKLISTS.md
 review_frequency: Quarterly and after documentation architecture or governance changes
 owner: Product Governance Council
-version: 1.0.0
+version: 1.1.0
 status: Active documentation homepage
 last_updated: 2026-08-01
 normative_level: Navigation and orientation
@@ -103,7 +103,7 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 | [AI_UX_GUIDELINES.md](./AI_UX_GUIDELINES.md) | Defines transparent, safe, human-controlled AI Assistant behavior. |
 | [COLOR_SYSTEM.md](./COLOR_SYSTEM.md) | Defines semantic color roles and non-color status communication. |
 | [COMPONENT_SPECIFICATIONS.md](./COMPONENT_SPECIFICATIONS.md) | Defines reusable component contracts and states. |
-| [components/](./components/) | Defines implementation-ready handbooks for the approved primitive, navigation, disclosure, feedback, loading, recovery, status, and identity components. |
+| [components/](./components/) | Defines implementation-ready handbooks for the approved primitive, navigation, disclosure, surface, collection, overlay, feedback, loading, recovery, status, identity, data, temporal, upload, and floating-action components. |
 | [COPYWRITING_GUIDELINES.md](./COPYWRITING_GUIDELINES.md) | Defines clear, honest, canonical product language. |
 | [DASHBOARD_DESIGN_GUIDE.md](./DASHBOARD_DESIGN_GUIDE.md) | Defines Dashboard priorities, metrics, scope, and states. |
 | [DATA_VISUALIZATION_GUIDE.md](./DATA_VISUALIZATION_GUIDE.md) | Defines honest and accessible Reports and Analytics presentation. |
@@ -144,9 +144,109 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 | [USABILITY_HEURISTICS.md](./USABILITY_HEURISTICS.md) | Provides a structured usability review lens. |
 | [UX_LAWS.md](./UX_LAWS.md) | Translates UX laws into domain-specific review guidance. |
 
+## Component handbook directory
+
+The component library covers 51 approved primitive components organized by category. Each handbook defines purpose, non-goals, anatomy, variants, states, interaction, accessibility, responsive behavior, content constraints, and review evidence.
+
+### Actions
+
+| Component | Purpose |
+| --- | --- |
+| [Button](./components/Button.md) | Primary, secondary, and destructive actions with pending and disabled states. |
+| [Icon Button](./components/Icon%20Button.md) | Icon-only actions with mandatory accessible name and consequence clarity. |
+| [Link](./components/Link.md) | Navigation and resource references with browser-native behavior. |
+| [FAB](./components/FAB.md) | Floating primary action for mobile surfaces, role-aware and scope-labeled. |
+
+### Form inputs
+
+| Component | Purpose |
+| --- | --- |
+| [Text Field](./components/Text%20Field.md) | Single-line text input with label, instruction, and error. |
+| [Textarea](./components/Textarea.md) | Multi-line text input for longer free-form content. |
+| [Password Field](./components/Password%20Field.md) | Masked text input with reveal toggle and strength guidance. |
+| [Search Field](./components/Search%20Field.md) | Scoped search input identifying the searched dataset. |
+| [Select](./components/Select.md) | Single-choice selection from a bounded option set. |
+| [Multi Select](./components/Multi%20Select.md) | Multiple independent selections from a bounded option set. |
+| [Autocomplete](./components/Autocomplete.md) | Filterable selection with typeahead from a large or dynamic dataset. |
+| [Checkbox](./components/Checkbox.md) | Independent boolean or multi-choice selection. |
+| [Radio](./components/Radio.md) | Mutually exclusive single-choice selection. |
+| [Switch](./components/Switch.md) | Immediate binary setting toggle. |
+| [Slider](./components/Slider.md) | Ordered range adjustment with a precise-value alternative. |
+| [Date Picker](./components/Date%20Picker.md) | Locale-aware, constrained date and date-range input. |
+| [Time Picker](./components/Time%20Picker.md) | Locale-aware, constrained clock-time input. |
+| [File Upload](./components/File%20Upload.md) | Validated, progress-tracked file selection and upload. |
+
+### Navigation
+
+| Component | Purpose |
+| --- | --- |
+| [Sidebar](./components/Sidebar.md) | Desktop primary navigation with role-aware destinations. |
+| [Top Navigation](./components/Top%20Navigation.md) | Desktop top-bar navigation with scope and identity. |
+| [Bottom Navigation](./components/Bottom%20Navigation.md) | Mobile primary navigation with thumb-reachable destinations. |
+| [Breadcrumb](./components/Breadcrumb.md) | Hierarchical location indicator with a return path. |
+| [Tabs](./components/Tabs.md) | Closely related views of the same object or task. |
+
+### Disclosure and command
+
+| Component | Purpose |
+| --- | --- |
+| [Accordion](./components/Accordion.md) | Progressive disclosure of optional secondary detail. |
+| [Dropdown](./components/Dropdown.md) | Anchored contextual action or value disclosure. |
+| [Menu](./components/Menu.md) | Bounded set of related actions or destinations. |
+| [Command Palette](./components/Command%20Palette.md) | Scoped keyboard-first search and command surface. |
+
+### Surfaces, collections, and overlays
+
+| Component | Purpose |
+| --- | --- |
+| [Card](./components/Card.md) | Meaningfully grouped content with identity and actions. |
+| [List](./components/List.md) | Sequential records without two-dimensional table relationship. |
+| [Drawer](./components/Drawer.md) | Focused detail or task overlay preserving page context. |
+| [Dialog](./components/Dialog.md) | Intentional interruption for consequential review. |
+| [Popover](./components/Popover.md) | Anchored contextual supporting detail. |
+| [Tooltip](./components/Tooltip.md) | Supplemental label for a visible or programmatic name. |
+
+### Data display
+
+| Component | Purpose |
+| --- | --- |
+| [Table](./components/Table.md) | Scoped, sortable, two-dimensional record display with row actions. |
+| [Data Grid](./components/Data%20Grid.md) | Inline editable multi-row grid for Attendance, Exam, and bulk entry. |
+| [Pagination](./components/Pagination.md) | Page-based navigation through large record sets. |
+| [Charts](./components/Charts.md) | Honest, accessible visual encoding for Analytics, Reports, and Dashboard. |
+
+### Temporal and scheduling
+
+| Component | Purpose |
+| --- | --- |
+| [Calendar](./components/Calendar.md) | Date-grid browser for Attendance sessions, Exam schedules, and due dates. |
+| [Timeline](./components/Timeline.md) | Chronological event sequence for audit trails and record history. |
+
+### Feedback, loading, and recovery
+
+| Component | Purpose |
+| --- | --- |
+| [Toast](./components/Toast.md) | Brief, non-critical point-of-action feedback. |
+| [Banner](./components/Banner.md) | Persistent page or scope-level information. |
+| [Alert](./components/Alert.md) | Important inline status or recovery message. |
+| [Progress](./components/Progress.md) | Measurable completion feedback for scoped operations. |
+| [Skeleton](./components/Skeleton.md) | Structural placeholder when the resulting layout is known. |
+| [Loading Spinner](./components/Loading%20Spinner.md) | Brief indeterminate work indicator. |
+| [Empty State](./components/Empty%20State.md) | Truthful message and next action when no content is available. |
+| [Error State](./components/Error%20State.md) | Recovery message and next action for failed or unavailable work. |
+
+### Status and metadata
+
+| Component | Purpose |
+| --- | --- |
+| [Badge](./components/Badge.md) | Compact count or semantic status label. |
+| [Chip](./components/Chip.md) | Compact interactive metadata tag. |
+| [Tag](./components/Tag.md) | Non-interactive metadata label. |
+| [Avatar](./components/Avatar.md) | Privacy-aware person or record identity representation. |
+
 ## Architecture overview
 
-EduTrack is organized around a **Workspace** or **Organization** context, the user’s **Role**, the product object being handled, the task being performed, and the active scope. The primary product areas are Dashboard, Students, Teachers, Attendance, Fees, Exams, Reports, Analytics, Notifications, Organization, Profile, Settings, Search, and Filters. The AI Assistant is an assistive capability, not an authority.
+EduTrack is organized around a **Workspace** or **Organization** context, the user's **Role**, the product object being handled, the task being performed, and the active scope. The primary product areas are Dashboard, Students, Teachers, Attendance, Fees, Exams, Reports, Analytics, Notifications, Organization, Profile, Settings, Search, and Filters. The AI Assistant is an assistive capability, not an authority.
 
 Every new Enterprise Module must declare its canonical vocabulary, owning Role and Permission model, parent Workspace or Organization scope, navigation entry point, relationships to existing objects, audit behavior, and retention requirements. This is the minimum architecture contract in [INFORMATION_ARCHITECTURE.md](./INFORMATION_ARCHITECTURE.md).
 
@@ -154,4 +254,4 @@ Every new Enterprise Module must declare its canonical vocabulary, owning Role a
 
 Every handbook has a metadata block. Owners review documents at the stated frequency and after a material product, policy, accessibility, security, or platform change. Record durable decisions in [DECISION_LOG.md](./DECISION_LOG.md) and dated evolution in [CHANGELOG.md](./CHANGELOG.md).
 
-The component handbook directory currently covers approved primitive, navigation, disclosure, surface, collection, overlay, feedback, loading, recovery, status, and identity components. Use [COMPONENT_SPECIFICATIONS.md](./COMPONENT_SPECIFICATIONS.md) to confirm the owning contract before creating or extending a handbook.
+The component handbook directory currently covers 51 approved components across actions, form inputs, navigation, disclosure, surfaces, data display, temporal and scheduling, feedback, loading, recovery, status, and identity categories. Use [COMPONENT_SPECIFICATIONS.md](./COMPONENT_SPECIFICATIONS.md) to confirm the owning contract before creating or extending a handbook.

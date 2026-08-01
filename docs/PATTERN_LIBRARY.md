@@ -1,21 +1,24 @@
 ---
 title: EduTrack Pattern Library
 purpose: Define reusable, evidence-based workflow patterns for common product tasks.
-scope: Dashboard exceptions, Search and list, detail, bulk actions, confirmation, drafts, empty states, AI Assistant, and mobile.
+scope: Dashboard exceptions, Search and list, detail, bulk actions, confirmation, drafts, empty states, data tables, calendaring, file uploads, floating actions, temporal display, AI Assistant, and mobile.
 audience: Product, Design, Engineering, Content, QA, Accessibility, and reviewers.
 related_documents:
   - ./DESIGN_SYSTEM_GUIDE.md
   - ./COMPONENT_SPECIFICATIONS.md
   - ./INTERACTION_DESIGN.md
   - ./ACCESSIBILITY_STANDARDS.md
+  - ./TABLE_DESIGN_GUIDE.md
+  - ./DATA_VISUALIZATION_GUIDE.md
+  - ./FORM_DESIGN_GUIDE.md
   - ./components/
 review_frequency: Quarterly and after pattern, component, or workflow changes
 owner: Product Design and Design Systems
-version: 1.0.0
+version: 1.1.0
 status: Binding reusable-pattern standard
 last_updated: 2026-08-01
 normative_level: Binding standard
-canonical_terms: pattern, Dashboard, Search, Filters, bulk action, confirmation, draft, empty state, AI Assistant, mobile
+canonical_terms: pattern, Dashboard, Search, Filters, bulk action, confirmation, draft, empty state, AI Assistant, mobile, Table, Data Grid, Pagination, Charts, Calendar, Timeline, Date Picker, Time Picker, File Upload, FAB
 ---
 
 # EduTrack Pattern Library
@@ -35,6 +38,30 @@ Compose [Search Field](./components/Search%20Field.md), [Autocomplete](./compone
 ## Field composition
 
 Use for data-entry and edit workflows. Pair a persistent label, concise instruction, control, validation message, and recovery action. Use [Text Field](./components/Text%20Field.md), [Textarea](./components/Textarea.md), [Password Field](./components/Password%20Field.md), or [Select](./components/Select.md) based on the data type; preserve safe input when validation or network errors occur.
+
+## Temporal input
+
+Use [Date Picker](./components/Date%20Picker.md) when a specific calendar date is required as structured input — Attendance session date, Exam date, Fee due date, or Report filter range. Use [Time Picker](./components/Time%20Picker.md) when a clock time is required — session start and end time, Exam slot. Pair both when a date-time is needed. Always state the constraint (academic term bounds, valid hours) before the user selects. Support direct keyboard entry as the primary interaction; the picker UI is an enhancement.
+
+## Structured data display
+
+Use [Table](./components/Table.md) when data is two-dimensional and users need to scan, sort, compare, or act on multiple records simultaneously. Use [Data Grid](./components/Data%20Grid.md) when users must edit multiple cells across multiple records inline — Attendance marking, Exam mark entry, or bulk Fee updates. Use [Pagination](./components/Pagination.md) to navigate large record sets; persist page and page-size in the URL. Apply [TABLE_DESIGN_GUIDE.md](./TABLE_DESIGN_GUIDE.md) for caption, column labels, row identity, and responsive transformation.
+
+## Temporal and event display
+
+Use [Calendar](./components/Calendar.md) when users need to browse time-distributed records across a date grid — Attendance session overview, Exam schedule, or Fee due-date calendar. Use [Timeline](./components/Timeline.md) for a chronological event sequence on a record — payment history, Exam lifecycle, audit trail, or AI-action log. Combine with [Date Picker](./components/Date%20Picker.md) when users must filter the temporal view to a custom range. Ensure today is always distinguishable by non-color means and role-filtered Timeline entries are omitted, not redacted.
+
+## Data visualization
+
+Use [Charts](./components/Charts.md) when a visual encoding supports a decision that a table alone would not support as well — Attendance trends, Fee Analytics, Exam results, cohort comparisons. Always provide a data table or text summary as an accessible equivalent. Use bar for comparable categories, line for time trends, and donut sparingly. Never use color as the only series distinction. Label AI-generated Analytics with source scope and generation state. Follow [DATA_VISUALIZATION_GUIDE.md](./DATA_VISUALIZATION_GUIDE.md).
+
+## File import and upload
+
+Use [File Upload](./components/File%20Upload.md) for Attendance CSV imports, profile photos, certificate uploads, Exam result imports, and Report attachments. State accepted file types and size limits before the file dialog opens. Validate type and size immediately after selection. Show upload progress with cancel, and provide a named success confirmation and a recoverable error with retry. For sensitive files, explain visibility and removal before confirming. Follow [ENGINEERING_STANDARDS.md](./ENGINEERING_STANDARDS.md) for server-side validation.
+
+## Primary mobile action
+
+Use [FAB](./components/FAB.md) for the single most important action on a mobile page — "Mark attendance," "Record payment," or "Add student." Show the FAB only when the current role has permission. Prefer the extended FAB (icon + label) over icon-only. Replace with a page-level [Button](./components/Button.md) at desktop viewport widths. Do not use the FAB for consequential actions without a [Dialog](./components/Dialog.md) confirmation step.
 
 ## Selection and preference
 
@@ -82,11 +109,11 @@ Use for Student, Teacher, Fee, Exam, Report, Profile, or organization records. L
 
 ## Bulk operation
 
-Use for Attendance marking, Fee assignment, Notifications, Student or Teacher updates, Exam actions, or Report exports. Show selected count, filter scope, permission, consequence, preview, progress, partial result, and recovery.
+Use for Attendance marking, Fee assignment, Notifications, Student or Teacher updates, Exam actions, or Report exports. Show selected count, filter scope, permission, consequence, preview, progress, partial result, and recovery. Use [Data Grid](./components/Data%20Grid.md) when the bulk operation involves inline editing across rows; use [Table](./components/Table.md) with row selection when the operation is applied to selected records without inline editing.
 
 ## Consequential confirmation
 
-Use before Fee reversal, Exam publication, Report export, permission change, Authentication revocation, Profile privacy change, or AI application. Repeat object, scope, effect, actor, and recovery.
+Use before Fee reversal, Exam publication, Report export, permission change, Authentication revocation, Profile privacy change, File Upload of sensitive data, FAB-triggered bulk actions, or AI application. Repeat object, scope, effect, actor, and recovery.
 
 ## Draft and interrupted work
 
@@ -98,10 +125,10 @@ Use different messages for no records, no Permission, no matching Search results
 
 ## Reviewable AI assistance
 
-Show AI disclosure, source scope, generated state, uncertainty, human review, edit, reject, retry, and report paths. AI may assist with Student summaries, Attendance patterns, Exam analysis, Reports, Notifications, or Analytics, but cannot silently mutate records or permissions.
+Show AI disclosure, source scope, generated state, uncertainty, human review, edit, reject, retry, and report paths. AI may assist with Student summaries, Attendance patterns, Exam analysis, Reports, Notifications, or Analytics, but cannot silently mutate records or permissions. AI-generated [Charts](./components/Charts.md) and [Timeline](./components/Timeline.md) entries carry explicit disclosure labels.
 
 ## Mobile conversion
 
-Transform—not merely shrink—tables, sidebars, filters, dialogs, charts, and forms. Preserve identity, scope, primary action, status, and recovery. See [MOBILE_UX_GUIDE.md](./MOBILE_UX_GUIDE.md).
+Transform—not merely shrink—tables, sidebars, filters, dialogs, charts, and forms. Preserve identity, scope, primary action, status, and recovery. Use [FAB](./components/FAB.md) for the primary mobile action. Replace [Calendar](./components/Calendar.md) month grids with list alternatives at narrow viewports. See [MOBILE_UX_GUIDE.md](./MOBILE_UX_GUIDE.md).
 
 Every pattern implementation must cite the relevant component specification, component handbook, and review checklist.
