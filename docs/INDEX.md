@@ -103,7 +103,7 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 | [AI_UX_GUIDELINES.md](./AI_UX_GUIDELINES.md) | Defines transparent, safe, human-controlled AI Assistant behavior. |
 | [COLOR_SYSTEM.md](./COLOR_SYSTEM.md) | Defines semantic color roles and non-color status communication. |
 | [COMPONENT_SPECIFICATIONS.md](./COMPONENT_SPECIFICATIONS.md) | Defines reusable component contracts and states. |
-| [components/](./components/) | Defines implementation-ready handbooks for the approved primitive components only. |
+| [components/](./components/) | Defines implementation-ready handbooks for the approved primitive, navigation, disclosure, feedback, loading, recovery, status, and identity components. |
 | [COPYWRITING_GUIDELINES.md](./COPYWRITING_GUIDELINES.md) | Defines clear, honest, canonical product language. |
 | [DASHBOARD_DESIGN_GUIDE.md](./DASHBOARD_DESIGN_GUIDE.md) | Defines Dashboard priorities, metrics, scope, and states. |
 | [DATA_VISUALIZATION_GUIDE.md](./DATA_VISUALIZATION_GUIDE.md) | Defines honest and accessible Reports and Analytics presentation. |
@@ -154,4 +154,4 @@ Every new Enterprise Module must declare its canonical vocabulary, owning Role a
 
 Every handbook has a metadata block. Owners review documents at the stated frequency and after a material product, policy, accessibility, security, or platform change. Record durable decisions in [DECISION_LOG.md](./DECISION_LOG.md) and dated evolution in [CHANGELOG.md](./CHANGELOG.md).
 
-The component handbook directory currently covers approved primitive, navigation, disclosure, surface, collection, and overlay components. Use [COMPONENT_SPECIFICATIONS.md](./COMPONENT_SPECIFICATIONS.md) to confirm the owning contract before creating or extending a handbook.
+The component handbook directory currently covers approved primitive, navigation, disclosure, surface, collection, overlay, feedback, loading, recovery, status, and identity components. Use [COMPONENT_SPECIFICATIONS.md](./COMPONENT_SPECIFICATIONS.md) to confirm the owning contract before creating or extending a handbook.

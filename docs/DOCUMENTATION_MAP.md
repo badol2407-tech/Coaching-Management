@@ -46,7 +46,7 @@ PRODUCT_GOVERNANCE -----> DECISION_LOG / CHANGELOG
          |                                               --> ERROR_HANDLING / LOADING_STATES / EMPTY_STATES
          |                         --> PATTERN_LIBRARY --> COMPONENT_SPECIFICATIONS --> components/
          |                                                                                 |
-         |                                                                                 +--> navigation / disclosure / surface / collection / overlay handbooks
+         |                                                                                 +--> navigation / disclosure / surface / collection / overlay / feedback / loading / recovery / status / identity handbooks
          |                                               --> DESIGN_SYSTEM_GUIDE
          |      FORM_DESIGN_GUIDE --> SEARCH_EXPERIENCE / FILTER_SYSTEM
          |      MOBILE_UX_GUIDE --> RESPONSIVE_SYSTEM
@@ -85,6 +85,7 @@ INDEX is the navigation homepage for every layer.
 | Reusable workflow patterns | [PATTERN_LIBRARY.md](./PATTERN_LIBRARY.md) | Components, Design System, Interaction |
 | Component contracts | [COMPONENT_SPECIFICATIONS.md](./COMPONENT_SPECIFICATIONS.md) | Accessibility, Design System, State, Feedback, component handbooks |
 | Primitive component implementation | [components/](./components/) | Component Specifications, Design System, Accessibility, Form Design, Interaction |
+| Feedback, loading, recovery, status, and identity components | [components/](./components/) | Feedback, Loading, Empty, Error, Color, Notification, Accessibility, State |
 | Semantic visual tokens | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | Spacing, Layout, Iconography, Elevation, Color, Typography, Motion, Components, Accessibility |
 | Search and narrowing data | [SEARCH_EXPERIENCE.md](./SEARCH_EXPERIENCE.md) and [FILTER_SYSTEM.md](./FILTER_SYSTEM.md) | Forms, Tables, Dashboard, Data Visualization, Accessibility |
 | Tables and structured data | [TABLE_DESIGN_GUIDE.md](./TABLE_DESIGN_GUIDE.md) | Components, Search, Filters, Responsive, Data Visualization |
@@ -104,4 +105,5 @@ INDEX is the navigation homepage for every layer.
 - Component handbooks under [components/](./components/) may clarify an implementation contract but may not override a higher-level standard.
 - Add a component handbook only when the component is approved in [COMPONENT_SPECIFICATIONS.md](./COMPONENT_SPECIFICATIONS.md); do not create parallel component documentation elsewhere.
 - Navigation, disclosure, surface, collection, and overlay handbooks remain subordinate to the canonical Navigation, Interaction, State, Responsive, Accessibility, Elevation, Table, and Form handbooks.
+- Feedback, loading, recovery, status, and identity handbooks remain subordinate to the canonical Feedback, Loading, Empty, Error, Color, Notification, State, and Accessibility handbooks.
 - If a change affects a dependency, update the dependent document’s Related documents metadata and record the change.

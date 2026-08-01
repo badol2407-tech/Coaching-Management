@@ -60,6 +60,22 @@ Use [Card](./components/Card.md) for meaningful grouped content and [List](./com
 
 Use [Drawer](./components/Drawer.md) for related detail or a focused task that benefits from preserving the underlying page context. Do not use it to hide essential navigation or to avoid a required confirmation. Apply the focus, escape, back, consequence, and recovery rules in [INTERACTION_DESIGN.md](./INTERACTION_DESIGN.md), [RESPONSIVE_SYSTEM.md](./RESPONSIVE_SYSTEM.md), and [MOBILE_UX_GUIDE.md](./MOBILE_UX_GUIDE.md).
 
+## Dialog and anchored disclosure
+
+Use [Dialog](./components/Dialog.md) for intentional interruption and consequential review; use [Popover](./components/Popover.md) for contextual supporting detail; use [Tooltip](./components/Tooltip.md) only to supplement a visible or programmatic name. Apply [ELEVATION_SYSTEM.md](./ELEVATION_SYSTEM.md), [INTERACTION_DESIGN.md](./INTERACTION_DESIGN.md), and [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md).
+
+## Feedback and status
+
+Use [Toast](./components/Toast.md) for brief, non-critical point-of-action feedback; [Banner](./components/Banner.md) for persistent page or scope information; [Alert](./components/Alert.md) for important inline status or recovery; and [Badge](./components/Badge.md), [Chip](./components/Chip.md), or [Tag](./components/Tag.md) for compact labeled metadata. Important status must survive transient feedback and never rely on color alone.
+
+## Loading and recovery
+
+Use [Progress](./components/Progress.md) when completion or scope can be measured, [Skeleton](./components/Skeleton.md) when the resulting structure is known, and [Loading Spinner](./components/Loading%20Spinner.md) for brief indeterminate work. Use [Empty State](./components/Empty%20State.md) for completed requests with no available content and [Error State](./components/Error%20State.md) for failed or unavailable work. Follow [LOADING_STATES.md](./LOADING_STATES.md), [EMPTY_STATES.md](./EMPTY_STATES.md), [ERROR_HANDLING.md](./ERROR_HANDLING.md), and [STATE_SYSTEM.md](./STATE_SYSTEM.md).
+
+## Identity
+
+Use [Avatar](./components/Avatar.md) to support recognition of a Student, Teacher, Profile, or Organization member while keeping the canonical name and privacy-aware fallback available.
+
 ## Record detail
 
 Use for Student, Teacher, Fee, Exam, Report, Profile, or organization records. Lead with identity and status, then relevant history and actions. Respect role permissions and do not mix unrelated data merely because it exists.

@@ -15,7 +15,7 @@ version: 1.0.0
 status: Binding design and implementation standard
 last_updated: 2026-08-01
 normative_level: Binding standard
-canonical_terms: Button, Link, Input, Select, Search, Table, List, Dialog, Sheet, Status, Notification, Chart, Metric, Sidebar
+canonical_terms: Button, Link, Input, Select, Search, Table, List, Dialog, Sheet, Popover, Tooltip, Toast, Banner, Alert, Progress, Skeleton, Spinner, Empty State, Error State, Badge, Chip, Tag, Avatar, Status, Notification, Chart, Metric, Sidebar
 ---
 
 # EduTrack Component Specifications
@@ -88,6 +88,16 @@ See [components/Accordion.md](./components/Accordion.md), [components/Menu.md](.
 
 See [components/Card.md](./components/Card.md), [components/List.md](./components/List.md), and [components/Drawer.md](./components/Drawer.md).
 
+## Dialogs, popovers, and tooltips
+
+**Contract:** Explain purpose and consequence, preserve the originating context, manage focus and dismissal, and prevent hidden side effects. An overlay must fit its viewport and remain understandable without hover or pointer precision.
+
+**Examples:** Dialog supports Fee reversal, Exam publication, Organization permission review, or AI apply confirmation; Popover exposes scoped supporting detail; Tooltip supplements an unfamiliar control without becoming its only label.
+
+**Measure:** Dialog focus is contained and restored; Popover and Tooltip can be reached or dismissed with keyboard and touch; consequential actions retain explicit review and recovery.
+
+See [components/Dialog.md](./components/Dialog.md), [components/Popover.md](./components/Popover.md), and [components/Tooltip.md](./components/Tooltip.md).
+
 ## Table and list
 
 **Contract:** Caption or title, column or field labels, row identity, sort/filter state, loading and empty state, accessible actions, and responsive alternative.
@@ -111,6 +121,28 @@ See [components/Card.md](./components/Card.md), [components/List.md](./component
 **Examples:** Attendance exceptions, Fee overdue status, Exam publishing warning, Report failure, Notification unread state, Authentication expiry, and AI review state.
 
 **Measure:** Critical information survives a transient message and is available to assistive technology.
+
+See [components/Toast.md](./components/Toast.md), [components/Banner.md](./components/Banner.md), [components/Alert.md](./components/Alert.md), [components/Badge.md](./components/Badge.md), [components/Chip.md](./components/Chip.md), and [components/Tag.md](./components/Tag.md).
+
+## Loading, progress, and recovery
+
+**Contract:** Make system state, scope, duration, completion, limitation, and next action clear. Loading must not imply values or success; empty and error states must distinguish no data, no access, unavailable service, and failed work.
+
+**Examples:** Progress reports an Attendance import or Report export; Skeleton reserves a known Student or Dashboard layout; Loading Spinner indicates brief indeterminate work; Empty State explains a new Organization or no matching Search results; Error State explains a failed Report or network action.
+
+**Measure:** Users can tell what is happening, what remains safe, and what to do next without relying on motion or color.
+
+See [components/Progress.md](./components/Progress.md), [components/Skeleton.md](./components/Skeleton.md), [components/Loading Spinner.md](./components/Loading%20Spinner.md), [components/Empty State.md](./components/Empty%20State.md), and [components/Error State.md](./components/Error%20State.md).
+
+## Identity and metadata
+
+**Contract:** Represent a person or record with meaningful identity, privacy-aware fallback behavior, and non-color semantics. Decorative identity must not be mistaken for authorization, presence, or status.
+
+**Examples:** Avatar identifies a Student, Teacher, Profile, or Organization member while preserving privacy and a text alternative.
+
+**Measure:** Identity remains understandable when imagery fails, names are long, content is localized, or assistive technology is used.
+
+See [components/Avatar.md](./components/Avatar.md).
 
 ## Chart and metric
 
