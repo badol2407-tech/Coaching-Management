@@ -44,6 +44,22 @@ Use [Checkbox](./components/Checkbox.md) for independent choices, [Radio](./comp
 
 Use [Button](./components/Button.md) for in-place actions and [Link](./components/Link.md) for navigation or resource references. Use [Icon Button](./components/Icon%20Button.md) only when its accessible name and consequence are unambiguous.
 
+## Primary and secondary navigation
+
+Use [Sidebar](./components/Sidebar.md), [Top Navigation](./components/Top%20Navigation.md), or [Bottom Navigation](./components/Bottom%20Navigation.md) to establish stable role-aware destinations. Use [Breadcrumb](./components/Breadcrumb.md) for hierarchical location and [Tabs](./components/Tabs.md) for closely related views of the same object or task. Follow [NAVIGATION_STANDARDS.md](./NAVIGATION_STANDARDS.md); do not make mobile users depend on a breadcrumb or hidden gesture.
+
+## Disclosure and command
+
+Use [Accordion](./components/Accordion.md) for optional detail, [Menu](./components/Menu.md) for a bounded set of related actions or destinations, [Dropdown](./components/Dropdown.md) for contextual action or value disclosure, and [Command Palette](./components/Command%20Palette.md) for scoped search and keyboard-first commands. Keep permission, scope, consequence, and recovery visible according to [INTERACTION_DESIGN.md](./INTERACTION_DESIGN.md).
+
+## Content collection
+
+Use [Card](./components/Card.md) for meaningful grouped content and [List](./components/List.md) when records are primarily sequential rather than two-dimensional. Preserve identity, status, scope, loading, empty, error, and accessible actions; use [TABLE_DESIGN_GUIDE.md](./TABLE_DESIGN_GUIDE.md) when a table relationship is the better representation.
+
+## Focused overlay
+
+Use [Drawer](./components/Drawer.md) for related detail or a focused task that benefits from preserving the underlying page context. Do not use it to hide essential navigation or to avoid a required confirmation. Apply the focus, escape, back, consequence, and recovery rules in [INTERACTION_DESIGN.md](./INTERACTION_DESIGN.md), [RESPONSIVE_SYSTEM.md](./RESPONSIVE_SYSTEM.md), and [MOBILE_UX_GUIDE.md](./MOBILE_UX_GUIDE.md).
+
 ## Record detail
 
 Use for Student, Teacher, Fee, Exam, Report, Profile, or organization records. Lead with identity and status, then relevant history and actions. Respect role permissions and do not mix unrelated data merely because it exists.

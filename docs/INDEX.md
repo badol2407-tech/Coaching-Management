@@ -153,3 +153,5 @@ Every new Enterprise Module must declare its canonical vocabulary, owning Role a
 ## Maintenance
 
 Every handbook has a metadata block. Owners review documents at the stated frequency and after a material product, policy, accessibility, security, or platform change. Record durable decisions in [DECISION_LOG.md](./DECISION_LOG.md) and dated evolution in [CHANGELOG.md](./CHANGELOG.md).
+
+The component handbook directory currently covers approved primitive, navigation, disclosure, surface, collection, and overlay components. Use [COMPONENT_SPECIFICATIONS.md](./COMPONENT_SPECIFICATIONS.md) to confirm the owning contract before creating or extending a handbook.

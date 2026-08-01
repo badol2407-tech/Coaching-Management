@@ -58,6 +58,36 @@ See [components/Text Field.md](./components/Text%20Field.md), [components/Textar
 
 See [components/Checkbox.md](./components/Checkbox.md), [components/Radio.md](./components/Radio.md), [components/Switch.md](./components/Switch.md), and [components/Slider.md](./components/Slider.md).
 
+## Navigation and location
+
+**Contract:** Expose semantic landmarks, stable role-aware destinations, current location, predictable history, active state, keyboard reachability, responsive reflow, and a safe return path. Navigation must not silently discard safe work or make permission boundaries ambiguous.
+
+**Examples:** Sidebar and Top Navigation establish desktop destinations; Bottom Navigation provides a small-screen primary route set; Breadcrumb expresses hierarchy; Tabs switch closely related views without changing object identity.
+
+**Measure:** Users can identify where they are, what scope they are viewing, and how to return on desktop and mobile without relying on hover, color, or undocumented gestures.
+
+See [components/Sidebar.md](./components/Sidebar.md), [components/Top Navigation.md](./components/Top%20Navigation.md), [components/Bottom Navigation.md](./components/Bottom%20Navigation.md), [components/Breadcrumb.md](./components/Breadcrumb.md), and [components/Tabs.md](./components/Tabs.md).
+
+## Disclosure and command controls
+
+**Contract:** Disclose available actions, current state, consequence, focus, and dismissal behavior. Menus and command surfaces must be scoped to the user’s role and context; disclosure must not hide material permission, privacy, or consequence information.
+
+**Examples:** Accordion reveals secondary detail; Menu and Dropdown expose contextual actions; Command Palette supports scoped navigation and commands.
+
+**Measure:** Keyboard users can open, inspect, select, and dismiss the surface; focus returns safely; no consequential operation occurs without the required review step.
+
+See [components/Accordion.md](./components/Accordion.md), [components/Menu.md](./components/Menu.md), [components/Dropdown.md](./components/Dropdown.md), and [components/Command Palette.md](./components/Command%20Palette.md).
+
+## Surfaces, collections, and overlays
+
+**Contract:** Give grouped content a meaningful identity, preserve hierarchy and scanability, expose item state and actions, and provide loading, empty, error, unauthorized, and responsive alternatives. Overlays must have a descriptive title, focus management, an escape or cancel path, and no hidden side effect.
+
+**Examples:** Card groups a Student summary or Dashboard metric; List presents records when a table is not the clearest relationship; Drawer exposes related detail or a focused task without losing page context.
+
+**Measure:** Users can understand scope, identity, status, and next action without relying on card position, color, hover, or an overlay alone.
+
+See [components/Card.md](./components/Card.md), [components/List.md](./components/List.md), and [components/Drawer.md](./components/Drawer.md).
+
 ## Table and list
 
 **Contract:** Caption or title, column or field labels, row identity, sort/filter state, loading and empty state, accessible actions, and responsive alternative.

@@ -45,6 +45,8 @@ PRODUCT_GOVERNANCE -----> DECISION_LOG / CHANGELOG
          |      INTERACTION_DESIGN --> STATE_SYSTEM --> FEEDBACK_SYSTEM
          |                                               --> ERROR_HANDLING / LOADING_STATES / EMPTY_STATES
          |                         --> PATTERN_LIBRARY --> COMPONENT_SPECIFICATIONS --> components/
+         |                                                                                 |
+         |                                                                                 +--> navigation / disclosure / surface / collection / overlay handbooks
          |                                               --> DESIGN_SYSTEM_GUIDE
          |      FORM_DESIGN_GUIDE --> SEARCH_EXPERIENCE / FILTER_SYSTEM
          |      MOBILE_UX_GUIDE --> RESPONSIVE_SYSTEM
@@ -101,4 +103,5 @@ INDEX is the navigation homepage for every layer.
 - If a new Enterprise Module introduces a term, add it to [GLOSSARY.md](./GLOSSARY.md) before using it in another handbook.
 - Component handbooks under [components/](./components/) may clarify an implementation contract but may not override a higher-level standard.
 - Add a component handbook only when the component is approved in [COMPONENT_SPECIFICATIONS.md](./COMPONENT_SPECIFICATIONS.md); do not create parallel component documentation elsewhere.
+- Navigation, disclosure, surface, collection, and overlay handbooks remain subordinate to the canonical Navigation, Interaction, State, Responsive, Accessibility, Elevation, Table, and Form handbooks.
 - If a change affects a dependency, update the dependent document’s Related documents metadata and record the change.
