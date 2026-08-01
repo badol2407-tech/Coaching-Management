@@ -1,7 +1,7 @@
 ---
 title: EduTrack Pattern Library
 purpose: Define reusable, evidence-based workflow patterns for common product tasks.
-scope: Dashboard exceptions, Search and list, detail, rosters, bulk actions, confirmation, drafts, empty states, data tables, calendaring, schedules, period context, file uploads, floating actions, temporal display, AI Assistant, and mobile.
+scope: Dashboard exceptions, Search and list, Filters, detail, financial review, reporting, analytics, Notifications, rosters, bulk actions, confirmation, drafts, empty states, data tables, calendaring, schedules, period context, file uploads, floating actions, temporal display, AI Assistant, and mobile.
 audience: Product, Design, Engineering, Content, QA, Accessibility, and reviewers.
 related_documents:
   - ./DESIGN_SYSTEM_GUIDE.md
@@ -14,18 +14,18 @@ related_documents:
   - ./components/
 review_frequency: Quarterly and after pattern, component, or workflow changes
 owner: Product Design and Design Systems
-version: 1.2.0
+version: 1.3.0
 status: Binding reusable-pattern standard
 last_updated: 2026-08-01
 normative_level: Binding standard
-canonical_terms: pattern, Dashboard, Search, Filters, bulk action, confirmation, draft, empty state, AI Assistant, mobile, Table, Data Grid, Pagination, Charts, Calendar, Timeline, Date Picker, Time Picker, File Upload, FAB, Classes, Subjects, Routine, Academic Sessions
+canonical_terms: pattern, Dashboard, Search, Filters, Fees, Reports, Analytics, Notifications, bulk action, confirmation, draft, empty state, AI Assistant, mobile, Table, Data Grid, Pagination, Charts, Calendar, Timeline, Date Picker, Time Picker, File Upload, FAB, Classes, Subjects, Routine, Academic Sessions
 ---
 
 # EduTrack Pattern Library
 
 Patterns are reusable solutions to recurring user problems. Use an existing pattern before inventing a new one; document an exception when the domain genuinely differs.
 
-Core module specifications in [modules/](./modules/) compose these patterns for Dashboard, Students, Teachers, Organization, Authentication, Profile, Attendance, Exams, Classes, Subjects, Routine, and Academic Sessions. The module specifications do not create competing pattern standards.
+Core module specifications in [modules/](./modules/) compose these patterns for Dashboard, Students, Teachers, Organization, Authentication, Profile, Attendance, Exams, Classes, Subjects, Routine, Academic Sessions, Fees, Reports, Analytics, Notifications, Search, and Filters. The module specifications do not create competing pattern standards.
 
 ## Dashboard exception review
 
@@ -33,9 +33,11 @@ Use when operational work needs attention. Show scope, count, reason, owner, nex
 
 ## Search and filtered list
 
-Use when users need to locate Students, Teachers, Attendance, Fees, Exams, Reports, Notifications, or future records. Provide a labeled Search field, relevant Filters, result status, clear/reset, empty/no-result distinction, and preserved scope.
+Use when users need to locate Students, Teachers, Attendance, Fees, Exams, Reports, Analytics, Notifications, Classes, Subjects, Routine, Academic Sessions, or future records. Provide a labeled Search field naming the dataset, relevant Filters, result status, clear/reset, empty/no-result distinction, and preserved scope.
 
 Compose [Search Field](./components/Search%20Field.md), [Autocomplete](./components/Autocomplete.md), [Select](./components/Select.md), and [Multi Select](./components/Multi%20Select.md) according to [SEARCH_EXPERIENCE.md](./SEARCH_EXPERIENCE.md) and [FILTER_SYSTEM.md](./FILTER_SYSTEM.md).
+
+Search finds matches within the named source; Filters narrow that result set. Keep query, active Filters, Organization, Workspace, Role, period, result count, and freshness visible through navigation, refresh, pagination, and deep links. Distinguish no records, no matching results, no access, stale data, and unavailable service.
 
 ## Field composition
 
@@ -56,6 +58,18 @@ Use [Calendar](./components/Calendar.md) when users need to browse time-distribu
 ## Data visualization
 
 Use [Charts](./components/Charts.md) when a visual encoding supports a decision that a table alone would not support as well — Attendance trends, Fee Analytics, Exam results, cohort comparisons. Always provide a data table or text summary as an accessible equivalent. Use bar for comparable categories, line for time trends, and donut sparingly. Never use color as the only series distinction. Label AI-generated Analytics with source scope and generation state. Follow [DATA_VISUALIZATION_GUIDE.md](./DATA_VISUALIZATION_GUIDE.md).
+
+## Financial record review
+
+Use for Fees, balances, payments, installments, adjustments, reversals, and receipts. Distinguish billed, collected, outstanding, overdue, pending, partial, paid, reversed, and unresolved values; state currency, source, freshness, and scope. Consequential payment and adjustment actions require explicit review and confirmation. Follow [TABLE_DESIGN_GUIDE.md](./TABLE_DESIGN_GUIDE.md), [FORM_DESIGN_GUIDE.md](./FORM_DESIGN_GUIDE.md), [PERMISSION_DESIGN.md](./PERMISSION_DESIGN.md), and [INTERNATIONALIZATION.md](./INTERNATIONALIZATION.md).
+
+## Reporting and analytical interpretation
+
+Use for Reports and Analytics when users need a stated question, source, period, measure, unit, denominator, aggregation, freshness, limitations, and an exact table or text equivalent. Keep source records separate from read-model presentation and interpretation. AI-generated analysis is labeled, scoped, uncertain where needed, and reviewable; it is not a recorded fact. Follow [DATA_VISUALIZATION_GUIDE.md](./DATA_VISUALIZATION_GUIDE.md) and [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md).
+
+## Notification delivery and attention
+
+Use for Notifications that communicate informational, success, warning, error, security, or required-action state. Identify source, recipient scope, consequence, time, delivery status, and next action; preserve privacy, idempotency, read state, retry, and recovery. Do not use repeated Notifications, badges, or urgency language to manipulate attention. Follow [NOTIFICATION_SYSTEM.md](./NOTIFICATION_SYSTEM.md), [FEEDBACK_SYSTEM.md](./FEEDBACK_SYSTEM.md), and [SECURITY_UX.md](./SECURITY_UX.md).
 
 ## File import and upload
 
@@ -151,5 +165,11 @@ Use the relevant module specification to apply the patterns to an end-to-end pro
 | [Subjects](./modules/Subjects.md) | Search and filtered list, record detail, field composition, structured data, consequential confirmation, draft/interrupted work, reviewable AI, and mobile conversion. |
 | [Routine](./modules/Routine.md) | Search and filtered list, temporal input/display, schedule review, consequential confirmation, draft/interrupted work, reviewable AI, and mobile conversion. |
 | [Academic Sessions](./modules/Academic_Sessions.md) | Search and filtered list, temporal input/display, context switching, consequential confirmation, draft/interrupted work, reviewable AI, and mobile conversion. |
+| [Fees](./modules/Fees.md) | Search and filtered list, financial record review, structured data, bulk operation, consequential confirmation, draft/interrupted work, reviewable AI, and mobile conversion. |
+| [Reports](./modules/Reports.md) | Search and filtered list, field composition, structured data, data visualization, export review, consequential confirmation, reviewable AI, and mobile conversion. |
+| [Analytics](./modules/Analytics.md) | Search and filtered list, Filters, structured data, data visualization, drill-down, reviewable AI, and mobile conversion. |
+| [Notifications](./modules/Notifications.md) | Search and filtered list, focused detail, feedback/status, delivery recovery, consequential confirmation, reviewable AI, and mobile conversion. |
+| [Search](./modules/Search.md) | Search and filtered list, field composition, suggestions, structured data, empty/no-result distinction, reviewable AI, and mobile conversion. |
+| [Filters](./modules/Filters.md) | Search and filtered list, field composition, dependent controls, temporal input, structured data, empty/no-match distinction, reviewable AI, and mobile conversion. |
 
 Every pattern implementation must cite the relevant component specification, component handbook, and review checklist.

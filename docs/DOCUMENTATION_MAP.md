@@ -10,7 +10,7 @@ related_documents:
   - ./DECISION_LOG.md
 review_frequency: Quarterly and after documentation architecture changes
 owner: Product Governance Council
-version: 1.2.0
+version: 1.3.0
 status: Active architecture map
 last_updated: 2026-08-01
 normative_level: Governance reference
@@ -70,6 +70,7 @@ PRODUCT_GOVERNANCE -----> DECISION_LOG / CHANGELOG
          +--> CORE MODULE SPECIFICATIONS
          |      Dashboard / Students / Teachers / Organization / Authentication / Profile
           |      Attendance / Exams / Classes / Subjects / Routine / Academic Sessions
+          |      Fees / Reports / Analytics / Notifications / Search / Filters
          |      (consume canonical structure, interaction, component, state, security, AI, and review standards)
          |
         +--> REVIEW
@@ -137,6 +138,12 @@ Every module below consumes the same canonical structure, interaction, component
 | [Subjects](./modules/Subjects.md) | Subject definitions, offerings, ownership, effective scope, and lifecycle | [Subjects](./modules/Subjects.md) |
 | [Routine](./modules/Routine.md) | Recurring schedules, occurrences, exceptions, conflicts, and time context | [Routine](./modules/Routine.md) |
 | [Academic Sessions](./modules/Academic_Sessions.md) | Period boundaries, active context, transitions, retention, and history | [Academic Sessions](./modules/Academic_Sessions.md) |
+| [Fees](./modules/Fees.md) | Fee assignments, balances, payments, adjustments, reversals, receipts, and financial scope | [Fees](./modules/Fees.md) |
+| [Reports](./modules/Reports.md) | Report purpose, source scope, measures, generation, freshness, limitations, and export | [Reports](./modules/Reports.md) |
+| [Analytics](./modules/Analytics.md) | Measures, units, denominators, aggregations, trends, comparisons, and interpretation | [Analytics](./modules/Analytics.md) |
+| [Notifications](./modules/Notifications.md) | Taxonomy, privacy, delivery, idempotency, read state, preferences, and recovery | [Notifications](./modules/Notifications.md) |
+| [Search](./modules/Search.md) | Named datasets, scoped queries, matching, suggestions, history, privacy, and deep links | [Search](./modules/Search.md) |
+| [Filters](./modules/Filters.md) | Criteria, operators, AND/OR logic, active state, serialization, and result semantics | [Filters](./modules/Filters.md) |
 
 ## Dependency rules
 

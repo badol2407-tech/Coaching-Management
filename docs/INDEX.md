@@ -11,7 +11,7 @@ related_documents:
   - ./REVIEW_CHECKLISTS.md
 review_frequency: Quarterly and after documentation architecture or governance changes
 owner: Product Governance Council
-version: 1.2.0
+version: 1.3.0
 status: Active documentation homepage
 last_updated: 2026-08-01
 normative_level: Navigation and orientation
@@ -30,7 +30,7 @@ EduTrack documentation is a governed system of product principles, release stand
 4. **Product structure and interaction** — Information Architecture, Navigation, Interaction, Forms, Search, Filters, Tables, Mobile, Responsive, Patterns, and Copywriting explain how the product behaves.
 5. **Design system foundations and data** — Design Tokens, Spacing, Layout, Iconography, Elevation, State, Feedback, Notifications, Tables, Color, Typography, Motion, Gestalt, Dashboard, and Data Visualization define reusable expression and domain presentation.
 6. **Safety, resilience, and localization** — Error, Loading, Empty, Permission, Security, Internationalization, and accessibility testing handbooks define implementation-ready quality behavior.
-7. **Core module specifications** — The module handbooks under [modules/](./modules/) translate the canonical standards into role, scope, journey, screen, permission, state, AI, security, performance, and acceptance contracts for Dashboard, Students, Teachers, Organization, Authentication, Profile, Attendance, Exams, Classes, Subjects, Routine, and Academic Sessions.
+7. **Core module specifications** — The module handbooks under [modules/](./modules/) translate the canonical standards into role, scope, journey, screen, permission, state, AI, security, performance, and acceptance contracts for Dashboard, Students, Teachers, Organization, Authentication, Profile, Attendance, Exams, Classes, Subjects, Routine, Academic Sessions, Fees, Reports, Analytics, Notifications, Search, and Filters.
 8. **Review guidance** — [REVIEW_CHECKLISTS.md](./REVIEW_CHECKLISTS.md), [QUALITY_GATES.md](./QUALITY_GATES.md), [USABILITY_HEURISTICS.md](./USABILITY_HEURISTICS.md), and [UX_LAWS.md](./UX_LAWS.md) help teams inspect work. Review guidance cannot override a release gate.
 
 See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and ownership matrix.
@@ -66,7 +66,7 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 2. [ENGINEERING_STANDARDS.md](./ENGINEERING_STANDARDS.md)
 3. [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md)
 4. The relevant domain handbook: [DASHBOARD_DESIGN_GUIDE.md](./DASHBOARD_DESIGN_GUIDE.md), [DATA_VISUALIZATION_GUIDE.md](./DATA_VISUALIZATION_GUIDE.md), [FORM_DESIGN_GUIDE.md](./FORM_DESIGN_GUIDE.md), or [AI_UX_GUIDELINES.md](./AI_UX_GUIDELINES.md)
-5. The relevant [core module specification](./modules/) when the work affects Dashboard, Students, Teachers, Organization, Authentication, Profile, Attendance, Exams, Classes, Subjects, Routine, or Academic Sessions
+5. The relevant [core module specification](./modules/) when the work affects Dashboard, Students, Teachers, Organization, Authentication, Profile, Attendance, Exams, Classes, Subjects, Routine, Academic Sessions, Fees, Reports, Analytics, Notifications, Search, or Filters
 6. [REVIEW_CHECKLISTS.md](./REVIEW_CHECKLISTS.md)
 
 ## Quick navigation
@@ -107,6 +107,12 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 | Specify Subjects behavior | [Subjects module](./modules/Subjects.md) |
 | Specify Routine behavior | [Routine module](./modules/Routine.md) |
 | Specify Academic Sessions behavior | [Academic Sessions module](./modules/Academic_Sessions.md) |
+| Specify Fees behavior | [Fees module](./modules/Fees.md) |
+| Specify Reports behavior | [Reports module](./modules/Reports.md) |
+| Specify Analytics behavior | [Analytics module](./modules/Analytics.md) |
+| Specify Notifications behavior | [Notifications module](./modules/Notifications.md) |
+| Specify Search behavior | [Search module](./modules/Search.md) |
+| Specify Filters behavior | [Filters module](./modules/Filters.md) |
 | Understand changes over time | [Changelog](./CHANGELOG.md) and [Decision Log](./DECISION_LOG.md) |
 
 ## Handbook directory
@@ -177,6 +183,12 @@ The core module specifications translate the canonical standards into module-spe
 | [Subjects](./modules/Subjects.md) | Subject definitions, offerings, ownership, lifecycle, and instructional relationships. |
 | [Routine](./modules/Routine.md) | Recurring instructional schedules, exceptions, conflicts, and calendar context. |
 | [Academic Sessions](./modules/Academic_Sessions.md) | Governed academic periods, boundaries, transitions, and historical session context. |
+| [Fees](./modules/Fees.md) | Fee assignments, balances, payments, installments, adjustments, reversals, receipts, and financial review. |
+| [Reports](./modules/Reports.md) | Scoped Report definition, generation, review, saving, sharing, export, freshness, and limitations. |
+| [Analytics](./modules/Analytics.md) | Interpretable trends, comparisons, measures, denominators, freshness, limitations, and drill-down. |
+| [Notifications](./modules/Notifications.md) | Relevant, private, accessible, idempotent, and reviewable workflow communication. |
+| [Search](./modules/Search.md) | Scoped, accessible, private, and recoverable discovery across authorized datasets. |
+| [Filters](./modules/Filters.md) | Transparent, serializable, accessible, and scoped narrowing of authorized datasets. |
 
 ## Component handbook directory
 
