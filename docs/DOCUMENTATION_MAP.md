@@ -67,6 +67,10 @@ PRODUCT_GOVERNANCE -----> DECISION_LOG / CHANGELOG
          |      NOTIFICATION_SYSTEM / PERMISSION_DESIGN / SECURITY_UX
          |      INTERNATIONALIZATION
         |
+         +--> CORE MODULE SPECIFICATIONS
+         |      Dashboard / Students / Teachers / Organization / Authentication / Profile
+         |      (consume canonical structure, interaction, component, state, security, AI, and review standards)
+         |
         +--> REVIEW
                REVIEW_CHECKLISTS
                USABILITY_HEURISTICS
@@ -110,6 +114,7 @@ INDEX is the navigation homepage for every layer.
 | Permission and security communication | [PERMISSION_DESIGN.md](./PERMISSION_DESIGN.md) and [SECURITY_UX.md](./SECURITY_UX.md) | Governance, Engineering, Ethical UX, Authentication, Privacy |
 | Responsive and localized behavior | [RESPONSIVE_SYSTEM.md](./RESPONSIVE_SYSTEM.md) and [INTERNATIONALIZATION.md](./INTERNATIONALIZATION.md) | Mobile, Layout, Spacing, Typography, Copywriting, Accessibility |
 | Dashboard and reporting presentation | Dashboard, Data Visualization, and Table handbooks | Information Architecture, Search, Filters, Accessibility |
+| Core module behavior | [modules/](./modules/) | Information Architecture, Navigation, Forms, Search, Filters, Patterns, Components, States, Permissions, Security, AI, Notifications, Review Checklists |
 | Release evidence | [QUALITY_GATES.md](./QUALITY_GATES.md) | Review Checklists, Accessibility Testing, every release-gate handbook |
 | Usability rationale and review prompts | UX Laws, Usability Heuristics, Gestalt Principles | Governance, Accessibility, Interaction |
 
@@ -127,4 +132,5 @@ INDEX is the navigation homepage for every layer.
 - Temporal components (Calendar, Timeline) are subordinate to FORM_DESIGN_GUIDE.md, INTERNATIONALIZATION.md, and PERMISSION_DESIGN.md.
 - File Upload is subordinate to FORM_DESIGN_GUIDE.md, ENGINEERING_STANDARDS.md, and ETHICAL_UX_GUIDELINES.md.
 - FAB is subordinate to MOBILE_UX_GUIDE.md, RESPONSIVE_SYSTEM.md, and PERMISSION_DESIGN.md.
+- Core module specifications under [modules/](./modules/) translate the canonical standards into module contracts; they may clarify scope and behavior but may not override an owning handbook or create duplicate thresholds.
 - If a change affects a dependency, update the dependent document's Related documents metadata and record the change.

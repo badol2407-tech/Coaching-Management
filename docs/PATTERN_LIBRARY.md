@@ -25,6 +25,8 @@ canonical_terms: pattern, Dashboard, Search, Filters, bulk action, confirmation,
 
 Patterns are reusable solutions to recurring user problems. Use an existing pattern before inventing a new one; document an exception when the domain genuinely differs.
 
+Core module specifications in [modules/](./modules/) compose these patterns for Dashboard, Students, Teachers, Organization, Authentication, and Profile. The module specifications do not create competing pattern standards.
+
 ## Dashboard exception review
 
 Use when operational work needs attention. Show scope, count, reason, owner, next action, freshness, and a route to the underlying records. Attendance exceptions, Fee defaulters, failed Reports, Exam warnings, and security Notifications must not be reduced to a decorative badge.
@@ -130,5 +132,18 @@ Show AI disclosure, source scope, generated state, uncertainty, human review, ed
 ## Mobile conversion
 
 Transform—not merely shrink—tables, sidebars, filters, dialogs, charts, and forms. Preserve identity, scope, primary action, status, and recovery. Use [FAB](./components/FAB.md) for the primary mobile action. Replace [Calendar](./components/Calendar.md) month grids with list alternatives at narrow viewports. See [MOBILE_UX_GUIDE.md](./MOBILE_UX_GUIDE.md).
+
+## Core module composition
+
+Use the relevant module specification to apply the patterns to an end-to-end product area:
+
+| Module | Primary pattern composition |
+| --- | --- |
+| [Dashboard](./modules/Dashboard.md) | Dashboard exception review, Search and filtered list, structured data, data visualization, feedback, loading/recovery, reviewable AI, and mobile conversion. |
+| [Students](./modules/Students.md) | Search and filtered list, field composition, record detail, bulk operation, file import/upload, draft/interrupted work, empty/first-use, reviewable AI, and mobile conversion. |
+| [Teachers](./modules/Teachers.md) | Search and filtered list, field composition, record detail, bulk operation, consequential confirmation, draft/interrupted work, empty/first-use, reviewable AI, and mobile conversion. |
+| [Organization](./modules/Organization.md) | Primary/secondary navigation, field composition, structured data, record detail, bulk operation, consequential confirmation, draft/interrupted work, feedback/loading/recovery, and mobile conversion. |
+| [Authentication](./modules/Authentication.md) | Field composition, focused overlay, consequential confirmation, feedback/status, loading/recovery, empty/first-use, and mobile conversion. |
+| [Profile](./modules/Profile.md) | Field composition, record detail, file import/upload, focused overlay, consequential confirmation, draft/interrupted work, feedback/loading/recovery, reviewable AI, and mobile conversion. |
 
 Every pattern implementation must cite the relevant component specification, component handbook, and review checklist.

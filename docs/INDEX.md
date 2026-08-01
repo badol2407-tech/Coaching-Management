@@ -30,7 +30,8 @@ EduTrack documentation is a governed system of product principles, release stand
 4. **Product structure and interaction** — Information Architecture, Navigation, Interaction, Forms, Search, Filters, Tables, Mobile, Responsive, Patterns, and Copywriting explain how the product behaves.
 5. **Design system foundations and data** — Design Tokens, Spacing, Layout, Iconography, Elevation, State, Feedback, Notifications, Tables, Color, Typography, Motion, Gestalt, Dashboard, and Data Visualization define reusable expression and domain presentation.
 6. **Safety, resilience, and localization** — Error, Loading, Empty, Permission, Security, Internationalization, and accessibility testing handbooks define implementation-ready quality behavior.
-7. **Review guidance** — [REVIEW_CHECKLISTS.md](./REVIEW_CHECKLISTS.md), [QUALITY_GATES.md](./QUALITY_GATES.md), [USABILITY_HEURISTICS.md](./USABILITY_HEURISTICS.md), and [UX_LAWS.md](./UX_LAWS.md) help teams inspect work. Review guidance cannot override a release gate.
+7. **Core module specifications** — The module handbooks under [modules/](./modules/) translate the canonical standards into role, scope, journey, screen, permission, state, AI, security, performance, and acceptance contracts for Dashboard, Students, Teachers, Organization, Authentication, and Profile.
+8. **Review guidance** — [REVIEW_CHECKLISTS.md](./REVIEW_CHECKLISTS.md), [QUALITY_GATES.md](./QUALITY_GATES.md), [USABILITY_HEURISTICS.md](./USABILITY_HEURISTICS.md), and [UX_LAWS.md](./UX_LAWS.md) help teams inspect work. Review guidance cannot override a release gate.
 
 See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and ownership matrix.
 
@@ -65,7 +66,8 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 2. [ENGINEERING_STANDARDS.md](./ENGINEERING_STANDARDS.md)
 3. [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md)
 4. The relevant domain handbook: [DASHBOARD_DESIGN_GUIDE.md](./DASHBOARD_DESIGN_GUIDE.md), [DATA_VISUALIZATION_GUIDE.md](./DATA_VISUALIZATION_GUIDE.md), [FORM_DESIGN_GUIDE.md](./FORM_DESIGN_GUIDE.md), or [AI_UX_GUIDELINES.md](./AI_UX_GUIDELINES.md)
-5. [REVIEW_CHECKLISTS.md](./REVIEW_CHECKLISTS.md)
+5. The relevant [core module specification](./modules/) when the work affects Dashboard, Students, Teachers, Organization, Authentication, or Profile
+6. [REVIEW_CHECKLISTS.md](./REVIEW_CHECKLISTS.md)
 
 ## Quick navigation
 
@@ -92,6 +94,13 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 | Design responsive or localized behavior | [Responsive System](./RESPONSIVE_SYSTEM.md) and [Internationalization](./INTERNATIONALIZATION.md) |
 | Design Permissions or security | [Permission Design](./PERMISSION_DESIGN.md) and [Security UX](./SECURITY_UX.md) |
 | Design AI Assistant behavior | [AI UX Guidelines](./AI_UX_GUIDELINES.md) |
+| Specify a core product module | [Core module specifications](./modules/) |
+| Specify Dashboard behavior | [Dashboard module](./modules/Dashboard.md) |
+| Specify Students behavior | [Students module](./modules/Students.md) |
+| Specify Teachers behavior | [Teachers module](./modules/Teachers.md) |
+| Specify Organization behavior | [Organization module](./modules/Organization.md) |
+| Specify Authentication behavior | [Authentication module](./modules/Authentication.md) |
+| Specify Profile behavior | [Profile module](./modules/Profile.md) |
 | Understand changes over time | [Changelog](./CHANGELOG.md) and [Decision Log](./DECISION_LOG.md) |
 
 ## Handbook directory
@@ -143,6 +152,19 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 | [TYPOGRAPHY_SYSTEM.md](./TYPOGRAPHY_SYSTEM.md) | Defines readable, scalable, and semantic type roles. |
 | [USABILITY_HEURISTICS.md](./USABILITY_HEURISTICS.md) | Provides a structured usability review lens. |
 | [UX_LAWS.md](./UX_LAWS.md) | Translates UX laws into domain-specific review guidance. |
+
+## Core module directory
+
+The core module specifications translate the canonical standards into module-specific contracts. They are subordinate to the handbooks listed in their metadata and must link to those owners rather than create competing thresholds.
+
+| Module | Purpose |
+| --- | --- |
+| [Dashboard](./modules/Dashboard.md) | Role-aware operational overview, exceptions, scope, freshness, and next actions. |
+| [Students](./modules/Students.md) | Authorized Student discovery, detail, lifecycle, and related coaching context. |
+| [Teachers](./modules/Teachers.md) | Authorized Teacher discovery, assignment, workload context, and related operations. |
+| [Organization](./modules/Organization.md) | Organization and Workspace identity, structure, membership, Roles, Permissions, and governance. |
+| [Authentication](./modules/Authentication.md) | Sign-in, verification, recovery, sessions, sign-out, and security state. |
+| [Profile](./modules/Profile.md) | Privacy-aware personal identity, visibility, editing, and media behavior. |
 
 ## Component handbook directory
 
