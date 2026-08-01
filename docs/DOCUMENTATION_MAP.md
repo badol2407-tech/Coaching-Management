@@ -29,26 +29,33 @@ PRODUCT_CONSTITUTION
         v
 PRODUCT_GOVERNANCE -----> DECISION_LOG / CHANGELOG
         |
-        +--> RELEASE GATES
-        |      ACCESSIBILITY_STANDARDS
+         +--> RELEASE GATES
+         |      ACCESSIBILITY_STANDARDS --> ACCESSIBILITY_TESTING
         |      ETHICAL_UX_GUIDELINES
         |      ENGINEERING_STANDARDS
         |      AI_UX_GUIDELINES
+         |      QUALITY_GATES
         |
         +--> PRODUCT STRUCTURE
         |      INFORMATION_ARCHITECTURE --> NAVIGATION_STANDARDS
         |                                  --> FORM_DESIGN_GUIDE
         |                                  --> COPYWRITING_GUIDELINES
         |
-        +--> INTERACTION AND PATTERNS
-        |      INTERACTION_DESIGN --> PATTERN_LIBRARY --> COMPONENT_SPECIFICATIONS
-        |                                               --> DESIGN_SYSTEM_GUIDE
-        |      MOBILE_UX_GUIDE
+         +--> INTERACTION AND PATTERNS
+         |      INTERACTION_DESIGN --> STATE_SYSTEM --> FEEDBACK_SYSTEM
+         |                                               --> ERROR_HANDLING / LOADING_STATES / EMPTY_STATES
+         |                         --> PATTERN_LIBRARY --> COMPONENT_SPECIFICATIONS
+         |                                               --> DESIGN_SYSTEM_GUIDE
+         |      FORM_DESIGN_GUIDE --> SEARCH_EXPERIENCE / FILTER_SYSTEM
+         |      MOBILE_UX_GUIDE --> RESPONSIVE_SYSTEM
         |
-        +--> VISUAL AND DATA SYSTEM
-        |      COLOR_SYSTEM / TYPOGRAPHY_SYSTEM / MOTION_GUIDELINES
+         +--> VISUAL AND DATA SYSTEM
+         |      DESIGN_TOKENS --> SPACING_SYSTEM / LAYOUT_GRID / ICONOGRAPHY / ELEVATION_SYSTEM
+         |      COLOR_SYSTEM / TYPOGRAPHY_SYSTEM / MOTION_GUIDELINES
         |      GESTALT_PRINCIPLES
-        |      DASHBOARD_DESIGN_GUIDE --> DATA_VISUALIZATION_GUIDE
+         |      DASHBOARD_DESIGN_GUIDE --> DATA_VISUALIZATION_GUIDE / TABLE_DESIGN_GUIDE
+         |      NOTIFICATION_SYSTEM / PERMISSION_DESIGN / SECURITY_UX
+         |      INTERNATIONALIZATION
         |
         +--> REVIEW
                REVIEW_CHECKLISTS
@@ -66,18 +73,23 @@ INDEX is the navigation homepage for every layer.
 | Product principles and ethical commitments | [PRODUCT_CONSTITUTION.md](./PRODUCT_CONSTITUTION.md) | Ethical UX, AI UX, Accessibility |
 | Authority, precedence, exceptions, and document lifecycle | [PRODUCT_GOVERNANCE.md](./PRODUCT_GOVERNANCE.md) | Decision Log, Changelog, Review Checklists |
 | Product vocabulary and object naming | [GLOSSARY.md](./GLOSSARY.md) and [INFORMATION_ARCHITECTURE.md](./INFORMATION_ARCHITECTURE.md) | Copywriting, Navigation, Forms |
-| Accessibility requirements | [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md) | Mobile, Motion, Components, Review Checklists |
+| Accessibility requirements | [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md) | Accessibility Testing, Mobile, Motion, Components, Review Checklists |
 | Safety, dignity, fairness, privacy, and accountability | [ETHICAL_UX_GUIDELINES.md](./ETHICAL_UX_GUIDELINES.md) | Constitution, AI UX, Governance |
 | AI Assistant behavior | [AI_UX_GUIDELINES.md](./AI_UX_GUIDELINES.md) | Constitution, Ethical UX, Accessibility |
 | Technical correctness and reliability | [ENGINEERING_STANDARDS.md](./ENGINEERING_STANDARDS.md) | Governance, Review Checklists |
 | Information structure and scope | [INFORMATION_ARCHITECTURE.md](./INFORMATION_ARCHITECTURE.md) | Navigation, Forms, Dashboard |
 | Navigation and route behavior | [NAVIGATION_STANDARDS.md](./NAVIGATION_STANDARDS.md) | Information Architecture, Accessibility, Mobile |
-| Interaction states and recovery | [INTERACTION_DESIGN.md](./INTERACTION_DESIGN.md) | Components, Forms, Motion, Patterns |
+| Interaction states and recovery | [INTERACTION_DESIGN.md](./INTERACTION_DESIGN.md) and [STATE_SYSTEM.md](./STATE_SYSTEM.md) | Feedback, Error Handling, Loading States, Empty States, Components, Forms, Motion, Patterns |
 | Reusable workflow patterns | [PATTERN_LIBRARY.md](./PATTERN_LIBRARY.md) | Components, Design System, Interaction |
-| Component contracts | [COMPONENT_SPECIFICATIONS.md](./COMPONENT_SPECIFICATIONS.md) | Accessibility, Design System |
-| Semantic visual tokens | Color, Typography, and Motion handbooks | Design System, Components, Accessibility |
-| Dashboard and reporting presentation | Dashboard and Data Visualization handbooks | Information Architecture, Accessibility |
-| Release evidence | [REVIEW_CHECKLISTS.md](./REVIEW_CHECKLISTS.md) | Every release-gate handbook |
+| Component contracts | [COMPONENT_SPECIFICATIONS.md](./COMPONENT_SPECIFICATIONS.md) | Accessibility, Design System, State, Feedback |
+| Semantic visual tokens | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | Spacing, Layout, Iconography, Elevation, Color, Typography, Motion, Components, Accessibility |
+| Search and narrowing data | [SEARCH_EXPERIENCE.md](./SEARCH_EXPERIENCE.md) and [FILTER_SYSTEM.md](./FILTER_SYSTEM.md) | Forms, Tables, Dashboard, Data Visualization, Accessibility |
+| Tables and structured data | [TABLE_DESIGN_GUIDE.md](./TABLE_DESIGN_GUIDE.md) | Components, Search, Filters, Responsive, Data Visualization |
+| Notifications and point-of-action feedback | [NOTIFICATION_SYSTEM.md](./NOTIFICATION_SYSTEM.md) and [FEEDBACK_SYSTEM.md](./FEEDBACK_SYSTEM.md) | State, Interaction, Ethical UX, Security, Accessibility |
+| Permission and security communication | [PERMISSION_DESIGN.md](./PERMISSION_DESIGN.md) and [SECURITY_UX.md](./SECURITY_UX.md) | Governance, Engineering, Ethical UX, Authentication, Privacy |
+| Responsive and localized behavior | [RESPONSIVE_SYSTEM.md](./RESPONSIVE_SYSTEM.md) and [INTERNATIONALIZATION.md](./INTERNATIONALIZATION.md) | Mobile, Layout, Spacing, Typography, Copywriting, Accessibility |
+| Dashboard and reporting presentation | Dashboard, Data Visualization, and Table handbooks | Information Architecture, Search, Filters, Accessibility |
+| Release evidence | [QUALITY_GATES.md](./QUALITY_GATES.md) | Review Checklists, Accessibility Testing, every release-gate handbook |
 | Usability rationale and review prompts | UX Laws, Usability Heuristics, Gestalt Principles | Governance, Accessibility, Interaction |
 
 ## Dependency rules
