@@ -1,7 +1,7 @@
 ---
 title: EduTrack Pattern Library
 purpose: Define reusable, evidence-based workflow patterns for common product tasks.
-scope: Dashboard exceptions, Search and list, detail, bulk actions, confirmation, drafts, empty states, data tables, calendaring, file uploads, floating actions, temporal display, AI Assistant, and mobile.
+scope: Dashboard exceptions, Search and list, detail, rosters, bulk actions, confirmation, drafts, empty states, data tables, calendaring, schedules, period context, file uploads, floating actions, temporal display, AI Assistant, and mobile.
 audience: Product, Design, Engineering, Content, QA, Accessibility, and reviewers.
 related_documents:
   - ./DESIGN_SYSTEM_GUIDE.md
@@ -14,18 +14,18 @@ related_documents:
   - ./components/
 review_frequency: Quarterly and after pattern, component, or workflow changes
 owner: Product Design and Design Systems
-version: 1.1.0
+version: 1.2.0
 status: Binding reusable-pattern standard
 last_updated: 2026-08-01
 normative_level: Binding standard
-canonical_terms: pattern, Dashboard, Search, Filters, bulk action, confirmation, draft, empty state, AI Assistant, mobile, Table, Data Grid, Pagination, Charts, Calendar, Timeline, Date Picker, Time Picker, File Upload, FAB
+canonical_terms: pattern, Dashboard, Search, Filters, bulk action, confirmation, draft, empty state, AI Assistant, mobile, Table, Data Grid, Pagination, Charts, Calendar, Timeline, Date Picker, Time Picker, File Upload, FAB, Classes, Subjects, Routine, Academic Sessions
 ---
 
 # EduTrack Pattern Library
 
 Patterns are reusable solutions to recurring user problems. Use an existing pattern before inventing a new one; document an exception when the domain genuinely differs.
 
-Core module specifications in [modules/](./modules/) compose these patterns for Dashboard, Students, Teachers, Organization, Authentication, and Profile. The module specifications do not create competing pattern standards.
+Core module specifications in [modules/](./modules/) compose these patterns for Dashboard, Students, Teachers, Organization, Authentication, Profile, Attendance, Exams, Classes, Subjects, Routine, and Academic Sessions. The module specifications do not create competing pattern standards.
 
 ## Dashboard exception review
 
@@ -43,15 +43,15 @@ Use for data-entry and edit workflows. Pair a persistent label, concise instruct
 
 ## Temporal input
 
-Use [Date Picker](./components/Date%20Picker.md) when a specific calendar date is required as structured input — Attendance session date, Exam date, Fee due date, or Report filter range. Use [Time Picker](./components/Time%20Picker.md) when a clock time is required — session start and end time, Exam slot. Pair both when a date-time is needed. Always state the constraint (academic term bounds, valid hours) before the user selects. Support direct keyboard entry as the primary interaction; the picker UI is an enhancement.
+Use [Date Picker](./components/Date%20Picker.md) when a specific calendar date is required as structured input — Attendance session date, Exam date, Routine occurrence, Academic Session boundary, Fee due date, or Report filter range. Use [Time Picker](./components/Time%20Picker.md) when a clock time is required — Routine start and end time, Attendance session, or Exam slot. Pair both when a date-time is needed. Always state the constraint (Academic Session bounds, valid hours, timezone, or approved schedule rule) before the user selects. Support direct keyboard entry as the primary interaction; the picker UI is an enhancement.
 
 ## Structured data display
 
-Use [Table](./components/Table.md) when data is two-dimensional and users need to scan, sort, compare, or act on multiple records simultaneously. Use [Data Grid](./components/Data%20Grid.md) when users must edit multiple cells across multiple records inline — Attendance marking, Exam mark entry, or bulk Fee updates. Use [Pagination](./components/Pagination.md) to navigate large record sets; persist page and page-size in the URL. Apply [TABLE_DESIGN_GUIDE.md](./TABLE_DESIGN_GUIDE.md) for caption, column labels, row identity, and responsive transformation.
+Use [Table](./components/Table.md) when data is two-dimensional and users need to scan, sort, compare, or act on multiple records simultaneously. Use [Data Grid](./components/Data%20Grid.md) when users must edit multiple cells across multiple records inline — Attendance marking, Exam mark entry, Class roster changes, or bulk Fee updates. Use [Pagination](./components/Pagination.md) to navigate large record sets; persist page and page-size in the URL. Apply [TABLE_DESIGN_GUIDE.md](./TABLE_DESIGN_GUIDE.md) for caption, column labels, row identity, and responsive transformation.
 
 ## Temporal and event display
 
-Use [Calendar](./components/Calendar.md) when users need to browse time-distributed records across a date grid — Attendance session overview, Exam schedule, or Fee due-date calendar. Use [Timeline](./components/Timeline.md) for a chronological event sequence on a record — payment history, Exam lifecycle, audit trail, or AI-action log. Combine with [Date Picker](./components/Date%20Picker.md) when users must filter the temporal view to a custom range. Ensure today is always distinguishable by non-color means and role-filtered Timeline entries are omitted, not redacted.
+Use [Calendar](./components/Calendar.md) when users need to browse time-distributed records across a date grid — Attendance session overview, Exam schedule, Routine occurrences, Academic Session boundaries, or Fee due-date calendar. Use [Timeline](./components/Timeline.md) for a chronological event sequence on a record — payment history, Exam lifecycle, Routine exception history, Academic Session transitions, audit trail, or AI-action log. Combine with [Date Picker](./components/Date%20Picker.md) when users must filter the temporal view to a custom range. Ensure today is always distinguishable by non-color means and role-filtered Timeline entries are omitted, not redacted.
 
 ## Data visualization
 
@@ -59,7 +59,7 @@ Use [Charts](./components/Charts.md) when a visual encoding supports a decision 
 
 ## File import and upload
 
-Use [File Upload](./components/File%20Upload.md) for Attendance CSV imports, profile photos, certificate uploads, Exam result imports, and Report attachments. State accepted file types and size limits before the file dialog opens. Validate type and size immediately after selection. Show upload progress with cancel, and provide a named success confirmation and a recoverable error with retry. For sensitive files, explain visibility and removal before confirming. Follow [ENGINEERING_STANDARDS.md](./ENGINEERING_STANDARDS.md) for server-side validation.
+Use [File Upload](./components/File%20Upload.md) for Attendance CSV imports, Class roster imports, Subject catalog imports, Academic Session data imports, profile photos, certificate uploads, Exam result imports, and Report attachments. State accepted file types and size limits before the file dialog opens. Validate type and size immediately after selection. Show upload progress with cancel, and provide a named success confirmation and a recoverable error with retry. For sensitive files, explain visibility and removal before confirming. Follow [ENGINEERING_STANDARDS.md](./ENGINEERING_STANDARDS.md) for server-side validation.
 
 ## Primary mobile action
 
@@ -107,19 +107,19 @@ Use [Avatar](./components/Avatar.md) to support recognition of a Student, Teache
 
 ## Record detail
 
-Use for Student, Teacher, Fee, Exam, Report, Profile, or organization records. Lead with identity and status, then relevant history and actions. Respect role permissions and do not mix unrelated data merely because it exists.
+Use for Student, Teacher, Class, Subject, Attendance, Fee, Exam, Routine, Academic Session, Report, Profile, or Organization records. Lead with identity and status, then relevant history and actions. Respect role permissions and do not mix unrelated data merely because it exists.
 
 ## Bulk operation
 
-Use for Attendance marking, Fee assignment, Notifications, Student or Teacher updates, Exam actions, or Report exports. Show selected count, filter scope, permission, consequence, preview, progress, partial result, and recovery. Use [Data Grid](./components/Data%20Grid.md) when the bulk operation involves inline editing across rows; use [Table](./components/Table.md) with row selection when the operation is applied to selected records without inline editing.
+Use for Attendance marking, Class membership, Subject offerings, Fee assignment, Notifications, Student or Teacher updates, Exam actions, Routine changes, Academic Session transitions, or Report exports. Show selected count, filter scope, permission, consequence, preview, progress, partial result, and recovery. Use [Data Grid](./components/Data%20Grid.md) when the bulk operation involves inline editing across rows; use [Table](./components/Table.md) with row selection when the operation is applied to selected records without inline editing.
 
 ## Consequential confirmation
 
-Use before Fee reversal, Exam publication, Report export, permission change, Authentication revocation, Profile privacy change, File Upload of sensitive data, FAB-triggered bulk actions, or AI application. Repeat object, scope, effect, actor, and recovery.
+Use before Fee reversal, Exam publication, Report export, permission change, Authentication revocation, Profile privacy change, Class membership or Teacher assignment change, Routine conflict acceptance or cancellation, Academic Session transition, File Upload of sensitive data, FAB-triggered bulk actions, or AI application. Repeat object, scope, effect, actor, and recovery.
 
 ## Draft and interrupted work
 
-Use for Student and Teacher forms, Attendance sessions, Report builders, Exam setup, Profile changes, and AI drafts. Label drafts, preserve safe work, expose owner and status, and provide Save, Discard, Stay, or Resume.
+Use for Student and Teacher forms, Class and Subject setup, Attendance sessions, Routine edits, Academic Session transitions, Report builders, Exam setup, Profile changes, and AI drafts. Label drafts, preserve safe work, expose owner and status, and provide Save, Discard, Stay, or Resume.
 
 ## Empty and first-use
 
@@ -145,5 +145,11 @@ Use the relevant module specification to apply the patterns to an end-to-end pro
 | [Organization](./modules/Organization.md) | Primary/secondary navigation, field composition, structured data, record detail, bulk operation, consequential confirmation, draft/interrupted work, feedback/loading/recovery, and mobile conversion. |
 | [Authentication](./modules/Authentication.md) | Field composition, focused overlay, consequential confirmation, feedback/status, loading/recovery, empty/first-use, and mobile conversion. |
 | [Profile](./modules/Profile.md) | Field composition, record detail, file import/upload, focused overlay, consequential confirmation, draft/interrupted work, feedback/loading/recovery, reviewable AI, and mobile conversion. |
+| [Attendance](./modules/Attendance.md) | Search and filtered list, temporal input/display, structured data, bulk operation, draft/interrupted work, consequential confirmation, reviewable AI, and mobile conversion. |
+| [Exams](./modules/Exams.md) | Search and filtered list, temporal input/display, structured data, bulk operation, consequential confirmation, draft/interrupted work, reviewable AI, and mobile conversion. |
+| [Classes](./modules/Classes.md) | Search and filtered list, record detail, roster and bulk operation, consequential confirmation, draft/interrupted work, empty/first-use, reviewable AI, and mobile conversion. |
+| [Subjects](./modules/Subjects.md) | Search and filtered list, record detail, field composition, structured data, consequential confirmation, draft/interrupted work, reviewable AI, and mobile conversion. |
+| [Routine](./modules/Routine.md) | Search and filtered list, temporal input/display, schedule review, consequential confirmation, draft/interrupted work, reviewable AI, and mobile conversion. |
+| [Academic Sessions](./modules/Academic_Sessions.md) | Search and filtered list, temporal input/display, context switching, consequential confirmation, draft/interrupted work, reviewable AI, and mobile conversion. |
 
 Every pattern implementation must cite the relevant component specification, component handbook, and review checklist.

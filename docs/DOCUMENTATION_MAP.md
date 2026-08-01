@@ -10,7 +10,7 @@ related_documents:
   - ./DECISION_LOG.md
 review_frequency: Quarterly and after documentation architecture changes
 owner: Product Governance Council
-version: 1.1.0
+version: 1.2.0
 status: Active architecture map
 last_updated: 2026-08-01
 normative_level: Governance reference
@@ -69,6 +69,7 @@ PRODUCT_GOVERNANCE -----> DECISION_LOG / CHANGELOG
         |
          +--> CORE MODULE SPECIFICATIONS
          |      Dashboard / Students / Teachers / Organization / Authentication / Profile
+          |      Attendance / Exams / Classes / Subjects / Routine / Academic Sessions
          |      (consume canonical structure, interaction, component, state, security, AI, and review standards)
          |
         +--> REVIEW
@@ -117,6 +118,25 @@ INDEX is the navigation homepage for every layer.
 | Core module behavior | [modules/](./modules/) | Information Architecture, Navigation, Forms, Search, Filters, Patterns, Components, States, Permissions, Security, AI, Notifications, Review Checklists |
 | Release evidence | [QUALITY_GATES.md](./QUALITY_GATES.md) | Review Checklists, Accessibility Testing, every release-gate handbook |
 | Usability rationale and review prompts | UX Laws, Usability Heuristics, Gestalt Principles | Governance, Accessibility, Interaction |
+
+## Core module dependency map
+
+Every module below consumes the same canonical structure, interaction, component, state, permission, security, AI, notification, and review standards. The module specification is the domain contract; the linked handbooks remain the source of truth for cross-cutting rules.
+
+| Module | Primary dependency emphasis | Specification |
+| --- | --- | --- |
+| [Dashboard](./modules/Dashboard.md) | Operational scope, exceptions, freshness, metrics, and drill-down | [Dashboard](./modules/Dashboard.md) |
+| [Students](./modules/Students.md) | Identity, discovery, lifecycle, privacy, and related coaching context | [Students](./modules/Students.md) |
+| [Teachers](./modules/Teachers.md) | Identity, assignment, workload context, and related operations | [Teachers](./modules/Teachers.md) |
+| [Organization](./modules/Organization.md) | Organization, Workspace, structure, membership, Roles, Permissions, and governance | [Organization](./modules/Organization.md) |
+| [Authentication](./modules/Authentication.md) | Sign-in, verification, recovery, sessions, sign-out, and security state | [Authentication](./modules/Authentication.md) |
+| [Profile](./modules/Profile.md) | Personal identity, visibility, editing, privacy, and media behavior | [Profile](./modules/Profile.md) |
+| [Attendance](./modules/Attendance.md) | Session marking, roster scope, corrections, imports, summaries, and exceptions | [Attendance](./modules/Attendance.md) |
+| [Exams](./modules/Exams.md) | Assessment setup, mark entry, review, publication, correction, and results | [Exams](./modules/Exams.md) |
+| [Classes](./modules/Classes.md) | Class structure, membership, Teacher assignment, Subject offerings, and lifecycle | [Classes](./modules/Classes.md) |
+| [Subjects](./modules/Subjects.md) | Subject definitions, offerings, ownership, effective scope, and lifecycle | [Subjects](./modules/Subjects.md) |
+| [Routine](./modules/Routine.md) | Recurring schedules, occurrences, exceptions, conflicts, and time context | [Routine](./modules/Routine.md) |
+| [Academic Sessions](./modules/Academic_Sessions.md) | Period boundaries, active context, transitions, retention, and history | [Academic Sessions](./modules/Academic_Sessions.md) |
 
 ## Dependency rules
 
