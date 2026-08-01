@@ -1,7 +1,23 @@
-# EduTrack Ethical UX Guidelines
+---
+title: EduTrack Ethical UX Guidelines
+purpose: Prevent manipulation and foreseeable harm while protecting dignity, fairness, privacy, and accountability.
+scope: Choice architecture, consequential actions, data exposure, fairness, safety, reporting, correction, and redress.
+audience: Product, Design, Engineering, Security, Privacy, AI governance, Operations, and reviewers.
+related_documents:
+  - ./PRODUCT_CONSTITUTION.md
+  - ./PRODUCT_GOVERNANCE.md
+  - ./ACCESSIBILITY_STANDARDS.md
+  - ./AI_UX_GUIDELINES.md
+review_frequency: Quarterly and after policy, incident, or high-impact workflow changes
+owner: Product Governance, Product, Design, Security, and Privacy
+version: 1.0.0
+status: Release gate
+last_updated: 2026-08-01
+normative_level: Binding standard
+canonical_terms: dignity, safety, fairness, privacy, user control, trust, consent, Role, Permission, Profile
+---
 
-**Status:** Normative product and safety standard  
-**Owner:** Product Governance, Design, Security, and Engineering  
+# EduTrack Ethical UX Guidelines
 
 Ethical UX protects dignity, agency, privacy, fairness, and informed choice. It applies to ordinary workflows and to future enterprise modules.
 

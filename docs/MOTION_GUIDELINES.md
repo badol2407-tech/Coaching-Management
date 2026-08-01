@@ -1,7 +1,23 @@
-# EduTrack Motion Guidelines
+---
+title: EduTrack Motion Guidelines
+purpose: Define purposeful, safe, interruptible, and accessible motion behavior.
+scope: Transitions, feedback, loading, emphasis, reduced motion, interruption, focus, and motion exceptions.
+audience: Product Design, Engineering, QA, Accessibility, and reviewers.
+related_documents:
+  - ./ACCESSIBILITY_STANDARDS.md
+  - ./INTERACTION_DESIGN.md
+  - ./COMPONENT_SPECIFICATIONS.md
+  - ./MOBILE_UX_GUIDE.md
+review_frequency: Quarterly and after motion, platform, or accessibility changes
+owner: Product Design, Engineering, and Accessibility
+version: 1.0.0
+status: Binding motion standard
+last_updated: 2026-08-01
+normative_level: Binding standard
+canonical_terms: motion, transition, animation, reduced motion, focus, interruption, status
+---
 
-**Status:** Normative interaction standard  
-**Owner:** Product Design and Engineering  
+# EduTrack Motion Guidelines
 
 Motion should orient, confirm, and explain change. It must not delay work, manufacture urgency, hide uncertainty, or create access barriers.
 

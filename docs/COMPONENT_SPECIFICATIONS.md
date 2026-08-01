@@ -1,7 +1,23 @@
-# EduTrack Component Specifications
+---
+title: EduTrack Component Specifications
+purpose: Define reusable component contracts, states, semantics, and acceptance evidence.
+scope: Actions, fields, lists, dialogs, status, metrics, charts, navigation, and layout components.
+audience: Product Design, Engineering, QA, Accessibility, Content, and reviewers.
+related_documents:
+  - ./DESIGN_SYSTEM_GUIDE.md
+  - ./ACCESSIBILITY_STANDARDS.md
+  - ./INTERACTION_DESIGN.md
+  - ./PATTERN_LIBRARY.md
+review_frequency: Quarterly and before component API or token changes
+owner: Product Design, Design Systems, and Frontend Engineering
+version: 1.0.0
+status: Binding design and implementation standard
+last_updated: 2026-08-01
+normative_level: Binding standard
+canonical_terms: Button, Link, Input, Select, Search, Table, List, Dialog, Sheet, Status, Notification, Chart, Metric, Sidebar
+---
 
-**Status:** Normative component contract  
-**Owner:** Design Systems and Engineering  
+# EduTrack Component Specifications
 
 This file defines the minimum contract shared components must satisfy. Product-specific patterns may add requirements but may not weaken accessibility, safety, user control, trust, or clarity.
 
@@ -57,6 +73,6 @@ This file defines the minimum contract shared components must satisfy. Product-s
 
 **Contract:** Semantic landmarks, predictable focus order, active location, responsive reflow, and role-aware visibility.
 
-**Examples:** Dashboard, Students, Teachers, Attendance, Fees, Exams, Reports, Analytics, Notifications, Organization Management, and Profile remain reachable and coherent on desktop and mobile.
+**Examples:** Dashboard, Students, Teachers, Attendance, Fees, Exams, Reports, Analytics, Notifications, Organization, and Profile remain reachable and coherent on desktop and mobile.
 
 See [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md), [DESIGN_SYSTEM_GUIDE.md](./DESIGN_SYSTEM_GUIDE.md), and [REVIEW_CHECKLISTS.md](./REVIEW_CHECKLISTS.md).

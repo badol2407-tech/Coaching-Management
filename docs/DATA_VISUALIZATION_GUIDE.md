@@ -1,7 +1,23 @@
-# EduTrack Data Visualization Guide
+---
+title: EduTrack Data Visualization Guide
+purpose: Define honest, accessible, contextual, and reviewable visualization behavior.
+scope: Charts, tables, metrics, Analytics, Reports, uncertainty, interaction, accessibility, and exports.
+audience: Product, Design, Data, Engineering, QA, Content, and reviewers.
+related_documents:
+  - ./DASHBOARD_DESIGN_GUIDE.md
+  - ./ACCESSIBILITY_STANDARDS.md
+  - ./COLOR_SYSTEM.md
+  - ./REVIEW_CHECKLISTS.md
+review_frequency: Quarterly and after data, charting, or reporting changes
+owner: Product Design, Data, Engineering, and Accessibility
+version: 1.0.0
+status: Binding data and design standard
+last_updated: 2026-08-01
+normative_level: Binding standard
+canonical_terms: Analytics, Reports, Dashboard, scope, date range, freshness, uncertainty, data table, metric
+---
 
-**Status:** Normative analytics standard  
-**Owner:** Analytics, Product Design, Engineering, and QA  
+# EduTrack Data Visualization Guide
 
 Charts and analytics support decisions; they do not create certainty. Every visualization must make its question, data scope, limitations, and next action understandable.
 

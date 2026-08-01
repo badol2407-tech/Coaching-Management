@@ -1,8 +1,23 @@
-# EduTrack Usability Heuristics
+---
+title: EduTrack Usability Heuristics
+purpose: Provide a structured review lens for identifying usability risks and recovery gaps.
+scope: Ten usability heuristics, review findings, severity, evidence, and relationship to release gates.
+audience: Product, Design, Engineering, QA, Accessibility, Content, and reviewers.
+related_documents:
+  - ./PRODUCT_GOVERNANCE.md
+  - ./REVIEW_CHECKLISTS.md
+  - ./ACCESSIBILITY_STANDARDS.md
+  - ./INTERACTION_DESIGN.md
+review_frequency: Quarterly and after usability research or review-process changes
+owner: Product Design and Product Governance
+version: 1.0.0
+status: Review guidance
+last_updated: 2026-08-01
+normative_level: Advisory review framework
+canonical_terms: heuristic, finding, severity, evidence, recovery, user control, system status
+---
 
-**Status:** Normative review standard  
-**Owner:** Product Design and QA  
-**Scope:** All user-facing surfaces, including future enterprise modules.
+# EduTrack Usability Heuristics
 
 These heuristics adapt established usability review practice to EduTrack. They are not a substitute for accessibility acceptance criteria or security review. When a heuristic conflicts with safety, accessibility, user control, or trust, the higher-priority concern wins.
 
@@ -18,7 +33,7 @@ These heuristics adapt established usability review practice to EduTrack. They a
 
 **Rule:** Use the terms, sequences, units, roles, and responsibilities used by coaching organizations. Avoid database vocabulary and unexplained internal statuses.
 
-**Examples:** Students, Teachers, batches, Attendance, Fees, Exams, Reports, and Organization Management use stable domain terms; Profile labels say what information is needed and why; Search and Filters describe results in user language.
+**Examples:** Students, Teachers, batches, Attendance, Fees, Exams, Reports, and Organization use stable domain terms; Profile labels say what information is needed and why; Search and Filters describe results in user language.
 
 **Review:** A Teacher and an organization administrator can explain the screen without knowing implementation details.
 
@@ -40,7 +55,7 @@ These heuristics adapt established usability review practice to EduTrack. They a
 
 **Rule:** Prevent invalid or dangerous states before submission, while preserving user input and explaining the constraint.
 
-**Examples:** Prevent duplicate Attendance records; validate Fee amount and currency; warn before publishing Exam results; check Report scope; confirm Organization Management permission impact; prevent AI-generated text from silently overwriting Profile data.
+**Examples:** Prevent duplicate Attendance records; validate Fee amount and currency; warn before publishing Exam results; check Report scope; confirm Organization Permission impact; prevent AI Assistant text from silently overwriting Profile data.
 
 **Review:** Test missing, malformed, duplicate, stale, unauthorized, and conflicting data.
 
@@ -80,7 +95,7 @@ These heuristics adapt established usability review practice to EduTrack. They a
 
 **Rule:** Help is contextual, searchable, accessible, and honest about policy and capability. It must not replace good interface design.
 
-**Examples:** Explain Attendance statuses beside the control; define Fee adjustments; describe Report filters; explain Organization Management permissions; disclose AI limitations; provide Profile and Authentication recovery guidance.
+**Examples:** Explain Attendance statuses beside the control; define Fee adjustments; describe Report Filters; explain Organization Permissions; disclose AI Assistant limitations; provide Profile and Authentication recovery guidance.
 
 **Review:** Help answers the immediate question without sending a user away from unsaved work.
 

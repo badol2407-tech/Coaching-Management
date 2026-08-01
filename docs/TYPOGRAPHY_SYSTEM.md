@@ -1,7 +1,23 @@
-# EduTrack Typography System
+---
+title: EduTrack Typography System
+purpose: Define readable, scalable, localizable, and semantically meaningful type roles.
+scope: Type roles, hierarchy, sizing, line length, zoom, fallback, localization, and domain examples.
+audience: Product Design, Design Systems, Engineering, Content, QA, Accessibility, and reviewers.
+related_documents:
+  - ./DESIGN_SYSTEM_GUIDE.md
+  - ./ACCESSIBILITY_STANDARDS.md
+  - ./COLOR_SYSTEM.md
+  - ./COPYWRITING_GUIDELINES.md
+review_frequency: Quarterly and after font, localization, or accessibility changes
+owner: Product Design, Design Systems, and Content Design
+version: 1.0.0
+status: Binding design standard
+last_updated: 2026-08-01
+normative_level: Binding standard
+canonical_terms: type role, heading, body, label, caption, display, Dashboard, Students, Teachers, Reports, Analytics
+---
 
-**Status:** Normative design token standard  
-**Owner:** Product Design and Engineering  
+# EduTrack Typography System
 
 Typography must make operational information readable, scannable, and resilient to localization, zoom, dynamic type, and long names. Typography is a functional system, not decoration.
 
@@ -10,7 +26,7 @@ Typography must make operational information readable, scannable, and resilient 
 Use semantic roles rather than page-specific sizes:
 
 - **Display:** rare product or organization context; never for critical data alone.
-- **Page title:** names the Dashboard, Students, Teachers, Attendance, Fees, Exams, Reports, Analytics, Notifications, Organization Management, or Profile destination.
+- **Page title:** names the Dashboard, Students, Teachers, Attendance, Fees, Exams, Reports, Analytics, Notifications, Organization, or Profile destination.
 - **Section heading:** identifies a meaningful group.
 - **Body:** explains records, instructions, policies, and AI context.
 - **Label:** identifies an input, metric, status, unit, or scope.

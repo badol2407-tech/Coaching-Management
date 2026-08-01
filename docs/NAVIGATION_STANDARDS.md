@@ -1,13 +1,29 @@
-# EduTrack Navigation Standards
+---
+title: EduTrack Navigation Standards
+purpose: Define discoverable, consistent, permission-aware, and recoverable navigation across EduTrack.
+scope: Primary and secondary navigation, Sidebar, location, Search, deep links, responsive behavior, exits, and errors.
+audience: Product, Design, Engineering, Security, Content, QA, and reviewers.
+related_documents:
+  - ./INFORMATION_ARCHITECTURE.md
+  - ./ACCESSIBILITY_STANDARDS.md
+  - ./INTERACTION_DESIGN.md
+  - ./MOBILE_UX_GUIDE.md
+review_frequency: Quarterly and before route, module, permission, or navigation changes
+owner: Product, Product Design, and Engineering
+version: 1.0.0
+status: Binding navigation standard
+last_updated: 2026-08-01
+normative_level: Binding standard
+canonical_terms: Dashboard, Sidebar, Students, Teachers, Attendance, Fees, Exams, Reports, Analytics, Notifications, Organization, Profile, Settings, Search, Filters, Workspace
+---
 
-**Status:** Normative interaction standard  
-**Owner:** Product Design and Engineering  
+# EduTrack Navigation Standards
 
 Navigation helps users understand where they are, what they can access, and how to return safely. It must be role-aware without becoming unpredictable, and responsive without hiding essential work.
 
 ## Primary navigation
 
-Primary navigation must provide stable destinations for the user's role. The product may prioritize Dashboard, Students, Teachers, Attendance, Fees, Exams, Reports, Analytics, Notifications, Organization Management, and Profile differently by role, but equivalent destinations must retain consistent names and behavior.
+Primary navigation must provide stable destinations for the user's Role. The product may prioritize Dashboard, Students, Teachers, Attendance, Fees, Exams, Reports, Analytics, Notifications, Organization, and Profile differently by Role, but equivalent destinations must retain consistent names and behavior.
 
 **Rule:** Do not expose irrelevant disabled destinations as a substitute for authorization. Hide inaccessible destinations when their existence would confuse, but provide clear permission feedback when a user follows a valid link to a resource they cannot access.
 
@@ -23,7 +39,7 @@ Every page must expose:
 - a predictable route and browser history behavior;
 - a way to return without losing safe input.
 
-Student detail, Fee history, Exam results, Report detail, and Organization Management subpages should use breadcrumbs or an equivalent accessible location indicator when hierarchy matters. Mobile must not rely on breadcrumbs alone.
+Student detail, Fee history, Exam results, Report detail, and Organization subpages should use breadcrumbs or an equivalent accessible location indicator when hierarchy matters. Mobile must not rely on breadcrumbs alone.
 
 ## Secondary navigation
 
@@ -44,7 +60,7 @@ Desktop navigation may collapse on smaller screens, but:
 - browser back works;
 - no essential workflow depends on a hidden gesture;
 - Authentication and recovery remain available;
-- Organization Management and Profile do not become inaccessible because of viewport size.
+- Organization and Profile do not become inaccessible because of viewport size.
 
 ## External and destructive exits
 

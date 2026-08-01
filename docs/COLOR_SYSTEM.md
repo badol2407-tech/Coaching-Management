@@ -1,7 +1,23 @@
-# EduTrack Color System
+---
+title: EduTrack Color System
+purpose: Define semantic color roles that communicate hierarchy, state, and risk without relying on color alone.
+scope: Tokens, status communication, contrast, surfaces, charts, notifications, and visual emphasis.
+audience: Product Design, Engineering, Content, QA, and reviewers.
+related_documents:
+  - ./DESIGN_SYSTEM_GUIDE.md
+  - ./ACCESSIBILITY_STANDARDS.md
+  - ./COMPONENT_SPECIFICATIONS.md
+  - ./DATA_VISUALIZATION_GUIDE.md
+review_frequency: Quarterly and when brand, contrast, or status semantics change
+owner: Product Design and Design Systems
+version: 1.0.0
+status: Binding design standard
+last_updated: 2026-08-01
+normative_level: Binding standard
+canonical_terms: semantic token, status, warning, error, success, Attendance, Fees, Exams, Notifications
+---
 
-**Status:** Normative design token standard  
-**Owner:** Product Design and Engineering  
+# EduTrack Color System
 
 Color communicates meaning, hierarchy, and state. It must never be used to create false urgency or become the only way to understand Attendance, Fees, Exams, Reports, Notifications, permissions, or AI output.
 
@@ -29,7 +45,7 @@ Components consume semantic tokens. Product code must not scatter raw color valu
 
 ## EduTrack examples
 
-Attendance Present, Absent, Late, and Excused states use labels and semantic tokens. Fees distinguish paid, partial, pending, overdue, and reversed without a rainbow. Exam warnings explain publish or grading consequences. Reports and Analytics show data series with labels or direct annotations. Notifications use badges only for actionable counts. Organization Management and Profile permission changes use clear text. Authentication errors are not conveyed through color alone. Search and Filters show active state textually.
+Attendance Present, Absent, Late, and Excused states use labels and semantic tokens. Fees distinguish paid, partial, pending, overdue, and reversed without a rainbow. Exam warnings explain publish or grading consequences. Reports and Analytics show data series with labels or direct annotations. Notifications use badges only for actionable counts. Organization and Profile permission changes use clear text. Authentication errors are not conveyed through color alone. Search and Filters show active state textually.
 
 ## Measures
 

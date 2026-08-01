@@ -1,7 +1,23 @@
-# EduTrack AI UX Guidelines
+---
+title: EduTrack AI UX Guidelines
+purpose: Define transparent, safe, human-controlled behavior for AI-assisted experiences.
+scope: AI Assistant disclosures, generated content, privacy, uncertainty, fairness, review, and recovery.
+audience: Product, Design, Engineering, Security, Privacy, AI governance, QA, and reviewers.
+related_documents:
+  - ./PRODUCT_CONSTITUTION.md
+  - ./ETHICAL_UX_GUIDELINES.md
+  - ./ACCESSIBILITY_STANDARDS.md
+  - ./REVIEW_CHECKLISTS.md
+review_frequency: Quarterly and after model, data, policy, or incident changes
+owner: AI Governance, Product, Design, Security, and Privacy
+version: 1.0.0
+status: Release gate
+last_updated: 2026-08-01
+normative_level: Binding standard
+canonical_terms: AI Assistant, generated content, source context, uncertainty, human review, Permission, Role, Profile
+---
 
-**Status:** Normative safety and interaction standard  
-**Owner:** Product, AI Governance, Engineering, Security, and Design  
+# EduTrack AI UX Guidelines
 
 AI in EduTrack is an assistant, not an authority. It may summarize, organize, search, draft, and surface patterns, but it must not silently decide a person's educational, financial, employment, access, or safety outcome.
 

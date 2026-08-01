@@ -1,9 +1,25 @@
+---
+title: EduTrack Copywriting Guidelines
+purpose: Define clear, honest, accessible, and consistent product language.
+scope: Labels, actions, statuses, errors, confirmations, AI Assistant copy, localization, and accessibility.
+audience: Product, Design, Content, Engineering, Support, Localization, and reviewers.
+related_documents:
+  - ./INFORMATION_ARCHITECTURE.md
+  - ./INTERACTION_DESIGN.md
+  - ./FORM_DESIGN_GUIDE.md
+  - ./AI_UX_GUIDELINES.md
+review_frequency: Quarterly and after terminology, policy, or localization changes
+owner: Product, Content Design, and Product Design
+version: 1.0.0
+status: Binding content standard
+last_updated: 2026-08-01
+normative_level: Binding standard
+canonical_terms: Dashboard, Students, Teachers, Attendance, Fees, Exams, Reports, Analytics, Notifications, Organization, Profile, Settings, Search, Filters, AI Assistant, Permission, Role, Workspace
+---
+
 # EduTrack Copywriting Guidelines
 
-**Status:** Normative content standard  
-**Owner:** Content Design, Product, and Engineering  
-
-Words are part of the product's safety and data contract. Copy must be precise, respectful, translatable, accessible, and consistent across Dashboard, Students, Teachers, Attendance, Fees, Exams, Reports, Analytics, Notifications, Authentication, Organization Management, Profile, Search, Filters, mobile, and AI features.
+Words are part of the product's safety and data contract. Copy must be precise, respectful, translatable, accessible, and consistent across Dashboard, Students, Teachers, Attendance, Fees, Exams, Reports, Analytics, Notifications, Authentication, Organization, Profile, Search, Filters, mobile, and AI Assistant.
 
 ## Voice
 

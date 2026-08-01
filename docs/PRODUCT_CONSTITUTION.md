@@ -1,6 +1,28 @@
+---
+title: EduTrack Product Constitution
+purpose: Establish the durable product, design, engineering, UX, AI, and ethical principles that govern EduTrack.
+scope: Product direction, user dignity, accessibility, trust, agency, safety, privacy, engineering quality, AI, and UX principles.
+audience: Product, Design, Engineering, Security, Privacy, AI Governance, Operations, QA, and all contributors.
+related_documents:
+  - ./PRODUCT_GOVERNANCE.md
+  - ./UX_LAWS.md
+  - ./ETHICAL_UX_GUIDELINES.md
+  - ./ACCESSIBILITY_STANDARDS.md
+  - ./GLOSSARY.md
+review_frequency: Annually and after a material product, ethical, safety, or governance change
+owner: Product Governance Council
+version: 1.0.0
+status: Normative product constitution
+last_updated: 2026-08-01
+normative_level: Highest product-principle authority
+canonical_terms: Dashboard, Students, Teachers, Attendance, Fees, Exams, Reports, Analytics, Notifications, Organization, Profile, Settings, Search, Filters, AI Assistant, Enterprise Module, Permission, Role, Workspace
+---
+
+# EduTrack Product Constitution
+
 ## Vision
 
-EduTrack is the trusted operating system for coaching organizations: an enterprise-grade Coaching Management SaaS that brings clarity, continuity, and accountability to every learner, coach, administrator, and organization it serves.
+EduTrack is the trusted operating system for coaching organizations: an enterprise-grade Coaching Management SaaS that brings clarity, continuity, and accountability to every Student, Teacher, administrator, and Organization it serves.
 
 EduTrack should make high-quality coaching easier to deliver and easier to manage without reducing people to metrics. It will earn long-term trust by making important information understandable, decisions explainable, and progress visible without distortion.
 
@@ -54,9 +76,9 @@ We will reduce administrative burden so educators and coaches can spend more tim
 ## AI Philosophy
 
 - AI is an assistant, not an authority. It may help people organize, summarize, discover, and act, but it must not replace appropriate human judgment in coaching or organizational decisions.
-- AI features must be useful, understandable, optional where appropriate, and easy to override.
+- AI Assistant behavior must be useful, understandable, optional where appropriate, and easy to override.
 - Be transparent about when AI is used, what information it relies on, what it can and cannot do, and how confident users should be.
-- Protect sensitive coaching and learner information. Use data minimization, appropriate access controls, retention limits, and secure processing practices.
+- Protect sensitive coaching and Student information. Use data minimization, appropriate access controls, retention limits, and secure processing practices.
 - Do not present generated content as verified fact. Clearly distinguish suggestions, summaries, predictions, and recorded information.
 - AI must not make high-impact decisions about a person without meaningful human review, context, and accountability.
 - Evaluate AI systems for accuracy, bias, privacy, accessibility, and harmful failure modes before and after release.
@@ -64,7 +86,7 @@ We will reduce administrative burden so educators and coaches can spend more tim
 
 ## Ethical Principles
 
-- **Dignity:** Treat every learner, coach, administrator, and colleague as a person with agency, context, and worth.
+- **Dignity:** Treat every Student, Teacher, administrator, and colleague as a person with agency, context, and worth.
 - **Honesty:** Represent product capabilities, outcomes, data, limitations, and uncertainty truthfully.
 - **Privacy:** Collect and expose only what is necessary, protect sensitive information, and respect the boundaries of every role.
 - **Fairness:** Seek equitable access and outcomes; identify and address bias in product decisions, data, automation, and AI.
@@ -77,7 +99,7 @@ We will reduce administrative burden so educators and coaches can spend more tim
 
 # Chapter 2 — UX Laws
 
-This chapter defines the permanent UX principles that every current and future EduTrack feature must follow. These laws are implementation standards, not optional recommendations. When laws conflict, teams must preserve accessibility, user agency, safety, and clear communication before optimizing for speed or visual economy.
+This chapter records the constitutional rationale behind the UX laws. The companion [UX_LAWS.md](./UX_LAWS.md) owns the review-oriented summaries and examples; the dedicated handbooks own implementation thresholds. These principles are not optional, but lower-level guidance must remain consistent with the precedence and release gates in [PRODUCT_GOVERNANCE.md](./PRODUCT_GOVERNANCE.md). When principles conflict, preserve accessibility, user safety, user control, trust, clarity, performance, and convenience in that order.
 
 ## 1. Fitts's Law
 
@@ -327,7 +349,7 @@ Every system has irreducible complexity. It cannot be eliminated; it can only be
 
 #### 2. Why it matters
 
-Coaching organizations have real complexity: multi-tenant permissions, enrollment states, attendance exceptions, fee adjustments, reporting periods, and role-specific responsibilities. Hiding complexity until it causes an error is not simplicity. Moving avoidable complexity onto a Teacher, Student, or administrator increases training cost and undermines trust.
+Coaching organizations have real complexity: Organization-scoped Permissions, enrollment states, Attendance exceptions, Fee adjustments, reporting periods, and Role-specific responsibilities. Hiding complexity until it causes an error is not simplicity. Moving avoidable complexity onto a Teacher, Student, or administrator increases training cost and undermines trust.
 
 #### 3. Design objective
 
@@ -340,7 +362,7 @@ Apply this law to organization setup, role and permission management, Student en
 #### 5. Common mistakes
 
 - Requiring users to manually calculate outstanding balances or duplicate attendance totals.
-- Exposing database terms, internal status codes, or tenant configuration in ordinary workflows.
+- Exposing database terms, internal status codes, or Organization configuration in ordinary workflows.
 - Applying a default without showing its effect or allowing authorized correction.
 - Simplifying a form by removing context that administrators need for accountability.
 - Moving complex policy into unexplained automation that users cannot inspect or override.
@@ -395,7 +417,7 @@ Provide visible acknowledgment within 100 milliseconds for direct interactions a
 
 #### 4. When to apply
 
-Apply this law to Dashboard loading, Sidebar navigation, Student and Teacher search, Attendance save and bulk marking, Fees recording and receipt generation, Reports queries and exports, Settings updates, mobile network operations, uploads, and AI features. Apply it to initial loading, reloading, empty states, errors, and background refresh.
+Apply this law to Dashboard loading, Sidebar navigation, Student and Teacher Search, Attendance save and bulk marking, Fees recording and receipt generation, Reports queries and exports, Settings updates, mobile network operations, uploads, and AI Assistant behavior. Apply it to initial loading, reloading, empty states, errors, and background refresh.
 
 #### 5. Common mistakes
 
@@ -417,7 +439,7 @@ Apply this law to Dashboard loading, Sidebar navigation, Student and Teacher sea
 #### 7. Do
 
 - Acknowledge input immediately and provide progress for operations longer than 1 second.
-- Use skeletons or stable placeholders for known content structure, not blank screens.
+- Use skeletons or stable loading scaffolds for known content structure, not blank screens.
 - Keep independent regions interactive while other regions load.
 - Measure p50 and p95 interaction, navigation, search, save, and report latency.
 - Prevent duplicate submissions while retaining clear status and recovery.
@@ -555,7 +577,7 @@ Apply this law to Dashboard summaries, Sidebar badges, Student and Teacher lists
 - [ ] Every emphasized element has a documented semantic reason.
 - [ ] High-salience treatments are limited and reserved for meaningful priority.
 - [ ] Status and priority are understandable without color alone.
-- [ ] Sidebar badges and Dashboard alerts represent actionable information, not vanity counts.
+- [ ] Sidebar badges and Dashboard Notifications represent actionable information, not vanity counts.
 - [ ] Fees, Attendance, Reports, and Settings warnings include explanatory text.
 - [ ] Color contrast and non-color cues remain accessible in light, dark, high-contrast, and grayscale conditions.
 
@@ -712,7 +734,7 @@ Apply this law to Dashboard, Sidebar, Student and Teacher profiles, Attendance, 
 - Keep Sidebar active state, hover state, and focus state visually distinct and accessible.
 - Make Fees receipts and Reports exports visually clear in both the application and printable or downloaded formats.
 - Design mobile Attendance and Fees screens with readable type, adequate targets, and no layout dependence on hover.
-- Give Settings, empty, loading, and error states the same intentional visual language as the Dashboard rather than treating them as placeholders.
+- Give Settings, empty, loading, and error states the same intentional visual language as the Dashboard rather than treating them as unfinished states.
 
 #### 7. Do
 
@@ -755,7 +777,7 @@ Provide a clear recommended path, sensible defaults, meaningful grouping, and pr
 
 #### 4. When to apply
 
-Apply this law to Dashboard customization, Sidebar organization, Student and Teacher filters, Attendance bulk actions, Fees adjustments, Reports builders, Settings, permission matrices, exports, mobile menus, and AI recommendations.
+Apply this law to Dashboard customization, Sidebar organization, Student and Teacher Filters, Attendance bulk actions, Fees adjustments, Reports builders, Settings, Permission matrices, exports, mobile menus, and AI Assistant suggestions.
 
 #### 5. Common mistakes
 
@@ -763,7 +785,7 @@ Apply this law to Dashboard customization, Sidebar organization, Student and Tea
 - Giving a bulk Attendance action a long, ungrouped menu of statuses and exceptions.
 - Showing all organization settings to every role.
 - Providing dozens of dashboard widgets without sensible defaults or reset behavior.
-- Offering multiple AI recommendations without explaining differences or confidence.
+- Offering multiple AI Assistant suggestions without explaining differences or confidence.
 
 #### 6. EduTrack implementation examples
 
@@ -788,7 +810,7 @@ Apply this law to Dashboard customization, Sidebar organization, Student and Tea
 - Do not expose irrelevant options to users who cannot use them.
 - Do not make users choose among synonyms or duplicate workflows.
 - Do not hide financial, permission, privacy, or data-scope consequences in an advanced panel.
-- Do not use AI recommendations to create a false impression that one of several valid choices is mandatory.
+- Do not use AI Assistant suggestions to create a false impression that one of several valid choices is mandatory.
 
 #### 9. Validation checklist
 
@@ -876,7 +898,7 @@ Make goal-relevant information prominent, predictable, and proximate to the acti
 
 #### 4. When to apply
 
-Apply this law to Dashboard prioritization, Sidebar alerts, Student and Teacher lists, Attendance exception review, Fees balances and adjustments, Reports scope and interpretation, Settings and permissions, mobile views, notifications, AI output, and all confirmation or error states.
+Apply this law to Dashboard prioritization, Sidebar Notifications, Student and Teacher lists, Attendance exception review, Fees balances and adjustments, Reports scope and interpretation, Settings and Permissions, mobile views, Notifications, AI Assistant output, and all confirmation or error states.
 
 #### 5. Common mistakes
 
@@ -894,7 +916,7 @@ Apply this law to Dashboard prioritization, Sidebar alerts, Student and Teacher 
 - In Fees, place amount due, payment state, outstanding balance, and any adjustment explanation next to the action that uses them.
 - In Reports, keep scope, date range, filters, data freshness, and limitations visible near the report title and interpretation.
 - In Settings, summarize changed permissions and affected roles before save and provide a durable confirmation or audit entry afterward.
-- For AI features, label generated content, sources or context where available, uncertainty, and the human review action directly beside the output.
+- For AI Assistant behavior, label generated content, sources or context where available, uncertainty, and the human review action directly beside the output.
 - On mobile, provide an accessible exceptions summary and avoid requiring horizontal scrolling to discover critical status or actions.
 
 #### 7. Do

@@ -1,7 +1,24 @@
-# EduTrack Interaction Design
+---
+title: EduTrack Interaction Design
+purpose: Define predictable interaction states, context, consequences, disclosure, feedback, and recovery.
+scope: Interaction contracts, selection, editing, dialogs, loading, empty, error, pending, success, and recovery states.
+audience: Product, Design, Engineering, Content, QA, Accessibility, and reviewers.
+related_documents:
+  - ./ACCESSIBILITY_STANDARDS.md
+  - ./COMPONENT_SPECIFICATIONS.md
+  - ./FORM_DESIGN_GUIDE.md
+  - ./MOTION_GUIDELINES.md
+  - ./REVIEW_CHECKLISTS.md
+review_frequency: Quarterly and after interaction, state, or platform behavior changes
+owner: Product Design and Engineering
+version: 1.0.0
+status: Binding interaction standard
+last_updated: 2026-08-01
+normative_level: Binding standard
+canonical_terms: state, context, consequence, disclosure, feedback, recovery, pending, success, error, empty
+---
 
-**Status:** Normative product standard  
-**Owner:** Product Design and Engineering  
+# EduTrack Interaction Design
 
 This guide defines how EduTrack behaves when people navigate, select, edit, submit, wait, recover, and collaborate. It complements [UX_LAWS.md](./UX_LAWS.md), [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md), and [COMPONENT_SPECIFICATIONS.md](./COMPONENT_SPECIFICATIONS.md).
 
@@ -30,7 +47,7 @@ Before implementation, write the state model for idle, hover, focus, pressed, lo
 
 **Rule:** An interaction must preserve the object, scope, role, and workflow stage that give the action meaning.
 
-**Examples:** Student identity remains visible while editing Attendance or Fees; Teacher scope remains visible in a Dashboard task; Report filters persist through export; Organization Management names affected roles; Profile editing retains the current account.
+**Examples:** Student identity remains visible while editing Attendance or Fees; Teacher scope remains visible in a Dashboard task; Report Filters persist through export; Organization names affected Roles; Profile editing retains the current account.
 
 **Measure:** No primary task requires copying an ID, date, or filter into another view.
 

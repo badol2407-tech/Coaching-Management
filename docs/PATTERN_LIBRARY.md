@@ -1,7 +1,23 @@
-# EduTrack Pattern Library
+---
+title: EduTrack Pattern Library
+purpose: Define reusable, evidence-based workflow patterns for common product tasks.
+scope: Dashboard exceptions, Search and list, detail, bulk actions, confirmation, drafts, empty states, AI Assistant, and mobile.
+audience: Product, Design, Engineering, Content, QA, Accessibility, and reviewers.
+related_documents:
+  - ./DESIGN_SYSTEM_GUIDE.md
+  - ./COMPONENT_SPECIFICATIONS.md
+  - ./INTERACTION_DESIGN.md
+  - ./ACCESSIBILITY_STANDARDS.md
+review_frequency: Quarterly and after pattern, component, or workflow changes
+owner: Product Design and Design Systems
+version: 1.0.0
+status: Binding reusable-pattern standard
+last_updated: 2026-08-01
+normative_level: Binding standard
+canonical_terms: pattern, Dashboard, Search, Filters, bulk action, confirmation, draft, empty state, AI Assistant, mobile
+---
 
-**Status:** Normative workflow pattern catalogue  
-**Owner:** Product Design and Engineering  
+# EduTrack Pattern Library
 
 Patterns are reusable solutions to recurring user problems. Use an existing pattern before inventing a new one; document an exception when the domain genuinely differs.
 
@@ -31,7 +47,7 @@ Use for Student and Teacher forms, Attendance sessions, Report builders, Exam se
 
 ## Empty and first-use
 
-Use different messages for no records, no permission, no matching Search results, data still loading, and failed loading. Provide one safe next action. Do not hide setup requirements in Dashboard or Organization Management.
+Use different messages for no records, no Permission, no matching Search results, data still loading, and failed loading. Provide one safe next action. Do not hide setup requirements in Dashboard or Organization.
 
 ## Reviewable AI assistance
 

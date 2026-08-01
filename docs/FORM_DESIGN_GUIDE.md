@@ -1,7 +1,23 @@
-# EduTrack Form Design Guide
+---
+title: EduTrack Form Design Guide
+purpose: Define safe, clear, accessible, and recoverable data-entry, search, and filter experiences.
+scope: Form structure, required data, validation, Search, Filters, review, save, draft, reset, and sensitive data.
+audience: Product, Design, Engineering, Content, QA, Accessibility, and reviewers.
+related_documents:
+  - ./ACCESSIBILITY_STANDARDS.md
+  - ./INTERACTION_DESIGN.md
+  - ./COPYWRITING_GUIDELINES.md
+  - ./COMPONENT_SPECIFICATIONS.md
+review_frequency: Quarterly and after form, validation, privacy, or workflow changes
+owner: Product Design, Engineering, and Content Design
+version: 1.0.0
+status: Binding interaction and content standard
+last_updated: 2026-08-01
+normative_level: Binding standard
+canonical_terms: form, field, validation, Search, Filters, draft, save, reset, Profile, Permission
+---
 
-**Status:** Normative product standard  
-**Owner:** Product Design, Engineering, and QA  
+# EduTrack Form Design Guide
 
 Forms are contracts for collecting, validating, reviewing, and recording information. They must minimize unnecessary disclosure while preventing incorrect Student, Teacher, Attendance, Fee, Exam, Report, Organization, Profile, Authentication, and AI data.
 
@@ -21,7 +37,7 @@ Use one question per field, persistent labels, logical grouping, and a clear pri
 
 ## Required and optional data
 
-Mark optional fields explicitly. Do not make Profile, Student, Teacher, or Organization Management fields required solely for completeness or AI convenience. Explain why sensitive information is needed and who can see it.
+Mark optional fields explicitly. Do not make Profile, Student, Teacher, or Organization fields required solely for completeness or AI Assistant convenience. Explain why sensitive information is needed and who can see it.
 
 ## Validation
 

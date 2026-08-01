@@ -1,7 +1,24 @@
+---
+title: EduTrack Accessibility Standards
+purpose: Define the minimum accessible experience and release evidence for every EduTrack surface.
+scope: Web, mobile, content, data visualization, AI, authentication, and assistive-technology behavior.
+audience: Product, Design, Engineering, QA, Security, and reviewers.
+related_documents:
+  - ./PRODUCT_GOVERNANCE.md
+  - ./INTERACTION_DESIGN.md
+  - ./MOBILE_UX_GUIDE.md
+  - ./REVIEW_CHECKLISTS.md
+review_frequency: Quarterly and after material WCAG or platform changes
+owner: Engineering, Product Design, and QA
+version: 1.0.0
+status: Release gate
+last_updated: 2026-08-01
+normative_level: Binding standard
+canonical_terms: Dashboard, Students, Teachers, Attendance, Fees, Exams, Reports, Analytics, Notifications, Profile, Search, Filters, AI Assistant, Permission, Role, Organization, Workspace
+---
+
 # EduTrack Accessibility Standards
 
-**Status:** Release gate  
-**Owner:** Engineering, Product Design, and QA  
 **Target:** WCAG 2.2 AA as a minimum, with stronger requirements where safety, financial, educational, or privacy consequences justify them.
 
 Accessibility is part of correctness. A feature is not complete if a user cannot access, understand, operate, or recover from it because of disability, device, input method, language, bandwidth, or temporary circumstance.
@@ -18,7 +35,7 @@ Accessibility is part of correctness. A feature is not complete if a user cannot
 
 ### Operable interaction
 
-- All functionality works with keyboard alone, including Dashboard, Students, Teachers, Attendance, Fees, Exams, Reports, Filters, Notifications, Authentication, and Organization Management.
+- All functionality works with keyboard alone, including Dashboard, Students, Teachers, Attendance, Fees, Exams, Reports, Filters, Notifications, Authentication, and Organization.
 - Focus is visible, logical, not obscured, and not trapped except inside an intentionally modal dialog.
 - Touch targets are at least 44×44 CSS pixels with safe separation; primary mobile actions prefer 48×48.
 - No essential behavior depends on hover, drag, precision pointer movement, or a custom gesture.
@@ -52,10 +69,10 @@ Accessibility is part of correctness. A feature is not complete if a user cannot
 | Reports and Analytics | Scope, freshness, units, table or text alternative, export status, keyboard filter flow |
 | Notifications | Unread status and meaning exposed semantically, dismissible nonessential alerts |
 | Authentication | Keyboard-complete login and recovery, visible errors, session and lockout guidance |
-| Organization Management and Profile | Role and permission impact, required/optional labels, privacy-aware disclosure |
+| Organization and Profile | Role and permission impact, required/optional labels, privacy-aware disclosure |
 | Search and Filters | Named controls, applied-filter summary, clear action, no hidden state |
 | Mobile | Reflow without loss of content or action, no horizontal scroll for essential tasks, platform back behavior |
-| AI features | Generated status, source/context, uncertainty, review action, and accessible edit/override path |
+| AI Assistant | Generated status, source/context, uncertainty, review action, and accessible edit/override path |
 
 ## Testing and exceptions
 

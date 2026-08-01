@@ -1,13 +1,29 @@
-# EduTrack Engineering Standards
+---
+title: EduTrack Engineering Standards
+purpose: Define engineering requirements for correctness, security, tenancy, reliability, accessibility, and maintainability.
+scope: Contracts, authorization, Organization and Workspace isolation, integrity, recovery, performance, security, privacy, and testing.
+audience: Engineering, Security, Privacy, SRE, Product, Design, QA, and reviewers.
+related_documents:
+  - ./PRODUCT_GOVERNANCE.md
+  - ./ACCESSIBILITY_STANDARDS.md
+  - ./AI_UX_GUIDELINES.md
+  - ./REVIEW_CHECKLISTS.md
+review_frequency: Quarterly and after material platform, security, or reliability changes
+owner: Engineering, Security, Privacy, and Reliability
+version: 1.0.0
+status: Release gate
+last_updated: 2026-08-01
+normative_level: Binding standard
+canonical_terms: Organization, Workspace, Role, Permission, Authentication, Profile, audit, source of truth, recovery
+---
 
-**Status:** Normative engineering standard  
-**Owner:** Engineering, Security, QA, and Product  
+# EduTrack Engineering Standards
 
 Engineering quality is user quality. Correctness, privacy, authorization, data integrity, observability, performance, accessibility, and recovery are release requirements for every module.
 
 ## Contracts and ownership
 
-Define explicit contracts for Student, Teacher, Attendance, Fee, Exam, Report, Analytics, Notification, Authentication, Organization Management, Profile, Search, Filters, mobile synchronization, and AI inputs/outputs. Name the source of truth, owner, retention, permissions, audit behavior, and compatibility policy.
+Define explicit contracts for Student, Teacher, Attendance, Fee, Exam, Report, Analytics, Notification, Authentication, Organization, Profile, Search, Filters, mobile synchronization, and AI Assistant inputs/outputs. Name the source of truth, owner, retention, permissions, audit behavior, and compatibility policy.
 
 ## Authorization and tenancy
 

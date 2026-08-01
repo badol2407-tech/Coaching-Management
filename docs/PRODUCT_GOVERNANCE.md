@@ -1,7 +1,23 @@
-# EduTrack Product Governance
+---
+title: EduTrack Product Governance
+purpose: Define decision authority, documentation governance, change control, and release evidence.
+scope: Product decisions, standards precedence, proposals, authorities, exceptions, release gates, versions, and reviews.
+audience: Product, Design, Engineering, Security, Privacy, AI Governance, Operations, QA, and reviewers.
+related_documents:
+  - ./PRODUCT_CONSTITUTION.md
+  - ./DECISION_LOG.md
+  - ./REVIEW_CHECKLISTS.md
+  - ./ENGINEERING_STANDARDS.md
+review_frequency: Quarterly and after a material incident, policy, or governance change
+owner: Product Governance Council
+version: 1.0.0
+status: Normative decision and change-control standard
+last_updated: 2026-08-01
+normative_level: Binding governance standard
+canonical_terms: Organization, Workspace, Role, Permission, Enterprise Module, exception, evidence, owner, expiry
+---
 
-**Status:** Normative decision and change-control standard  
-**Owner:** Product Governance Council  
+# EduTrack Product Governance
 
 Governance keeps EduTrack coherent as modules, roles, data, AI, integrations, and organizations grow. It makes decisions traceable without turning the product into bureaucracy.
 
@@ -18,6 +34,22 @@ When standards conflict, decide in this order:
 7. Convenience
 
 The decision record must state the conflict, affected roles, data, risk, evidence, and why the chosen option preserves the higher priority.
+
+## Documentation authority and precedence
+
+The documentation system uses the following authority order:
+
+1. [PRODUCT_CONSTITUTION.md](./PRODUCT_CONSTITUTION.md) — product beliefs and non-negotiable principles.
+2. This handbook — decision authority, exceptions, lifecycle, and change control.
+3. Release-gate standards — [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md), [ETHICAL_UX_GUIDELINES.md](./ETHICAL_UX_GUIDELINES.md), [ENGINEERING_STANDARDS.md](./ENGINEERING_STANDARDS.md), and [AI_UX_GUIDELINES.md](./AI_UX_GUIDELINES.md).
+4. Domain, interaction, design-system, content, and review handbooks — implementation guidance within the higher-level constraints.
+5. [GESTALT_PRINCIPLES.md](./GESTALT_PRINCIPLES.md), [USABILITY_HEURISTICS.md](./USABILITY_HEURISTICS.md), and [UX_LAWS.md](./UX_LAWS.md) — explanatory or review guidance; they do not override a release gate.
+
+When two documents describe the same rule, the owner named in the higher document is the source of truth. Lower-level documents should link to that rule rather than restate a competing threshold.
+
+## Documentation change record
+
+Documentation changes must identify the affected standard, owner, version, date, rationale, evidence, and related implementation changes. Use [DECISION_LOG.md](./DECISION_LOG.md) for durable decisions and [CHANGELOG.md](./CHANGELOG.md) for dated evolution. A documentation exception must have a reason, affected users, safer alternative, owner, approval, and expiry.
 
 ## Required proposal record
 

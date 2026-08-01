@@ -1,7 +1,23 @@
-# EduTrack Review Checklists
+---
+title: EduTrack Review Checklists
+purpose: Provide evidence-based release and design gates for product changes.
+scope: Product scope, accessibility, interaction, data, security, content, performance, reliability, AI, and final decisions.
+audience: Product, Design, Engineering, Security, Privacy, AI Governance, QA, Accessibility, and approvers.
+related_documents:
+  - ./PRODUCT_GOVERNANCE.md
+  - ./ACCESSIBILITY_STANDARDS.md
+  - ./ENGINEERING_STANDARDS.md
+  - ./AI_UX_GUIDELINES.md
+review_frequency: Quarterly and after checklist, policy, or release-process changes
+owner: Product Governance, Design, Engineering, QA, Security, and Accessibility
+version: 1.0.0
+status: Release and design review gates
+last_updated: 2026-08-01
+normative_level: Binding release evidence
+canonical_terms: Pass, Fail, Not applicable, Exception, evidence, owner, expiry, Dashboard, Students, Teachers, Attendance, Fees, Exams, Reports, Analytics, Notifications, Organization, Profile, Search, Filters, AI Assistant, Mobile
+---
 
-**Status:** Release and design review gates  
-**Owner:** Product Governance, Design, Engineering, QA, Security, and Accessibility  
+# EduTrack Review Checklists
 
 Use these checklists as evidence gates, not paperwork. Mark an item **Pass**, **Fail**, **Not applicable with reason**, or **Exception with owner and expiry**. A failed higher-priority item blocks release.
 
@@ -64,7 +80,7 @@ Use these checklists as evidence gates, not paperwork. Mark an item **Pass**, **
 ## Final decision
 
 - **Decision:** Pass / Block / Exception
-- **Affected modules:** Dashboard / Students / Teachers / Attendance / Fees / Exams / Reports / Analytics / Notifications / Authentication / Organization Management / Profile / Search / Filters / Mobile / AI / future module
+- **Affected modules:** Dashboard / Students / Teachers / Attendance / Fees / Exams / Reports / Analytics / Notifications / Authentication / Organization / Profile / Search / Filters / Mobile / AI Assistant / future module
 - **Evidence links:** tests, audits, measurements, user research, screenshots, or decision records
 - **Known gaps:** owner, mitigation, due date, expiry
 - **Approver:** name and role

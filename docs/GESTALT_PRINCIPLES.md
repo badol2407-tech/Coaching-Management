@@ -1,7 +1,23 @@
-# EduTrack Gestalt Principles
+---
+title: EduTrack Gestalt Principles
+purpose: Provide explanatory principles for grouping, hierarchy, and visual comprehension.
+scope: Proximity, similarity, common region, continuity, closure, figure and ground, common fate, and hierarchy.
+audience: Product Design, Design Systems, Content, Engineering, QA, and reviewers.
+related_documents:
+  - ./DESIGN_SYSTEM_GUIDE.md
+  - ./COLOR_SYSTEM.md
+  - ./TYPOGRAPHY_SYSTEM.md
+  - ./COMPONENT_SPECIFICATIONS.md
+review_frequency: Annually and when visual language or information hierarchy changes
+owner: Product Design and Design Systems
+version: 1.0.0
+status: Explanatory guidance
+last_updated: 2026-08-01
+normative_level: Advisory rationale
+canonical_terms: hierarchy, grouping, proximity, similarity, common region, figure and ground
+---
 
-**Status:** Normative visual reasoning guide  
-**Owner:** Product Design  
+# EduTrack Gestalt Principles
 
 Gestalt principles describe how people perceive relationships, grouping, continuation, and hierarchy. Use them to clarify work, never to conceal cost, risk, permission, uncertainty, or system status. The dedicated [COLOR_SYSTEM.md](./COLOR_SYSTEM.md) and [TYPOGRAPHY_SYSTEM.md](./TYPOGRAPHY_SYSTEM.md) define tokens; this file defines the reasoning behind their use.
 
@@ -25,7 +41,7 @@ Gestalt principles describe how people perceive relationships, grouping, continu
 
 **Rule:** Use a shared region to communicate a real relationship, not to decorate or imply a false relationship.
 
-**Examples:** A Student Profile region may contain enrollment and coaching information allowed to that role; an Analytics region may group a chart with its scope and freshness; an Organization Management region may group role controls with their impact.
+**Examples:** A Student Profile region may contain enrollment and coaching information allowed to that role; an Analytics region may group a chart with its scope and freshness; an Organization region may group Role controls with their impact.
 
 **Measure:** Every grouping boundary has a content, task, or permission rationale.
 

@@ -1,12 +1,30 @@
+---
+title: EduTrack UX Laws
+purpose: Translate established UX laws into reviewable, domain-specific design guidance.
+scope: Fourteen UX laws and their application to Dashboard, Students, Teachers, Attendance, Fees, Exams, Reports, Analytics, Notifications, Authentication, Organization, Profile, Search, Filters, Mobile, AI Assistant, and Enterprise Modules.
+audience: Product, Design, Engineering, Content, QA, Accessibility, and reviewers.
+related_documents:
+  - ./PRODUCT_CONSTITUTION.md
+  - ./PRODUCT_GOVERNANCE.md
+  - ./ACCESSIBILITY_STANDARDS.md
+  - ./INTERACTION_DESIGN.md
+  - ./REVIEW_CHECKLISTS.md
+review_frequency: Annually and after material interaction, accessibility, or governance changes
+owner: Product Design
+version: 1.0.0
+status: Review guidance
+last_updated: 2026-08-01
+normative_level: Advisory implementation guidance
+canonical_terms: Dashboard, Students, Teachers, Attendance, Fees, Exams, Reports, Analytics, Notifications, Organization, Profile, Settings, Search, Filters, AI Assistant, Enterprise Module, Permission, Role, Workspace
+---
+
 # EduTrack UX Laws
 
-**Status:** Normative  
-**Owner:** Product Design  
-**Applies to:** Dashboard, Students, Teachers, Attendance, Fees, Exams, Reports, Analytics, Notifications, Authentication, Organization Management, Profile, Search, Filters, Mobile, AI features, and future enterprise modules.
+**Applies to:** Dashboard, Students, Teachers, Attendance, Fees, Exams, Reports, Analytics, Notifications, Authentication, Organization, Profile, Search, Filters, Mobile, AI Assistant, and future Enterprise Modules.
 
 ## Purpose and precedence
 
-This handbook is the implementation companion to [PRODUCT_CONSTITUTION.md](./PRODUCT_CONSTITUTION.md). The constitution holds permanent beliefs; this file translates the UX laws into reviewable product decisions. It does not replace the dedicated handbooks for accessibility, interaction, content, or engineering.
+This handbook is the implementation companion to [PRODUCT_CONSTITUTION.md](./PRODUCT_CONSTITUTION.md). The Constitution owns product principles; this file translates UX laws into reviewable design guidance. It does not replace the dedicated handbooks for accessibility, interaction, content, or engineering, and it cannot override a release gate defined in [PRODUCT_GOVERNANCE.md](./PRODUCT_GOVERNANCE.md).
 
 When laws conflict, use this order:
 
@@ -17,6 +35,8 @@ When laws conflict, use this order:
 5. Clarity
 6. Performance
 7. Convenience
+
+This order is governed by [PRODUCT_GOVERNANCE.md](./PRODUCT_GOVERNANCE.md). Thresholds owned by [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md), [ENGINEERING_STANDARDS.md](./ENGINEERING_STANDARDS.md), or another release-gate handbook remain canonical; examples here are explanatory applications, not competing requirements.
 
 Every feature proposal must name the laws it relies on, the risk of violating them, and the evidence used to validate the decision.
 
@@ -114,7 +134,7 @@ Every feature proposal must name the laws it relies on, the risk of violating th
 
 **Rule:** Provide a recommended, reversible path first. Summarize advanced selections and their consequences before execution.
 
-**EduTrack examples:** Student and Teacher filters expose common fields first; Attendance bulk actions are grouped; Fee adjustments are role-gated; Reports offer templates; Organization Management permissions are searchable; AI recommendations explain differences.
+**EduTrack examples:** Student and Teacher Filters expose common fields first; Attendance bulk actions are grouped; Fee adjustments are Role-gated; Reports offer templates; Organization Permissions are searchable; AI Assistant suggestions explain differences.
 
 **Measure:** Users can identify the safest common action and review scope before a bulk, financial, permission, or AI action.
 

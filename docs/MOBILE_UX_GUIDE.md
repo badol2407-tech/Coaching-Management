@@ -1,7 +1,23 @@
-# EduTrack Mobile UX Guide
+---
+title: EduTrack Mobile UX Guide
+purpose: Define accessible, resilient, and task-complete experiences on small screens and variable networks.
+scope: Mobile priorities, layout, density, interruptions, network behavior, Notifications, and accessibility.
+audience: Product, Design, Engineering, QA, Accessibility, Content, and reviewers.
+related_documents:
+  - ./ACCESSIBILITY_STANDARDS.md
+  - ./INTERACTION_DESIGN.md
+  - ./NAVIGATION_STANDARDS.md
+  - ./MOTION_GUIDELINES.md
+review_frequency: Quarterly and after mobile platform, network, or responsive-layout changes
+owner: Product Design, Engineering, and QA
+version: 1.0.0
+status: Binding responsive and mobile standard
+last_updated: 2026-08-01
+normative_level: Binding standard
+canonical_terms: mobile, responsive, touch target, Dashboard, Students, Teachers, Attendance, Fees, Notifications
+---
 
-**Status:** Normative responsive standard  
-**Owner:** Product Design and Engineering  
+# EduTrack Mobile UX Guide
 
 Mobile is a primary operating context for Teachers, administrators, Students, and field staff—not a smaller desktop. Design for touch, interruption, variable bandwidth, small screens, device accessibility settings, and one-handed use.
 
