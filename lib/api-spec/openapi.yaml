@@ -3,20 +3,26 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Coaching Management System API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: students
+    description: Student management
+  - name: attendance
+    description: Attendance management
+  - name: dashboard
+    description: Dashboard statistics
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +30,468 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ── Students ──────────────────────────────────────────────────────────────
+
+  /students:
+    get:
+      operationId: listStudents
+      tags: [students]
+      summary: List all students with optional filters
+      parameters:
+        - name: batch
+          in: query
+          schema: { type: string }
+        - name: class
+          in: query
+          schema: { type: string }
+        - name: status
+          in: query
+          schema: { type: string, enum: [active, inactive] }
+        - name: search
+          in: query
+          schema: { type: string }
+      responses:
+        "200":
+          description: List of students
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Student"
+    post:
+      operationId: createStudent
+      tags: [students]
+      summary: Add a new student
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudentInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+
+  /students/{id}:
+    get:
+      operationId: getStudent
+      tags: [students]
+      summary: Get student by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: number }
+      responses:
+        "200":
+          description: Student detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateStudent
+      tags: [students]
+      summary: Update student profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: number }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudentUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteStudent
+      tags: [students]
+      summary: Archive or delete a student
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: number }
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
+  # ── Attendance ────────────────────────────────────────────────────────────
+
+  /attendance:
+    get:
+      operationId: listAttendance
+      tags: [attendance]
+      summary: List attendance records
+      parameters:
+        - name: batch
+          in: query
+          schema: { type: string }
+        - name: date
+          in: query
+          description: "YYYY-MM-DD"
+          schema: { type: string }
+        - name: month
+          in: query
+          description: "YYYY-MM"
+          schema: { type: string }
+        - name: studentId
+          in: query
+          schema: { type: number }
+      responses:
+        "200":
+          description: Attendance records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AttendanceRecord"
+    post:
+      operationId: saveAttendance
+      tags: [attendance]
+      summary: Save or update attendance for a batch on a date (bulk upsert)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AttendanceBatchInput"
+      responses:
+        "200":
+          description: Saved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AttendanceRecord"
+
+  /attendance/{id}:
+    patch:
+      operationId: updateAttendanceRecord
+      tags: [attendance]
+      summary: Edit a single attendance record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: number }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AttendanceRecordUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttendanceRecord"
+        "404":
+          description: Not found
+
+  /attendance/student-summary:
+    get:
+      operationId: getStudentAttendanceSummary
+      tags: [attendance]
+      summary: Attendance percentage and monthly breakdown for one student (query-param only)
+      parameters:
+        - name: studentId
+          in: query
+          required: true
+          schema: { type: number }
+        - name: month
+          in: query
+          description: "YYYY-MM format (e.g. 2026-07)"
+          schema: { type: string }
+      responses:
+        "200":
+          description: Attendance summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentAttendanceSummary"
+
+  # ── Dashboard / Reports ───────────────────────────────────────────────────
+
+  /dashboard/stats:
+    get:
+      operationId: getDashboardStats
+      tags: [dashboard]
+      summary: Summary stats for the dashboard
+      responses:
+        "200":
+          description: Stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  /dashboard/daily-attendance:
+    get:
+      operationId: getDailyAttendance
+      tags: [dashboard]
+      summary: Daily attendance report for a specific date
+      parameters:
+        - name: date
+          in: query
+          description: "YYYY-MM-DD (defaults to today)"
+          schema: { type: string }
+        - name: batch
+          in: query
+          schema: { type: string }
+      responses:
+        "200":
+          description: Daily attendance report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyAttendanceReport"
+
+  /dashboard/monthly-attendance:
+    get:
+      operationId: getMonthlyAttendance
+      tags: [dashboard]
+      summary: Monthly attendance summary grouped by student
+      parameters:
+        - name: month
+          in: query
+          description: "YYYY-MM"
+          required: true
+          schema: { type: string }
+        - name: batch
+          in: query
+          schema: { type: string }
+      responses:
+        "200":
+          description: Monthly attendance summary
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MonthlyAttendanceRow"
+
+  /dashboard/batches:
+    get:
+      operationId: listBatches
+      tags: [dashboard]
+      summary: List all distinct batches
+      responses:
+        "200":
+          description: Batch list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BatchInfo"
+
 components:
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
-        status:
-          type: string
-      required:
-        - status
+        status: { type: string }
 
+    # ── Student ──────────────────────────────────────────────────────────────
+    Student:
+      type: object
+      required:
+        - id
+        - fullName
+        - studentId
+        - class
+        - batch
+        - phone
+        - address
+        - admissionDate
+        - status
+        - createdAt
+      properties:
+        id:           { type: number }
+        fullName:     { type: string }
+        studentId:    { type: string }
+        photo:        { type: ["string", "null"] }
+        class:        { type: string }
+        batch:        { type: string }
+        parentName:   { type: ["string", "null"] }
+        parentPhone:  { type: ["string", "null"] }
+        phone:        { type: string }
+        address:      { type: string }
+        admissionDate: { type: string, description: "YYYY-MM-DD" }
+        status:       { type: string, enum: [active, inactive] }
+        createdAt:    { type: string }
+        updatedAt:    { type: ["string", "null"] }
+
+    StudentInput:
+      type: object
+      required:
+        - fullName
+        - studentId
+        - class
+        - batch
+        - phone
+        - address
+        - admissionDate
+      properties:
+        fullName:     { type: string, minLength: 1 }
+        studentId:    { type: string, minLength: 1 }
+        photo:        { type: string }
+        class:        { type: string, minLength: 1 }
+        batch:        { type: string, minLength: 1 }
+        parentName:   { type: string }
+        parentPhone:  { type: string }
+        phone:        { type: string, minLength: 1 }
+        address:      { type: string, minLength: 1 }
+        admissionDate: { type: string, description: "YYYY-MM-DD" }
+        status:       { type: string, enum: [active, inactive] }
+
+    StudentUpdate:
+      type: object
+      properties:
+        fullName:     { type: string, minLength: 1 }
+        photo:        { type: string }
+        class:        { type: string }
+        batch:        { type: string }
+        parentName:   { type: string }
+        parentPhone:  { type: string }
+        phone:        { type: string }
+        address:      { type: string }
+        admissionDate: { type: string }
+        status:       { type: string, enum: [active, inactive] }
+
+    StudentAttendanceSummary:
+      type: object
+      required: [studentId, totalDays, presentDays, absentDays, percentage]
+      properties:
+        studentId:   { type: number }
+        totalDays:   { type: number }
+        presentDays: { type: number }
+        absentDays:  { type: number }
+        percentage:  { type: number }
+        dailyRecords:
+          type: array
+          items:
+            $ref: "#/components/schemas/AttendanceRecord"
+
+    # ── Attendance ───────────────────────────────────────────────────────────
+    AttendanceRecord:
+      type: object
+      required: [id, studentId, date, status, batch]
+      properties:
+        id:        { type: number }
+        studentId: { type: number }
+        date:      { type: string, description: "YYYY-MM-DD" }
+        status:    { type: string, enum: [present, absent] }
+        batch:     { type: string }
+        note:      { type: ["string", "null"] }
+        createdAt: { type: string }
+        student:
+          $ref: "#/components/schemas/Student"
+
+    AttendanceBatchInput:
+      type: object
+      required: [date, batch, records]
+      properties:
+        date:  { type: string, description: "YYYY-MM-DD" }
+        batch: { type: string }
+        records:
+          type: array
+          items:
+            $ref: "#/components/schemas/AttendanceEntry"
+
+    AttendanceEntry:
+      type: object
+      required: [studentId, status]
+      properties:
+        studentId: { type: number }
+        status:    { type: string, enum: [present, absent] }
+        note:      { type: string }
+
+    AttendanceRecordUpdate:
+      type: object
+      properties:
+        status: { type: string, enum: [present, absent] }
+        note:   { type: string }
+
+    # ── Dashboard ────────────────────────────────────────────────────────────
+    DashboardStats:
+      type: object
+      required:
+        - totalStudents
+        - activeStudents
+        - inactiveStudents
+        - totalBatches
+        - todayAttendancePercent
+        - todayPresent
+        - todayAbsent
+        - todayUnmarked
+      properties:
+        totalStudents:          { type: number }
+        activeStudents:         { type: number }
+        inactiveStudents:       { type: number }
+        totalBatches:           { type: number }
+        todayAttendancePercent: { type: number }
+        todayPresent:           { type: number }
+        todayAbsent:            { type: number }
+        todayUnmarked:          { type: number }
+
+    DailyAttendanceReport:
+      type: object
+      required: [date, batch, total, present, absent, unmarked, records]
+      properties:
+        date:     { type: string }
+        batch:    { type: string }
+        total:    { type: number }
+        present:  { type: number }
+        absent:   { type: number }
+        unmarked: { type: number }
+        records:
+          type: array
+          items:
+            $ref: "#/components/schemas/AttendanceRecord"
+
+    MonthlyAttendanceRow:
+      type: object
+      required: [studentId, fullName, batch, class, totalDays, presentDays, absentDays, percentage]
+      properties:
+        studentId:   { type: number }
+        fullName:    { type: string }
+        batch:       { type: string }
+        class:       { type: string }
+        totalDays:   { type: number }
+        presentDays: { type: number }
+        absentDays:  { type: number }
+        percentage:  { type: number }
+
+    BatchInfo:
+      type: object
+      required: [name, studentCount]
+      properties:
+        name:         { type: string }
+        studentCount: { type: number }
