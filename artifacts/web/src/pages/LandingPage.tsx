@@ -1,21 +1,62 @@
 import { useState } from "react";
 import {
-  signInWithEmailAndPassword, sendPasswordResetEmail,
-  setPersistence, browserLocalPersistence, browserSessionPersistence,
-  GoogleAuthProvider, signInWithPopup,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+  setPersistence,
+  browserLocalPersistence,
+  browserSessionPersistence,
+  GoogleAuthProvider,
+  signInWithPopup,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import { PLAN_CONFIG, getPricingDisplay } from "@/lib/plan-config";
-
-const googleProvider = new GoogleAuthProvider();
+import {
+  PLAN_CONFIG,
+  getPricingDisplay,
+  type PlanTier,
+} from "@/lib/plan-config";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
-  GraduationCap, Users, CalendarCheck, Wallet, ClipboardList,
-  Bell, Receipt, LayoutDashboard, ArrowRight, CheckCircle, X,
-  Loader2, Star, MessageCircle, Mail, Phone, Eye, EyeOff,
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  GraduationCap,
+  Users,
+  CalendarCheck,
+  Wallet,
+  ClipboardList,
+  Bell,
+  Receipt,
+  LayoutDashboard,
+  ArrowRight,
+  CheckCircle,
+  Loader2,
+  Star,
+  MessageCircle,
+  Mail,
+  Phone,
+  Eye,
+  EyeOff,
+  ShieldCheck,
+  Clock3,
+  BarChart3,
+  Sparkles,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { trackFeatureUsed, trackLogin, trackLoginFailed } from "@/lib/analytics";
@@ -23,27 +64,111 @@ import { PromotionPopup } from "@/components/PromotionPopup";
 import { HeroCarousel } from "@/components/HeroCarousel";
 import { usePublicTestimonials } from "@/lib/public-hooks";
 
+const googleProvider = new GoogleAuthProvider();
+
 const features = [
-  { icon: LayoutDashboard, title: "Real-time Dashboard", desc: "Students, fees, attendance — একনজরে সব statistics দেখুন", iconGrad: "from-blue-500 to-blue-600", accent: "from-blue-500 to-cyan-400", glow: "shadow-blue-500/25", glowHover: "group-hover:shadow-blue-500/40", highlight: true },
-  { icon: Users, title: "Student Management", desc: "Students register, update, search করুন সহজেই", iconGrad: "from-emerald-500 to-emerald-600", accent: "from-emerald-500 to-teal-400", glow: "shadow-emerald-500/25", glowHover: "group-hover:shadow-emerald-500/40" },
-  { icon: GraduationCap, title: "Teacher Portal", desc: "Teachers-এর subject, salary, attendance সব track করুন", iconGrad: "from-violet-500 to-violet-600", accent: "from-violet-500 to-purple-400", glow: "shadow-violet-500/25", glowHover: "group-hover:shadow-violet-500/40" },
-  { icon: CalendarCheck, title: "Attendance Tracking", desc: "প্রতিদিনের attendance digital-এ record করুন", iconGrad: "from-amber-500 to-orange-500", accent: "from-amber-400 to-orange-400", glow: "shadow-amber-500/25", glowHover: "group-hover:shadow-amber-500/40" },
-  { icon: Wallet, title: "Fee Management", desc: "Monthly fees track করুন, one-click-এ mark paid", iconGrad: "from-rose-500 to-rose-600", accent: "from-rose-500 to-pink-400", glow: "shadow-rose-500/25", glowHover: "group-hover:shadow-rose-500/40", highlight: true },
-  { icon: ClipboardList, title: "Exam & Results", desc: "Exam তৈরি করুন, results enter করুন, grade দিন", iconGrad: "from-indigo-500 to-indigo-600", accent: "from-indigo-500 to-blue-400", glow: "shadow-indigo-500/25", glowHover: "group-hover:shadow-indigo-500/40" },
-  { icon: Bell, title: "Notice Board", desc: "সব notices একজায়গায় — teachers ও students সবাই দেখবে", iconGrad: "from-pink-500 to-pink-600", accent: "from-pink-500 to-rose-400", glow: "shadow-pink-500/25", glowHover: "group-hover:shadow-pink-500/40" },
-  { icon: Receipt, title: "Expense Tracking", desc: "Coaching center-এর সব খরচ category wise log করুন", iconGrad: "from-teal-500 to-teal-600", accent: "from-teal-500 to-emerald-400", glow: "shadow-teal-500/25", glowHover: "group-hover:shadow-teal-500/40" },
+  {
+    icon: LayoutDashboard,
+    title: "Real-time Dashboard",
+    desc: "Students, fees, attendance — একনজরে সব statistics দেখুন",
+  },
+  {
+    icon: Users,
+    title: "Student Management",
+    desc: "Students register, update, search করুন সহজেই",
+  },
+  {
+    icon: GraduationCap,
+    title: "Teacher Portal",
+    desc: "Teachers-এর subject, salary, attendance সব track করুন",
+  },
+  {
+    icon: CalendarCheck,
+    title: "Attendance Tracking",
+    desc: "প্রতিদিনের attendance digital-এ record করুন",
+  },
+  {
+    icon: Wallet,
+    title: "Fee Management",
+    desc: "Monthly fees track করুন, one-click-এ mark paid",
+  },
+  {
+    icon: ClipboardList,
+    title: "Exam & Results",
+    desc: "Exam তৈরি করুন, results enter করুন, grade দিন",
+  },
+  {
+    icon: Bell,
+    title: "Notice Board",
+    desc: "সব notices একজায়গায় — teachers ও students সবাই দেখবে",
+  },
+  {
+    icon: Receipt,
+    title: "Expense Tracking",
+    desc: "Coaching center-এর সব খরচ category wise log করুন",
+  },
 ];
 
 const steps = [
-  { num: "১", title: "Account তৈরি করুন", desc: "Google বা Email দিয়ে মাত্র ৩০ সেকেন্ডে register করুন।" },
-  { num: "২", title: "Organization Setup করুন", desc: "আপনার coaching center-এর নাম দিন। Organization Code পাবেন।" },
-  { num: "৩", title: "Team যোগ করুন", desc: "Teachers ও Students-দের Organization Code দিন — তারা join করবে।" },
-  { num: "৪", title: "Manage করুন", desc: "Attendance, fees, exams সব digital-এ manage করুন।" },
+  {
+    num: "১",
+    title: "Account তৈরি করুন",
+    desc: "Google বা Email দিয়ে মাত্র ৩০ সেকেন্ডে register করুন।",
+  },
+  {
+    num: "২",
+    title: "Organization Setup করুন",
+    desc: "আপনার coaching center-এর নাম দিন। Organization Code পাবেন।",
+  },
+  {
+    num: "৩",
+    title: "Team যোগ করুন",
+    desc: "Teachers ও Students-দের Organization Code দিন — তারা join করবে।",
+  },
+  {
+    num: "৪",
+    title: "Manage করুন",
+    desc: "Attendance, fees, exams সব digital-এ manage করুন।",
+  },
+];
+
+const faqs = [
+  {
+    question: "EduTrack কী ধরনের coaching center-এর জন্য?",
+    answer:
+      "EduTrack ছোট থেকে বড় coaching center-এর জন্য তৈরি। Organization admin, teachers এবং students — প্রত্যেকে নিজের role অনুযায়ী একই workspace ব্যবহার করতে পারে।",
+  },
+  {
+    question: "শুরু করতে কি কোনো credit card লাগবে?",
+    answer:
+      "না। Free Trial শুরু করতে credit card দরকার নেই। আপনি workspace সেটআপ করে platform-এর core workflow আগে দেখে নিতে পারবেন।",
+  },
+  {
+    question: "আমি কি আমার teachers ও students-দের যোগ করতে পারব?",
+    answer:
+      "হ্যাঁ। Organization setup করার পরে আপনার team-কে Organization Code দিয়ে join করাতে পারবেন। প্রত্যেকে তার role অনুযায়ী portal access পাবে।",
+  },
+  {
+    question: "আমার data কি নিরাপদ থাকবে?",
+    answer:
+      "EduTrack role-based access, cloud storage এবং regular backup workflow-এর মাধ্যমে organization data পরিচালনা করতে সাহায্য করে। Access সবসময় user role এবং organization scope অনুযায়ী থাকে।",
+  },
+  {
+    question: "পরে plan পরিবর্তন বা cancel করা যাবে?",
+    answer:
+      "হ্যাঁ। Plan অনুযায়ী billing cycle এবং feature access আলাদা হতে পারে। আপনার account থেকে subscription settings পরিচালনা করা যাবে।",
+  },
 ];
 
 type AuthMode = "login" | "reset";
 
-function AuthPanel({ defaultMode, onClose }: { defaultMode: AuthMode; onClose: () => void }) {
+function AuthPanel({
+  defaultMode,
+  onClose,
+}: {
+  defaultMode: AuthMode;
+  onClose: () => void;
+}) {
   const [mode, setMode] = useState<AuthMode>(defaultMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -61,7 +186,11 @@ function AuthPanel({ defaultMode, onClose }: { defaultMode: AuthMode; onClose: (
     } catch (err: any) {
       if (err.code !== "auth/popup-closed-by-user") {
         trackLoginFailed("google", err.code ?? "unknown");
-        toast({ title: "Google Sign-In Error", description: friendlyError(err.code), variant: "destructive" });
+        toast({
+          title: "Google Sign-In Error",
+          description: friendlyError(err.code),
+          variant: "destructive",
+        });
       }
     } finally {
       setLoading(false);
@@ -75,10 +204,15 @@ function AuthPanel({ defaultMode, onClose }: { defaultMode: AuthMode; onClose: (
     try {
       if (mode === "reset") {
         await sendPasswordResetEmail(auth, email);
-        toast({ title: "Reset link sent!", description: "Check your email for the password reset link." });
+        toast({
+          title: "Reset link sent!",
+          description: "Check your email for the password reset link.",
+        });
         setMode("login");
       } else {
-        const persistence = rememberMe ? browserLocalPersistence : browserSessionPersistence;
+        const persistence = rememberMe
+          ? browserLocalPersistence
+          : browserSessionPersistence;
         await setPersistence(auth, persistence);
         await signInWithEmailAndPassword(auth, email, password);
         trackLogin("email");
@@ -86,153 +220,410 @@ function AuthPanel({ defaultMode, onClose }: { defaultMode: AuthMode; onClose: (
       }
     } catch (err: any) {
       trackLoginFailed("email", err.code ?? "unknown");
-      toast({ title: "Login Error", description: friendlyError(err.code), variant: "destructive" });
+      toast({
+        title: "Login Error",
+        description: friendlyError(err.code),
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <Card className="w-full max-w-sm shadow-2xl">
-        <CardHeader className="text-center space-y-2 relative pb-3">
-          <button
-            onClick={onClose}
-            className="absolute right-4 top-4 text-muted-foreground hover:text-foreground"
-          >
-            <X className="h-5 w-5" />
-          </button>
-          <div className="flex justify-center">
-            <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center">
-              <GraduationCap className="h-7 w-7 text-white" />
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader className="pr-8">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+              <GraduationCap className="h-5 w-5" aria-hidden="true" />
+            </div>
+            <div>
+              <DialogTitle>
+                {mode === "login" ? "Sign In to EduTrack" : "Reset Password"}
+              </DialogTitle>
+              <DialogDescription className="mt-1">
+                {mode === "login"
+                  ? "Enter your email and password to continue"
+                  : "Enter your email to receive a reset link"}
+              </DialogDescription>
             </div>
           </div>
-          <CardTitle className="text-xl">
-            {mode === "login" ? "Sign In to EduTrack" : "Reset Password"}
-          </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            {mode === "login"
-              ? "Enter your email and password to continue"
-              : "Enter your email to receive a reset link"}
-          </p>
-        </CardHeader>
+        </DialogHeader>
 
-        <CardContent className="space-y-4">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Email */}
-            <div className="space-y-1.5">
-              <Label htmlFor="auth-email">Email</Label>
-              <Input
-                id="auth-email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                autoFocus
-              />
-            </div>
-
-            {/* Password — only in login mode */}
-            {mode === "login" && (
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="auth-password">Password</Label>
-                  <button
-                    type="button"
-                    className="text-xs text-primary hover:underline"
-                    onClick={() => setMode("reset")}
-                  >
-                    Forgot Password?
-                  </button>
-                </div>
-                <div className="relative">
-                  <Input
-                    id="auth-password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="pr-10"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((v) => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    tabIndex={-1}
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Remember me — only in login mode */}
-            {mode === "login" && (
-              <div className="flex items-center gap-2">
-                <input
-                  id="remember-me"
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="h-4 w-4 rounded border-border accent-primary cursor-pointer"
-                />
-                <label
-                  htmlFor="remember-me"
-                  className="text-sm text-muted-foreground cursor-pointer select-none"
-                >
-                  Remember me
-                </label>
-              </div>
-            )}
-
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              {mode === "login" ? "Login" : "Send Reset Link"}
-            </Button>
-          </form>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="auth-email">Email</Label>
+            <Input
+              id="auth-email"
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoFocus
+            />
+          </div>
 
           {mode === "login" && (
-            <>
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-2 text-muted-foreground">or</span>
-                </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-3">
+                <Label htmlFor="auth-password">Password</Label>
+                <Button
+                  type="button"
+                  variant="link"
+                  size="sm"
+                  className="h-auto px-0"
+                  onClick={() => setMode("reset")}
+                >
+                  Forgot Password?
+                </Button>
               </div>
-              <button
-                type="button"
-                onClick={handleGoogle}
-                disabled={loading}
-                className="w-full flex items-center justify-center gap-2 rounded-md border border-border bg-background px-4 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors disabled:opacity-50"
-              >
-                <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24">
-                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                </svg>
-                Continue with Google
-              </button>
-            </>
+              <div className="relative">
+                <Input
+                  id="auth-password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="pr-12"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-1 top-1/2 -translate-y-1/2"
+                  onClick={() => setShowPassword((value) => !value)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? (
+                    <EyeOff aria-hidden="true" />
+                  ) : (
+                    <Eye aria-hidden="true" />
+                  )}
+                </Button>
+              </div>
+            </div>
           )}
 
-          {mode === "reset" && (
-            <p className="text-center text-sm">
-              <button
-                className="text-primary font-medium hover:underline"
-                onClick={() => setMode("login")}
+          {mode === "login" && (
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="remember-me"
+                checked={rememberMe}
+                onCheckedChange={(checked) => setRememberMe(checked === true)}
+              />
+              <Label
+                htmlFor="remember-me"
+                className="cursor-pointer font-normal text-muted-foreground"
               >
-                ← Back to Login
-              </button>
+                Remember me
+              </Label>
+            </div>
+          )}
+
+          <DialogFooter className="gap-2 sm:gap-3">
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading && (
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+              )}
+              {mode === "login" ? "Login" : "Send Reset Link"}
+            </Button>
+          </DialogFooter>
+        </form>
+
+        {mode === "login" && (
+          <div className="space-y-3">
+            <div className="relative flex items-center">
+              <div className="w-full border-t" />
+              <span className="absolute left-1/2 -translate-x-1/2 bg-background px-2 text-xs uppercase text-muted-foreground">
+                or
+              </span>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={handleGoogle}
+              disabled={loading}
+            >
+              <span
+                className="font-semibold text-primary"
+                aria-hidden="true"
+              >
+                G
+              </span>
+              Continue with Google
+            </Button>
+          </div>
+        )}
+
+        {mode === "reset" && (
+          <Button
+            type="button"
+            variant="link"
+            className="mx-auto"
+            onClick={() => setMode("login")}
+          >
+            ← Back to Login
+          </Button>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function SectionHeading({
+  eyebrow,
+  title,
+  description,
+  align = "center",
+}: {
+  eyebrow: string;
+  title: string;
+  description: string;
+  align?: "center" | "left";
+}) {
+  return (
+    <div
+      className={
+        align === "center"
+          ? "mx-auto max-w-2xl text-center"
+          : "max-w-2xl text-left"
+      }
+    >
+      <Badge variant="secondary" className="mb-4">
+        {eyebrow}
+      </Badge>
+      <h2 className="font-display text-3xl leading-tight tracking-tight sm:text-4xl">
+        {title}
+      </h2>
+      <p className="mt-3 text-base leading-relaxed text-muted-foreground">
+        {description}
+      </p>
+    </div>
+  );
+}
+
+function ProductPreview() {
+  return (
+    <Card className="overflow-hidden border-primary/20">
+      <div className="flex items-center justify-between border-b bg-muted px-4 py-3">
+        <div className="flex items-center gap-2">
+          <span className="h-2 w-2 rounded-full bg-primary" aria-hidden="true" />
+          <span className="text-xs font-medium text-muted-foreground">
+            EduTrack workspace
+          </span>
+        </div>
+        <Badge variant="outline">Live preview</Badge>
+      </div>
+      <div className="bg-muted p-2 sm:p-3">
+        <img
+          src="/images/dashboard-mockup.png"
+          alt="EduTrack dashboard showing students, attendance, fees, and reporting overview"
+          className="aspect-video w-full rounded-lg border bg-card object-cover object-top"
+          width="1280"
+          height="720"
+          fetchPriority="high"
+        />
+      </div>
+      <CardContent className="grid grid-cols-3 gap-3 p-4">
+        {[
+          { label: "Students", icon: Users },
+          { label: "Attendance", icon: CalendarCheck },
+          { label: "Fees & reports", icon: BarChart3 },
+        ].map(({ label, icon: Icon }) => (
+          <div key={label} className="flex items-center gap-2 text-xs">
+            <Icon className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+            <span className="text-muted-foreground">{label}</span>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  );
+}
+
+function PricingCard({
+  tier,
+  onSelect,
+}: {
+  tier: PlanTier;
+  onSelect: (tier: PlanTier) => void;
+}) {
+  const plan = PLAN_CONFIG[tier];
+  const pricing = getPricingDisplay(tier);
+  const featured = tier === "founder_launch";
+  const cadence =
+    plan.billingCycle === "trial"
+      ? `${plan.trialDays} days`
+      : plan.billingCycle === "monthly"
+        ? "month"
+        : "year";
+
+  return (
+    <Card
+      className={
+        featured
+          ? "relative flex h-full flex-col border-primary ring-2 ring-primary/20"
+          : "flex h-full flex-col"
+      }
+    >
+      {plan.badge && (
+        <Badge
+          variant={featured ? "default" : "secondary"}
+          className="absolute right-4 top-4"
+        >
+          {plan.badge}
+        </Badge>
+      )}
+      <CardHeader className="space-y-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          {tier === "free_trial" ? (
+            <Clock3 className="h-5 w-5" aria-hidden="true" />
+          ) : tier === "founder_launch" ? (
+            <Sparkles className="h-5 w-5" aria-hidden="true" />
+          ) : (
+            <ShieldCheck className="h-5 w-5" aria-hidden="true" />
+          )}
+        </div>
+        <div>
+          <CardTitle className="text-xl">{plan.name}</CardTitle>
+          <p className="mt-1 text-sm text-muted-foreground">{plan.tagline}</p>
+        </div>
+      </CardHeader>
+      <CardContent className="flex flex-1 flex-col">
+        <div className="mb-5">
+          <div className="flex items-baseline gap-2">
+            <span className="font-display text-4xl tracking-tight">
+              {pricing.price}
+            </span>
+            <span className="text-sm text-muted-foreground">/{cadence}</span>
+          </div>
+          {pricing.regularPrice && pricing.savings && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              <span className="line-through">{pricing.regularPrice}</span>{" "}
+              <span className="font-medium text-primary">{pricing.savings}</span>
             </p>
           )}
-        </CardContent>
-      </Card>
-    </div>
+          {pricing.monthlyEquivalent && (
+            <p className="mt-2 text-xs font-medium text-primary">
+              মাসে মাত্র {pricing.monthlyEquivalent}
+            </p>
+          )}
+        </div>
+        <ul className="mb-6 flex-1 space-y-3">
+          {plan.displayHighlights.map((highlight) => (
+            <li
+              key={highlight}
+              className="flex items-start gap-2 text-sm text-muted-foreground"
+            >
+              <CheckCircle
+                className="mt-0.5 h-4 w-4 shrink-0 text-primary"
+                aria-hidden="true"
+              />
+              <span>{highlight}</span>
+            </li>
+          ))}
+        </ul>
+        <Button
+          className="w-full"
+          variant={featured ? "default" : "outline"}
+          onClick={() => onSelect(tier)}
+        >
+          {tier === "free_trial"
+            ? "ফ্রি ট্রায়াল শুরু করুন"
+            : tier === "founder_launch"
+              ? "Founder Price নিন"
+              : "Annual Plan নিন"}
+          <ArrowRight aria-hidden="true" />
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
+function TestimonialsSection() {
+  const { data: testimonials = [], isLoading } = usePublicTestimonials();
+
+  if (!isLoading && testimonials.length === 0) return null;
+
+  return (
+    <section
+      id="testimonials"
+      className="scroll-mt-20 border-t bg-muted/40 px-4 py-16 sm:px-6 lg:px-8 lg:py-24"
+    >
+      <div className="mx-auto max-w-6xl">
+        <SectionHeading
+          eyebrow="Social proof"
+          title="যারা EduTrack ব্যবহার করছেন"
+          description="EduTrack ব্যবহারকারী coaching center-দের বাস্তব অভিজ্ঞতা।"
+        />
+
+        {isLoading ? (
+          <div className="mt-10 grid gap-4 md:grid-cols-3">
+            {[0, 1, 2].map((item) => (
+              <Card key={item} className="space-y-4 p-6">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-16 w-full" />
+                <Skeleton className="h-8 w-32" />
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className="mt-10 grid gap-4 md:grid-cols-3">
+            {testimonials.map((testimonial) => (
+              <Card key={testimonial.id} className="flex flex-col gap-5 p-6">
+                <div
+                  className="flex gap-1"
+                  role="img"
+                  aria-label={`${testimonial.rating || 5} out of 5 stars`}
+                >
+                  {Array.from({ length: testimonial.rating || 5 }).map(
+                    (_, index) => (
+                      <Star
+                        key={index}
+                        className="h-4 w-4 fill-primary text-primary"
+                        aria-hidden="true"
+                      />
+                    ),
+                  )}
+                </div>
+                <p className="flex-1 text-sm leading-relaxed text-muted-foreground">
+                  “{testimonial.text}”
+                </p>
+                <div className="flex items-center gap-3 border-t pt-4">
+                  {testimonial.avatar ? (
+                    <img
+                      src={testimonial.avatar}
+                      alt={testimonial.name}
+                      className="h-9 w-9 rounded-full border object-cover"
+                      width="36"
+                      height="36"
+                    />
+                  ) : (
+                    <div
+                      className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground"
+                      aria-hidden="true"
+                    >
+                      {testimonial.name?.charAt(0)?.toUpperCase() ?? "?"}
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-sm font-semibold">{testimonial.name}</p>
+                    {testimonial.role && (
+                      <p className="text-xs text-muted-foreground">
+                        {testimonial.role}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
   );
 }
 
@@ -246,14 +637,25 @@ export default function LandingPage() {
     setShowAuth(true);
   }
 
-  const whatsappMsg = encodeURIComponent("আমি EduTrack সম্পর্কে জানতে চাই। একটু বিস্তারিত বলবেন?");
+  const whatsappMsg = encodeURIComponent(
+    "আমি EduTrack সম্পর্কে জানতে চাই। একটু বিস্তারিত বলবেন?",
+  );
   const whatsappNumber = "8801632905056";
 
-  return (
-    <div className="min-h-screen bg-white dark:bg-slate-950">
-      {showAuth && <AuthPanel defaultMode={authMode} onClose={() => setShowAuth(false)} />}
+  function selectPlan(tier: PlanTier) {
+    trackFeatureUsed("pricing_cta_click", { plan: tier });
+    openAuth("login", `pricing_${tier}`);
+  }
 
-      {/* Promotional Popup — shown once per session */}
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      {showAuth && (
+        <AuthPanel
+          defaultMode={authMode}
+          onClose={() => setShowAuth(false)}
+        />
+      )}
+
       <PromotionPopup
         onCtaClick={(cta, index) => {
           trackFeatureUsed("promo_popup_cta_click", { cta, index });
@@ -261,916 +663,523 @@ export default function LandingPage() {
         }}
       />
 
-      {/* WhatsApp Floating Button */}
-      <a
-        href={`https://wa.me/${whatsappNumber}?text=${whatsappMsg}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={() => trackFeatureUsed("whatsapp_contact_click")}
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-full shadow-lg transition-all hover:shadow-xl"
+      <Button
+        asChild
+        variant="secondary"
+        className="fixed bottom-4 right-4 z-40 rounded-full sm:bottom-6 sm:right-6"
       >
-        <MessageCircle className="h-5 w-5" />
-        <span className="text-sm font-medium">Demo নিন</span>
-      </a>
+        <a
+          href={`https://wa.me/${whatsappNumber}?text=${whatsappMsg}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => trackFeatureUsed("whatsapp_contact_click")}
+          aria-label="Contact EduTrack on WhatsApp"
+        >
+          <MessageCircle aria-hidden="true" />
+          <span>Demo নিন</span>
+        </a>
+      </Button>
 
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-white/90 dark:bg-slate-950/90 backdrop-blur border-b border-border">
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2 font-bold text-xl">
-            <div data-app-logo="true" className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-              <GraduationCap className="h-5 w-5 text-white" />
-            </div>
-            EduTrack
-            <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium ml-1">v1.0</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={() => openAuth("login", "header")}>Login</Button>
+      <header className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur">
+        <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+          <a
+            href="#top"
+            className="flex items-center gap-2 font-semibold tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            aria-label="EduTrack home"
+          >
+            <span
+              data-app-logo
+              className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground"
+            >
+              <GraduationCap className="h-5 w-5" aria-hidden="true" />
+            </span>
+            <span className="text-lg">EduTrack</span>
+            <Badge variant="secondary" className="hidden sm:inline-flex">
+              v1.0
+            </Badge>
+          </a>
+
+          <nav
+            className="hidden items-center gap-6 text-sm text-muted-foreground md:flex"
+            aria-label="Primary navigation"
+          >
+            <a className="transition-colors hover:text-foreground" href="#overview">
+              Overview
+            </a>
+            <a className="transition-colors hover:text-foreground" href="#features">
+              Features
+            </a>
+            <a className="transition-colors hover:text-foreground" href="#pricing">
+              Pricing
+            </a>
+            <a className="transition-colors hover:text-foreground" href="#faq">
+              FAQ
+            </a>
+          </nav>
+
+          <div className="flex items-center gap-2">
             <Button
+              variant="ghost"
               size="sm"
               onClick={() => openAuth("login", "header")}
             >
+              Login
+            </Button>
+            <Button size="sm" onClick={() => openAuth("login", "header")}>
               বিনামূল্যে শুরু করুন
             </Button>
           </div>
         </div>
       </header>
 
-      {/* Hero */}
-      <section className="relative bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white overflow-hidden">
-        {/* Ambient glows */}
-        <div className="pointer-events-none absolute top-0 right-0 w-[700px] h-[700px] bg-indigo-600/10 rounded-full blur-[140px]" />
-        <div className="pointer-events-none absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-700/10 rounded-full blur-[120px]" />
-        {/* Subtle grid */}
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.018)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.018)_1px,transparent_1px)] bg-[size:64px_64px]" />
-
-        <div className="relative max-w-7xl mx-auto px-4 py-20 lg:py-28">
-          <div className="grid lg:grid-cols-[1fr_1.15fr] gap-12 xl:gap-20 items-center">
-
-            {/* LEFT: Content */}
-            <div className="space-y-7 text-center lg:text-left">
-              <h1 className="font-display text-4xl sm:text-5xl xl:text-[3.5rem] leading-[1.1]">
-                আপনার Coaching Center<br />
-                <span className="bg-gradient-to-r from-indigo-400 via-blue-400 to-indigo-300 bg-clip-text text-transparent">
-                  ডিজিটাল করুন আজই
-                </span>
+      <main id="top">
+        <section className="border-b bg-sidebar px-4 py-16 text-sidebar-foreground sm:px-6 lg:px-8 lg:py-24">
+          <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
+            <div className="max-w-2xl">
+              <Badge variant="secondary" className="mb-5">
+                Coaching center management, simplified
+              </Badge>
+              <h1 className="font-display text-4xl leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+                আপনার Coaching Center
+                <span className="mt-2 block text-primary">ডিজিটাল করুন আজই</span>
               </h1>
-
-              <p className="text-[1.05rem] text-slate-300 leading-relaxed max-w-[28rem] mx-auto lg:mx-0">
-                Students, Attendance, Fees ও Exams — সব একসাথে, সহজে পরিচালনা করুন।
+              <p className="mt-5 max-w-xl text-base leading-relaxed text-sidebar-foreground/75 sm:text-lg">
+                Students, Attendance, Fees ও Exams — সব একসাথে, সহজে এবং
+                নির্ভরযোগ্যভাবে পরিচালনা করুন।
               </p>
-
-              {/* CTAs */}
-              <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-                <Button
-                  size="lg"
-                  className="font-display text-[0.95rem] tracking-normal"
-                  onClick={() => openAuth("login", "hero")}
-                >
-                  ফ্রি ট্রায়াল শুরু করুন <ArrowRight className="ml-2 h-4 w-4" />
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+                <Button size="lg" onClick={() => openAuth("login", "hero")}>
+                  ফ্রি ট্রায়াল শুরু করুন
+                  <ArrowRight aria-hidden="true" />
                 </Button>
                 <Button
                   size="lg"
                   variant="outline"
-                  className="h-12 px-7 text-[0.95rem] bg-white/5 border-white/20 text-white hover:bg-white/10 hover:border-white/30"
-                  onClick={() => openAuth("login", "hero")}
+                  className="bg-background/10 text-sidebar-foreground hover:bg-background/20"
+                  onClick={() => openAuth("login", "hero_demo")}
                 >
                   লাইভ ডেমো দেখুন
                 </Button>
               </div>
-
-              {/* Trust signals */}
-              <div className="flex flex-wrap items-center gap-x-5 gap-y-2 justify-center lg:justify-start text-sm text-slate-400">
-                <span className="flex items-center gap-1.5">
-                  <CheckCircle className="h-3.5 w-3.5 text-green-400 shrink-0" />
-                  Credit card দরকার নেই
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <CheckCircle className="h-3.5 w-3.5 text-green-400 shrink-0" />
-                  ৩০ দিন বিনামূল্যে
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <CheckCircle className="h-3.5 w-3.5 text-green-400 shrink-0" />
-                  যেকোনো সময় cancel
-                </span>
+              <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm text-sidebar-foreground/70">
+                {[
+                  "Credit card দরকার নেই",
+                  "দ্রুত setup",
+                  "যেকোনো সময় cancel",
+                ].map((signal) => (
+                  <span key={signal} className="flex items-center gap-2">
+                    <CheckCircle
+                      className="h-4 w-4 shrink-0 text-primary"
+                      aria-hidden="true"
+                    />
+                    {signal}
+                  </span>
+                ))}
               </div>
             </div>
 
-            {/* RIGHT: Dashboard Mockup */}
-            <div className="relative hidden lg:block">
-              {/* Multi-layer glow for depth — soft, premium halo around the hero visual */}
-              <div className="absolute -inset-10 bg-gradient-to-tr from-indigo-600/25 via-blue-500/15 to-violet-600/10 blur-[64px] rounded-[2rem]" />
-              <div className="absolute -inset-8 bg-gradient-to-tr from-indigo-600/20 via-blue-500/12 to-violet-600/8 blur-3xl rounded-3xl" />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 bg-indigo-500/6 blur-2xl rounded-full" />
+            <ProductPreview />
+          </div>
+        </section>
 
-              {/* ── Floating badge: Fee collected — gold accent for a key money stat ── */}
-              <div className="glass-panel-dark glow-gold absolute -top-5 -right-4 z-20 flex items-center gap-2 text-white px-3 py-2 rounded-xl animate-[float_4s_ease-in-out_infinite]">
-                <div className="h-6 w-6 rounded-lg bg-gold-soft border flex items-center justify-center shrink-0">
-                  <CheckCircle className="h-3.5 w-3.5 text-gold" />
+        <section
+          id="overview"
+          className="scroll-mt-20 border-b px-4 py-16 sm:px-6 lg:px-8 lg:py-24"
+        >
+          <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-2 lg:items-center">
+            <div>
+              <SectionHeading
+                eyebrow="Product overview"
+                title="একটি workspace-এ পুরো coaching operation"
+                description="Admin, teacher এবং student — সবাইকে একই operational context-এ এনে daily work-কে আরও স্বচ্ছ করুন।"
+                align="left"
+              />
+              <div className="mt-8 grid gap-3 sm:grid-cols-2">
+                {[
+                  {
+                    icon: LayoutDashboard,
+                    title: "এক নজরে status",
+                    desc: "Daily work এবং exceptions দ্রুত বুঝুন।",
+                  },
+                  {
+                    icon: Users,
+                    title: "Role-aware access",
+                    desc: "প্রত্যেকে নিজের কাজের জন্য উপযুক্ত view পায়।",
+                  },
+                  {
+                    icon: Receipt,
+                    title: "Records এক জায়গায়",
+                    desc: "Fees, attendance এবং results সহজে খুঁজে পান।",
+                  },
+                  {
+                    icon: ShieldCheck,
+                    title: "নির্ভরযোগ্য workflow",
+                    desc: "সঠিক scope, status এবং next action স্পষ্ট থাকে।",
+                  },
+                ].map(({ icon: Icon, title, desc }) => (
+                  <Card key={title} className="p-4">
+                    <Icon
+                      className="h-5 w-5 text-primary"
+                      aria-hidden="true"
+                    />
+                    <h3 className="mt-3 text-sm font-semibold">{title}</h3>
+                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                      {desc}
+                    </p>
+                  </Card>
+                ))}
+              </div>
+            </div>
+            <Card className="bg-muted/40 p-6">
+              <div className="flex items-start gap-4">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                  <BarChart3 className="h-5 w-5" aria-hidden="true" />
                 </div>
                 <div>
-                  <div className="text-[10px] font-semibold text-gold leading-none">Fee Collected</div>
-                  <div className="stat-display text-[11px] text-white leading-tight mt-0.5">৳৭৩,২০০</div>
+                  <h3 className="font-semibold">Built for repeated work</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    EduTrack-এর workflow এমনভাবে সাজানো যে routine tasks, team
+                    coordination এবং operational review বারবার একই পরিচিত
+                    pattern-এ সম্পন্ন করা যায়।
+                  </p>
                 </div>
               </div>
-
-              {/* ── Floating badge: Attendance rate ── */}
-              <div className="absolute -left-6 top-1/3 z-20 flex items-center gap-2 bg-white/[0.06] backdrop-blur-xl border border-white/[0.12] text-white px-3 py-2 rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] animate-[float_5s_ease-in-out_0.8s_infinite]">
-                <div className="h-6 w-6 rounded-lg bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center shrink-0">
-                  <CalendarCheck className="h-3.5 w-3.5 text-indigo-400" />
-                </div>
-                <div>
-                  <div className="text-[10px] font-semibold text-indigo-300 leading-none">Attendance</div>
-                  <div className="text-[11px] font-bold text-white leading-tight mt-0.5">৮৫% গড়</div>
-                </div>
-              </div>
-
-              {/* Browser shell */}
-              <div className="relative rounded-2xl overflow-hidden border border-white/[0.09] shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_48px_96px_rgba(0,0,0,0.75),0_0_100px_-24px_rgba(99,102,241,0.45)]"
-                style={{ transform: "perspective(1200px) rotateY(-2deg) rotateX(1deg)" }}>
-
-                {/* Browser chrome */}
-                <div className="bg-[#161b27] border-b border-white/[0.07] px-4 py-2.5 flex items-center gap-3">
-                  <div className="flex gap-1.5 shrink-0">
-                    <div className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]/90" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]/90" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-[#28ca41]/90" />
+              <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                {[
+                  ["১", "Workspace"],
+                  ["৩", "Role portals"],
+                  ["∞", "Daily records"],
+                ].map(([value, label]) => (
+                  <div key={label} className="rounded-lg border bg-card p-4">
+                    <p className="font-display text-2xl text-primary">{value}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{label}</p>
                   </div>
-                  <div className="flex-1 bg-[#0d1117] rounded-md px-3 py-1.5 text-[11px] text-slate-500 font-mono tracking-tight flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-slate-600/60 inline-block shrink-0" />
-                    app.edutrack.com/dashboard
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-5 h-5 rounded-full bg-indigo-500/20 border border-indigo-500/40 shrink-0" />
-                  </div>
-                </div>
-
-                {/* App shell */}
-                <div className="bg-[#0b0f1a] text-white">
-
-                  {/* ── Top navigation bar ── */}
-                  <nav className="bg-[#0d1120]/90 border-b border-white/[0.06] px-4 py-2.5 flex items-center justify-between backdrop-blur-sm">
-                    <div className="flex items-center gap-6">
-                      {/* Logo */}
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <div className="h-5 w-5 rounded-md bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center shadow-sm shadow-indigo-500/40">
-                          <GraduationCap className="h-3 w-3 text-white" />
-                        </div>
-                        <span className="text-white text-xs font-bold tracking-tight">EduTrack</span>
-                      </div>
-                      {/* Nav links */}
-                      <div className="flex items-center gap-4">
-                        {[
-                          ["Dashboard", true],
-                          ["Students", false],
-                          ["Teachers", false],
-                          ["Fees", false],
-                          ["Reports", false],
-                        ].map(([label, active]) => (
-                          <span
-                            key={label as string}
-                            className={`text-[11px] font-medium cursor-default select-none pb-0.5 ${
-                              active
-                                ? "text-indigo-400 border-b border-indigo-500"
-                                : "text-slate-500"
-                            }`}
-                          >
-                            {label as string}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    {/* Right side */}
-                    <div className="flex items-center gap-2">
-                      <div className="relative w-5 h-5 rounded-full bg-slate-800 border border-white/10 flex items-center justify-center">
-                        <Bell className="h-2.5 w-2.5 text-slate-400" />
-                        <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-rose-500 border border-[#0b0f1a]" />
-                      </div>
-                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-[10px] text-white font-bold select-none shadow-sm shadow-indigo-500/30">
-                        A
-                      </div>
-                    </div>
-                  </nav>
-
-                  {/* ── Dashboard body ── */}
-                  <div className="p-4 space-y-3">
-
-                    {/* Page heading */}
-                    <div className="flex items-center justify-between mb-1">
-                      <div>
-                        <div className="text-[13px] font-semibold text-slate-100">Dashboard</div>
-                        <div className="text-[10px] text-slate-500 mt-0.5">July 2026 overview</div>
-                      </div>
-                      <div className="text-[10px] bg-indigo-500/15 border border-indigo-500/25 text-indigo-300 px-2.5 py-1 rounded-lg cursor-default hover:bg-indigo-500/20 transition-colors">
-                        + নতুন Student
-                      </div>
-                    </div>
-
-                    {/* ── Stats cards ── */}
-                    <div className="grid grid-cols-4 gap-2">
-                      {[
-                        { label: "মোট Students", value: "১,২৪৮", sub: "↑ ১২% এই মাসে", positive: true,  bg: "from-blue-500/10 to-blue-600/5",    border: "border-blue-500/20",    icon: "👥", dot: "bg-blue-400" },
-                        { label: "Teachers",       value: "৩২",      sub: "+ ৩ নতুন",    positive: true,  bg: "from-emerald-500/10 to-emerald-600/5", border: "border-emerald-500/20", icon: "🎓", dot: "bg-emerald-400" },
-                        { label: "Monthly Income", value: "৳৮৫,৫০০", sub: "↑ ৮% বৃদ্ধি", positive: true,  bg: "from-indigo-500/10 to-indigo-600/5",  border: "border-indigo-500/20",  icon: "💰", dot: "bg-indigo-400" },
-                        { label: "Pending Fees",   value: "৳১২,৩০০", sub: "১৮ জন বাকি", positive: false, bg: "from-amber-500/10 to-amber-600/5",    border: "border-amber-500/20",   icon: "⚠️", dot: "bg-amber-400" },
-                      ].map((card) => (
-                        <div key={card.label} className={`bg-gradient-to-br ${card.bg} border ${card.border} rounded-xl p-2.5 space-y-1.5`}>
-                          <div className="flex items-center justify-between">
-                            <span className="text-[9px] text-slate-400 leading-tight font-medium">{card.label}</span>
-                            <span className="text-[12px] leading-none">{card.icon}</span>
-                          </div>
-                          <div className="text-[14px] font-bold text-slate-100 leading-tight tracking-tight">{card.value}</div>
-                          <div className={`flex items-center gap-1 text-[9px] font-semibold leading-tight ${card.positive ? "text-emerald-400" : "text-amber-400"}`}>
-                            <span className={`w-1 h-1 rounded-full ${card.dot} shrink-0`} />
-                            {card.sub}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* ── Chart + Activity row ── */}
-                    <div className="grid grid-cols-5 gap-2">
-
-                      {/* Attendance bar chart */}
-                      <div className="col-span-3 bg-white/[0.03] border border-white/[0.06] rounded-xl p-3">
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="text-[11px] font-semibold text-slate-200">সাপ্তাহিক Attendance</div>
-                          <div className="flex items-center gap-1 text-[9px] text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-md">
-                            <span className="w-1 h-1 rounded-full bg-indigo-400 animate-pulse" />
-                            Live
-                          </div>
-                        </div>
-                        <div className="flex items-end gap-1.5 h-[68px]">
-                          {[
-                            { day: "রবি", pct: 76 },
-                            { day: "সোম", pct: 91 },
-                            { day: "মঙ্গল", pct: 88 },
-                            { day: "বুধ", pct: 72 },
-                            { day: "বৃহ", pct: 95 },
-                            { day: "শুক্র", pct: 83 },
-                            { day: "শনি", pct: 89 },
-                          ].map((d) => (
-                            <div key={d.day} className="flex-1 flex flex-col items-center gap-1">
-                              <div
-                                className={`w-full rounded-t-md ${d.pct === 95 ? "bg-gradient-to-t from-indigo-600 to-indigo-400" : d.pct > 85 ? "bg-gradient-to-t from-indigo-600/90 to-indigo-400/80" : "bg-gradient-to-t from-indigo-700/60 to-indigo-500/50"}`}
-                                style={{ height: `${d.pct}%` }}
-                              />
-                              <span className="text-[7px] text-slate-600 leading-none">{d.day}</span>
-                            </div>
-                          ))}
-                        </div>
-                        <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/[0.05]">
-                          <span className="flex items-center gap-1 text-[9px] text-slate-500">
-                            <span className="w-2 h-2 rounded-sm bg-indigo-500 inline-block" /> উপস্থিত
-                          </span>
-                          <span className="text-[9px] font-semibold text-emerald-400">গড়: ৮৫%</span>
-                        </div>
-                      </div>
-
-                      {/* Recent activity */}
-                      <div className="col-span-2 bg-white/[0.03] border border-white/[0.06] rounded-xl p-3">
-                        <div className="text-[11px] font-semibold text-slate-200 mb-2.5">সাম্প্রতিক কার্যক্রম</div>
-                        <div className="space-y-2.5">
-                          {[
-                            { text: "রাহুল fees দিয়েছে", time: "২ মি আগে", dot: "bg-emerald-400" },
-                            { text: "Class 9 attendance", time: "১৫ মি আগে", dot: "bg-blue-400" },
-                            { text: "নতুন student যোগ দিয়েছে", time: "১ ঘ আগে", dot: "bg-indigo-400" },
-                            { text: "Notice প্রকাশিত", time: "২ ঘ আগে", dot: "bg-amber-400" },
-                          ].map((act) => (
-                            <div key={act.text} className="flex items-start gap-2">
-                              <div className={`w-1.5 h-1.5 rounded-full ${act.dot} mt-1 shrink-0`} />
-                              <div>
-                                <div className="text-[10px] text-slate-300 leading-tight">{act.text}</div>
-                                <div className="text-[9px] text-slate-600 mt-0.5">{act.time}</div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                ))}
               </div>
-
-              {/* Floating badge — "Live" indicator */}
-              <div className="absolute -bottom-4 left-6 z-20 flex items-center gap-1.5 bg-slate-800/90 backdrop-blur-sm border border-white/10 text-slate-300 text-[11px] px-3 py-1.5 rounded-full shadow-xl">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                Real-time data sync চলছে
-              </div>
-            </div>
-
+            </Card>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Hero Carousel — same 5 banners, full-width below the hero */}
-      <section className="px-4 py-6 bg-white dark:bg-slate-950">
-        <div className="max-w-5xl mx-auto">
-          <HeroCarousel
-            onCtaClick={(cta, index) => {
-              trackFeatureUsed("hero_carousel_cta_click", { cta, index });
-              openAuth("login", `hero_carousel_${index}`);
-            }}
-          />
-        </div>
-      </section>
-
-      {/* Stats — dark premium panel with glass cards and gold key-metric accents */}
-      <section className="relative overflow-hidden py-16 px-4 bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-950">
-        <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[280px] bg-indigo-600/12 rounded-full blur-[110px]" />
-        <div className="relative max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5 text-center">
-          {[
-            ["৫০০+", "Coaching Centers"],
-            ["১০,০০০+", "Students"],
-            ["৯৯.৯%", "Uptime"],
-            ["৫ মিনিট", "Setup Time"],
-          ].map(([v, l]) => (
-            <div key={l} className="glass-panel-dark rounded-2xl p-5 md:p-6">
-              <p className="stat-display text-gold-gradient text-2xl md:text-3xl">{v}</p>
-              <p className="text-sm text-slate-400 mt-1.5">{l}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Trust Badges */}
-      <section className="py-5 px-4 border-b border-border bg-white dark:bg-slate-950">
-        <div className="max-w-4xl mx-auto flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
-          {[
-            "Secure Cloud Storage",
-            "Mobile Friendly",
-            "Daily Backup",
-            "Role Based Access",
-            "99.9% Uptime",
-          ].map((label) => (
-            <div key={label} className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 font-medium select-none">
-              <div className="h-5 w-5 rounded-full bg-emerald-500/12 border border-emerald-500/25 flex items-center justify-center shrink-0">
-                <CheckCircle className="h-3 w-3 text-emerald-500" />
-              </div>
-              {label}
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section className="py-20 px-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="font-display text-3xl">কিভাবে কাজ করে?</h2>
-            <p className="text-muted-foreground mt-2">মাত্র ৪টি ধাপে আপনার coaching center digital হয়ে যাবে</p>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {steps.map((s, i) => (
-              <div key={s.num} className="relative text-center space-y-3">
-                {i < steps.length - 1 && (
-                  <div className="hidden lg:block absolute top-6 left-[60%] w-[80%] h-px bg-border" />
-                )}
-                <div className="h-12 w-12 rounded-full bg-primary text-primary-foreground text-xl font-bold flex items-center justify-center mx-auto relative z-10">
-                  {s.num}
-                </div>
-                <h3 className="font-semibold">{s.title}</h3>
-                <p className="text-sm text-muted-foreground">{s.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Features — glassmorphism reserved for this highlight section only */}
-      <section id="features" className="relative overflow-hidden py-24 px-4 bg-slate-50 dark:bg-[#080c14]">
-        {/* Ambient glow so the glass blur has something to read against */}
-        <div className="pointer-events-none absolute top-24 left-1/4 w-[420px] h-[420px] bg-indigo-500/10 dark:bg-indigo-500/15 rounded-full blur-[120px]" />
-        <div className="pointer-events-none absolute bottom-0 right-1/4 w-[380px] h-[380px] bg-violet-500/8 dark:bg-violet-500/12 rounded-full blur-[110px]" />
-
-        <div className="relative max-w-6xl mx-auto">
-          <div className="text-center mb-14">
-            <div className="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-xs font-semibold px-3.5 py-1.5 rounded-full mb-4 tracking-wide uppercase">
-              ✦ Features
-            </div>
-            <h2 className="font-display text-3xl sm:text-4xl">সব কিছু এক Platform-এ</h2>
-            <p className="text-muted-foreground mt-3 text-base max-w-md mx-auto leading-relaxed">
-              আপনার coaching center পরিচালনার জন্য দরকারী সব tools — এক জায়গায়।
-            </p>
-          </div>
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {features.map((f) => (
-              <div
-                key={f.title}
-                className={`glass-panel group relative p-6 rounded-2xl hover:-translate-y-1.5 transition-all duration-300 overflow-hidden ${f.highlight ? "glow-primary" : ""}`}
-              >
-                {/* Top accent gradient line — appears on hover */}
-                <div className={`absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r ${f.accent} ${f.highlight ? "opacity-70" : "opacity-0 group-hover:opacity-100"} transition-opacity duration-300`} />
-                {/* Subtle background glow on hover */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${f.accent} opacity-0 group-hover:opacity-[0.05] transition-opacity duration-300 rounded-2xl`} />
-
-                {f.highlight && (
-                  <div className="absolute top-3 right-3 text-[9px] font-bold uppercase tracking-wide text-gold bg-gold-soft border rounded-full px-2 py-0.5">
-                    Popular
-                  </div>
-                )}
-
-                {/* Icon — soft colored glow that intensifies on hover */}
-                <div className={`relative h-11 w-11 rounded-xl bg-gradient-to-br ${f.iconGrad} flex items-center justify-center mb-4 shadow-lg ${f.glow} ${f.glowHover} group-hover:scale-110 transition-all duration-300`}>
-                  <f.icon className="h-5 w-5 text-white" />
-                </div>
-
-                <h3 className="relative font-semibold text-[0.95rem] mb-2 tracking-tight">{f.title}</h3>
-                <p className="relative text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials — pulled live from the admin-managed testimonials collection.
-          Renders nothing if there are no active reviews yet; never falls back
-          to fabricated names/quotes. */}
-      <TestimonialsSection />
-
-      {/* Pricing */}
-      <section id="pricing" className="py-24 px-4 relative overflow-hidden">
-        {/* Cinematic background glows */}
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.012)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.012)_1px,transparent_1px)] bg-[size:56px_56px]" />
-        <div className="pointer-events-none absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] rounded-full blur-[120px]" style={{ background: "radial-gradient(ellipse, rgba(245,158,11,0.1) 0%, transparent 70%)" }} />
-        <div className="pointer-events-none absolute top-0 left-[10%] w-[350px] h-[350px] rounded-full blur-[100px]" style={{ background: "radial-gradient(circle, rgba(245,158,11,0.06) 0%, transparent 70%)" }} />
-        <div className="pointer-events-none absolute bottom-0 right-[5%] w-[400px] h-[350px] rounded-full blur-[100px]" style={{ background: "radial-gradient(circle, rgba(99,102,241,0.07) 0%, transparent 70%)" }} />
-
-        {/* Keyframe animations injected via style tag */}
-        <style>{`
-          @keyframes pricing-gold-pulse {
-            0%,100% { box-shadow: 0 0 50px -8px rgba(245,158,11,0.55), 0 0 100px -20px rgba(245,158,11,0.28), 0 40px 80px rgba(0,0,0,0.55); }
-            50%      { box-shadow: 0 0 70px -8px rgba(245,158,11,0.75), 0 0 140px -20px rgba(245,158,11,0.42), 0 40px 80px rgba(0,0,0,0.55); }
-          }
-          @keyframes pricing-shimmer {
-            0%   { transform: translateX(-120%) skewX(-15deg); }
-            100% { transform: translateX(400%) skewX(-15deg); }
-          }
-          @keyframes pricing-scan {
-            0%   { top: -2px; }
-            100% { top: 100%; }
-          }
-          @keyframes pricing-float {
-            0%,100% { transform: translateY(0px); }
-            50%      { transform: translateY(-5px); }
-          }
-          @keyframes pricing-badge-glow {
-            0%,100% { box-shadow: 0 0 14px rgba(245,158,11,0.65), 0 4px 14px rgba(0,0,0,0.45); }
-            50%      { box-shadow: 0 0 26px rgba(245,158,11,0.9),  0 4px 14px rgba(0,0,0,0.45); }
-          }
-          @keyframes pricing-green-pulse {
-            0%,100% { box-shadow: 0 0 0 0 rgba(34,197,94,0), 0 20px 50px rgba(0,0,0,0.22); }
-            50%      { box-shadow: 0 0 22px -4px rgba(34,197,94,0.22), 0 20px 50px rgba(0,0,0,0.22); }
-          }
-          @keyframes pricing-purple-pulse {
-            0%,100% { box-shadow: 0 0 40px -10px rgba(139,92,246,0.5), 0 0 80px -20px rgba(99,102,241,0.25), 0 30px 70px rgba(0,0,0,0.6); }
-            50%      { box-shadow: 0 0 55px -10px rgba(139,92,246,0.7), 0 0 110px -20px rgba(99,102,241,0.38), 0 30px 70px rgba(0,0,0,0.6); }
-          }
-          .pricing-card-free:hover   { transform: translateY(-5px); box-shadow: 0 30px 60px rgba(0,0,0,0.18), 0 0 30px -5px rgba(34,197,94,0.3) !important; }
-          .pricing-card-annual:hover { transform: translateY(-5px); box-shadow: 0 0 65px -10px rgba(139,92,246,0.8), 0 0 120px -20px rgba(99,102,241,0.42), 0 30px 70px rgba(0,0,0,0.6) !important; }
-          .pricing-btn-free:hover   { filter: brightness(1.06); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(34,197,94,0.45) !important; }
-          .pricing-btn-gold:hover   { filter: brightness(1.08); }
-          .pricing-btn-indigo:hover { filter: brightness(1.12); transform: translateY(-1px); box-shadow: 0 10px 28px rgba(139,92,246,0.55) !important; }
-        `}</style>
-
-        <div className="max-w-6xl mx-auto relative">
-          {/* Header */}
-          <div className="text-center mb-16 space-y-4">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase" style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)", color: "#f59e0b" }}>
-              <span className="h-1.5 w-1.5 rounded-full animate-pulse" style={{ background: "#f59e0b", boxShadow: "0 0 6px #f59e0b" }} />
-              সীমিত সময়ের Offer — এখনই সুযোগ নিন
-            </div>
-            <h2 className="font-display text-3xl sm:text-5xl font-black tracking-tight">
-              সহজ, স্বচ্ছ{" "}
-              <span style={{ background: "linear-gradient(90deg,#f59e0b,#fbbf24,#f59e0b)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Pricing</span>
-            </h2>
-            <p className="text-muted-foreground text-base max-w-md mx-auto">
-              কোনো hidden charge নেই। যেকোনো সময় cancel করুন।
-            </p>
-          </div>
-
-          {/* ── Cards — flex row so center card can be taller ── */}
-          <div className="flex flex-col md:flex-row gap-5 md:items-center justify-center">
-
-            {/* ── Card 1: Free Trial — Dark glass, same template as Annual/Founder ── */}
-            <div
-              className="pricing-card-free relative md:flex-1 self-stretch p-[1.5px] transition-all duration-300"
-              style={{
-                background: "linear-gradient(150deg,rgba(34,197,94,0.85) 0%,rgba(22,163,74,0.55) 40%,rgba(21,128,61,0.35) 70%,rgba(16,185,129,0.4) 100%)",
-                borderRadius: "16px",
-                animation: "pricing-green-pulse 4s ease-in-out infinite",
-              }}
-            >
-              {/* Inner dark-glass content card */}
-              <div
-                className="relative flex flex-col h-full overflow-hidden"
-                style={{
-                  background: "linear-gradient(160deg,#07160d 0%,#0b2013 30%,#091c10 65%,#050f08 100%)",
-                  borderRadius: "14px",
-                  padding: "28px 24px 24px",
-                }}
-              >
-                {/* Ambient green radial at top */}
-                <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% -15%,rgba(34,197,94,0.2) 0%,transparent 60%)" }} />
-                <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-1/2" style={{ background: "radial-gradient(ellipse at 50% 115%,rgba(22,163,74,0.09) 0%,transparent 65%)" }} />
-                {/* Top shimmer line */}
-                <div className="pointer-events-none absolute top-0 left-[10%] right-[10%] h-px" style={{ background: "linear-gradient(90deg,transparent,rgba(134,239,172,0.5),transparent)" }} />
-                {/* Corner glow blobs */}
-                <div className="pointer-events-none absolute top-[-30px] left-[-30px] w-[160px] h-[160px] rounded-full" style={{ background: "radial-gradient(circle,rgba(34,197,94,0.16) 0%,transparent 70%)" }} />
-                <div className="pointer-events-none absolute bottom-[-20px] right-[-20px] w-[120px] h-[120px] rounded-full" style={{ background: "radial-gradient(circle,rgba(34,197,94,0.08) 0%,transparent 70%)" }} />
-
-                <div className="mb-5 mt-2 relative">
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center text-xl mb-4" style={{ background: "linear-gradient(135deg,rgba(34,197,94,0.22),rgba(22,163,74,0.14))", border: "1.5px solid rgba(134,239,172,0.35)", boxShadow: "0 4px 16px rgba(34,197,94,0.3)" }}>🟢</div>
-                  <h3 className="font-black text-2xl tracking-tight text-white">Free Trial</h3>
-                  <p className="text-sm mt-1 font-medium" style={{ color: "rgba(187,247,208,0.75)" }}>ঝুঁকি ছাড়াই শুরু করুন</p>
-                </div>
-
-                <div className="mb-5 relative">
-                  <span className="font-black text-white tracking-tighter" style={{ fontSize: "clamp(48px,6vw,60px)", lineHeight: 1, textShadow: "0 0 35px rgba(74,222,128,0.45),0 0 70px rgba(34,197,94,0.25)" }}>{getPricingDisplay("free_trial").price}</span>
-                  <p className="text-sm mt-2 font-medium" style={{ color: "rgba(187,247,208,0.65)" }}>{PLAN_CONFIG.free_trial.trialDays} দিনের জন্য সম্পূর্ণ বিনামূল্যে</p>
-                </div>
-
-                <ul className="space-y-3 mb-8 flex-1 relative">
-                  {PLAN_CONFIG.free_trial.displayHighlights.map((f) => (
-                    <li key={f} className="flex items-start gap-2.5 text-sm font-medium" style={{ color: "rgba(220,252,231,0.88)" }}>
-                      <CheckCircle className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "#4ade80" }} />
-                      <span>{f}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <button
-                  className="pricing-btn-free relative w-full h-12 rounded-xl font-black text-sm text-white transition-all duration-200"
-                  style={{ background: "linear-gradient(90deg,#16a34a,#22c55e)", border: "none", cursor: "pointer", boxShadow: "0 6px 20px rgba(34,197,94,0.4), inset 0 1px 0 rgba(255,255,255,0.25)", letterSpacing: "0.01em" }}
-                  onClick={() => {
-                    trackFeatureUsed("pricing_cta_click", { plan: "free_trial" });
-                    openAuth("login", "pricing_free_trial");
-                  }}
-                >
-                  ফ্রি ট্রায়াল শুরু করুন →
-                </button>
-              </div>
-            </div>
-
-            {/* ── Card 2: Founder Launch — DOMINANT FOCAL CARD ── */}
-            <div
-              className="relative flex flex-col md:flex-[1.12] rounded-[22px] md:-my-5"
-              style={{
-                padding: "2px",
-                background: "linear-gradient(150deg,#fbbf24 0%,#f59e0b 35%,#d97706 65%,#b45309 100%)",
-                animation: "pricing-gold-pulse 3s ease-in-out infinite",
-                zIndex: 2,
-              }}
-            >
-              {/* Most Popular badge */}
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
-                <div
-                  className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider px-5 py-1.5 rounded-full whitespace-nowrap"
-                  style={{ background: "linear-gradient(90deg,#fbbf24,#f59e0b)", color: "#1a0e00", animation: "pricing-badge-glow 2s ease-in-out infinite", letterSpacing: "0.07em" }}
-                >
-                  ⭐ Most Popular
-                </div>
-              </div>
-
-              <div
-                className="relative flex flex-col flex-1 rounded-[20px] overflow-hidden"
-                style={{ background: "linear-gradient(160deg,#131008 0%,#1b1508 35%,#16110a 70%,#0e0b06 100%)", padding: "32px 26px" }}
-              >
-                {/* Inner ambient glow */}
-                <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% -10%,rgba(245,158,11,0.16) 0%,transparent 65%)" }} />
-                <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-1/2" style={{ background: "radial-gradient(ellipse at 50% 120%,rgba(245,158,11,0.05) 0%,transparent 70%)" }} />
-                {/* Shimmer */}
-                <div
-                  className="pointer-events-none absolute top-0 bottom-0 w-[28%]"
-                  style={{ left: "-40%", background: "linear-gradient(90deg,transparent,rgba(255,255,255,0.045),transparent)", animation: "pricing-shimmer 5s ease-in-out infinite", transform: "skewX(-15deg)" }}
-                />
-                {/* Scan line */}
-                <div
-                  className="pointer-events-none absolute left-0 right-0 h-px"
-                  style={{ background: "linear-gradient(90deg,transparent,rgba(245,158,11,0.3),transparent)", animation: "pricing-scan 4.5s linear infinite" }}
-                />
-
-                {/* Content */}
-                <div className="relative mb-5">
-                  <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl mb-4"
-                    style={{ background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.25)", animation: "pricing-float 4s ease-in-out infinite" }}
-                  >⭐</div>
-                  <h3 className="font-black text-2xl tracking-tight" style={{ color: "#fef3c7" }}>Founder Launch</h3>
-                  <p className="text-sm mt-1" style={{ color: "rgba(245,158,11,0.6)" }}>প্রথম ১০০ Coaching Center-এর জন্য</p>
-                </div>
-
-                <div className="relative mb-5">
-                  <div className="flex items-center gap-2.5 mb-1">
-                    <span className="text-base font-semibold line-through" style={{ color: "rgba(245,158,11,0.4)" }}>{getPricingDisplay("founder_launch").regularPrice}</span>
-                    <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.28)", color: "#fbbf24" }}>{PLAN_CONFIG.founder_launch.savings}</span>
-                  </div>
-                  <div className="flex items-baseline gap-2" style={{ lineHeight: 1 }}>
-                    <span className="font-black text-white" style={{ fontSize: "clamp(52px,7vw,68px)", letterSpacing: "-0.05em", textShadow: "0 0 40px rgba(245,158,11,0.45),0 0 80px rgba(245,158,11,0.2)" }}>{getPricingDisplay("founder_launch").price}</span>
-                    <span className="text-sm font-medium" style={{ color: "rgba(245,158,11,0.6)", paddingBottom: 8 }}>/month</span>
-                  </div>
-                </div>
-
-                <ul className="space-y-3 mb-7 flex-1">
-                  {PLAN_CONFIG.founder_launch.displayHighlights.map((f) => (
-                    <li key={f} className="flex items-start gap-2.5 text-sm" style={{ color: "rgba(254,243,199,0.82)" }}>
-                      <CheckCircle className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "#fbbf24" }} />
-                      <span>{f}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <button
-                  className="pricing-btn-gold relative w-full h-12 rounded-xl font-black text-base transition-all duration-200 overflow-hidden"
-                  style={{ background: "linear-gradient(90deg,#f59e0b,#fbbf24)", color: "#1a0e00", border: "none", cursor: "pointer", boxShadow: "0 6px 22px rgba(245,158,11,0.4), inset 0 1px 0 rgba(255,255,255,0.22)", letterSpacing: "0.01em" }}
-                  onClick={() => {
-                    trackFeatureUsed("pricing_cta_click", { plan: "founder_launch" });
-                    openAuth("login", "pricing_founder_launch");
-                  }}
-                >
-                  Founder Price নিন →
-                </button>
-              </div>
-            </div>
-
-            {/* ── Card 3: Annual Premium — Rich dark purple glass ── */}
-            <div
-              className="pricing-card-annual relative md:flex-1 self-stretch p-[1.5px] transition-all duration-300"
-              style={{
-                background: "linear-gradient(150deg,rgba(139,92,246,0.9) 0%,rgba(99,102,241,0.6) 40%,rgba(67,56,202,0.4) 70%,rgba(109,40,217,0.5) 100%)",
-                animation: "pricing-purple-pulse 3.5s ease-in-out infinite",
-                borderRadius: "16px",
-              }}
-            >
-              {/* Best Value badge */}
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
-                <div className="flex items-center gap-1.5 text-white text-xs font-black uppercase tracking-wider px-5 py-1.5 rounded-full whitespace-nowrap" style={{ background: "linear-gradient(90deg,#7c3aed,#6366f1,#8b5cf6)", boxShadow: "0 0 20px rgba(139,92,246,0.75), 0 4px 14px rgba(0,0,0,0.5)", letterSpacing: "0.07em" }}>
-                  👑 Best Value
-                </div>
-              </div>
-
-              {/* Inner card */}
-              <div
-                className="relative flex flex-col h-full overflow-hidden"
-                style={{ background: "linear-gradient(160deg,#0d0b1a 0%,#110d24 30%,#0f0c1f 65%,#0a0816 100%)", borderRadius: "14px", padding: "28px 24px 24px" }}
-              >
-                {/* Ambient purple radial at top */}
-                <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% -15%,rgba(139,92,246,0.22) 0%,transparent 60%)" }} />
-                {/* Bottom undertone */}
-                <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-1/2" style={{ background: "radial-gradient(ellipse at 50% 115%,rgba(99,102,241,0.1) 0%,transparent 65%)" }} />
-                {/* Top shimmer line */}
-                <div className="pointer-events-none absolute top-0 left-[10%] right-[10%] h-px" style={{ background: "linear-gradient(90deg,transparent,rgba(167,139,250,0.55),transparent)" }} />
-                {/* Corner glow blobs */}
-                <div className="pointer-events-none absolute top-[-30px] right-[-30px] w-[140px] h-[140px] rounded-full" style={{ background: "radial-gradient(circle,rgba(139,92,246,0.18) 0%,transparent 70%)" }} />
-                <div className="pointer-events-none absolute bottom-[-20px] left-[-20px] w-[100px] h-[100px] rounded-full" style={{ background: "radial-gradient(circle,rgba(99,102,241,0.1) 0%,transparent 70%)" }} />
-
-                <div className="relative mb-5 mt-2">
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center text-xl mb-4" style={{ background: "linear-gradient(135deg,rgba(139,92,246,0.22),rgba(99,102,241,0.14))", border: "1.5px solid rgba(167,139,250,0.35)", boxShadow: "0 4px 16px rgba(139,92,246,0.3)" }}>👑</div>
-                  <h3 className="font-black text-2xl tracking-tight text-white">Annual Premium</h3>
-                  <p className="text-sm mt-1 font-medium" style={{ color: "rgba(196,181,253,0.75)" }}>বছরে ২ মাস একদম বিনামূল্যে</p>
-                </div>
-
-                <div className="relative mb-5">
-                  <div className="flex items-center gap-2.5 mb-1">
-                    <span className="text-base font-semibold line-through" style={{ color: "rgba(196,181,253,0.38)" }}>{getPricingDisplay("annual_premium").regularPrice}</span>
-                    <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: "rgba(139,92,246,0.2)", border: "1px solid rgba(167,139,250,0.4)", color: "#c4b5fd" }}>{PLAN_CONFIG.annual_premium.savings}</span>
-                  </div>
-                  <div className="flex items-baseline gap-2" style={{ lineHeight: 1 }}>
-                    <span className="font-black text-white" style={{ fontSize: "clamp(44px,6vw,58px)", letterSpacing: "-0.04em", textShadow: "0 0 35px rgba(167,139,250,0.5),0 0 70px rgba(139,92,246,0.25)" }}>{getPricingDisplay("annual_premium").price}</span>
-                    <span className="text-sm font-medium" style={{ color: "rgba(196,181,253,0.55)", paddingBottom: 6 }}>/year</span>
-                  </div>
-                  <p className="text-xs font-bold mt-2" style={{ color: "#a78bfa", textShadow: "0 0 10px rgba(167,139,250,0.4)" }}>মাসে মাত্র {getPricingDisplay("annual_premium").monthlyEquivalent} — ২ মাস ফ্রি!</p>
-                </div>
-
-                <ul className="space-y-3 mb-7 flex-1 relative">
-                  {PLAN_CONFIG.annual_premium.displayHighlights.map((f) => (
-                    <li key={f} className="flex items-start gap-2.5 text-sm font-medium" style={{ color: "rgba(233,228,255,0.88)" }}>
-                      <CheckCircle className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "#a78bfa" }} />
-                      <span>{f}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <button
-                  className="pricing-btn-indigo relative w-full h-12 rounded-xl font-black text-sm text-white transition-all duration-200 overflow-hidden"
-                  style={{ background: "linear-gradient(90deg,#6d28d9,#7c3aed,#6366f1)", border: "none", cursor: "pointer", boxShadow: "0 6px 22px rgba(139,92,246,0.45), inset 0 1px 0 rgba(255,255,255,0.18)", letterSpacing: "0.01em" }}
-                  onClick={() => {
-                    trackFeatureUsed("pricing_cta_click", { plan: "annual_premium" });
-                    openAuth("login", "pricing_annual_premium");
-                  }}
-                >
-                  Annual Plan নিন →
-                </button>
-              </div>
-            </div>
-
-          </div>
-
-          {/* Trust line */}
-          <p className="text-center text-sm mt-12 flex items-center justify-center gap-2" style={{ color: "rgba(255,255,255,0.28)" }}>
-            <CheckCircle className="h-4 w-4 text-green-500" />
-            কোনো hidden fee নেই · যেকোনো সময় cancel করুন · SSL secured payment
-          </p>
-        </div>
-      </section>
-
-      {/* Final CTA */}
-      <section className="relative py-24 px-4 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white overflow-hidden">
-        {/* Ambient glows */}
-        <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-indigo-600/12 rounded-full blur-[120px]" />
-        <div className="pointer-events-none absolute bottom-0 left-0 w-[400px] h-[300px] bg-blue-700/10 blur-[100px] rounded-full" />
-        <div className="pointer-events-none absolute bottom-0 right-0 w-[400px] h-[300px] bg-violet-700/8 blur-[100px] rounded-full" />
-        {/* Subtle grid */}
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:64px_64px]" />
-
-        <div className="relative max-w-3xl mx-auto text-center space-y-8">
-          {/* Eyebrow — special offer, so it carries the gold accent */}
-          <div className="glass-panel-dark glow-gold inline-flex items-center gap-2 text-sm px-4 py-1.5 rounded-full">
-            <span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
-            <span className="text-gold font-semibold">৩০ দিনের Free Trial</span>
-            <span className="text-slate-300">— কোনো risk নেই</span>
-          </div>
-
-          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl leading-[1.1]">
-            আজই আপনার Coaching Center<br />
-            <span className="bg-gradient-to-r from-indigo-400 via-blue-400 to-indigo-300 bg-clip-text text-transparent">
-              ডিজিটাল করুন
-            </span>
-          </h2>
-
-          <p className="text-[1.05rem] text-slate-300 leading-relaxed max-w-xl mx-auto">
-            মাত্র কয়েক মিনিটে সেটআপ করুন এবং আজ থেকেই সময় ও খরচ বাঁচানো শুরু করুন।
-          </p>
-
-          {/* Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button
-              size="lg"
-              className="font-display h-14 px-8 text-base tracking-normal bg-white text-slate-900 border-white/40 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.5),0_2px_10px_rgba(0,0,0,0.2),0_0_40px_-8px_rgba(255,255,255,0.4)] hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.6),0_2px_12px_rgba(0,0,0,0.25),0_0_56px_-8px_rgba(255,255,255,0.55)] hover:brightness-100 hover:bg-slate-50"
-              onClick={() => openAuth("login", "final_cta")}
-            >
-              ফ্রি ট্রায়াল শুরু করুন <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="h-14 px-8 text-base bg-white/5 border-white/20 text-white hover:bg-white/10 hover:border-white/35"
-              onClick={() => openAuth("login", "final_cta_demo")}
-            >
-              লাইভ ডেমো দেখুন
-            </Button>
-          </div>
-
-          {/* Trust micro-signals */}
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-slate-400">
+        <section className="border-b bg-muted/40 px-4 py-10 sm:px-6 lg:px-8">
+          <div className="mx-auto grid max-w-5xl grid-cols-2 gap-4 text-center sm:grid-cols-4">
             {[
-              "Free Trial",
-              "No Credit Card Required",
-              "24/7 Support",
-            ].map((label) => (
-              <span key={label} className="flex items-center gap-1.5">
-                <CheckCircle className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-                {label}
-              </span>
+              ["৫০০+", "Coaching Centers"],
+              ["১০,০০০+", "Students"],
+              ["৯৯.৯%", "Uptime"],
+              ["৫ মিনিট", "Setup Time"],
+            ].map(([value, label]) => (
+              <div key={label} className="rounded-lg border bg-card p-4">
+                <p className="font-display text-2xl text-primary sm:text-3xl">
+                  {value}
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">{label}</p>
+              </div>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Footer */}
-      <footer className="bg-slate-950 border-t border-white/[0.06] text-slate-400">
-        {/* Main grid */}
-        <div className="max-w-6xl mx-auto px-4 pt-14 pb-10">
-          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr]">
-
-            {/* Brand column */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2.5">
-                <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center shadow-md shadow-indigo-500/30">
-                  <GraduationCap className="h-5 w-5 text-white" />
-                </div>
-                <span className="text-white font-bold text-lg tracking-tight">EduTrack</span>
-              </div>
-              <p className="text-sm leading-relaxed max-w-[220px]">
-                Bangladesh-এর coaching center-দের জন্য তৈরি সম্পূর্ণ digital management platform।
-              </p>
-              {/* Social links */}
-              <div className="flex items-center gap-3 pt-1">
-                <a
-                  href="https://facebook.com/edutrack"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => trackFeatureUsed("footer_social_click", { channel: "facebook" })}
-                  className="h-8 w-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-indigo-600/30 hover:border-indigo-500/40 transition-all duration-200"
-                  aria-label="Facebook"
+        <section
+          id="features"
+          className="scroll-mt-20 border-b px-4 py-16 sm:px-6 lg:px-8 lg:py-24"
+        >
+          <div className="mx-auto max-w-6xl">
+            <SectionHeading
+              eyebrow="Features"
+              title="সব কিছু এক platform-এ"
+              description="আপনার coaching center পরিচালনার জন্য দরকারী সব tools — এক জায়গায়।"
+            />
+            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {features.map(({ icon: Icon, title, desc }) => (
+                <Card
+                  key={title}
+                  className="group h-full p-5 transition-colors hover:border-primary/40"
                 >
-                  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                  </svg>
-                </a>
-                <a
-                  href={`https://wa.me/${whatsappNumber}?text=${whatsappMsg}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => trackFeatureUsed("footer_social_click", { channel: "whatsapp" })}
-                  className="h-8 w-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-green-600/30 hover:border-green-500/40 transition-all duration-200"
-                  aria-label="WhatsApp"
-                >
-                  <MessageCircle className="h-4 w-4" />
-                </a>
-              </div>
-            </div>
-
-            {/* Product column */}
-            <div className="space-y-4">
-              <h4 className="text-sm font-semibold text-white uppercase tracking-wider">Product</h4>
-              <ul className="space-y-2.5 text-sm">
-                {[
-                  { label: "Features", href: "#features", internal: true },
-                  { label: "Pricing", href: "#pricing", internal: true },
-                ].map(({ label, href }) => (
-                  <li key={label}>
-                    <a href={href} className="hover:text-white transition-colors duration-150">{label}</a>
-                  </li>
-                ))}
-                <li>
-                  <button
-                    className="hover:text-white transition-colors duration-150 text-left"
-                    onClick={() => openAuth("login", "footer_product")}
-                  >
-                    Free Trial
-                  </button>
-                </li>
-              </ul>
-            </div>
-
-            {/* Support column */}
-            <div className="space-y-4">
-              <h4 className="text-sm font-semibold text-white uppercase tracking-wider">Support</h4>
-              <ul className="space-y-2.5 text-sm">
-                {[
-                  { label: "FAQ", href: "/faq" },
-                  { label: "Documentation", href: "/help" },
-                ].map(({ label, href }) => (
-                  <li key={label}>
-                    <a href={href} className="hover:text-white transition-colors duration-150">{label}</a>
-                  </li>
-                ))}
-                <li>
-                  <a
-                    href={`https://wa.me/${whatsappNumber}?text=${whatsappMsg}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-white transition-colors duration-150"
-                  >
-                    Live Chat
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Company column */}
-            <div className="space-y-4">
-              <h4 className="text-sm font-semibold text-white uppercase tracking-wider">Company</h4>
-              <ul className="space-y-2.5 text-sm">
-                <li><a href="#" className="hover:text-white transition-colors duration-150">About</a></li>
-                <li>
-                  <a
-                    href={`https://wa.me/${whatsappNumber}?text=${whatsappMsg}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-white transition-colors duration-150"
-                  >
-                    Contact
-                  </a>
-                </li>
-                <li>
-                  <a href="mailto:support@edutrack.com.bd" className="flex items-center gap-1.5 hover:text-white transition-colors duration-150">
-                    <Mail className="h-3.5 w-3.5 shrink-0" />
-                    support@edutrack.com.bd
-                  </a>
-                </li>
-                <li>
-                  <a href={`tel:+${whatsappNumber}`} className="flex items-center gap-1.5 hover:text-white transition-colors duration-150">
-                    <Phone className="h-3.5 w-3.5 shrink-0" />
-                    +880 1632-905056
-                  </a>
-                </li>
-              </ul>
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <Icon className="h-5 w-5" aria-hidden="true" />
+                  </div>
+                  <h3 className="mt-4 font-semibold">{title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    {desc}
+                  </p>
+                </Card>
+              ))}
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* Bottom bar */}
-        <div className="border-t border-white/[0.06]">
-          <div className="max-w-6xl mx-auto px-4 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <p className="text-xs text-slate-500">
-              © 2026 EduTrack. 🇧🇩 Made in Bangladesh with ❤️
+        <section className="border-b bg-muted/40 px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+          <div className="mx-auto max-w-6xl">
+            <SectionHeading
+              eyebrow="Screenshots & preview"
+              title="EduTrack-এর workflow এক নজরে দেখুন"
+              description="পরিচিত dashboard pattern, clear status এবং focused actions — daily work দ্রুত বুঝতে সাহায্য করে।"
+            />
+            <div className="mt-10">
+              <HeroCarousel
+                onCtaClick={(cta, index) => {
+                  trackFeatureUsed("hero_carousel_cta_click", { cta, index });
+                  openAuth("login", `hero_carousel_${index}`);
+                }}
+              />
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+          <div className="mx-auto max-w-6xl">
+            <SectionHeading
+              eyebrow="How it works"
+              title="শুরু করা সহজ"
+              description="মাত্র ৪টি ধাপে আপনার coaching center digital হয়ে যাবে।"
+            />
+            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {steps.map((step, index) => (
+                <div key={step.num} className="relative">
+                  <Card className="h-full p-5">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-lg font-semibold text-primary-foreground">
+                      {step.num}
+                    </div>
+                    <h3 className="mt-4 font-semibold">{step.title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                      {step.desc}
+                    </p>
+                  </Card>
+                  {index < steps.length - 1 && (
+                    <ArrowRight
+                      className="absolute -right-3 top-1/2 z-10 hidden h-5 w-5 -translate-y-1/2 text-primary lg:block"
+                      aria-hidden="true"
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <TestimonialsSection />
+
+        <section
+          id="pricing"
+          className="scroll-mt-20 border-b px-4 py-16 sm:px-6 lg:px-8 lg:py-24"
+        >
+          <div className="mx-auto max-w-6xl">
+            <SectionHeading
+              eyebrow="Pricing"
+              title="সহজ, স্বচ্ছ pricing"
+              description="কোনো hidden charge নেই। আপনার coaching center-এর stage অনুযায়ী plan বেছে নিন।"
+            />
+            <div className="mt-10 grid gap-5 lg:grid-cols-3">
+              {(["free_trial", "founder_launch", "annual_premium"] as PlanTier[]).map(
+                (tier) => (
+                  <PricingCard key={tier} tier={tier} onSelect={selectPlan} />
+                ),
+              )}
+            </div>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+              {[
+                "কোনো hidden fee নেই",
+                "যেকোনো সময় cancel করুন",
+                "Role-based access",
+              ].map((signal) => (
+                <span key={signal} className="flex items-center gap-2">
+                  <CheckCircle
+                    className="h-4 w-4 text-primary"
+                    aria-hidden="true"
+                  />
+                  {signal}
+                </span>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section
+          id="faq"
+          className="scroll-mt-20 border-b bg-muted/40 px-4 py-16 sm:px-6 lg:px-8 lg:py-24"
+        >
+          <div className="mx-auto grid max-w-5xl gap-10 lg:grid-cols-[0.75fr_1.25fr]">
+            <SectionHeading
+              eyebrow="FAQ"
+              title="যা জানতে চান"
+              description="EduTrack শুরু করার আগে সবচেয়ে সাধারণ প্রশ্নগুলোর উত্তর এখানে।"
+              align="left"
+            />
+            <Card className="px-5">
+              <Accordion type="single" collapsible className="w-full">
+                {faqs.map((faq, index) => (
+                  <AccordionItem key={faq.question} value={`faq-${index}`}>
+                    <AccordionTrigger>{faq.question}</AccordionTrigger>
+                    <AccordionContent className="leading-relaxed text-muted-foreground">
+                      {faq.answer}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </Card>
+          </div>
+        </section>
+
+        <section className="bg-sidebar px-4 py-16 text-sidebar-foreground sm:px-6 lg:px-8 lg:py-24">
+          <div className="mx-auto max-w-3xl text-center">
+            <Badge variant="secondary" className="mb-4">
+              ৭ দিনের Free Trial
+            </Badge>
+            <h2 className="font-display text-3xl leading-tight tracking-tight sm:text-4xl">
+              আজই আপনার Coaching Center
+              <span className="mt-2 block text-primary">ডিজিটাল করুন</span>
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-sidebar-foreground/75">
+              মাত্র কয়েক মিনিটে setup করুন এবং আজ থেকেই সময় ও খরচ বাঁচানো শুরু
+              করুন।
             </p>
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-slate-500">
-              <a href="/privacy" className="hover:text-slate-300 transition-colors">Privacy Policy</a>
-              <a href="/terms" className="hover:text-slate-300 transition-colors">Terms of Service</a>
-              <a href="/refund" className="hover:text-slate-300 transition-colors">Refund Policy</a>
-              <button className="hover:text-slate-300 transition-colors" onClick={() => openAuth("login", "footer_bottom")}>
+            <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
+              <Button size="lg" onClick={() => openAuth("login", "final_cta")}>
+                ফ্রি ট্রায়াল শুরু করুন
+                <ArrowRight aria-hidden="true" />
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="bg-background/10 text-sidebar-foreground hover:bg-background/20"
+                onClick={() => openAuth("login", "final_cta_demo")}
+              >
+                লাইভ ডেমো দেখুন
+              </Button>
+            </div>
+            <div className="mt-6 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-sidebar-foreground/70">
+              {["Free Trial", "No Credit Card Required", "24/7 Support"].map(
+                (label) => (
+                  <span key={label} className="flex items-center gap-2">
+                    <CheckCircle
+                      className="h-4 w-4 text-primary"
+                      aria-hidden="true"
+                    />
+                    {label}
+                  </span>
+                ),
+              )}
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer className="border-t bg-sidebar text-sidebar-foreground">
+        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-[2fr_1fr_1fr_1fr] lg:px-8">
+          <div className="space-y-4">
+            <a
+              href="#top"
+              className="flex items-center gap-2 font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                <GraduationCap className="h-5 w-5" aria-hidden="true" />
+              </span>
+              <span className="text-lg">EduTrack</span>
+            </a>
+            <p className="max-w-xs text-sm leading-relaxed text-sidebar-foreground/70">
+              Bangladesh-এর coaching center-দের জন্য তৈরি সম্পূর্ণ digital
+              management platform।
+            </p>
+            <div className="flex items-center gap-2">
+              <a
+                href="https://facebook.com/edutrack"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() =>
+                  trackFeatureUsed("footer_social_click", {
+                    channel: "facebook",
+                  })
+                }
+                className="flex h-9 w-9 items-center justify-center rounded-lg border border-sidebar-border text-sidebar-foreground/70 transition-colors hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                aria-label="EduTrack on Facebook"
+              >
+                <span aria-hidden="true" className="font-semibold">
+                  f
+                </span>
+              </a>
+              <a
+                href={`https://wa.me/${whatsappNumber}?text=${whatsappMsg}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() =>
+                  trackFeatureUsed("footer_social_click", {
+                    channel: "whatsapp",
+                  })
+                }
+                className="flex h-9 w-9 items-center justify-center rounded-lg border border-sidebar-border text-sidebar-foreground/70 transition-colors hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                aria-label="EduTrack on WhatsApp"
+              >
+                <MessageCircle className="h-4 w-4" aria-hidden="true" />
+              </a>
+            </div>
+          </div>
+
+          <FooterColumn
+            title="Product"
+            links={[
+              { label: "Overview", href: "#overview" },
+              { label: "Features", href: "#features" },
+              { label: "Pricing", href: "#pricing" },
+              {
+                label: "Free Trial",
+                onClick: () => openAuth("login", "footer_product"),
+              },
+            ]}
+          />
+          <FooterColumn
+            title="Support"
+            links={[
+              { label: "FAQ", href: "#faq" },
+              { label: "Documentation", href: "/help" },
+              {
+                label: "Live Chat",
+                href: `https://wa.me/${whatsappNumber}?text=${whatsappMsg}`,
+                external: true,
+              },
+            ]}
+          />
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold text-sidebar-foreground">
+              Contact
+            </h3>
+            <ul className="space-y-3 text-sm text-sidebar-foreground/70">
+              <li>
+                <a
+                  href="mailto:support@edutrack.com.bd"
+                  className="flex items-center gap-2 transition-colors hover:text-primary"
+                >
+                  <Mail className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  support@edutrack.com.bd
+                </a>
+              </li>
+              <li>
+                <a
+                  href={`tel:+${whatsappNumber}`}
+                  className="flex items-center gap-2 transition-colors hover:text-primary"
+                >
+                  <Phone className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  +880 1632-905056
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div className="border-t border-sidebar-border">
+          <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-5 text-xs text-sidebar-foreground/60 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+            <p>© 2026 EduTrack. Made in Bangladesh.</p>
+            <div className="flex flex-wrap gap-x-5 gap-y-2">
+              <a className="hover:text-primary" href="/privacy">
+                Privacy Policy
+              </a>
+              <a className="hover:text-primary" href="/terms">
+                Terms of Service
+              </a>
+              <a className="hover:text-primary" href="/refund">
+                Refund Policy
+              </a>
+              <button
+                className="hover:text-primary"
+                onClick={() => openAuth("login", "footer_bottom")}
+              >
                 Login
               </button>
             </div>
@@ -1181,73 +1190,45 @@ export default function LandingPage() {
   );
 }
 
-function TestimonialsSection() {
-  const { data: testimonials = [], isLoading } = usePublicTestimonials();
-
-  // Honest empty state: no reviews yet means no section, never fabricated ones.
-  if (!isLoading && testimonials.length === 0) return null;
-
+function FooterColumn({
+  title,
+  links,
+}: {
+  title: string;
+  links: Array<{
+    label: string;
+    href?: string;
+    external?: boolean;
+    onClick?: () => void;
+  }>;
+}) {
   return (
-    <section className="py-24 px-4 bg-slate-50 dark:bg-[#080c14]">
-      <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-14">
-          <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-semibold px-3.5 py-1.5 rounded-full mb-4 tracking-wide uppercase">
-            ★ Social Proof
-          </div>
-          <h2 className="font-display text-3xl sm:text-4xl">তারা কী বলছেন?</h2>
-          <p className="text-muted-foreground mt-3 text-base max-w-md mx-auto leading-relaxed">
-            EduTrack ব্যবহারকারী coaching center-দের মতামত
-          </p>
-        </div>
-
-        {isLoading ? (
-          <div className="grid md:grid-cols-3 gap-6">
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="h-56 rounded-2xl bg-white/60 dark:bg-slate-900/40 border border-border animate-pulse" />
-            ))}
-          </div>
-        ) : (
-          <div className="grid md:grid-cols-3 gap-6">
-            {testimonials.map((t) => (
-              <div
-                key={t.id}
-                className="group bg-white dark:bg-slate-900/70 border border-border rounded-2xl p-6 flex flex-col gap-5 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+    <div className="space-y-4">
+      <h3 className="text-sm font-semibold text-sidebar-foreground">{title}</h3>
+      <ul className="space-y-3 text-sm text-sidebar-foreground/70">
+        {links.map((link) => (
+          <li key={link.label}>
+            {link.onClick ? (
+              <button
+                className="transition-colors hover:text-primary"
+                onClick={link.onClick}
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex gap-0.5 shrink-0 pt-0.5">
-                    {Array.from({ length: t.rating || 5 }).map((_, i) => (
-                      <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                    ))}
-                  </div>
-                </div>
-
-                {/* Quote */}
-                <p className="text-[0.875rem] text-muted-foreground leading-relaxed flex-1">
-                  "{t.text}"
-                </p>
-
-                {/* Footer: avatar + identity */}
-                <div className="flex items-center gap-2.5 pt-4 border-t border-border">
-                  {t.avatar ? (
-                    <div className="h-8 w-8 rounded-full overflow-hidden shrink-0 shadow-sm border border-border">
-                      <img src={t.avatar} alt={t.name} className="w-full h-full object-cover object-center" />
-                    </div>
-                  ) : (
-                    <div className="h-8 w-8 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-[11px] font-bold text-white shrink-0">
-                      {t.name?.charAt(0)?.toUpperCase() ?? "?"}
-                    </div>
-                  )}
-                  <div>
-                    <div className="text-[13px] font-semibold leading-tight">{t.name}</div>
-                    {t.role && <div className="text-[11px] text-muted-foreground">{t.role}</div>}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </section>
+                {link.label}
+              </button>
+            ) : (
+              <a
+                href={link.href}
+                target={link.external ? "_blank" : undefined}
+                rel={link.external ? "noopener noreferrer" : undefined}
+                className="transition-colors hover:text-primary"
+              >
+                {link.label}
+              </a>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
