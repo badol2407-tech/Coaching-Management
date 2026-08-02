@@ -6,7 +6,8 @@ description: How to successfully push to GitHub from this workspace
 # GitHub Push
 
 ## Working approach
-Always specify the branch explicitly: `gitPush({ branch: "main", provider: "github" })`.
+Always specify the branch explicitly when using the GitHub push integration: `gitPush({ branch: "main", provider: "github" })`.
+If that integration is unavailable, a normal HTTPS push with the PAT supplied as Basic authentication (`x:<token>`) works in this workspace; a Bearer extra header may be rejected even when the token is valid.
 Use a normal push after synchronizing divergent histories; do not force-push `main`.
 
 **Why:** A local branch can contain valid workspace commits while the GitHub branch contains
@@ -24,6 +25,7 @@ When status reports both ahead and behind:
 
 Do not use `git reset --hard` unless the user explicitly chooses to discard local commits.
 
-## gitPush never works with raw shell git push
-Raw `git push` fails with "Invalid username or token — password authentication not supported."
-Always use the `gitPush` callback from CodeExecution (uses OAuth).
+## Authentication fallback
+The GitHub push integration remains preferred because it uses managed OAuth. When a PAT is available, verify it against GitHub first and use standard Basic authentication for the HTTPS remote if the managed callback is unavailable.
+
+**Why:** In this workspace, the same valid PAT returned `invalid credentials` when sent as a Bearer extra header but successfully pushed when encoded as the Basic `x:<token>` credential.
