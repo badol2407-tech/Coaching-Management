@@ -25,7 +25,7 @@ related_documents:
   - ./DISASTER_RECOVERY.md
 review_frequency: Quarterly and after documentation architecture or governance changes
 owner: Product Governance Council
-version: 1.9.0
+version: 2.0.0
 status: Active documentation homepage
 last_updated: 2026-08-02
 normative_level: Navigation and orientation
@@ -43,12 +43,12 @@ EduTrack documentation is a governed system of product principles, release stand
 3. **Release gates** — [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md), [ETHICAL_UX_GUIDELINES.md](./ETHICAL_UX_GUIDELINES.md), [ENGINEERING_STANDARDS.md](./ENGINEERING_STANDARDS.md), and [AI_UX_GUIDELINES.md](./AI_UX_GUIDELINES.md) define binding quality and safety requirements.
 4. **Architecture** — [FRONTEND_ARCHITECTURE.md](./FRONTEND_ARCHITECTURE.md), [BACKEND_ARCHITECTURE.md](./BACKEND_ARCHITECTURE.md), [FOLDER_STRUCTURE.md](./FOLDER_STRUCTURE.md), [ROUTING_ARCHITECTURE.md](./ROUTING_ARCHITECTURE.md), [STATE_MANAGEMENT.md](./STATE_MANAGEMENT.md), [API_LAYER_ARCHITECTURE.md](./API_LAYER_ARCHITECTURE.md), [DATA_FLOW_ARCHITECTURE.md](./DATA_FLOW_ARCHITECTURE.md), [AUTHENTICATION_ARCHITECTURE.md](./AUTHENTICATION_ARCHITECTURE.md), [AUTHORIZATION_ARCHITECTURE.md](./AUTHORIZATION_ARCHITECTURE.md), [SECURITY_ARCHITECTURE.md](./SECURITY_ARCHITECTURE.md), [DATABASE_ARCHITECTURE.md](./DATABASE_ARCHITECTURE.md), [FIREBASE_ARCHITECTURE.md](./FIREBASE_ARCHITECTURE.md), [CACHING_STRATEGY.md](./CACHING_STRATEGY.md), and [PERFORMANCE_ARCHITECTURE.md](./PERFORMANCE_ARCHITECTURE.md) describe implementation boundaries and distinguish current paths from target guidance.
 5. **Delivery and resilience** — [TESTING_STRATEGY.md](./TESTING_STRATEGY.md), [CI_CD_ARCHITECTURE.md](./CI_CD_ARCHITECTURE.md), [DEPLOYMENT_ARCHITECTURE.md](./DEPLOYMENT_ARCHITECTURE.md), [RELEASE_MANAGEMENT.md](./RELEASE_MANAGEMENT.md), [MONITORING_AND_LOGGING.md](./MONITORING_AND_LOGGING.md), [OBSERVABILITY.md](./OBSERVABILITY.md), [ERROR_MONITORING.md](./ERROR_MONITORING.md), and [DISASTER_RECOVERY.md](./DISASTER_RECOVERY.md) define evidence, promotion, operational signals, failure response, and recovery boundaries.
-6. **Contributor practice** — [CONTRIBUTING.md](./CONTRIBUTING.md), [ENVIRONMENT_SETUP.md](./ENVIRONMENT_SETUP.md), [TECH_STACK.md](./TECH_STACK.md), [CODING_STANDARDS.md](./CODING_STANDARDS.md), [PROJECT_CONVENTIONS.md](./PROJECT_CONVENTIONS.md), [GIT_WORKFLOW.md](./GIT_WORKFLOW.md), and [CODE_REVIEW_GUIDELINES.md](./CODE_REVIEW_GUIDELINES.md) explain how to work within the governed repository without creating parallel standards.
+6. **Contributor practice** — [CONTRIBUTING.md](./CONTRIBUTING.md), [ENVIRONMENT_SETUP.md](./ENVIRONMENT_SETUP.md), [TECH_STACK.md](./TECH_STACK.md), [CODING_STANDARDS.md](./CODING_STANDARDS.md), [PROJECT_CONVENTIONS.md](./PROJECT_CONVENTIONS.md), [CODE_OWNERSHIP.md](./CODE_OWNERSHIP.md), [GIT_WORKFLOW.md](./GIT_WORKFLOW.md), and [CODE_REVIEW_GUIDELINES.md](./CODE_REVIEW_GUIDELINES.md) explain how to work within the governed repository without creating parallel standards.
 7. **Product structure and interaction** — Information Architecture, Navigation, Interaction, Forms, Search, Filters, Tables, Mobile, Responsive, Patterns, and Copywriting explain how the product behaves.
 8. **Design system foundations and data** — Design Tokens, Spacing, Layout, Iconography, Elevation, State, Feedback, Notifications, Tables, Color, Typography, Motion, Gestalt, Dashboard, and Data Visualization define reusable expression and domain presentation.
 9. **Safety, resilience, and localization** — Error, Loading, Empty, Permission, Security, Internationalization, and accessibility testing handbooks define implementation-ready quality behavior.
 10. **Core module specifications** — The module handbooks under [modules/](./modules/) translate the canonical standards into role, scope, journey, screen, permission, state, AI, security, performance, and acceptance contracts for Dashboard, Students, Teachers, Organization, Authentication, Profile, Attendance, Exams, Classes, Subjects, Routine, Academic Sessions, Fees, Reports, Analytics, Notifications, Search, Filters, AI Assistant, Roles and Permissions, Settings, Audit Logs, Integrations, Import and Export, Backup and Recovery, Multi-Tenancy, and Future Enterprise Modules.
-11. **Review guidance** — [REVIEW_CHECKLISTS.md](./REVIEW_CHECKLISTS.md), [QUALITY_GATES.md](./QUALITY_GATES.md), [CODE_REVIEW_GUIDELINES.md](./CODE_REVIEW_GUIDELINES.md), [USABILITY_HEURISTICS.md](./USABILITY_HEURISTICS.md), and [UX_LAWS.md](./UX_LAWS.md) help teams inspect work. Review guidance cannot override a release gate.
+11. **Review guidance** — [REVIEW_CHECKLISTS.md](./REVIEW_CHECKLISTS.md), [QUALITY_GATES.md](./QUALITY_GATES.md), [CODE_REVIEW_GUIDELINES.md](./CODE_REVIEW_GUIDELINES.md), [QA_CHECKLIST.md](./QA_CHECKLIST.md), [USABILITY_HEURISTICS.md](./USABILITY_HEURISTICS.md), and [UX_LAWS.md](./UX_LAWS.md) help teams inspect work. Review guidance cannot override a release gate.
 
 See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and ownership matrix.
 
@@ -101,6 +101,15 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 8. [CI_CD_ARCHITECTURE.md](./CI_CD_ARCHITECTURE.md)
 9. [REVIEW_CHECKLISTS.md](./REVIEW_CHECKLISTS.md)
 
+### Intaking, deciding, and handing off work
+
+1. [ISSUE_TEMPLATE.md](./ISSUE_TEMPLATE.md) for a scoped problem, request, or documentation gap.
+2. [ADR_TEMPLATE.md](./ADR_TEMPLATE.md) with [ARCHITECTURE_DECISIONS.md](./ARCHITECTURE_DECISIONS.md) when a boundary or source of truth changes.
+3. [CODE_OWNERSHIP.md](./CODE_OWNERSHIP.md) to route the work to the owning boundary and review partners.
+4. [PR_TEMPLATE.md](./PR_TEMPLATE.md) for the review handoff.
+5. [TEST_CASE_TEMPLATE.md](./TEST_CASE_TEMPLATE.md) and [QA_CHECKLIST.md](./QA_CHECKLIST.md) for scoped QA evidence.
+6. [AUTOMATION_GUIDE.md](./AUTOMATION_GUIDE.md) when checks or delivery automation are selected or changed.
+
 ## Quick navigation
 
 | Need | Start here |
@@ -133,6 +142,13 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 | Follow the end-to-end developer flow | [Developer Playbook](./DEVELOPER_PLAYBOOK.md) |
 | Synchronize branches and commits | [Git Workflow](./GIT_WORKFLOW.md) |
 | Prepare or perform a review | [Code Review Guidelines](./CODE_REVIEW_GUIDELINES.md) |
+| Open a scoped issue | [Issue Template](./ISSUE_TEMPLATE.md) |
+| Record an architecture decision | [ADR Template](./ADR_TEMPLATE.md) and [Architecture Decisions](./ARCHITECTURE_DECISIONS.md) |
+| Route ownership and reviewers | [Code Ownership](./CODE_OWNERSHIP.md) |
+| Prepare a pull request | [PR Template](./PR_TEMPLATE.md) |
+| Execute QA evidence | [QA Checklist](./QA_CHECKLIST.md) |
+| Record a repeatable test | [Test Case Template](./TEST_CASE_TEMPLATE.md) |
+| Select or evolve automation | [Automation Guide](./AUTOMATION_GUIDE.md) |
 | Manage a release handoff | [Release Management](./RELEASE_MANAGEMENT.md) |
 | Understand operational signals and structured logs | [Monitoring and Logging](./MONITORING_AND_LOGGING.md) |
 | Correlate journeys, signals, and outcomes | [Observability](./OBSERVABILITY.md) |
@@ -215,6 +231,13 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 | [TECH_STACK.md](./TECH_STACK.md) | Records the repository technology boundaries and current-versus-target distinctions. |
 | [GIT_WORKFLOW.md](./GIT_WORKFLOW.md) | Defines synchronization, branches, commits, conflicts, and safe Git recovery. |
 | [CODE_REVIEW_GUIDELINES.md](./CODE_REVIEW_GUIDELINES.md) | Defines evidence-based review order, findings, and change-type guidance. |
+| [CODE_OWNERSHIP.md](./CODE_OWNERSHIP.md) | Routes repository boundaries to canonical owners and review partners without claiming unverified enforcement. |
+| [ISSUE_TEMPLATE.md](./ISSUE_TEMPLATE.md) | Captures actionable issue context, scope, evidence, ownership, and acceptance. |
+| [ADR_TEMPLATE.md](./ADR_TEMPLATE.md) | Provides a consistent record shape for architecture decisions while preserving existing decision authority. |
+| [PR_TEMPLATE.md](./PR_TEMPLATE.md) | Structures pull request scope, evidence, risks, review, and release handoff. |
+| [QA_CHECKLIST.md](./QA_CHECKLIST.md) | Organizes scoped QA execution, evidence, defects, retest, and release handoff. |
+| [TEST_CASE_TEMPLATE.md](./TEST_CASE_TEMPLATE.md) | Records repeatable test intent, procedure, execution context, result, and retest. |
+| [AUTOMATION_GUIDE.md](./AUTOMATION_GUIDE.md) | Describes safe validation and delivery automation without claiming unevidenced automation. |
 | [RELEASE_MANAGEMENT.md](./RELEASE_MANAGEMENT.md) | Defines practical release classification, readiness, promotion, verification, and recovery handoff. |
 | [FRONTEND_ARCHITECTURE.md](./FRONTEND_ARCHITECTURE.md) | Defines the React/Vite web composition, frontend boundaries, and current Firebase data path. |
 | [BACKEND_ARCHITECTURE.md](./BACKEND_ARCHITECTURE.md) | Defines the current Firebase boundary and separate Express/OpenAPI/Drizzle backend architecture. |

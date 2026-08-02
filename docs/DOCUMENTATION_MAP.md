@@ -11,9 +11,16 @@ related_documents:
   - ./CONTRIBUTING.md
   - ./CODE_REVIEW_GUIDELINES.md
   - ./RELEASE_MANAGEMENT.md
+  - ./ADR_TEMPLATE.md
+  - ./PR_TEMPLATE.md
+  - ./ISSUE_TEMPLATE.md
+  - ./QA_CHECKLIST.md
+  - ./TEST_CASE_TEMPLATE.md
+  - ./CODE_OWNERSHIP.md
+  - ./AUTOMATION_GUIDE.md
 review_frequency: Quarterly and after documentation architecture changes
 owner: Product Governance Council
-version: 1.9.0
+version: 2.0.0
 status: Active architecture map
 last_updated: 2026-08-02
 normative_level: Governance reference
@@ -80,15 +87,19 @@ PRODUCT_GOVERNANCE -----> DECISION_LOG / CHANGELOG
           |
            +--> CONTRIBUTOR PRACTICE
                   TECH_STACK --> ENVIRONMENT_SETUP --> CONTRIBUTING
-                   PROJECT_CONVENTIONS --> DEVELOPER_PLAYBOOK --> IMPLEMENTATION_CHECKLIST
+                   PROJECT_CONVENTIONS --> CODE_OWNERSHIP --> DEVELOPER_PLAYBOOK --> IMPLEMENTATION_CHECKLIST
                    CODING_STANDARDS --> CONTRIBUTING
-                  GIT_WORKFLOW --> CODE_REVIEW_GUIDELINES --> QUALITY_GATES
+                  CONTRIBUTING --> ISSUE_TEMPLATE
+                  GIT_WORKFLOW --> PR_TEMPLATE --> CODE_REVIEW_GUIDELINES --> QUALITY_GATES
           |
            +--> IMPLEMENTATION SUPPORT
                   API_LAYER_ARCHITECTURE --> API_CONTRACTS
                   COMPONENT_SPECIFICATIONS --> COMPONENT_STANDARDS
                   PRODUCT_GOVERNANCE --> ARCHITECTURE_DECISIONS --> DECISION_LOG
                   DESIGN_TOKENS --> COMPONENT_STANDARDS
+                  ARCHITECTURE_DECISIONS --> ADR_TEMPLATE
+                  TESTING_STRATEGY --> TEST_CASE_TEMPLATE --> QA_CHECKLIST --> QUALITY_GATES
+                  TESTING_STRATEGY --> AUTOMATION_GUIDE --> CI_CD_ARCHITECTURE
         |
          +--> VISUAL AND DATA SYSTEM
          |      DESIGN_TOKENS --> SPACING_SYSTEM / LAYOUT_GRID / ICONOGRAPHY / ELEVATION_SYSTEM
@@ -128,11 +139,14 @@ INDEX is the navigation homepage for every layer.
 | Technical correctness and reliability | [ENGINEERING_STANDARDS.md](./ENGINEERING_STANDARDS.md) | Governance, Review Checklists |
 | Practical implementation conventions | [CODING_STANDARDS.md](./CODING_STANDARDS.md) | Engineering Standards, Folder Structure, Frontend Architecture, Backend Architecture, Accessibility, Quality Gates |
 | Project placement, naming, and safe contributor quick reference | [PROJECT_CONVENTIONS.md](./PROJECT_CONVENTIONS.md) | Folder Structure, Coding Standards, Contributing, Git Workflow |
+| Repository and boundary ownership | [CODE_OWNERSHIP.md](./CODE_OWNERSHIP.md) | Folder Structure, architecture handbooks, Code Review Guidelines |
 | Contributor orientation and contribution flow | [CONTRIBUTING.md](./CONTRIBUTING.md) | Environment Setup, Tech Stack, Coding Standards, Git Workflow, Code Review Guidelines |
+| Issue intake and triage record | [ISSUE_TEMPLATE.md](./ISSUE_TEMPLATE.md) | Contributing, Product Governance, Code Ownership, Testing Strategy |
 | End-to-end implementation flow | [DEVELOPER_PLAYBOOK.md](./DEVELOPER_PLAYBOOK.md) | Contributing, Engineering Standards, Architecture Decisions, Implementation Checklist |
 | Runtime, package, and environment setup | [ENVIRONMENT_SETUP.md](./ENVIRONMENT_SETUP.md) | Tech Stack, Folder Structure, Frontend Architecture, Backend Architecture, Firebase Architecture, Deployment Architecture |
 | Technology inventory and current-versus-target stack boundary | [TECH_STACK.md](./TECH_STACK.md) | Environment Setup, Folder Structure, Frontend Architecture, Backend Architecture, API Layer Architecture |
 | Branch, synchronization, commit, and conflict workflow | [GIT_WORKFLOW.md](./GIT_WORKFLOW.md) | Contributing, Code Review Guidelines, CI/CD Architecture, Release Management |
+| Pull request review handoff | [PR_TEMPLATE.md](./PR_TEMPLATE.md) | Git Workflow, Code Review Guidelines, Review Checklists, Quality Gates |
 | Evidence-based change review | [CODE_REVIEW_GUIDELINES.md](./CODE_REVIEW_GUIDELINES.md) | Review Checklists, Quality Gates, Engineering Standards, Testing Strategy |
 | Release classification, readiness, promotion, and closeout | [RELEASE_MANAGEMENT.md](./RELEASE_MANAGEMENT.md) | CI/CD Architecture, Deployment Architecture, Quality Gates, Testing Strategy, Disaster Recovery |
 | Repository and package placement | [FOLDER_STRUCTURE.md](./FOLDER_STRUCTURE.md) | Frontend Architecture, Backend Architecture, API Layer Architecture |
@@ -151,7 +165,10 @@ INDEX is the navigation homepage for every layer.
 | Cache ownership, identity, freshness, invalidation, privacy, and migration | [CACHING_STRATEGY.md](./CACHING_STRATEGY.md) | State Management, Data Flow Architecture, Authentication Architecture, Authorization Architecture, Security Architecture, Database Architecture |
 | Critical journeys, useful work, measurement, and performance evidence | [PERFORMANCE_ARCHITECTURE.md](./PERFORMANCE_ARCHITECTURE.md) | Engineering Standards, Product Constitution, Frontend Architecture, Backend Architecture, Caching Strategy, Quality Gates |
 | Test layers, representative coverage, and release evidence | [TESTING_STRATEGY.md](./TESTING_STRATEGY.md) | Engineering Standards, Quality Gates, Accessibility Testing, Security Architecture, Performance Architecture |
+| Repeatable test case record | [TEST_CASE_TEMPLATE.md](./TEST_CASE_TEMPLATE.md) | Testing Strategy, QA Checklist, Quality Gates |
+| QA execution and handoff | [QA_CHECKLIST.md](./QA_CHECKLIST.md) | Testing Strategy, Test Case Template, Quality Gates, Accessibility Testing |
 | Delivery stages, generated artifacts, and promotion checks | [CI_CD_ARCHITECTURE.md](./CI_CD_ARCHITECTURE.md) | Testing Strategy, Engineering Standards, Quality Gates, Security Architecture, Deployment Architecture |
+| Validation and delivery automation guidance | [AUTOMATION_GUIDE.md](./AUTOMATION_GUIDE.md) | Testing Strategy, CI/CD Architecture, Quality Gates, Environment Setup |
 | Environments, deployment units, readiness, and rollback | [DEPLOYMENT_ARCHITECTURE.md](./DEPLOYMENT_ARCHITECTURE.md) | CI/CD Architecture, Backend Architecture, Firebase Architecture, Database Architecture, Security Architecture, Disaster Recovery |
 | Operational signals, structured logs, and health monitoring | [MONITORING_AND_LOGGING.md](./MONITORING_AND_LOGGING.md) | Engineering Standards, Security Architecture, Error Handling, Performance Architecture, Audit Logs |
 | Cross-signal journey correlation and operational diagnosis | [OBSERVABILITY.md](./OBSERVABILITY.md) | Monitoring and Logging, Performance Architecture, Data Flow Architecture, Deployment Architecture, Error Monitoring |
@@ -183,6 +200,7 @@ INDEX is the navigation homepage for every layer.
 | Dashboard and reporting presentation | Dashboard, Data Visualization, and Table handbooks | Information Architecture, Search, Filters, Accessibility |
 | Core module behavior | [modules/](./modules/) | Information Architecture, Navigation, Forms, Search, Filters, Patterns, Components, States, Permissions, Security, AI, Notifications, Review Checklists |
 | Release evidence | [QUALITY_GATES.md](./QUALITY_GATES.md) | Review Checklists, Accessibility Testing, every release-gate handbook |
+| Architecture decision record shape | [ADR_TEMPLATE.md](./ADR_TEMPLATE.md) | Architecture Decisions, Product Governance, Decision Log |
 | Implementation evidence and handoff | [IMPLEMENTATION_CHECKLIST.md](./IMPLEMENTATION_CHECKLIST.md) | Developer Playbook, Testing Strategy, Code Review Guidelines, Quality Gates |
 | Architecture decision method | [ARCHITECTURE_DECISIONS.md](./ARCHITECTURE_DECISIONS.md) | Product Governance, Decision Log, owning architecture handbooks |
 | Contributor setup and implementation path | [CONTRIBUTING.md](./CONTRIBUTING.md) | Environment Setup, Tech Stack, Coding Standards, Git Workflow, Code Review Guidelines |
