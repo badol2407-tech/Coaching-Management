@@ -631,9 +631,9 @@ export default function Students() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2 flex-1">
-          <div className="relative flex-1 max-w-sm">
+      <div className="flex flex-col items-stretch justify-between gap-3 sm:flex-row sm:items-end">
+        <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-center">
+          <div className="relative min-w-0 flex-1 sm:max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               className="pl-9"
@@ -643,7 +643,7 @@ export default function Students() {
             />
           </div>
           <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as "all" | "active" | "inactive")}>
-            <SelectTrigger className="w-36">
+            <SelectTrigger className="w-full sm:w-36">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
@@ -653,7 +653,7 @@ export default function Students() {
             </SelectContent>
           </Select>
           <Select value={batchFilter} onValueChange={setBatchFilter}>
-            <SelectTrigger className="w-40">
+            <SelectTrigger className="w-full sm:w-40">
               <Filter className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
               <SelectValue placeholder="All Batches" />
             </SelectTrigger>
@@ -665,15 +665,22 @@ export default function Students() {
             </SelectContent>
           </Select>
         </div>
-        <Button onClick={openAdd}>
+        <Button onClick={openAdd} className="w-full sm:w-auto">
           <UserPlus className="h-4 w-4 mr-2" />
           Add Student
         </Button>
       </div>
 
+      <div className="flex items-center justify-between gap-3 text-sm text-muted-foreground" aria-live="polite">
+        <p>
+          {isLoading ? "Loading students…" : `${displayedStudents.length} student${displayedStudents.length === 1 ? "" : "s"} shown`}
+        </p>
+        {(search || statusFilter !== "all" || batchFilter) && <p>Filters are active</p>}
+      </div>
+
       {/* Table */}
-      <div className="rounded-lg border bg-card">
-        <Table>
+      <div className="rounded-lg border bg-card overflow-x-auto">
+        <Table className="min-w-[900px]" aria-label="Students">
           <TableHeader>
             <TableRow>
               <TableHead>Student</TableHead>
@@ -693,7 +700,7 @@ export default function Students() {
                   <TableCell colSpan={9} className="h-12 animate-pulse bg-muted/30" />
                 </TableRow>
               ))
-            ) : (students as Student[]).length === 0 ? (
+            ) : displayedStudents.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={9} className="text-center py-10 text-muted-foreground">
                   {search ? "No students match your search." : "No students yet. Click \"Add Student\" to get started."}
@@ -751,7 +758,8 @@ export default function Students() {
                           onSuccess: invalidate,
                         });
                       }}
-                      className="focus:outline-none"
+                      aria-pressed={(s.status ?? "active") === "active"}
+                      className="rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
                     >
                       {(s.status ?? "active") === "active" ? (
                         <Badge className="bg-green-100 text-green-700 border-green-200 gap-1 text-xs font-medium hover:bg-green-200 cursor-pointer transition-colors">

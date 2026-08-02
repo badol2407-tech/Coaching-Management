@@ -52,15 +52,15 @@ export default function PopupOffers() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start justify-between">
+      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div>
           <h1 className="text-2xl font-bold">Popup Offers & Banners</h1>
           <p className="text-muted-foreground text-sm mt-1">Manage promotional popups shown on the landing page</p>
         </div>
-        <Button onClick={openCreate} className="gap-2"><Plus className="h-4 w-4" /> New Offer</Button>
+        <Button onClick={openCreate} className="gap-2 w-full md:w-auto"><Plus className="h-4 w-4" /> New Offer</Button>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Card><CardContent className="pt-5"><p className="text-sm text-muted-foreground">Total Offers</p><p className="text-3xl font-bold mt-1">{offers.length}</p></CardContent></Card>
         <Card><CardContent className="pt-5"><p className="text-sm text-muted-foreground">Active</p><p className="text-3xl font-bold mt-1 text-green-500">{offers.filter((o: any) => o.active).length}</p></CardContent></Card>
         <Card><CardContent className="pt-5"><p className="text-sm text-muted-foreground">Inactive</p><p className="text-3xl font-bold mt-1 text-muted-foreground">{offers.filter((o: any) => !o.active).length}</p></CardContent></Card>
@@ -69,11 +69,11 @@ export default function PopupOffers() {
       <Card>
         <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><Target className="h-4 w-4 text-violet-400" /> All Popup Offers</CardTitle></CardHeader>
         <CardContent>
-          {isLoading ? <div className="flex justify-center py-10"><div className="animate-spin h-6 w-6 border-b-2 border-primary rounded-full" /></div>
+          {isLoading ? <div className="flex flex-col items-center justify-center gap-3 py-12 text-sm text-muted-foreground"><div className="animate-spin h-6 w-6 border-b-2 border-primary rounded-full" /><p>Loading popup offers…</p></div>
             : offers.length === 0 ? <p className="text-center text-muted-foreground py-10 text-sm">No popup offers yet. Create your first one.</p>
             : <div className="space-y-3">
               {offers.map((o: any) => (
-                <div key={o.id} className="flex items-start justify-between p-4 rounded-lg border border-border hover:bg-accent/30 transition-colors">
+                <div key={o.id} className="flex flex-col gap-4 rounded-lg border border-border p-4 transition-colors hover:bg-accent/30 md:flex-row md:items-start md:justify-between">
                   <div className="space-y-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <p className="font-medium text-sm">{o.title}</p>
@@ -82,12 +82,12 @@ export default function PopupOffers() {
                     <p className="text-xs text-muted-foreground line-clamp-2">{o.description}</p>
                     {o.cta && <p className="text-xs text-primary">CTA: {o.cta}</p>}
                   </div>
-                  <div className="flex items-center gap-1 shrink-0 ml-4">
-                    <Button size="icon" variant="ghost" className="h-7 w-7" title={o.active ? "Hide" : "Show"} onClick={() => handleToggle(o)}>
+                  <div className="flex items-center gap-2 shrink-0 md:ml-4">
+                    <Button size="icon" variant="ghost" className="h-11 w-11" title={o.active ? "Hide" : "Show"} aria-label={o.active ? "Hide offer" : "Show offer"} aria-pressed={o.active} onClick={() => handleToggle(o)}>
                       {o.active ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                     </Button>
-                    <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => openEdit(o)}><Pencil className="h-3.5 w-3.5" /></Button>
-                    <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive hover:text-destructive" onClick={() => handleDelete(o)}><Trash2 className="h-3.5 w-3.5" /></Button>
+                    <Button size="icon" variant="ghost" className="h-11 w-11" aria-label={`Edit offer ${o.title}`} onClick={() => openEdit(o)}><Pencil className="h-3.5 w-3.5" /></Button>
+                    <Button size="icon" variant="ghost" className="h-11 w-11 text-destructive hover:text-destructive" aria-label={`Delete offer ${o.title}`} onClick={() => handleDelete(o)}><Trash2 className="h-3.5 w-3.5" /></Button>
                   </div>
                 </div>
               ))}
@@ -97,7 +97,7 @@ export default function PopupOffers() {
       </Card>
 
       <Dialog open={!!dialog} onOpenChange={() => setDialog(null)}>
-        <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-md focus-visible:outline-none">
           <DialogHeader><DialogTitle>{dialog?.mode === "create" ? "New Popup Offer" : "Edit Popup Offer"}</DialogTitle></DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-1.5"><Label>Title *</Label><Input value={dialog?.data.title ?? ""} onChange={(e) => set("title", e.target.value)} placeholder="e.g. 🎉 Limited Time Offer!" /></div>

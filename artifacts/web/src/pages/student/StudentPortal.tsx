@@ -12,9 +12,9 @@ import { Wallet, CalendarCheck, ClipboardList, Clock, CalendarDays, Bell, Notebo
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 function statusBadge(status: string) {
-  if (status === "present") return <Badge className="bg-green-100 text-green-700 border-green-200">উপস্থিত</Badge>;
-  if (status === "late") return <Badge className="bg-amber-100 text-amber-700 border-amber-200">দেরিতে</Badge>;
-  return <Badge className="bg-red-100 text-red-700 border-red-200">অনুপস্থিত</Badge>;
+  if (status === "present") return <Badge aria-label="উপস্থিত" className="bg-green-100 text-green-700 border-green-200">উপস্থিত</Badge>;
+  if (status === "late") return <Badge aria-label="দেরিতে" className="bg-amber-100 text-amber-700 border-amber-200">দেরিতে</Badge>;
+  return <Badge aria-label="অনুপস্থিত" className="bg-red-100 text-red-700 border-red-200">অনুপস্থিত</Badge>;
 }
 
 const DAYS_BN: Record<string, string> = {
@@ -171,6 +171,8 @@ export default function StudentPortal() {
       {activeTab === "fees" && (
           <Card>
             <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <div className="min-w-[640px]">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -203,6 +205,8 @@ export default function StudentPortal() {
                   )}
                 </TableBody>
               </Table>
+                </div>
+              </div>
             </CardContent>
           </Card>
       )}
@@ -210,6 +214,8 @@ export default function StudentPortal() {
       {activeTab === "attendance" && (
           <Card>
             <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <div className="min-w-[640px]">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -232,6 +238,8 @@ export default function StudentPortal() {
                   )}
                 </TableBody>
               </Table>
+                </div>
+              </div>
             </CardContent>
           </Card>
       )}
@@ -239,6 +247,8 @@ export default function StudentPortal() {
       {activeTab === "results" && (
           <Card>
             <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <div className="min-w-[640px]">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -269,6 +279,8 @@ export default function StudentPortal() {
                   )}
                 </TableBody>
               </Table>
+                </div>
+              </div>
             </CardContent>
           </Card>
       )}

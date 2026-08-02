@@ -28,7 +28,8 @@ export default function TeacherStudents() {
 
       <Card>
         <CardContent className="p-0">
-          <div className="rounded-lg overflow-hidden">
+          <div className="rounded-lg overflow-x-auto">
+            <div className="min-w-[720px]">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -40,7 +41,7 @@ export default function TeacherStudents() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {isLoading ? (
+                  {isLoading ? (
                   <TableRow>
                     <TableCell colSpan={5} className="text-center py-10">
                       <div className="animate-pulse text-muted-foreground">লোড হচ্ছে...</div>
@@ -66,6 +67,7 @@ export default function TeacherStudents() {
                 )}
               </TableBody>
             </Table>
+            </div>
           </div>
         </CardContent>
       </Card>

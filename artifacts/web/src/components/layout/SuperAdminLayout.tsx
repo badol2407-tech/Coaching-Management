@@ -78,11 +78,13 @@ function SidebarNavContent({
   toggleModule,
   location,
   onNavClick,
+  idSuffix,
 }: {
   openModules: Record<string, boolean>;
   toggleModule: (id: string) => void;
   location: string;
   onNavClick: () => void;
+  idSuffix: string;
 }) {
   const { user, logout } = useAuth();
 
@@ -97,7 +99,11 @@ function SidebarNavContent({
             onOpenChange={() => toggleModule(mod.id)}
           >
             <CollapsibleTrigger asChild>
-              <button className="w-full flex items-center justify-between px-4 py-2 mt-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors">
+              <button
+                className="w-full min-h-11 flex items-center justify-between px-4 py-2 mt-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+                aria-expanded={openModules[mod.id]}
+                aria-controls={`${mod.id}-navigation-${idSuffix}`}
+              >
                 <div className="flex items-center gap-1.5">
                   <mod.icon className={cn("h-3 w-3", mod.color)} />
                   <span>{mod.label}</span>
@@ -111,7 +117,7 @@ function SidebarNavContent({
               </button>
             </CollapsibleTrigger>
             <CollapsibleContent>
-              <div className="px-2 pb-1">
+              <div id={`${mod.id}-navigation-${idSuffix}`} className="px-2 pb-1">
                 {mod.items.map((item) => {
                   const active = isItemActive(item.href, location);
                   return (
@@ -120,7 +126,7 @@ function SidebarNavContent({
                       href={item.href}
                       onClick={onNavClick}
                       className={cn(
-                        "flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-sm transition-all mb-0.5",
+                        "flex min-h-11 items-center gap-2.5 px-2.5 py-2 rounded-md text-sm transition-all mb-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                         active
                           ? "bg-primary/10 text-primary font-medium"
                           : "text-muted-foreground hover:text-foreground hover:bg-accent/60"
@@ -157,9 +163,11 @@ function SidebarNavContent({
           <Button
             size="icon"
             variant="ghost"
-            className="h-7 w-7 text-muted-foreground hover:text-destructive shrink-0"
+            className="h-11 w-11 text-muted-foreground hover:text-destructive shrink-0"
             onClick={logout}
             title="Logout"
+            aria-label="Log out"
+            data-testid="button-logout"
           >
             <LogOut className="h-3.5 w-3.5" />
           </Button>
@@ -185,7 +193,7 @@ function BrandHeader({ onClose }: { onClose?: () => void }) {
       {onClose && (
         <button
           onClick={onClose}
-          className="ml-2 p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors shrink-0"
+          className="ml-2 flex min-h-11 min-w-11 items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           aria-label="Close navigation"
         >
           <X className="h-4 w-4" />
@@ -203,7 +211,14 @@ export function SuperAdminLayout({ children }: { children: React.ReactNode }) {
     billing: true,
     marketing: true,
   });
-  const { isOpen: mobileOpen, open: openDrawer, close: closeDrawer } = useMobileDrawer();
+  const {
+    isOpen: mobileOpen,
+    isMobile,
+    drawerRef,
+    triggerRef,
+    open: openDrawer,
+    close: closeDrawer,
+  } = useMobileDrawer();
 
   const toggleModule = (id: string) =>
     setOpenModules((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -229,6 +244,12 @@ export function SuperAdminLayout({ children }: { children: React.ReactNode }) {
 
       {/* ── Mobile slide-in drawer (md:hidden) ── */}
       <aside
+        ref={drawerRef}
+        tabIndex={isMobile && mobileOpen ? -1 : undefined}
+        role={isMobile ? "dialog" : undefined}
+        aria-modal={isMobile ? true : undefined}
+        aria-hidden={isMobile ? !mobileOpen : undefined}
+        inert={isMobile && !mobileOpen ? true : undefined}
         className={cn(
           "fixed top-0 left-0 h-full w-72 z-50 flex flex-col bg-background border-r border-border/60",
           "md:hidden transition-transform duration-300 ease-in-out",
@@ -242,6 +263,7 @@ export function SuperAdminLayout({ children }: { children: React.ReactNode }) {
           toggleModule={toggleModule}
           location={location}
           onNavClick={closeDrawer}
+          idSuffix="mobile"
         />
       </aside>
 
@@ -253,6 +275,7 @@ export function SuperAdminLayout({ children }: { children: React.ReactNode }) {
           toggleModule={toggleModule}
           location={location}
           onNavClick={() => {}}
+          idSuffix="desktop"
         />
       </aside>
 
@@ -261,9 +284,12 @@ export function SuperAdminLayout({ children }: { children: React.ReactNode }) {
         <header className="h-14 flex items-center px-4 gap-3 border-b border-border/60 bg-card/80 backdrop-blur-sm sticky top-0 z-10">
           {/* Mobile hamburger */}
           <button
+            ref={triggerRef}
             onClick={openDrawer}
-            className="md:hidden p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+            className="md:hidden flex min-h-11 min-w-11 items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             aria-label="Open navigation"
+            aria-expanded={mobileOpen}
+            data-testid="button-open-navigation"
           >
             <Menu className="h-5 w-5" />
           </button>

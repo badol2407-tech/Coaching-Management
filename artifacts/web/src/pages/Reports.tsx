@@ -141,15 +141,15 @@ function StudentReport() {
   return (
     <div className="space-y-4">
       {/* Filters */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
         <div>
           <Label className="text-xs mb-1 block">Search</Label>
-          <Input placeholder="Name / roll / phone" value={search} onChange={(e) => setSearch(e.target.value)} className="h-9" />
+           <Input placeholder="Name / roll / phone" value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
         <div>
           <Label className="text-xs mb-1 block">Status</Label>
           <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
-            <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+           <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All</SelectItem>
               <SelectItem value="active">Active</SelectItem>
@@ -160,7 +160,7 @@ function StudentReport() {
         <div>
           <Label className="text-xs mb-1 block">Class</Label>
           <Select value={classFilter} onValueChange={setClassFilter}>
-            <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+           <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Classes</SelectItem>
               {(classes as any[]).map((c: any) => (
@@ -172,7 +172,7 @@ function StudentReport() {
         <div>
           <Label className="text-xs mb-1 block">Batch</Label>
           <Select value={batchFilter} onValueChange={setBatchFilter}>
-            <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+           <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Batches</SelectItem>
               {SECTION_OPTIONS.map((b) => (
@@ -332,7 +332,7 @@ function AttendanceReport() {
         <div>
           <Label className="text-xs mb-1 block">Class</Label>
           <Select value={classFilter} onValueChange={setClassFilter}>
-            <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+           <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Classes</SelectItem>
               {(classes as any[]).map((c: any) => (
@@ -368,7 +368,7 @@ function AttendanceReport() {
         <h2 className="text-lg font-bold hidden print:block">Attendance Report — {fmtMonth(month)}</h2>
         <p className="text-sm text-muted-foreground hidden print:block mb-2">Generated: {new Date().toLocaleString()}</p>
 
-        <div className="grid grid-cols-3 gap-3 mb-4">
+         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
           {[
             { label: "Avg Attendance", value: `${avgPct}%`, icon: CalendarCheck, color: "text-blue-600" },
             { label: "100% Present", value: fullPresent, icon: CheckCircle2, color: "text-green-600" },
@@ -391,8 +391,8 @@ function AttendanceReport() {
         ) : rows.length === 0 ? (
           <div className="text-center py-10 text-muted-foreground text-sm">No attendance data for {fmtMonth(month)}.</div>
         ) : (
-          <div className="rounded-md border overflow-x-auto">
-            <Table>
+           <div className="rounded-md border overflow-x-auto">
+             <Table className="min-w-[720px]" aria-label="Student report">
               <TableHeader>
                 <TableRow>
                   <TableHead>#</TableHead>
@@ -1061,7 +1061,7 @@ export default function Reports() {
       </div>
 
       <Tabs defaultValue="student" className="space-y-4">
-        <TabsList className="flex-wrap h-auto gap-1">
+        <TabsList className="flex w-full flex-wrap h-auto gap-1">
           <TabsTrigger value="student" className="gap-1.5">
             <Users className="h-4 w-4" />Student Report
           </TabsTrigger>

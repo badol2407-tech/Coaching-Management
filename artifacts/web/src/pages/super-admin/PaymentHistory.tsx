@@ -22,9 +22,9 @@ export default function PaymentHistory() {
       {/* Revenue summary */}
       <div className="grid gap-4 sm:grid-cols-3">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Revenue</CardTitle>
-            <TrendingUp className="h-4 w-4 text-emerald-500" />
+            <TrendingUp className="h-4 w-4 text-emerald-500" aria-hidden="true" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">৳{totalRevenue.toLocaleString()}</div>
@@ -32,9 +32,9 @@ export default function PaymentHistory() {
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Paid This Cycle</CardTitle>
-            <CreditCard className="h-4 w-4 text-green-500" />
+            <CreditCard className="h-4 w-4 text-green-500" aria-hidden="true" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">{paidOrgs.length}</div>
@@ -42,9 +42,9 @@ export default function PaymentHistory() {
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Unpaid This Cycle</CardTitle>
-            <CreditCard className="h-4 w-4 text-red-500" />
+            <CreditCard className="h-4 w-4 text-red-500" aria-hidden="true" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">{unpaidOrgs.length}</div>
@@ -56,10 +56,10 @@ export default function PaymentHistory() {
       {/* Paid orgs status */}
       <div className="grid gap-4 sm:grid-cols-2">
         <Card>
-          <CardHeader><CardTitle className="text-sm text-green-700">✓ Paid Organizations</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-sm text-green-700">Paid Organizations</CardTitle></CardHeader>
           <CardContent>
             {paidOrgs.length === 0 ? (
-              <p className="text-muted-foreground text-sm py-2">No paid organizations yet.</p>
+              <p className="text-muted-foreground text-sm py-2" role="status" aria-live="polite">No paid organizations yet.</p>
             ) : (
               <div className="space-y-2">
                 {paidOrgs.map((org: any) => (
@@ -76,10 +76,10 @@ export default function PaymentHistory() {
           </CardContent>
         </Card>
         <Card>
-          <CardHeader><CardTitle className="text-sm text-red-600">✗ Unpaid Organizations</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-sm text-red-600">Unpaid Organizations</CardTitle></CardHeader>
           <CardContent>
             {unpaidOrgs.length === 0 ? (
-              <p className="text-muted-foreground text-sm py-2">All organizations are paid!</p>
+              <p className="text-muted-foreground text-sm py-2" role="status" aria-live="polite">All organizations are paid!</p>
             ) : (
               <div className="space-y-2">
                 {unpaidOrgs.map((org: any) => (
@@ -103,18 +103,18 @@ export default function PaymentHistory() {
           <CardTitle>Payment Records</CardTitle>
         </CardHeader>
         <CardContent>
-          {isLoading ? (
-            <div className="space-y-3">
+            {isLoading ? (
+            <div className="space-y-3" role="status" aria-live="polite">
               {[1, 2, 3].map((i) => <div key={i} className="h-12 animate-pulse bg-muted/30 rounded-lg" />)}
             </div>
           ) : (payments as any[]).length === 0 ? (
-            <div className="py-12 text-center text-muted-foreground">
-              <CreditCard className="h-8 w-8 mx-auto mb-2 opacity-30" />
+            <div className="py-12 text-center text-muted-foreground" role="status" aria-live="polite">
+              <CreditCard className="h-8 w-8 mx-auto mb-2 opacity-30" aria-hidden="true" />
               <p>No payment records yet. Use "Record Payment" in Organizations to log payments.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+            <div className="overflow-x-auto -mx-4 px-4">
+              <table className="w-full min-w-[780px] text-sm">
                 <thead>
                   <tr className="text-left text-muted-foreground border-b">
                     <th className="pb-2 font-medium">Organization</th>

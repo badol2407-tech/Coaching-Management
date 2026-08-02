@@ -77,7 +77,8 @@ function StatusBtn({
     <button
       type="button"
       onClick={onClick}
-      className={`flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold rounded-md border transition-all ${
+      aria-pressed={active}
+      className={`flex min-h-11 min-w-11 items-center justify-center gap-1 px-3 py-2 text-xs font-semibold rounded-md border transition-all ${
         active
           ? STATUS_BUTTON_ACTIVE[status]
           : "bg-white border-gray-200 text-gray-500 hover:bg-gray-50"
@@ -196,12 +197,12 @@ function MarkAttendanceTab() {
       <div className="flex flex-col sm:flex-row items-start sm:items-end gap-3 flex-wrap">
         <div className="space-y-1">
           <Label className="text-xs text-muted-foreground">তারিখ</Label>
-          <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-40" />
+          <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full sm:w-40" />
         </div>
         <div className="space-y-1">
           <Label className="text-xs text-muted-foreground">ক্লাস</Label>
           <Select value={filterClass} onValueChange={(v) => { setFilterClass(v); setFilterBatch(""); }}>
-            <SelectTrigger className="w-36"><SelectValue placeholder="সব ক্লাস" /></SelectTrigger>
+            <SelectTrigger className="w-full sm:w-36"><SelectValue placeholder="সব ক্লাস" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="">সব ক্লাস</SelectItem>
               {(classes as any[]).map((c: any) => (
@@ -213,7 +214,7 @@ function MarkAttendanceTab() {
         <div className="space-y-1">
           <Label className="text-xs text-muted-foreground">সেকশন</Label>
           <Select value={filterSection} onValueChange={setFilterSection}>
-            <SelectTrigger className="w-32"><SelectValue placeholder="সব" /></SelectTrigger>
+            <SelectTrigger className="w-full sm:w-32"><SelectValue placeholder="সব" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="">সব</SelectItem>
               {SECTION_OPTIONS.map((s) => (
@@ -225,7 +226,7 @@ function MarkAttendanceTab() {
         <div className="space-y-1">
           <Label className="text-xs text-muted-foreground">ব্যাচ</Label>
           <Select value={filterBatch} onValueChange={setFilterBatch} disabled={!filterClass}>
-            <SelectTrigger className="w-32"><SelectValue placeholder="সব" /></SelectTrigger>
+            <SelectTrigger className="w-full sm:w-32"><SelectValue placeholder="সব" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="">সব</SelectItem>
               {availableBatches.map((b: string) => (
@@ -238,7 +239,7 @@ function MarkAttendanceTab() {
 
       {eligibleStudents.length === 0 ? (
         <Card>
-          <CardContent className="py-12 text-center text-muted-foreground">
+            <CardContent className="py-12 text-center text-muted-foreground">
             <Users className="h-8 w-8 mx-auto mb-2 opacity-30" />
             <p>কোনো active student নেই। ক্লাস বা ব্যাচ বেছে নিন।</p>
           </CardContent>
@@ -247,7 +248,7 @@ function MarkAttendanceTab() {
         <>
           {/* Stats + bulk actions */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div className="flex gap-4 text-sm">
+            <div className="flex flex-wrap gap-4 text-sm">
               <span className="text-green-700 font-medium flex items-center gap-1">
                 <CheckCircle2 className="h-4 w-4" /> {stats.present} উপস্থিত
               </span>
@@ -261,14 +262,14 @@ function MarkAttendanceTab() {
                 <span className="text-muted-foreground">{stats.unmarked} বাকি</span>
               )}
             </div>
-            <div className="flex gap-2">
-              <Button size="sm" variant="outline" className="text-green-700 border-green-300" onClick={() => markAll("present")}>
+            <div className="flex flex-wrap gap-2">
+              <Button size="sm" variant="outline" className="min-h-11 text-green-700 border-green-300" onClick={() => markAll("present")}>
                 সবাই উপস্থিত
               </Button>
-              <Button size="sm" variant="outline" className="text-amber-700 border-amber-300" onClick={() => markAll("late")}>
+              <Button size="sm" variant="outline" className="min-h-11 text-amber-700 border-amber-300" onClick={() => markAll("late")}>
                 সবাই দেরিতে
               </Button>
-              <Button size="sm" variant="outline" className="text-red-700 border-red-300" onClick={() => markAll("absent")}>
+              <Button size="sm" variant="outline" className="min-h-11 text-red-700 border-red-300" onClick={() => markAll("absent")}>
                 সবাই অনুপস্থিত
               </Button>
             </div>
@@ -304,7 +305,7 @@ function MarkAttendanceTab() {
                           current === "present" ? "উপস্থিত" : current === "late" ? "দেরিতে" : "অনুপস্থিত"
                         }</Badge>
                       )}
-                      <div className="flex gap-1.5">
+                      <div className="flex flex-wrap gap-1.5">
                         {(["present", "absent", "late"] as Status[]).map((st) => (
                           <StatusBtn
                             key={st}
@@ -459,25 +460,26 @@ function HistoryTab() {
       </div>
 
       {/* Stats + actions */}
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div className="flex gap-4 text-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-4 text-sm">
           <span className="text-green-700">উপস্থিত: {counts.present}</span>
           <span className="text-amber-700">দেরিতে: {counts.late}</span>
           <span className="text-red-700">অনুপস্থিত: {counts.absent}</span>
           <span className="text-muted-foreground">মোট: {(records as any[]).length}</span>
         </div>
-        <div className="flex gap-2">
-          <Button size="sm" variant="outline" onClick={() => refetch()}>
+        <div className="flex flex-wrap gap-2">
+          <Button size="sm" variant="outline" className="min-h-11" onClick={() => refetch()}>
             <RefreshCw className="h-3.5 w-3.5 mr-1" /> Refresh
           </Button>
-          <Button size="sm" variant="outline" onClick={handleExport}>
+          <Button size="sm" variant="outline" className="min-h-11" onClick={handleExport}>
             <Download className="h-3.5 w-3.5 mr-1" /> Export CSV
           </Button>
         </div>
       </div>
 
       {/* Table */}
-      <div className="rounded-lg border bg-card overflow-hidden">
+      <div className="rounded-lg border bg-card overflow-x-auto">
+        <div className="min-w-[760px]">
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/30">
@@ -497,7 +499,7 @@ function HistoryTab() {
               ))
             ) : (records as any[]).length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-12 text-muted-foreground">
+                  <TableCell colSpan={5} className="text-center py-12 text-muted-foreground">
                   <CalendarDays className="h-8 w-8 mx-auto mb-2 opacity-30" />
                   এই filter-এ কোনো রেকর্ড নেই
                 </TableCell>
@@ -534,6 +536,7 @@ function HistoryTab() {
             )}
           </TableBody>
         </Table>
+        </div>
       </div>
     </div>
   );
@@ -625,8 +628,8 @@ function MonthlyTab() {
       </div>
 
       {/* Stats + export */}
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div className="flex gap-4 text-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-4 text-sm">
           <span className="text-muted-foreground">{(summary as any[]).length} জন student</span>
           {(summary as any[]).length > 0 && (
             <span className={`font-semibold ${pctColor(classAvg)}`}>
@@ -634,13 +637,14 @@ function MonthlyTab() {
             </span>
           )}
         </div>
-        <Button size="sm" variant="outline" onClick={handleExport}>
+        <Button size="sm" variant="outline" className="min-h-11" onClick={handleExport}>
           <Download className="h-3.5 w-3.5 mr-1" /> Export CSV
         </Button>
       </div>
 
       {/* Table */}
-      <div className="rounded-lg border bg-card overflow-hidden">
+      <div className="rounded-lg border bg-card overflow-x-auto">
+        <div className="min-w-[900px]">
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/30">
@@ -696,6 +700,7 @@ function MonthlyTab() {
             )}
           </TableBody>
         </Table>
+        </div>
       </div>
     </div>
   );

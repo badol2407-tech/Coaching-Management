@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation } from "wouter";
+import { useLocation } from "wouter";
 import {
   LayoutDashboard, CalendarCheck, Users, ClipboardList, Bell,
   GraduationCap, LogOut, CalendarDays, Settings, NotebookPen,
@@ -11,6 +11,7 @@ import { useImpersonation } from "@/contexts/ImpersonationContext";
 import { getOrgAccessStatus } from "@/lib/subscription";
 import { getEffectiveTier } from "@/lib/plan-config";
 import { SubscriptionExpiredScreen } from "@/pages/SubscriptionExpired";
+import { PortalNavLink } from "@/components/layout/PortalNavLink";
 
 const navItems = [
   { title: "Dashboard",  href: "/",           icon: LayoutDashboard },
@@ -31,7 +32,14 @@ function initExpanded() {
 export function TeacherLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const { user, userProfile, logout } = useAuth();
-  const { isOpen: mobileOpen, open: openDrawer, close: closeDrawer } = useMobileDrawer();
+  const {
+    isOpen: mobileOpen,
+    isMobile,
+    drawerRef,
+    triggerRef,
+    open: openDrawer,
+    close: closeDrawer,
+  } = useMobileDrawer();
   const { impersonation } = useImpersonation();
   const [expanded, setExpanded] = useState(initExpanded);
 
@@ -62,22 +70,6 @@ export function TeacherLayout({ children }: { children: React.ReactNode }) {
   const isSettings = location === "/settings";
   const sidebarGradient = "linear-gradient(180deg, #0f172a 0%, #0c1a30 55%, #0f172a 100%)";
 
-  const labelCls = `truncate whitespace-nowrap overflow-hidden transition-all duration-200 max-w-[160px] opacity-100 ${
-    expanded ? "md:max-w-[160px] md:opacity-100" : "md:max-w-0 md:opacity-0"
-  }`;
-
-  const rowCls = (active: boolean) =>
-    `relative flex items-center py-2 rounded-lg text-[13px] font-medium transition-all duration-200 cursor-pointer select-none px-3 gap-2.5 ${
-      expanded ? "md:px-3 md:gap-2.5 md:justify-start" : "md:px-0 md:gap-0 md:justify-center"
-    } ${active ? "text-[#67e8f9]" : "text-[rgba(148,163,184,0.85)] hover:text-[#e2e8f0]"}`;
-
-  const activeStyle = {
-    background: "linear-gradient(135deg, rgba(6,182,212,0.22) 0%, rgba(59,130,246,0.14) 100%)",
-    border: "1px solid rgba(6,182,212,0.35)",
-    boxShadow: "0 0 12px rgba(6,182,212,0.15), inset 0 1px 0 rgba(255,255,255,0.08)",
-  };
-  const inactiveStyle = { border: "1px solid transparent" };
-
   return (
     <div className="min-h-screen flex bg-background overflow-x-hidden">
 
@@ -91,6 +83,12 @@ export function TeacherLayout({ children }: { children: React.ReactNode }) {
 
       {/* Sidebar */}
       <aside
+        ref={drawerRef}
+        tabIndex={isMobile && mobileOpen ? -1 : undefined}
+        role={isMobile ? "dialog" : undefined}
+        aria-modal={isMobile ? true : undefined}
+        aria-hidden={isMobile ? !mobileOpen : undefined}
+        inert={isMobile && !mobileOpen ? true : undefined}
         className={`fixed md:sticky top-0 h-screen z-50 shrink-0 flex flex-col border-r border-white/10 transition-all duration-300 ease-in-out
           w-64 ${expanded ? "md:w-56" : "md:w-14"}
           ${mobileOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
@@ -108,7 +106,7 @@ export function TeacherLayout({ children }: { children: React.ReactNode }) {
               <p className="text-cyan-300/70 text-[10px] leading-none mt-0.5 truncate">{userProfile.orgName}</p>
             )}
           </div>
-          <button className="ml-auto md:hidden text-slate-400 hover:text-white p-1 rounded-md hover:bg-white/10 transition-colors" onClick={closeDrawer} aria-label="Close sidebar">
+          <button className="ml-auto md:hidden flex min-h-11 min-w-11 items-center justify-center text-slate-400 hover:text-white rounded-md hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" onClick={closeDrawer} aria-label="Close navigation" data-testid="button-close-navigation">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -118,18 +116,19 @@ export function TeacherLayout({ children }: { children: React.ReactNode }) {
           {navItems.map((item) => {
             const active = isActive(item.href);
             return (
-              <Link key={item.href} href={item.href}>
-                <div
-                  title={!expanded ? item.title : undefined}
-                  className={rowCls(active)}
-                  style={active ? activeStyle : inactiveStyle}
-                  onClick={closeDrawer}
-                >
-                  <item.icon className="h-4 w-4 shrink-0" />
-                  <span className={labelCls}>{item.title}</span>
-                  {active && <span className={`rounded-full bg-cyan-400 h-1.5 w-1.5 shadow-[0_0_6px_rgba(6,182,212,0.8)] shrink-0 ml-auto ${expanded ? "md:block" : "md:hidden"}`} />}
-                </div>
-              </Link>
+              <PortalNavLink
+                key={item.href}
+                href={item.href}
+                label={item.title}
+                icon={item.icon}
+                active={active}
+                collapsed={!expanded}
+                onClick={closeDrawer}
+                activeClassName="text-[#67e8f9] border border-cyan-400/35 bg-cyan-500/20 shadow-[0_0_12px_rgba(6,182,212,0.15)]"
+                inactiveClassName="border border-transparent text-[rgba(148,163,184,0.85)] hover:bg-white/5 hover:text-[#e2e8f0]"
+                indicatorClassName="bg-cyan-400 shadow-[0_0_6px_rgba(6,182,212,0.8)]"
+                testId={`link-${item.title.toLowerCase().replace(/\s+/g, "-")}`}
+              />
             );
           })}
         </nav>
@@ -137,17 +136,18 @@ export function TeacherLayout({ children }: { children: React.ReactNode }) {
         {/* Bottom section */}
         <div className="border-t border-white/10 shrink-0">
           <div className={`py-2 transition-all duration-300 px-2 ${expanded ? "md:px-2" : "md:px-1"}`}>
-            <Link href="/settings" onClick={closeDrawer}>
-              <div
-                title={!expanded ? "Settings" : undefined}
-                className={`flex items-center py-2 rounded-lg text-[13px] transition-colors cursor-pointer px-3 gap-2.5 ${
-                  expanded ? "md:px-3 md:gap-2.5 md:justify-start" : "md:px-0 md:gap-0 md:justify-center"
-                } ${isSettings ? "text-cyan-300 bg-cyan-500/10" : "text-slate-400 hover:text-white hover:bg-white/5"}`}
-              >
-                <Settings className="h-4 w-4 shrink-0" />
-                <span className={labelCls}>Settings</span>
-              </div>
-            </Link>
+            <PortalNavLink
+              href="/settings"
+              label="Settings"
+              icon={Settings}
+              active={isSettings}
+              collapsed={!expanded}
+              onClick={closeDrawer}
+              activeClassName="text-cyan-300 border border-cyan-400/20 bg-cyan-500/10"
+              inactiveClassName="border border-transparent text-slate-400 hover:bg-white/5 hover:text-white"
+              indicatorClassName="bg-cyan-400"
+              testId="link-settings"
+            />
           </div>
 
           {/* Profile + logout */}
@@ -164,7 +164,7 @@ export function TeacherLayout({ children }: { children: React.ReactNode }) {
               <p className="text-white text-xs font-semibold truncate leading-tight">{userProfile?.name || user?.displayName}</p>
               <p className="text-slate-400 text-[10px] truncate leading-tight">{user?.email}</p>
             </div>
-            <button onClick={logout} className="text-red-400 hover:text-red-300 p-1.5 rounded-md hover:bg-white/5 transition-colors shrink-0" title="Logout">
+            <button onClick={logout} className="flex min-h-11 min-w-11 items-center justify-center text-red-400 hover:text-red-300 rounded-md hover:bg-white/5 transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300" title="Logout" aria-label="Log out" data-testid="button-logout">
               <LogOut className="h-4 w-4" />
             </button>
           </div>
@@ -172,8 +172,11 @@ export function TeacherLayout({ children }: { children: React.ReactNode }) {
           {/* Desktop expand/collapse toggle */}
           <button
             onClick={toggleExpanded}
-            className="hidden md:flex w-full items-center justify-center py-2 border-t border-white/10 text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-colors"
+            className="hidden md:flex min-h-11 w-full items-center justify-center border-t border-white/10 text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
             title={expanded ? "Collapse sidebar" : "Expand sidebar"}
+            aria-label={expanded ? "Collapse sidebar" : "Expand sidebar"}
+            aria-expanded={expanded}
+            data-testid="button-toggle-sidebar"
           >
             {expanded ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
           </button>
@@ -184,7 +187,7 @@ export function TeacherLayout({ children }: { children: React.ReactNode }) {
       <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
         {/* Mobile top bar */}
         <header className="md:hidden sticky top-0 z-30 h-14 flex items-center gap-3 px-4 border-b border-border/60 bg-background">
-          <button onClick={openDrawer} className="text-foreground p-1.5 rounded-md hover:bg-accent transition-colors" aria-label="Open sidebar">
+          <button ref={triggerRef} onClick={openDrawer} className="flex min-h-11 min-w-11 items-center justify-center text-foreground rounded-md hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="Open navigation" aria-expanded={mobileOpen} data-testid="button-open-navigation">
             <Menu className="h-5 w-5" />
           </button>
           <div className="flex items-center gap-2">

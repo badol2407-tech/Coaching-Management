@@ -34,7 +34,7 @@ export default function ActivityLogs() {
 
   return (
     <div className="space-y-4">
-      <div>
+      <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <Activity className="h-6 w-6" /> Activity Logs
         </h1>
@@ -44,7 +44,7 @@ export default function ActivityLogs() {
       <div className="flex gap-2">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input className="pl-9" placeholder="Search actions, emails, org names…" value={search} onChange={(e) => setSearch(e.target.value)} />
+          <Input className="pl-9 h-11" placeholder="Search actions, emails, org names…" value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
       </div>
 
@@ -69,7 +69,7 @@ export default function ActivityLogs() {
           ) : (
             <div className="space-y-1">
               {filtered.map((log: any) => (
-                <div key={log.id} className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/40 transition-colors group">
+                <div key={log.id} className="flex flex-col gap-2 rounded-lg p-3 transition-colors hover:bg-muted/40 group sm:flex-row sm:items-start">
                   <div className="h-2 w-2 rounded-full bg-primary mt-2 shrink-0 group-hover:scale-125 transition-transform" />
                   <div className="flex-1 min-w-0">
                     <p className={`text-sm font-medium ${getActionColor(log.action ?? "")}`}>{log.action}</p>
@@ -86,7 +86,7 @@ export default function ActivityLogs() {
                       <p className="text-xs text-muted-foreground font-mono mt-0.5 truncate">ID: {log.targetId}</p>
                     )}
                   </div>
-                  <div className="text-xs text-muted-foreground shrink-0 text-right">
+                  <div className="text-xs text-muted-foreground shrink-0 text-left sm:text-right">
                     <p>{log.createdAt ? new Date(log.createdAt).toLocaleDateString() : "—"}</p>
                     <p>{log.createdAt ? new Date(log.createdAt).toLocaleTimeString() : ""}</p>
                   </div>

@@ -219,7 +219,7 @@ export default function StudentProfile() {
   // ── Loading ────────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="space-y-6 max-w-3xl mx-auto">
+      <div className="space-y-6 max-w-3xl mx-auto" role="status" aria-live="polite" aria-label="Loading student profile">
         <div className="flex items-center gap-3">
           <Skeleton className="h-9 w-9 rounded-full" />
           <Skeleton className="h-5 w-40" />
@@ -254,7 +254,7 @@ export default function StudentProfile() {
   return (
     <div className="space-y-6 max-w-3xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <Button variant="ghost" size="sm" onClick={() => navigate("/students")} className="gap-2 -ml-2">
           <ArrowLeft className="h-4 w-4" /> Students
         </Button>
@@ -288,11 +288,11 @@ export default function StudentProfile() {
               <h1 className="text-xl font-bold truncate">{student.name}</h1>
               <div className="flex flex-wrap items-center gap-2 mt-1">
                 {isActive ? (
-                  <Badge className="bg-green-100 text-green-700 border-green-200 text-xs gap-1">
+                  <Badge aria-label="Student status: active" className="bg-green-100 text-green-700 border-green-200 text-xs gap-1">
                     <span className="h-1.5 w-1.5 rounded-full bg-green-500 inline-block" /> Active
                   </Badge>
                 ) : (
-                  <Badge variant="outline" className="text-xs gap-1 text-muted-foreground">
+                  <Badge aria-label="Student status: inactive" variant="outline" className="text-xs gap-1 text-muted-foreground">
                     <span className="h-1.5 w-1.5 rounded-full bg-gray-400 inline-block" /> Inactive
                   </Badge>
                 )}
@@ -493,7 +493,7 @@ export default function StudentProfile() {
                     value={editForm.photoUrl}
                     onChange={(e) => setEditForm((f) => ({ ...f, photoUrl: e.target.value }))}
                     placeholder="or paste photo URL"
-                    className="text-xs h-8"
+                     className="text-xs h-11"
                   />
                 </div>
               </div>
@@ -609,6 +609,7 @@ export default function StudentProfile() {
                 <button
                   type="button"
                   onClick={() => setEditForm((f) => ({ ...f, status: "active" }))}
+                  aria-pressed={editForm.status === "active"}
                   className={`flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
                     editForm.status === "active"
                       ? "border-green-500 bg-green-50 text-green-700"
@@ -621,6 +622,7 @@ export default function StudentProfile() {
                 <button
                   type="button"
                   onClick={() => setEditForm((f) => ({ ...f, status: "inactive" }))}
+                  aria-pressed={editForm.status === "inactive"}
                   className={`flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
                     editForm.status === "inactive"
                       ? "border-gray-400 bg-gray-50 text-gray-600"

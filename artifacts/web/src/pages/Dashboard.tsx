@@ -36,7 +36,7 @@ export default function Dashboard() {
 
   if (statsLoading) {
     return (
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4" role="status" aria-live="polite" aria-label="Loading dashboard">
         {Array.from({ length: 8 }).map((_, i) => (
           <Card key={i}>
             <CardContent className="p-6 h-24 animate-pulse bg-muted/50" />
@@ -48,6 +48,8 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
+      <section aria-labelledby="dashboard-overview-heading">
+        <h1 id="dashboard-overview-heading" className="sr-only">Dashboard overview</h1>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard title="Total Students" value={stats?.totalStudents ?? 0} icon={Users} color="bg-blue-600" />
         <StatCard title="Total Teachers" value={stats?.totalTeachers ?? 0} icon={GraduationCap} color="bg-indigo-600" />
@@ -58,16 +60,18 @@ export default function Dashboard() {
         <StatCard title="Total Exams" value={stats?.totalExams ?? 0} icon={ClipboardList} color="bg-purple-600" />
         <StatCard title="Net Income" value={`৳${((stats?.totalFeeCollected ?? 0) - (stats?.totalExpenses ?? 0)).toLocaleString()}`} icon={TrendingUp} color="bg-cyan-600" />
       </div>
+      </section>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
+        <Card className="lg:col-span-2" aria-labelledby="attendance-chart-heading">
           <CardHeader>
-            <CardTitle className="text-base">Attendance (Last 7 Days)</CardTitle>
+            <CardTitle id="attendance-chart-heading" className="text-base">Attendance (Last 7 Days)</CardTitle>
           </CardHeader>
           <CardContent>
             {chartData.length === 0 ? (
-              <div className="h-56 flex items-center justify-center text-muted-foreground text-sm">No attendance data yet</div>
+              <div className="h-56 flex items-center justify-center text-muted-foreground text-sm" role="status">No attendance data yet</div>
             ) : (
+              <div role="img" aria-label="Bar chart showing present and absent attendance for the last 7 days">
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={chartData} barSize={16}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -78,13 +82,14 @@ export default function Dashboard() {
                   <Bar dataKey="Absent" fill="hsl(0 72% 51%)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
+              </div>
             )}
           </CardContent>
         </Card>
 
-        <Card>
+        <Card aria-labelledby="recent-fees-heading">
           <CardHeader>
-            <CardTitle className="text-base">Recent Fee Activity</CardTitle>
+            <CardTitle id="recent-fees-heading" className="text-base">Recent Fee Activity</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             <div className="divide-y">
@@ -103,7 +108,7 @@ export default function Dashboard() {
                 </div>
               ))}
               {(!recentFees || recentFees.length === 0) && (
-                <div className="px-4 py-8 text-center text-sm text-muted-foreground">No fee records yet</div>
+                <div className="px-4 py-8 text-center text-sm text-muted-foreground" role="status">No fee records yet</div>
               )}
             </div>
           </CardContent>

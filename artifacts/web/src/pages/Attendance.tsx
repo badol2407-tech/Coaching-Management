@@ -81,7 +81,8 @@ function StatusButton({
     <button
       type="button"
       onClick={onClick}
-      className={`flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold rounded-md border transition-all ${
+      aria-pressed={active}
+      className={`flex min-h-11 items-center gap-1 px-2.5 py-2 text-xs font-semibold rounded-md border transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 ${
         active ? STATUS_BUTTON_ACTIVE[status] : STATUS_BUTTON_INACTIVE
       }`}
     >
@@ -467,8 +468,8 @@ function HistoryTab() {
       </Card>
 
       {/* Stats + actions bar */}
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div className="flex gap-4 text-sm">
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm" aria-live="polite">
           <span className="text-green-700 font-medium">{statusCounts.present} Present</span>
           <span className="text-amber-700 font-medium">{statusCounts.late} Late</span>
           <span className="text-red-700 font-medium">{statusCounts.absent} Absent</span>
@@ -485,8 +486,8 @@ function HistoryTab() {
       </div>
 
       {/* Table */}
-      <div className="rounded-lg border bg-card overflow-hidden">
-        <Table>
+      <div className="rounded-lg border bg-card overflow-x-auto">
+        <Table className="min-w-[700px]" aria-label="Attendance history">
           <TableHeader>
             <TableRow className="bg-muted/30">
               <TableHead>Student</TableHead>
@@ -538,8 +539,9 @@ function HistoryTab() {
                     <button
                       onClick={() => handleDelete(r.id)}
                       disabled={deleteRecord.isPending}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700 p-1"
+                      className="flex min-h-11 min-w-11 items-center justify-center text-red-500 hover:text-red-700 rounded-md opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                       title="Delete record"
+                      aria-label={`Delete attendance record for ${r.studentName || "student"} on ${r.date}`}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
@@ -664,8 +666,8 @@ function MonthlyReportTab() {
       </div>
 
       {/* Table */}
-      <div className="rounded-lg border bg-card overflow-hidden">
-        <Table>
+      <div className="rounded-lg border bg-card overflow-x-auto">
+        <Table className="min-w-[760px]" aria-label="Monthly attendance report">
           <TableHeader>
             <TableRow className="bg-muted/30">
               <TableHead>Student</TableHead>

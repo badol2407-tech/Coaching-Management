@@ -81,9 +81,9 @@ export default function TeacherDashboard() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
             {greeting}, {userProfile?.name?.split(" ")[0] ?? "শিক্ষক"}
           </h1>
           <p className="text-muted-foreground text-sm mt-0.5">
@@ -97,14 +97,14 @@ export default function TeacherDashboard() {
           </p>
         </div>
         {/* Quick action row — primary CTA */}
-        <div className="flex gap-2 flex-wrap">
-          <Button asChild size="sm" className="gap-1.5 shadow-sm">
+        <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
+          <Button asChild size="sm" className="h-11 gap-1.5 shadow-sm sm:h-10">
             <Link href="/attendance">
               <CalendarCheck className="h-4 w-4" />
               Attendance নিন
             </Link>
           </Button>
-          <Button asChild size="sm" variant="outline" className="gap-1.5">
+          <Button asChild size="sm" variant="outline" className="h-11 gap-1.5 sm:h-10">
             <Link href="/students">
               <Users className="h-4 w-4" />
               Students
@@ -114,7 +114,7 @@ export default function TeacherDashboard() {
       </div>
 
       {/* Stat Cards */}
-      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         {/* Students */}
         <Card className="relative overflow-hidden">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -224,7 +224,7 @@ export default function TeacherDashboard() {
               <div className="py-8 text-center text-muted-foreground">
                 <Calendar className="h-8 w-8 mx-auto mb-2 opacity-25" />
                 <p className="text-sm">আজ কোনো ক্লাস নেই</p>
-                <Button asChild variant="outline" size="sm" className="mt-3 gap-1">
+                <Button asChild variant="outline" size="sm" className="mt-3 h-11 gap-1">
                   <Link href="/routine">
                     Routine দেখুন <ArrowRight className="h-3 w-3" />
                   </Link>
@@ -285,7 +285,7 @@ export default function TeacherDashboard() {
                     </div>
                   );
                 })}
-                <Button asChild variant="ghost" size="sm" className="w-full mt-1 gap-1 text-muted-foreground">
+                <Button asChild variant="ghost" size="sm" className="w-full mt-1 h-11 gap-1 text-muted-foreground">
                   <Link href="/routine">
                     সম্পূর্ণ Routine <ArrowRight className="h-3 w-3" />
                   </Link>
@@ -343,7 +343,7 @@ export default function TeacherDashboard() {
                       <p className="text-[10px] text-muted-foreground">বাকি</p>
                     </div>
                   </div>
-                  <Button asChild className="w-full gap-2" size="sm">
+                  <Button asChild className="w-full h-11 gap-2" size="sm">
                     <Link href="/attendance">
                       <CalendarCheck className="h-4 w-4" />
                       Attendance নিন
@@ -376,7 +376,7 @@ export default function TeacherDashboard() {
                     key={href}
                     asChild
                     variant="outline"
-                    className="h-auto py-3 flex-col gap-1.5 hover:border-primary/30 hover:bg-accent/50 transition-all"
+                    className="h-11 py-3 flex-col gap-1.5 hover:border-primary/30 hover:bg-accent/50 transition-all focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     <Link href={href}>
                       <Icon className={`h-5 w-5 ${color}`} />
@@ -414,7 +414,7 @@ export default function TeacherDashboard() {
             ) : (
               <div className="space-y-2">
                 {recentHomework.map((hw: any) => (
-                  <div key={hw.id} className="p-2 rounded-lg border hover:bg-accent/30 transition-colors">
+                  <div key={hw.id} className="p-3 rounded-lg border hover:bg-accent/30 transition-colors">
                     <p className="font-medium text-sm truncate">{hw.title}</p>
                     <div className="flex items-center gap-2 mt-0.5">
                       {hw.subject && (
@@ -458,7 +458,7 @@ export default function TeacherDashboard() {
                     (new Date(e.date).getTime() - new Date(today).getTime()) / 86400000
                   );
                   return (
-                    <div key={e.id} className="flex items-center justify-between p-2 rounded-lg border">
+                    <div key={e.id} className="flex items-center justify-between gap-3 p-3 rounded-lg border">
                       <div className="min-w-0">
                         <p className="font-medium text-sm truncate">{e.title}</p>
                         {e.subject && (
@@ -503,7 +503,7 @@ export default function TeacherDashboard() {
             ) : (
               <div className="space-y-2">
                 {recentNotices.map((n: any) => (
-                  <div key={n.id} className="p-2 rounded-lg border hover:bg-accent/30 transition-colors">
+                  <div key={n.id} className="p-3 rounded-lg border hover:bg-accent/30 transition-colors">
                     <p className="font-medium text-sm truncate">{n.title}</p>
                     {n.content && (
                       <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{n.content}</p>

@@ -58,7 +58,7 @@ function OrgStatusBadge({ org }: { org: any }) {
   } as const;
   const label = { active: "Active", expired: "Expired", paused: "Paused", unpaid_blocked: "Unpaid" };
   return (
-    <Badge variant="outline" className={`text-[10px] font-semibold ${map[status]}`}>
+    <Badge variant="outline" className={`text-[10px] font-semibold ${map[status]}`} aria-label={`Organization status: ${label[status]}`}>
       {label[status]}
     </Badge>
   );
@@ -110,8 +110,8 @@ function CredentialsDialog({
             <span className="text-muted-foreground">Temp Password</span>
             <div className="flex items-center gap-2">
               <span className="font-bold tracking-wider text-primary">{creds.password}</span>
-              <button onClick={() => { navigator.clipboard.writeText(creds.password); toast({ title: "Password copied!" }); }} className="text-muted-foreground hover:text-foreground">
-                <Copy className="h-3.5 w-3.5" />
+              <button onClick={() => { navigator.clipboard.writeText(creds.password); toast({ title: "Password copied!" }); }} className="text-muted-foreground hover:text-foreground" aria-label="Copy temporary password">
+                <Copy className="h-3.5 w-3.5" aria-hidden="true" />
               </button>
             </div>
           </div>
@@ -210,14 +210,14 @@ function EditOrgSheet({
 
         <div className="space-y-5 py-5">
           {/* Status summary */}
-          <div className="rounded-xl border bg-muted/20 p-3 flex items-center justify-between gap-2">
+            <div className="rounded-xl border bg-muted/20 p-3 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <OrgStatusBadge org={org} />
               <TierBadge tier={effectiveTier} />
             </div>
             {remaining !== null && (
-              <span className={`text-xs font-semibold ${remaining <= 3 ? "text-rose-400" : remaining <= 7 ? "text-amber-400" : "text-emerald-400"}`}>
-                {remaining > 0 ? `${remaining}d left` : "Expired"}
+                <span className={`text-xs font-semibold ${remaining <= 3 ? "text-rose-400" : remaining <= 7 ? "text-amber-400" : "text-emerald-400"}`} aria-label={`Subscription remaining ${remaining} days`}>
+                  {remaining > 0 ? `${remaining} days left` : "Expired"}
               </span>
             )}
           </div>
@@ -258,16 +258,16 @@ function EditOrgSheet({
               value={expiryDate}
               onChange={(e) => setExpiryDate(e.target.value)}
             />
-            <div className="flex gap-2">
+              <div className="flex flex-col gap-2 sm:flex-row">
               <Button type="button" variant="outline" size="sm" onClick={handleRenew} className="gap-1.5 flex-1 text-xs">
-                <RotateCcw className="h-3 w-3" /> Renew / Extend
+                 <RotateCcw className="h-3 w-3" aria-hidden="true" /> Renew / Extend
               </Button>
               <Button type="button" variant="outline" size="sm" onClick={handleSetFromToday} className="gap-1.5 flex-1 text-xs">
-                <Clock className="h-3 w-3" /> Start from Today
+                 <Clock className="h-3 w-3" aria-hidden="true" /> Start from Today
               </Button>
             </div>
             <p className="text-[11px] text-muted-foreground">
-              "Renew/Extend" adds one billing period from current expiry. "Start from Today" resets from now.
+              Renew / Extend adds one billing period from the current expiry. Start from Today resets from now.
             </p>
           </div>
 
@@ -281,8 +281,8 @@ function EditOrgSheet({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="paid">✅ Paid</SelectItem>
-                <SelectItem value="unpaid">❌ Unpaid</SelectItem>
+                <SelectItem value="paid">Paid</SelectItem>
+                <SelectItem value="unpaid">Unpaid</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -295,8 +295,8 @@ function EditOrgSheet({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="active">▶ Active</SelectItem>
-                <SelectItem value="paused">⏸ Paused</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="paused">Paused</SelectItem>
               </SelectContent>
             </Select>
             <p className="text-[11px] text-muted-foreground">
@@ -540,11 +540,11 @@ export default function ManageOrganizations() {
           <p className="text-muted-foreground text-sm">Manage all coaching centers and their subscriptions</p>
         </div>
         <div className="flex gap-2 flex-wrap">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input className="pl-9 w-56" placeholder="Search orgs…" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <div className="relative w-full sm:w-56">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+              <Input aria-label="Search organizations" className="pl-9 h-10 w-full" placeholder="Search orgs…" value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
-          <Button onClick={openSheet}><Plus className="h-4 w-4 mr-2" /> New Organization</Button>
+          <Button onClick={openSheet}><Plus className="h-4 w-4 mr-2" aria-hidden="true" /> New Organization</Button>
         </div>
       </div>
 
@@ -568,11 +568,11 @@ export default function ManageOrganizations() {
       {/* Org grid */}
       {isLoading ? (
         <div className="grid gap-4 sm:grid-cols-2">
-          {[1, 2, 3].map((i) => <Card key={i}><CardContent className="h-48 animate-pulse bg-muted/30 mt-4" /></Card>)}
+          {[1, 2, 3].map((i) => <Card key={i}><CardContent className="h-48 animate-pulse bg-muted/30 mt-4" aria-label="Loading organization card" /></Card>)}
         </div>
       ) : filtered.length === 0 ? (
-        <Card><CardContent className="py-16 text-center text-muted-foreground">
-          <Building2 className="h-10 w-10 mx-auto mb-3 opacity-30" />
+        <Card><CardContent className="py-16 text-center text-muted-foreground" role="status" aria-live="polite">
+          <Building2 className="h-10 w-10 mx-auto mb-3 opacity-30" aria-hidden="true" />
           <p>{search ? "No organizations match your search." : "No organizations yet."}</p>
         </CardContent></Card>
       ) : (
@@ -617,22 +617,22 @@ export default function ManageOrganizations() {
                   <div className="text-xs text-muted-foreground font-mono">
                     ID: {org.id}
                   </div>
-                  <div className="flex gap-2 flex-wrap pt-1">
-                    <Button size="sm" variant="outline" className="h-7 text-xs gap-1.5" onClick={() => { setEditOrg(org); setEditOpen(true); }}>
-                      <Edit className="h-3 w-3" /> Edit / Renew
+                    <div className="flex gap-2 flex-wrap pt-1">
+                     <Button size="sm" variant="outline" className="h-11 min-h-11 text-xs gap-1.5" onClick={() => { setEditOrg(org); setEditOpen(true); }}>
+                       <Edit className="h-3 w-3" aria-hidden="true" /> Edit / Renew
                     </Button>
-                    <Button size="sm" variant="outline" className="h-7 text-xs gap-1.5" onClick={() => { setPaymentOrg(org); setPaymentOpen(true); }}>
-                      <CreditCard className="h-3 w-3" /> Payment
+                     <Button size="sm" variant="outline" className="h-11 min-h-11 text-xs gap-1.5" onClick={() => { setPaymentOrg(org); setPaymentOpen(true); }}>
+                       <CreditCard className="h-3 w-3" aria-hidden="true" /> Payment
                     </Button>
                     <Button
                       size="sm" variant="outline"
-                      className={`h-7 text-xs gap-1.5 ${(org.accountStatus ?? org.status) === "paused" ? "text-emerald-400 hover:text-emerald-300" : "text-blue-400 hover:text-blue-300"}`}
+                       className={`h-11 min-h-11 text-xs gap-1.5 ${(org.accountStatus ?? org.status) === "paused" ? "text-emerald-400 hover:text-emerald-300" : "text-blue-400 hover:text-blue-300"}`}
                       onClick={() => handleTogglePause(org)}
                     >
-                      {(org.accountStatus ?? org.status) === "paused" ? <><PlayCircle className="h-3 w-3" /> Resume</> : <><PauseCircle className="h-3 w-3" /> Pause</>}
+                       {(org.accountStatus ?? org.status) === "paused" ? <><PlayCircle className="h-3 w-3" aria-hidden="true" /> Resume</> : <><PauseCircle className="h-3 w-3" aria-hidden="true" /> Pause</>}
                     </Button>
-                    <Button size="sm" variant="ghost" className="h-7 text-xs gap-1.5 text-destructive hover:text-destructive" onClick={() => handleDelete(org)}>
-                      <Trash2 className="h-3 w-3" />
+                     <Button size="sm" variant="ghost" className="h-11 min-h-11 text-xs gap-1.5 text-destructive hover:text-destructive" onClick={() => handleDelete(org)} aria-label={`Delete organization ${org.name}`}>
+                       <Trash2 className="h-3 w-3" aria-hidden="true" />
                     </Button>
                   </div>
                 </CardContent>
@@ -644,7 +644,7 @@ export default function ManageOrganizations() {
 
       {/* Create org sheet */}
       <Sheet open={sheetOpen} onOpenChange={(v) => { if (!v) setSheetOpen(false); }}>
-        <SheetContent className="overflow-y-auto">
+      <SheetContent className="overflow-y-auto">
           <SheetHeader><SheetTitle>New Organization</SheetTitle></SheetHeader>
           <div className="space-y-5 py-5">
 

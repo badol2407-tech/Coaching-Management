@@ -2,7 +2,7 @@ import { useListRoutine } from "@/lib/hooks";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarDays, Clock } from "lucide-react";
+import { CalendarDays, Clock, Loader2, SearchX } from "lucide-react";
 
 const DAYS = ["শনিবার", "রবিবার", "সোমবার", "মঙ্গলবার", "বুধবার", "বৃহস্পতিবার", "শুক্রবার"] as const;
 const DAY_KEYS = ["saturday", "sunday", "monday", "tuesday", "wednesday", "thursday", "friday"] as const;
@@ -23,15 +23,15 @@ export default function TeacherRoutine() {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-2xl font-bold">Class Routine</h1>
+      <div className="space-y-1">
+        <h1 className="text-2xl font-bold sm:text-3xl">Class Routine</h1>
         <p className="text-muted-foreground">Weekly class schedule</p>
       </div>
 
       <Tabs defaultValue={today in DAY_KEYS ? today : "sunday"}>
-        <TabsList className="flex flex-wrap h-auto gap-1 bg-muted p-1 rounded-lg">
+        <TabsList className="flex h-auto w-full flex-wrap gap-1 rounded-lg bg-muted p-1">
           {DAY_KEYS.map((day, i) => (
-            <TabsTrigger key={day} value={day} className="text-xs">
+            <TabsTrigger key={day} value={day} className="min-h-11 flex-1 text-xs sm:flex-none">
               {DAYS[i]}
             </TabsTrigger>
           ))}
@@ -43,7 +43,12 @@ export default function TeacherRoutine() {
             <TabsContent key={day} value={day} className="mt-4">
               {isLoading ? (
                 <div className="grid gap-3">
-                  {[1, 2].map((k) => <div key={k} className="h-20 rounded-lg bg-muted animate-pulse" />)}
+                  {[1, 2].map((k) => (
+                    <div key={k} className="flex h-20 items-center justify-center rounded-lg bg-muted text-sm text-muted-foreground">
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Loading...
+                    </div>
+                  ))}
                 </div>
               ) : daySlots.length === 0 ? (
                 <Card>

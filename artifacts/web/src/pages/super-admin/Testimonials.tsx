@@ -52,15 +52,15 @@ export default function Testimonials() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start justify-between">
+      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div>
           <h1 className="text-2xl font-bold">Testimonials</h1>
           <p className="text-muted-foreground text-sm mt-1">Manage customer reviews shown on the landing page</p>
         </div>
-        <Button onClick={openCreate} className="gap-2"><Plus className="h-4 w-4" /> Add Testimonial</Button>
+        <Button onClick={openCreate} className="gap-2 w-full md:w-auto"><Plus className="h-4 w-4" /> Add Testimonial</Button>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Card><CardContent className="pt-5"><p className="text-sm text-muted-foreground">Total</p><p className="text-3xl font-bold mt-1">{testimonials.length}</p></CardContent></Card>
         <Card><CardContent className="pt-5"><p className="text-sm text-muted-foreground">Active</p><p className="text-3xl font-bold mt-1 text-green-500">{testimonials.filter((t: any) => t.active).length}</p></CardContent></Card>
         <Card><CardContent className="pt-5"><p className="text-sm text-muted-foreground">Avg Rating</p><p className="text-3xl font-bold mt-1 text-amber-400">{testimonials.length ? (testimonials.reduce((s: number, t: any) => s + (t.rating || 5), 0) / testimonials.length).toFixed(1) : "—"}</p></CardContent></Card>
@@ -69,11 +69,11 @@ export default function Testimonials() {
       <Card>
         <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><FileText className="h-4 w-4 text-violet-400" /> All Testimonials</CardTitle></CardHeader>
         <CardContent>
-          {isLoading ? <div className="flex justify-center py-10"><div className="animate-spin h-6 w-6 border-b-2 border-primary rounded-full" /></div>
+          {isLoading ? <div className="flex flex-col items-center justify-center gap-3 py-12 text-sm text-muted-foreground"><div className="animate-spin h-6 w-6 border-b-2 border-primary rounded-full" /><p>Loading testimonials…</p></div>
             : testimonials.length === 0 ? <p className="text-center text-muted-foreground py-10 text-sm">No testimonials yet. Add your first one.</p>
             : <div className="space-y-3">
               {testimonials.map((t: any) => (
-                <div key={t.id} className="flex items-start justify-between p-4 rounded-lg border border-border hover:bg-accent/30 transition-colors">
+                <div key={t.id} className="flex flex-col gap-4 rounded-lg border border-border p-4 transition-colors hover:bg-accent/30 md:flex-row md:items-start md:justify-between">
                   <div className="space-y-1.5 min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <p className="font-medium text-sm">{t.name}</p>
@@ -87,12 +87,12 @@ export default function Testimonials() {
                     </div>
                     <p className="text-xs text-muted-foreground line-clamp-2">{t.text}</p>
                   </div>
-                  <div className="flex items-center gap-1 shrink-0 ml-4">
-                    <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => handleToggle(t)}>
+                  <div className="flex items-center gap-2 shrink-0 md:ml-4">
+                    <Button size="icon" variant="ghost" className="h-11 w-11" aria-label={t.active ? "Hide testimonial" : "Show testimonial"} aria-pressed={t.active} onClick={() => handleToggle(t)}>
                       {t.active ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                     </Button>
-                    <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => openEdit(t)}><Pencil className="h-3.5 w-3.5" /></Button>
-                    <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive hover:text-destructive" onClick={() => handleDelete(t)}><Trash2 className="h-3.5 w-3.5" /></Button>
+                    <Button size="icon" variant="ghost" className="h-11 w-11" aria-label={`Edit testimonial from ${t.name}`} onClick={() => openEdit(t)}><Pencil className="h-3.5 w-3.5" /></Button>
+                    <Button size="icon" variant="ghost" className="h-11 w-11 text-destructive hover:text-destructive" aria-label={`Delete testimonial from ${t.name}`} onClick={() => handleDelete(t)}><Trash2 className="h-3.5 w-3.5" /></Button>
                   </div>
                 </div>
               ))}
@@ -102,7 +102,7 @@ export default function Testimonials() {
       </Card>
 
       <Dialog open={!!dialog} onOpenChange={() => setDialog(null)}>
-        <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-md focus-visible:outline-none">
           <DialogHeader><DialogTitle>{dialog?.mode === "create" ? "Add Testimonial" : "Edit Testimonial"}</DialogTitle></DialogHeader>
           <div className="space-y-4 py-2">
             <div className="grid grid-cols-2 gap-3">
@@ -114,7 +114,7 @@ export default function Testimonials() {
               <Label>Rating</Label>
               <div className="flex items-center gap-2">
                 {[1, 2, 3, 4, 5].map((r) => (
-                  <button key={r} type="button" onClick={() => set("rating", r)}>
+                  <button key={r} type="button" aria-label={`Set rating to ${r} star${r === 1 ? "" : "s"}`} className="h-11 w-11 inline-flex items-center justify-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" onClick={() => set("rating", r)}>
                     <Star className={`h-5 w-5 transition-colors ${r <= (dialog?.data.rating ?? 5) ? "text-amber-400 fill-amber-400" : "text-border"}`} />
                   </button>
                 ))}

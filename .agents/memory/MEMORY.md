@@ -7,3 +7,4 @@
 - [OpenAPI/Zod quirks](openapi-zod-quirks.md) — coaching-app and api-server use OpenAPI codegen; artifacts/web uses Firebase directly (no codegen)
 - [Edutrack architecture](edutrack-architecture.md) — multi-role app: super_admin, org_admin, teacher, student; orgId scopes all Firestore collections
 - [Student ID Card feature](student-id-card.md) — /id-cards route in AppLayout (admin) and TeacherLayout; page is artifacts/web/src/pages/StudentIdCard.tsx; uses window.open+print for both Print and Download PDF; QR and barcode are visual placeholders (no external lib needed)
+- [UX preview validation](ux-preview-validation.md) — authenticated UI screenshots require valid Firebase client configuration; preserve Firebase initialization during UI-only audits

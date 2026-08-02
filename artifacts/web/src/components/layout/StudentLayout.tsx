@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useSearch } from "wouter";
+import { useSearch } from "wouter";
 import {
   LayoutDashboard, Wallet, CalendarCheck, ClipboardList,
   CalendarDays, NotebookPen, Bell, GraduationCap, LogOut,
@@ -11,6 +11,7 @@ import { useImpersonation } from "@/contexts/ImpersonationContext";
 import { getOrgAccessStatus } from "@/lib/subscription";
 import { getEffectiveTier } from "@/lib/plan-config";
 import { SubscriptionExpiredScreen } from "@/pages/SubscriptionExpired";
+import { PortalNavLink } from "@/components/layout/PortalNavLink";
 
 const navItems = [
   { tab: "dashboard",  label: "Dashboard",  icon: LayoutDashboard },
@@ -32,7 +33,14 @@ function initExpanded() {
 export function StudentLayout({ children }: { children: React.ReactNode }) {
   const { user, userProfile, logout } = useAuth();
   const { impersonation } = useImpersonation();
-  const { isOpen: mobileOpen, open: openDrawer, close: closeDrawer } = useMobileDrawer();
+  const {
+    isOpen: mobileOpen,
+    isMobile,
+    drawerRef,
+    triggerRef,
+    open: openDrawer,
+    close: closeDrawer,
+  } = useMobileDrawer();
   const search = useSearch();
   const activeTab = new URLSearchParams(search).get("tab") ?? "dashboard";
   const [expanded, setExpanded] = useState(initExpanded);
@@ -56,22 +64,6 @@ export function StudentLayout({ children }: { children: React.ReactNode }) {
     try { localStorage.setItem("sidebar-student-expanded", String(next)); } catch {}
   }
 
-  const labelCls = `truncate whitespace-nowrap overflow-hidden transition-all duration-200 max-w-[160px] opacity-100 ${
-    expanded ? "md:max-w-[160px] md:opacity-100" : "md:max-w-0 md:opacity-0"
-  }`;
-
-  const rowCls = (active: boolean) =>
-    `relative flex items-center py-2 rounded-lg text-[13px] font-medium transition-all duration-200 cursor-pointer select-none px-3 gap-2.5 ${
-      expanded ? "md:px-3 md:gap-2.5 md:justify-start" : "md:px-0 md:gap-0 md:justify-center"
-    } ${active ? "text-[#d8b4fe]" : "text-[rgba(148,163,184,0.85)] hover:text-[#e2e8f0]"}`;
-
-  const activeStyle = {
-    background: "linear-gradient(135deg, rgba(168,85,247,0.22) 0%, rgba(139,92,246,0.14) 100%)",
-    border: "1px solid rgba(168,85,247,0.35)",
-    boxShadow: "0 0 12px rgba(168,85,247,0.15), inset 0 1px 0 rgba(255,255,255,0.08)",
-  };
-  const inactiveStyle = { border: "1px solid transparent" };
-
   return (
     <div className="min-h-screen flex bg-background overflow-x-hidden">
 
@@ -85,6 +77,12 @@ export function StudentLayout({ children }: { children: React.ReactNode }) {
 
       {/* Sidebar */}
       <aside
+        ref={drawerRef}
+        tabIndex={isMobile && mobileOpen ? -1 : undefined}
+        role={isMobile ? "dialog" : undefined}
+        aria-modal={isMobile ? true : undefined}
+        aria-hidden={isMobile ? !mobileOpen : undefined}
+        inert={isMobile && !mobileOpen ? true : undefined}
         className={`fixed md:sticky top-0 h-screen z-50 shrink-0 flex flex-col border-r border-white/10 transition-all duration-300 ease-in-out
           w-64 ${expanded ? "md:w-56" : "md:w-14"}
           ${mobileOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
@@ -102,7 +100,7 @@ export function StudentLayout({ children }: { children: React.ReactNode }) {
               <p className="text-purple-300/70 text-[10px] leading-none mt-0.5 truncate">{userProfile.orgName}</p>
             )}
           </div>
-          <button className="ml-auto md:hidden text-slate-400 hover:text-white p-1 rounded-md hover:bg-white/10 transition-colors" onClick={closeDrawer} aria-label="Close sidebar">
+          <button className="ml-auto md:hidden flex min-h-11 min-w-11 items-center justify-center text-slate-400 hover:text-white rounded-md hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-300" onClick={closeDrawer} aria-label="Close navigation" data-testid="button-close-navigation">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -128,18 +126,19 @@ export function StudentLayout({ children }: { children: React.ReactNode }) {
           {navItems.map(({ tab, label, icon: Icon }) => {
             const active = activeTab === tab;
             return (
-              <Link key={tab} href={tab === "dashboard" ? "/" : `/?tab=${tab}`}>
-                <div
-                  title={!expanded ? label : undefined}
-                  className={rowCls(active)}
-                  style={active ? activeStyle : inactiveStyle}
-                  onClick={closeDrawer}
-                >
-                  <Icon className="h-4 w-4 shrink-0" />
-                  <span className={labelCls}>{label}</span>
-                  {active && <span className={`rounded-full bg-purple-400 h-1.5 w-1.5 shadow-[0_0_6px_rgba(168,85,247,0.8)] shrink-0 ml-auto ${expanded ? "md:block" : "md:hidden"}`} />}
-                </div>
-              </Link>
+              <PortalNavLink
+                key={tab}
+                href={tab === "dashboard" ? "/" : `/?tab=${tab}`}
+                label={label}
+                icon={Icon}
+                active={active}
+                collapsed={!expanded}
+                onClick={closeDrawer}
+                activeClassName="text-[#d8b4fe] border border-purple-400/35 bg-purple-500/20 shadow-[0_0_12px_rgba(168,85,247,0.15)]"
+                inactiveClassName="border border-transparent text-[rgba(148,163,184,0.85)] hover:bg-white/5 hover:text-[#e2e8f0]"
+                indicatorClassName="bg-purple-400 shadow-[0_0_6px_rgba(168,85,247,0.8)]"
+                testId={`link-${tab}`}
+              />
             );
           })}
         </nav>
@@ -169,7 +168,7 @@ export function StudentLayout({ children }: { children: React.ReactNode }) {
               <p className="text-white text-xs font-semibold truncate leading-tight">{userProfile?.name || user?.displayName}</p>
               <p className="text-slate-400 text-[10px] truncate leading-tight">{user?.email}</p>
             </div>
-            <button onClick={logout} className="text-red-400 hover:text-red-300 p-1.5 rounded-md hover:bg-white/5 transition-colors shrink-0" title="Logout">
+            <button onClick={logout} className="flex min-h-11 min-w-11 items-center justify-center text-red-400 hover:text-red-300 rounded-md hover:bg-white/5 transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300" title="Logout" aria-label="Log out" data-testid="button-logout">
               <LogOut className="h-4 w-4" />
             </button>
           </div>
@@ -177,8 +176,11 @@ export function StudentLayout({ children }: { children: React.ReactNode }) {
           {/* Desktop expand/collapse toggle */}
           <button
             onClick={toggleExpanded}
-            className="hidden md:flex w-full items-center justify-center py-2 border-t border-white/10 text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-colors"
+            className="hidden md:flex min-h-11 w-full items-center justify-center border-t border-white/10 text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-300"
             title={expanded ? "Collapse sidebar" : "Expand sidebar"}
+            aria-label={expanded ? "Collapse sidebar" : "Expand sidebar"}
+            aria-expanded={expanded}
+            data-testid="button-toggle-sidebar"
           >
             {expanded ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
           </button>
@@ -189,7 +191,7 @@ export function StudentLayout({ children }: { children: React.ReactNode }) {
       <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
         {/* Mobile top bar */}
         <header className="md:hidden sticky top-0 z-30 h-14 flex items-center gap-3 px-4 border-b border-border/60 bg-background">
-          <button onClick={openDrawer} className="text-foreground p-1.5 rounded-md hover:bg-accent transition-colors" aria-label="Open sidebar">
+          <button ref={triggerRef} onClick={openDrawer} className="flex min-h-11 min-w-11 items-center justify-center text-foreground rounded-md hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="Open navigation" aria-expanded={mobileOpen} data-testid="button-open-navigation">
             <Menu className="h-5 w-5" />
           </button>
           <div className="flex items-center gap-2">

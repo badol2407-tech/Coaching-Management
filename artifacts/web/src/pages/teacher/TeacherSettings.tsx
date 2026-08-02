@@ -35,8 +35,8 @@ export default function TeacherSettings() {
 
   return (
     <div className="space-y-6 max-w-lg">
-      <div>
-        <h1 className="text-2xl font-bold">Settings</h1>
+      <div className="space-y-1">
+        <h1 className="text-2xl font-bold sm:text-3xl">Settings</h1>
         <p className="text-muted-foreground">Profile ও account settings</p>
       </div>
 
@@ -47,26 +47,28 @@ export default function TeacherSettings() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1">
-            <Label>Display Name</Label>
+            <Label htmlFor="displayName">Display Name</Label>
             <Input
+              id="displayName"
               placeholder="আপনার নাম লিখুন"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
+              className="h-11"
             />
           </div>
           <div className="space-y-1">
-            <Label>Email</Label>
-            <Input value={user?.email ?? "—"} readOnly className="bg-muted cursor-not-allowed" />
+            <Label htmlFor="email">Email</Label>
+            <Input id="email" value={user?.email ?? "—"} readOnly className="h-11 bg-muted cursor-not-allowed" />
           </div>
           <div className="space-y-1">
-            <Label>Role</Label>
-            <Input value="Teacher" readOnly className="bg-muted cursor-not-allowed" />
+            <Label htmlFor="role">Role</Label>
+            <Input id="role" value="Teacher" readOnly className="h-11 bg-muted cursor-not-allowed" />
           </div>
           <div className="space-y-1">
-            <Label>Organization</Label>
-            <Input value={userProfile?.orgName ?? "—"} readOnly className="bg-muted cursor-not-allowed" />
+            <Label htmlFor="organization">Organization</Label>
+            <Input id="organization" value={userProfile?.orgName ?? "—"} readOnly className="h-11 bg-muted cursor-not-allowed" />
           </div>
-          <Button onClick={handleSave} disabled={saving}>
+          <Button onClick={handleSave} disabled={saving} className="h-11 w-full sm:w-auto">
             {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
             Save করুন
           </Button>

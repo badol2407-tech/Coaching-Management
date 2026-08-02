@@ -190,29 +190,29 @@ function UserRow({
             <p className="text-sm text-muted-foreground truncate">{u.email}</p>
             {u.orgId && <p className="text-xs text-muted-foreground font-mono mt-0.5 truncate">org: {u.orgId}</p>}
           </div>
-          <button onClick={() => setExpanded((v) => !v)} className="text-muted-foreground hover:text-foreground shrink-0 p-1">
+          <button aria-label={expanded ? "Collapse user details" : "Expand user details"} aria-expanded={expanded} onClick={() => setExpanded((v) => !v)} className="text-muted-foreground hover:text-foreground shrink-0 h-11 w-11 inline-flex items-center justify-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
             {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </button>
         </div>
 
         {expanded && (
           <div className="mt-3 pt-3 border-t flex flex-wrap gap-2">
-            <Button size="sm" variant="outline" onClick={() => onEdit(u)} className="gap-1 h-7 text-xs">
+            <Button size="sm" variant="outline" onClick={() => onEdit(u)} className="gap-1 min-h-11 px-4 text-xs">
               <Edit className="h-3 w-3" /> Edit
             </Button>
-            <Button size="sm" variant="outline" onClick={() => onReset(u.email)} className="gap-1 h-7 text-xs">
+            <Button size="sm" variant="outline" onClick={() => onReset(u.email)} className="gap-1 min-h-11 px-4 text-xs">
               <MailCheck className="h-3 w-3" /> Reset Password
             </Button>
             <Button
               size="sm" variant="outline"
               onClick={() => onToggleDisable(u)}
-              className={`gap-1 h-7 text-xs ${u.disabled ? "text-green-600" : "text-amber-600"}`}
+              className={`gap-1 min-h-11 px-4 text-xs ${u.disabled ? "text-green-600" : "text-amber-600"}`}
             >
               {u.disabled ? <CheckCircle className="h-3 w-3" /> : <Ban className="h-3 w-3" />}
               {u.disabled ? "Enable" : "Disable"}
             </Button>
             {u.role !== "super_admin" && (
-              <Button size="sm" variant="destructive" onClick={() => onDelete(u)} className="gap-1 h-7 text-xs">
+              <Button size="sm" variant="destructive" onClick={() => onDelete(u)} className="gap-1 min-h-11 px-4 text-xs">
                 <Trash2 className="h-3 w-3" /> Delete
               </Button>
             )}
@@ -266,18 +266,18 @@ export default function ManageUsers() {
 
   return (
     <div className="space-y-4">
-      <div>
+      <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <h1 className="text-2xl font-bold">Users</h1>
         <p className="text-muted-foreground">Manage all users across all organizations</p>
       </div>
 
       {/* Filters */}
-      <div className="flex gap-2 flex-wrap">
-        <div className="relative flex-1 min-w-48">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+        <div className="relative flex-1 min-w-0">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input className="pl-9" placeholder="Search by name, email, UID, org ID…" value={search} onChange={(e) => setSearch(e.target.value)} />
+          <Input className="pl-9 h-11" placeholder="Search by name, email, UID, org ID…" value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
-        <div className="flex gap-1">
+        <div className="flex flex-wrap gap-2">
           {ROLE_FILTERS.map((r) => (
             <Button key={r} size="sm" variant={roleFilter === r ? "default" : "outline"} onClick={() => setRoleFilter(r)} className="capitalize text-xs">
               {r === "all" ? "All Roles" : r.replace("_", " ")}
@@ -293,7 +293,7 @@ export default function ManageUsers() {
 
       {/* User list */}
       {isLoading ? (
-        <div className="space-y-3">
+            <div className="space-y-3">
           {[1, 2, 3, 4].map((i) => <Card key={i}><CardContent className="h-16 animate-pulse bg-muted/30 mt-4" /></Card>)}
         </div>
       ) : filtered.length === 0 ? (

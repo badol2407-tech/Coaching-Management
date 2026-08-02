@@ -17,9 +17,9 @@ function StatCard({
 }) {
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
+      <CardHeader className="flex flex-row items-start justify-between gap-2 pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
-        <Icon className={`h-5 w-5 ${color}`} />
+        <Icon className={`h-5 w-5 shrink-0 ${color}`} aria-hidden="true" />
       </CardHeader>
       <CardContent>
         <div className="text-3xl font-bold">{value}</div>
@@ -65,11 +65,11 @@ export default function SuperAdminDashboard() {
       </div>
 
       {/* Stat cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {statCards.map((c) => (
           isLoading ? (
             <Card key={c.title}>
-              <CardContent className="h-24 animate-pulse bg-muted/30 rounded-lg mt-4" />
+              <CardContent className="h-24 animate-pulse bg-muted/30 rounded-lg mt-4" aria-label={`Loading ${c.title}`} />
             </Card>
           ) : (
             <StatCard key={c.title} {...c} />
@@ -85,7 +85,9 @@ export default function SuperAdminDashboard() {
           </CardHeader>
           <CardContent>
             {(orgs as any[]).length === 0 ? (
-              <div className="text-center py-10 text-muted-foreground">No organizations yet.</div>
+              <div className="text-center py-10 text-muted-foreground" role="status" aria-live="polite">
+                No organizations yet.
+              </div>
             ) : (
               <div className="space-y-3">
                 {(orgs as any[]).slice(0, 8).map((org: any) => (
@@ -104,8 +106,8 @@ export default function SuperAdminDashboard() {
                     </div>
                     <Badge variant={org.status === "active" ? "default" : "secondary"}>
                       {org.status === "paused" ? (
-                        <><PauseCircle className="h-3 w-3 mr-1" />Paused</>
-                      ) : org.status ?? "active"}
+                        <><PauseCircle className="h-3 w-3 mr-1" aria-hidden="true" />Paused</>
+                      ) : (org.status === "active" ? "Active" : org.status ?? "Active")}
                     </Badge>
                   </div>
                 ))}
@@ -123,12 +125,14 @@ export default function SuperAdminDashboard() {
           </CardHeader>
           <CardContent>
             {(logs as any[]).length === 0 ? (
-              <div className="text-center py-10 text-muted-foreground">No activity logs yet.</div>
+              <div className="text-center py-10 text-muted-foreground" role="status" aria-live="polite">
+                No activity logs yet.
+              </div>
             ) : (
               <div className="space-y-2">
                 {(logs as any[]).map((log: any) => (
                   <div key={log.id} className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted/40 transition-colors">
-                    <div className="h-2 w-2 rounded-full bg-primary mt-2 shrink-0" />
+                    <div className="h-2 w-2 rounded-full bg-primary mt-2 shrink-0" aria-hidden="true" />
                     <div className="min-w-0">
                       <p className="text-sm font-medium truncate">{log.action}</p>
                       <p className="text-xs text-muted-foreground truncate">{log.actorEmail} · {log.orgName ?? "Platform"}</p>
@@ -162,12 +166,16 @@ export default function SuperAdminDashboard() {
               <div className="rounded-lg border p-4 text-center">
                 <p className="text-xs text-muted-foreground mb-1">Founder Launch</p>
                 <p className="text-2xl font-bold">{stats?.planBreakdown?.founder_launch ?? 0}</p>
-                <p className="text-xs text-muted-foreground">৳{((stats?.planBreakdown?.founder_launch ?? 0) * 749).toLocaleString()}/mo</p>
+                <p className="text-xs text-muted-foreground" aria-label={`Founder Launch organizations: ${stats?.planBreakdown?.founder_launch ?? 0}`}>
+                  {stats?.planBreakdown?.founder_launch ?? 0} organizations
+                </p>
               </div>
               <div className="rounded-lg border p-4 text-center">
                 <p className="text-xs text-muted-foreground mb-1">Annual Premium</p>
                 <p className="text-2xl font-bold">{stats?.planBreakdown?.annual_premium ?? 0}</p>
-                <p className="text-xs text-muted-foreground">৳{((stats?.planBreakdown?.annual_premium ?? 0) * 833).toLocaleString()}/mo eq.</p>
+                <p className="text-xs text-muted-foreground" aria-label={`Annual Premium organizations: ${stats?.planBreakdown?.annual_premium ?? 0}`}>
+                  {stats?.planBreakdown?.annual_premium ?? 0} organizations
+                </p>
               </div>
             </div>
           )}
@@ -183,8 +191,10 @@ export default function SuperAdminDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-green-700">{stats?.paidOrgs ?? 0}</div>
-            <p className="text-xs text-muted-foreground mt-1">Revenue collected this cycle</p>
+              <div className="text-3xl font-bold text-green-700">{stats?.paidOrgs ?? 0}</div>
+              <p className="text-xs text-muted-foreground mt-1" aria-label={`Paid organizations ${stats?.paidOrgs ?? 0} of ${stats?.totalOrgs ?? 0}`}>
+                {stats?.paidOrgs ?? 0} of {stats?.totalOrgs ?? 0} organizations this cycle
+              </p>
           </CardContent>
         </Card>
         <Card className="border-red-200">
@@ -194,8 +204,10 @@ export default function SuperAdminDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-red-600">{stats?.unpaidOrgs ?? 0}</div>
-            <p className="text-xs text-muted-foreground mt-1">Pending payment this cycle</p>
+              <div className="text-3xl font-bold text-red-600">{stats?.unpaidOrgs ?? 0}</div>
+              <p className="text-xs text-muted-foreground mt-1" aria-label={`Unpaid organizations ${stats?.unpaidOrgs ?? 0} of ${stats?.totalOrgs ?? 0}`}>
+                {stats?.unpaidOrgs ?? 0} of {stats?.totalOrgs ?? 0} organizations pending payment
+              </p>
           </CardContent>
         </Card>
       </div>

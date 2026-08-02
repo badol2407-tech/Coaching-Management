@@ -812,15 +812,15 @@ export default function Fees() {
         {/* ── Tab 1: Collect ─────────────────────────────────────────────────── */}
         <TabsContent value="collect" className="mt-4 space-y-3">
           {/* Filters */}
-          <div className="flex flex-wrap gap-2">
+      <div className="grid gap-2 sm:flex sm:flex-wrap">
             <Input
               placeholder="Search student…"
               value={filterSearch}
               onChange={(e) => setFilterSearch(e.target.value)}
-              className="w-44"
+              className="w-full sm:w-44"
             />
             <Select value={filterMonth} onValueChange={setFilterMonth}>
-              <SelectTrigger className="w-40">
+              <SelectTrigger className="w-full sm:w-40">
                 <SelectValue placeholder="All months" />
               </SelectTrigger>
               <SelectContent>
@@ -833,7 +833,7 @@ export default function Fees() {
               </SelectContent>
             </Select>
             <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger className="w-36">
+              <SelectTrigger className="w-full sm:w-36">
                 <SelectValue placeholder="All status" />
               </SelectTrigger>
               <SelectContent>
@@ -846,7 +846,7 @@ export default function Fees() {
           </div>
 
           <div className="rounded-lg border bg-card overflow-x-auto">
-            <Table>
+            <Table className="min-w-[820px]" aria-label="Fee records">
               <TableHeader>
                 <TableRow>
                   <TableHead>Student</TableHead>

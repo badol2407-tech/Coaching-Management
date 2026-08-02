@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation } from "wouter";
+import { useLocation } from "wouter";
 import {
   LayoutDashboard, Users, GraduationCap, CalendarCheck,
   Wallet, ClipboardList, Bell, Receipt, LogOut, Copy,
@@ -14,6 +14,7 @@ import { useImpersonation } from "@/contexts/ImpersonationContext";
 import { getOrgAccessStatus } from "@/lib/subscription";
 import { getEffectiveTier } from "@/lib/plan-config";
 import { SubscriptionExpiredScreen } from "@/pages/SubscriptionExpired";
+import { PortalNavLink } from "@/components/layout/PortalNavLink";
 
 const navItems = [
   { title: "Dashboard",   href: "/",            icon: LayoutDashboard },
@@ -47,7 +48,14 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const { user, userProfile, logout } = useAuth();
   const { toast } = useToast();
-  const { isOpen: mobileOpen, open: openDrawer, close: closeDrawer } = useMobileDrawer();
+  const {
+    isOpen: mobileOpen,
+    isMobile,
+    drawerRef,
+    triggerRef,
+    open: openDrawer,
+    close: closeDrawer,
+  } = useMobileDrawer();
   const { impersonation } = useImpersonation();
   const [expanded, setExpanded] = useState(initExpanded);
 
@@ -84,27 +92,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
   const sidebarGradient = "linear-gradient(180deg, #0f172a 0%, #1e1b4b 55%, #0f172a 100%)";
 
-  // Label visibility: always visible on mobile, conditional on desktop
-  const labelCls = `truncate whitespace-nowrap overflow-hidden transition-all duration-200 max-w-[160px] opacity-100 ${
-    expanded ? "md:max-w-[160px] md:opacity-100" : "md:max-w-0 md:opacity-0"
-  }`;
-
-  // Nav item row alignment
-  const rowCls = (active: boolean) =>
-    `relative flex items-center py-2 rounded-lg text-[13px] font-medium transition-all duration-200 cursor-pointer select-none px-3 gap-2.5 ${
-      expanded ? "md:px-3 md:gap-2.5 md:justify-start" : "md:px-0 md:gap-0 md:justify-center"
-    } ${active
-      ? "text-[#a5b4fc]"
-      : "text-[rgba(148,163,184,0.85)] hover:text-[#e2e8f0]"
-    }`;
-
-  const activeStyle = {
-    background: "linear-gradient(135deg, rgba(99,102,241,0.25) 0%, rgba(59,130,246,0.15) 100%)",
-    border: "1px solid rgba(99,102,241,0.35)",
-    boxShadow: "0 0 12px rgba(99,102,241,0.15), inset 0 1px 0 rgba(255,255,255,0.08)",
-  };
-  const inactiveStyle = { border: "1px solid transparent" };
-
   return (
     <div className="min-h-screen flex bg-background overflow-x-hidden">
 
@@ -118,6 +105,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
       {/* Sidebar */}
       <aside
+        ref={drawerRef}
+        tabIndex={isMobile && mobileOpen ? -1 : undefined}
+        role={isMobile ? "dialog" : undefined}
+        aria-modal={isMobile ? true : undefined}
+        aria-hidden={isMobile ? !mobileOpen : undefined}
+        inert={isMobile && !mobileOpen ? true : undefined}
         className={`fixed md:sticky top-0 h-screen z-50 shrink-0 flex flex-col border-r border-white/10 transition-all duration-300 ease-in-out
           w-64 md:w-14 ${expanded ? "md:w-56" : "md:w-14"}
           ${mobileOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
@@ -145,8 +138,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           <div className={`overflow-hidden transition-all duration-200 max-h-12 opacity-100 ${expanded ? "md:max-h-12 md:opacity-100" : "md:max-h-0 md:opacity-0"}`}>
             <button
               onClick={copyOrgId}
-              className="flex items-center gap-1.5 text-[10px] text-indigo-300/70 hover:text-indigo-300 transition-colors mx-3 mt-3 px-2 py-1.5 rounded-md hover:bg-white/5 font-mono border border-white/10 w-[calc(100%-24px)]"
+              className="flex min-h-11 items-center gap-1.5 text-[10px] text-indigo-300/70 hover:text-indigo-300 transition-colors mx-3 mt-3 px-2.5 rounded-md hover:bg-white/5 font-mono border border-white/10 w-[calc(100%-24px)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300"
               title="Org Code copy করুন"
+              aria-label="Copy organization code"
+              data-testid="button-copy-organization-code"
             >
               <Copy className="h-3 w-3 shrink-0" />
               <span className="truncate">{userProfile.orgId}</span>
@@ -156,7 +151,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         {/* Collapsed org code — just icon button */}
         {userProfile?.orgId && (
           <div className={`overflow-hidden transition-all duration-200 max-h-0 opacity-0 ${expanded ? "md:max-h-0 md:opacity-0" : "md:max-h-12 md:opacity-100"}`}>
-            <button onClick={copyOrgId} className="hidden md:flex w-full justify-center py-2 mt-1" title="Copy Org Code">
+            <button onClick={copyOrgId} className="hidden md:flex min-h-11 w-full items-center justify-center mt-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300" title="Copy Org Code" aria-label="Copy organization code" data-testid="button-copy-organization-code-collapsed">
               <Copy className="h-3.5 w-3.5 text-indigo-300/60 hover:text-indigo-300 transition-colors" />
             </button>
           </div>
@@ -167,18 +162,19 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           {navItems.map((item) => {
             const active = isActive(item.href);
             return (
-              <Link key={item.href} href={item.href}>
-                <div
-                  title={!expanded ? item.title : undefined}
-                  className={rowCls(active)}
-                  style={active ? activeStyle : inactiveStyle}
-                  onClick={closeDrawer}
-                >
-                  <item.icon className="h-4 w-4 shrink-0" />
-                  <span className={labelCls}>{item.title}</span>
-                  {active && <span className={`rounded-full bg-indigo-400 h-1.5 w-1.5 shadow-[0_0_6px_rgba(99,102,241,0.8)] shrink-0 ml-auto ${expanded ? "md:block" : "md:hidden"}`} />}
-                </div>
-              </Link>
+              <PortalNavLink
+                key={item.href}
+                href={item.href}
+                label={item.title}
+                icon={item.icon}
+                active={active}
+                collapsed={!expanded}
+                onClick={closeDrawer}
+                activeClassName="text-[#a5b4fc] border border-indigo-400/35 bg-indigo-500/20 shadow-[0_0_12px_rgba(99,102,241,0.15)]"
+                inactiveClassName="border border-transparent text-[rgba(148,163,184,0.85)] hover:bg-white/5 hover:text-[#e2e8f0]"
+                indicatorClassName="bg-indigo-400 shadow-[0_0_6px_rgba(99,102,241,0.8)]"
+                testId={`link-${item.title.toLowerCase().replace(/\s+/g, "-")}`}
+              />
             );
           })}
         </nav>
@@ -190,17 +186,19 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             {bottomItems.map(item => {
               const active = location === item.href;
               return (
-                <Link key={item.href} href={item.href} onClick={closeDrawer}>
-                  <div
-                    title={!expanded ? item.title : undefined}
-                    className={`flex items-center py-2 rounded-lg text-[13px] transition-colors cursor-pointer px-3 gap-2.5 ${
-                      expanded ? "md:px-3 md:gap-2.5 md:justify-start" : "md:px-0 md:gap-0 md:justify-center"
-                    } ${active ? "text-indigo-300 bg-indigo-500/10" : "text-slate-400 hover:text-white hover:bg-white/5"}`}
-                  >
-                    <item.icon className="h-4 w-4 shrink-0" />
-                    <span className={labelCls}>{item.title}</span>
-                  </div>
-                </Link>
+                <PortalNavLink
+                  key={item.href}
+                  href={item.href}
+                  label={item.title}
+                  icon={item.icon}
+                  active={active}
+                  collapsed={!expanded}
+                  onClick={closeDrawer}
+                  activeClassName="text-indigo-300 border border-indigo-400/20 bg-indigo-500/10"
+                  inactiveClassName="border border-transparent text-slate-400 hover:bg-white/5 hover:text-white"
+                  indicatorClassName="bg-indigo-400"
+                  testId={`link-${item.title.toLowerCase()}`}
+                />
               );
             })}
           </div>
@@ -219,7 +217,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               <p className="text-white text-xs font-semibold truncate leading-tight">{userProfile?.name || user?.displayName}</p>
               <p className="text-slate-400 text-[10px] truncate leading-tight">{user?.email}</p>
             </div>
-            <button onClick={logout} className="text-red-400 hover:text-red-300 p-1.5 rounded-md hover:bg-white/5 transition-colors shrink-0" title="Logout">
+            <button onClick={logout} className="flex min-h-11 min-w-11 items-center justify-center text-red-400 hover:text-red-300 rounded-md hover:bg-white/5 transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300" title="Logout" aria-label="Log out" data-testid="button-logout">
               <LogOut className="h-4 w-4" />
             </button>
           </div>
@@ -227,8 +225,11 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           {/* Desktop expand/collapse toggle */}
           <button
             onClick={toggleExpanded}
-            className="hidden md:flex w-full items-center justify-center py-2 border-t border-white/10 text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-colors"
+            className="hidden md:flex min-h-11 w-full items-center justify-center border-t border-white/10 text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300"
             title={expanded ? "Collapse sidebar" : "Expand sidebar"}
+            aria-label={expanded ? "Collapse sidebar" : "Expand sidebar"}
+            aria-expanded={expanded}
+            data-testid="button-toggle-sidebar"
           >
             {expanded ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
           </button>
@@ -239,7 +240,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
         {/* Mobile top bar */}
         <header className="md:hidden sticky top-0 z-30 h-14 flex items-center gap-3 px-4 border-b border-border/60 bg-background">
-          <button onClick={openDrawer} className="text-foreground p-1.5 rounded-md hover:bg-accent transition-colors" aria-label="Open sidebar">
+          <button ref={triggerRef} onClick={openDrawer} className="flex min-h-11 min-w-11 items-center justify-center text-foreground rounded-md hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="Open navigation" aria-expanded={mobileOpen} data-testid="button-open-navigation">
             <Menu className="h-5 w-5" />
           </button>
           <div className="flex items-center gap-2">

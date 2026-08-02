@@ -64,6 +64,11 @@ type AdmissionRequest = {
 type ActiveTab = "manual" | "excel" | "admission";
 type ImportStep = "upload" | "preview" | "importing" | "done";
 
+function FieldError({ id, show, children }: { id: string; show?: boolean; children: React.ReactNode }) {
+  if (!show) return null;
+  return <p id={id} className="text-xs text-destructive" role="alert">{children}</p>;
+}
+
 // ── Template download ─────────────────────────────────────────────────────────
 
 function downloadTemplate() {
@@ -242,13 +247,19 @@ function ManualAdd() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-5" aria-describedby="manual-form-guidance">
+      <div id="manual-form-guidance" className="rounded-lg border border-border bg-muted/30 px-3 py-2.5 text-xs text-muted-foreground">
+        Fields marked <span className="font-semibold text-destructive">*</span> are required. All other fields are optional.
+      </div>
       <div className="grid sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
           <Label htmlFor="m-name">Full Name <span className="text-destructive">*</span></Label>
           <Input id="m-name" placeholder="যেমন: Rahim Uddin" value={form.name}
             onChange={e => { set("name")(e); setErrors(er => ({ ...er, name: false })); }}
+            aria-invalid={errors.name || undefined}
+            aria-describedby={errors.name ? "m-name-error" : undefined}
             className={errors.name ? "border-destructive focus-visible:ring-destructive" : ""} />
+          <FieldError id="m-name-error" show={errors.name}>Full name is required.</FieldError>
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="m-class">Class <span className="text-destructive">*</span></Label>
@@ -257,7 +268,7 @@ function ManualAdd() {
               value={form.className}
               onValueChange={val => { setForm(f => ({ ...f, className: val, section: "", batch: "" })); setErrors(er => ({ ...er, className: false })); }}
             >
-              <SelectTrigger id="m-class" className={errors.className ? "border-destructive focus:ring-destructive" : ""}><SelectValue placeholder="Class বেছে নিন" /></SelectTrigger>
+              <SelectTrigger id="m-class" aria-invalid={errors.className || undefined} aria-describedby={errors.className ? "m-class-error" : undefined} className={errors.className ? "border-destructive focus:ring-destructive" : ""}><SelectValue placeholder="Class বেছে নিন" /></SelectTrigger>
               <SelectContent>
                 {(classes as any[]).map((c: any) => (
                   <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
@@ -267,8 +278,11 @@ function ManualAdd() {
           ) : (
             <Input id="m-class" placeholder="যেমন: Class 9, SSC 2026" value={form.className}
               onChange={e => { set("className")(e); setErrors(er => ({ ...er, className: false })); }}
+              aria-invalid={errors.className || undefined}
+              aria-describedby={errors.className ? "m-class-error" : undefined}
               className={errors.className ? "border-destructive focus-visible:ring-destructive" : ""} />
           )}
+          <FieldError id="m-class-error" show={errors.className}>Class is required.</FieldError>
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="m-section">Section <span className="text-destructive">*</span></Label>
@@ -276,7 +290,7 @@ function ManualAdd() {
             value={form.section}
             onValueChange={val => { setForm(f => ({ ...f, section: val })); setErrors(er => ({ ...er, section: false })); }}
           >
-            <SelectTrigger id="m-section" className={errors.section ? "border-destructive focus:ring-destructive" : ""}>
+            <SelectTrigger id="m-section" aria-invalid={errors.section || undefined} aria-describedby={errors.section ? "m-section-error" : undefined} className={errors.section ? "border-destructive focus:ring-destructive" : ""}>
               <SelectValue placeholder="Section বেছে নিন" />
             </SelectTrigger>
             <SelectContent>
@@ -286,6 +300,7 @@ function ManualAdd() {
               <SelectItem value="General">General</SelectItem>
             </SelectContent>
           </Select>
+          <FieldError id="m-section-error" show={errors.section}>Section is required.</FieldError>
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="m-batch">Batch <span className="text-destructive">*</span></Label>
@@ -294,7 +309,7 @@ function ManualAdd() {
               value={form.batch}
               onValueChange={val => { setForm(f => ({ ...f, batch: val })); setErrors(er => ({ ...er, batch: false })); }}
             >
-              <SelectTrigger id="m-batch" className={errors.batch ? "border-destructive focus:ring-destructive" : ""}><SelectValue placeholder="Batch বেছে নিন" /></SelectTrigger>
+              <SelectTrigger id="m-batch" aria-invalid={errors.batch || undefined} aria-describedby={errors.batch ? "m-batch-error" : undefined} className={errors.batch ? "border-destructive focus:ring-destructive" : ""}><SelectValue placeholder="Batch বেছে নিন" /></SelectTrigger>
               <SelectContent>
                 {availableBatches.map((b: string) => (
                   <SelectItem key={b} value={b}>{b}</SelectItem>
@@ -304,20 +319,29 @@ function ManualAdd() {
           ) : (
             <Input id="m-batch" placeholder="যেমন: Morning Batch" value={form.batch}
               onChange={e => { set("batch")(e); setErrors(er => ({ ...er, batch: false })); }}
+              aria-invalid={errors.batch || undefined}
+              aria-describedby={errors.batch ? "m-batch-error" : undefined}
               className={errors.batch ? "border-destructive focus-visible:ring-destructive" : ""} />
           )}
+          <FieldError id="m-batch-error" show={errors.batch}>Batch is required.</FieldError>
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="m-phone">Phone Number <span className="text-destructive">*</span></Label>
           <Input id="m-phone" placeholder="01XXXXXXXXX" value={form.phone}
             onChange={e => { set("phone")(e); setErrors(er => ({ ...er, phone: false })); }}
+            aria-invalid={errors.phone || undefined}
+            aria-describedby={errors.phone ? "m-phone-error" : undefined}
             className={errors.phone ? "border-destructive focus-visible:ring-destructive" : ""} />
+          <FieldError id="m-phone-error" show={errors.phone}>Phone number is required.</FieldError>
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="m-email">Email <span className="text-destructive">*</span></Label>
           <Input id="m-email" type="email" placeholder="student@example.com" value={form.email}
             onChange={e => { set("email")(e); setErrors(er => ({ ...er, email: false })); }}
+            aria-invalid={errors.email || undefined}
+            aria-describedby={errors.email ? "m-email-error" : undefined}
             className={errors.email ? "border-destructive focus-visible:ring-destructive" : ""} />
+          <FieldError id="m-email-error" show={errors.email}>A valid email is required.</FieldError>
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="m-password">Password <span className="text-destructive">*</span></Label>
@@ -328,37 +352,48 @@ function ManualAdd() {
               placeholder="কমপক্ষে ৬ character"
               value={form.password}
               onChange={e => { setForm(f => ({ ...f, password: e.target.value })); setErrors(er => ({ ...er, password: false })); }}
+              aria-invalid={errors.password || undefined}
+              aria-describedby={errors.password ? "m-password-error" : "m-password-help"}
               className={`pr-10 ${errors.password ? "border-destructive focus-visible:ring-destructive" : ""}`}
             />
             <button
               type="button"
               onClick={() => setShowPassword(v => !v)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-              tabIndex={-1}
+              className="absolute right-1 top-1/2 flex min-h-11 min-w-11 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
-          <p className="text-xs text-muted-foreground">Student logs in with this. Must be ≥ 6 characters.</p>
+          <p id="m-password-help" className="text-xs text-muted-foreground">Student logs in with this. Must be ≥ 6 characters.</p>
+          <FieldError id="m-password-error" show={errors.password}>Password must be at least 6 characters.</FieldError>
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="m-guardian">Guardian Name <span className="text-destructive">*</span></Label>
           <Input id="m-guardian" placeholder="Guardian-এর নাম" value={form.guardianName}
             onChange={e => { set("guardianName")(e); setErrors(er => ({ ...er, guardianName: false })); }}
+            aria-invalid={errors.guardianName || undefined}
+            aria-describedby={errors.guardianName ? "m-guardian-error" : undefined}
             className={errors.guardianName ? "border-destructive focus-visible:ring-destructive" : ""} />
+          <FieldError id="m-guardian-error" show={errors.guardianName}>Guardian name is required.</FieldError>
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="m-gphone">Guardian Phone <span className="text-destructive">*</span></Label>
           <Input id="m-gphone" placeholder="01XXXXXXXXX" value={form.guardianPhone}
             onChange={e => { set("guardianPhone")(e); setErrors(er => ({ ...er, guardianPhone: false })); }}
+            aria-invalid={errors.guardianPhone || undefined}
+            aria-describedby={errors.guardianPhone ? "m-gphone-error" : undefined}
             className={errors.guardianPhone ? "border-destructive focus-visible:ring-destructive" : ""} />
+          <FieldError id="m-gphone-error" show={errors.guardianPhone}>Guardian phone is required.</FieldError>
         </div>
         <div className="space-y-1.5 sm:col-span-2">
           <Label htmlFor="m-enrolled">Enrollment Date <span className="text-destructive">*</span></Label>
           <Input id="m-enrolled" type="date" value={form.enrolledAt}
             onChange={e => { set("enrolledAt")(e); setErrors(er => ({ ...er, enrolledAt: false })); }}
+            aria-invalid={errors.enrolledAt || undefined}
+            aria-describedby={errors.enrolledAt ? "m-enrolled-error" : undefined}
             className={errors.enrolledAt ? "border-destructive focus-visible:ring-destructive" : ""} />
+          <FieldError id="m-enrolled-error" show={errors.enrolledAt}>Enrollment date is required.</FieldError>
         </div>
         <div className="space-y-1.5 sm:col-span-2">
           <Label htmlFor="m-address">Address</Label>
@@ -403,7 +438,7 @@ function ManualAdd() {
         </div>
       </div>
       <div className="flex justify-end">
-        <Button type="submit" disabled={loading || !form.name.trim()} className="gap-2 min-w-[140px]">
+        <Button type="submit" disabled={loading} className="gap-2 min-w-[140px]">
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
           {loading ? "Adding…" : "Add Student"}
         </Button>
@@ -539,8 +574,17 @@ function ExcelImport() {
 
         {/* Upload zone */}
         <div
-          className="border-2 border-dashed border-border rounded-xl p-12 text-center cursor-pointer hover:border-primary/40 hover:bg-primary/[0.02] transition-all"
+          role="button"
+          tabIndex={0}
+          aria-label="Upload student spreadsheet"
+          className="border-2 border-dashed border-border rounded-xl p-12 text-center cursor-pointer transition-all hover:border-primary/40 hover:bg-primary/[0.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           onClick={() => fileRef.current?.click()}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              fileRef.current?.click();
+            }
+          }}
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => {
             e.preventDefault();
@@ -569,7 +613,7 @@ function ExcelImport() {
     return (
       <div className="space-y-5">
         {/* Summary */}
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3" aria-live="polite">
           <div className="rounded-xl border bg-card p-4 text-center">
             <p className="text-2xl font-bold text-foreground">{rows.length}</p>
             <p className="text-xs text-muted-foreground mt-0.5">Total rows</p>
@@ -587,8 +631,9 @@ function ExcelImport() {
         </div>
 
         {/* Preview table */}
-        <div className="rounded-xl border overflow-hidden">
+        <div className="rounded-xl border overflow-x-auto">
           <div className="overflow-x-auto">
+            <div className="min-w-[720px]">
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50">
@@ -624,10 +669,11 @@ function ExcelImport() {
                 )}
               </TableBody>
             </Table>
+            </div>
           </div>
         </div>
 
-        <div className="flex gap-3 justify-end">
+        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <Button variant="outline" onClick={reset}>Upload different file</Button>
           <Button onClick={runImport} disabled={validCount === 0} className="gap-2">
             <Upload className="h-4 w-4" />
@@ -640,7 +686,7 @@ function ExcelImport() {
 
   if (step === "importing") {
     return (
-      <div className="py-16 text-center space-y-6">
+      <div className="py-16 text-center space-y-6" role="status" aria-live="polite">
         <div className="mx-auto h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center">
           <Loader2 className="h-8 w-8 text-primary animate-spin" />
         </div>
@@ -660,7 +706,7 @@ function ExcelImport() {
 
   // done
   return (
-    <div className="py-16 text-center space-y-5">
+    <div className="py-16 text-center space-y-5" role="status" aria-live="polite">
       <div className="mx-auto h-16 w-16 rounded-2xl bg-green-100 flex items-center justify-center">
         <CheckCircle2 className="h-8 w-8 text-green-600" />
       </div>
@@ -882,7 +928,8 @@ function AdmissionLinkTab() {
         )}
 
         {requests.length > 0 && (
-          <div className="rounded-xl border overflow-hidden">
+          <div className="rounded-xl border overflow-x-auto">
+            <div className="min-w-[860px]">
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50">
@@ -940,6 +987,7 @@ function AdmissionLinkTab() {
                 ))}
               </TableBody>
             </Table>
+            </div>
           </div>
         )}
       </div>
@@ -978,7 +1026,7 @@ export default function AddStudents() {
     <div className="max-w-3xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" asChild className="h-8 w-8 shrink-0">
+         <Button variant="ghost" size="icon" asChild className="h-11 w-11 shrink-0">
           <Link href="/students">
             <ArrowLeft className="h-4 w-4" />
           </Link>
@@ -1002,9 +1050,11 @@ export default function AddStudents() {
           return (
             <button
               key={tab.id}
+              type="button"
               onClick={() => setActiveTab(tab.id)}
+              aria-pressed={active}
               className={`
-                group relative text-left rounded-xl border p-4 transition-all
+                group relative min-h-11 text-left rounded-xl border p-4 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
                 ${active
                   ? "border-primary bg-primary/[0.04] shadow-sm ring-1 ring-primary/20"
                   : "border-border bg-card hover:border-primary/30 hover:bg-muted/30"
