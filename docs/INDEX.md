@@ -37,9 +37,10 @@ related_documents:
   - ./ROADMAP.md
   - ./KNOWN_LIMITATIONS.md
   - ./IMPLEMENTATION_ROADMAP.md
+   - ./UI_MASTER_RULES.md
 review_frequency: Quarterly and after documentation architecture or governance changes
 owner: Product Governance Council
-version: 4.0.0
+version: 5.0.0
 status: Active documentation homepage
 last_updated: 2026-08-02
 normative_level: Navigation and orientation
@@ -54,17 +55,18 @@ EduTrack documentation is a governed system of product principles, release stand
 
 1. **Product principles** — [PRODUCT_CONSTITUTION.md](./PRODUCT_CONSTITUTION.md) defines the durable beliefs and ethical commitments.
 2. **Governance** — [PRODUCT_GOVERNANCE.md](./PRODUCT_GOVERNANCE.md) defines authority, precedence, exceptions, evidence, and change control.
-3. **Release gates** — [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md), [ETHICAL_UX_GUIDELINES.md](./ETHICAL_UX_GUIDELINES.md), [ENGINEERING_STANDARDS.md](./ENGINEERING_STANDARDS.md), and [AI_UX_GUIDELINES.md](./AI_UX_GUIDELINES.md) define binding quality and safety requirements.
-4. **Architecture** — [FRONTEND_ARCHITECTURE.md](./FRONTEND_ARCHITECTURE.md), [BACKEND_ARCHITECTURE.md](./BACKEND_ARCHITECTURE.md), [FOLDER_STRUCTURE.md](./FOLDER_STRUCTURE.md), [ROUTING_ARCHITECTURE.md](./ROUTING_ARCHITECTURE.md), [STATE_MANAGEMENT.md](./STATE_MANAGEMENT.md), [API_LAYER_ARCHITECTURE.md](./API_LAYER_ARCHITECTURE.md), [DATA_FLOW_ARCHITECTURE.md](./DATA_FLOW_ARCHITECTURE.md), [AUTHENTICATION_ARCHITECTURE.md](./AUTHENTICATION_ARCHITECTURE.md), [AUTHORIZATION_ARCHITECTURE.md](./AUTHORIZATION_ARCHITECTURE.md), [SECURITY_ARCHITECTURE.md](./SECURITY_ARCHITECTURE.md), [DATABASE_ARCHITECTURE.md](./DATABASE_ARCHITECTURE.md), [FIREBASE_ARCHITECTURE.md](./FIREBASE_ARCHITECTURE.md), [CACHING_STRATEGY.md](./CACHING_STRATEGY.md), and [PERFORMANCE_ARCHITECTURE.md](./PERFORMANCE_ARCHITECTURE.md) describe implementation boundaries and distinguish current paths from target guidance.
-5. **Delivery and resilience** — [TESTING_STRATEGY.md](./TESTING_STRATEGY.md), [CI_CD_ARCHITECTURE.md](./CI_CD_ARCHITECTURE.md), [DEPLOYMENT_ARCHITECTURE.md](./DEPLOYMENT_ARCHITECTURE.md), [DEPLOYMENT_CHECKLIST.md](./DEPLOYMENT_CHECKLIST.md), [RELEASE_MANAGEMENT.md](./RELEASE_MANAGEMENT.md), [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md), [MONITORING_AND_LOGGING.md](./MONITORING_AND_LOGGING.md), [OBSERVABILITY.md](./OBSERVABILITY.md), [ERROR_MONITORING.md](./ERROR_MONITORING.md), [OPERATIONS_RUNBOOK.md](./OPERATIONS_RUNBOOK.md), [INCIDENT_RESPONSE.md](./INCIDENT_RESPONSE.md), and [DISASTER_RECOVERY.md](./DISASTER_RECOVERY.md) define evidence, promotion, operational signals, failure response, and recovery boundaries.
-6. **Contributor practice** — [ONBOARDING_GUIDE.md](./ONBOARDING_GUIDE.md), [CONTRIBUTING.md](./CONTRIBUTING.md), [ENVIRONMENT_SETUP.md](./ENVIRONMENT_SETUP.md), [TECH_STACK.md](./TECH_STACK.md), [CODING_STANDARDS.md](./CODING_STANDARDS.md), [PROJECT_CONVENTIONS.md](./PROJECT_CONVENTIONS.md), [CODE_OWNERSHIP.md](./CODE_OWNERSHIP.md), [DEVELOPMENT_WORKFLOW.md](./DEVELOPMENT_WORKFLOW.md), [GIT_WORKFLOW.md](./GIT_WORKFLOW.md), and [CODE_REVIEW_GUIDELINES.md](./CODE_REVIEW_GUIDELINES.md) explain how to work within the governed repository without creating parallel standards.
-7. **Product structure and interaction** — Information Architecture, Navigation, Interaction, Forms, Search, Filters, Tables, Mobile, Responsive, Patterns, and Copywriting explain how the product behaves.
-8. **Design system foundations and data** — Design Tokens, Spacing, Layout, Iconography, Elevation, State, Feedback, Notifications, Tables, Color, Typography, Motion, Gestalt, Dashboard, and Data Visualization define reusable expression and domain presentation.
-9. **Safety, resilience, and localization** — Error, Loading, Empty, Permission, Security, [SECURITY_CHECKLIST.md](./SECURITY_CHECKLIST.md), Internationalization, and accessibility testing handbooks define implementation-ready quality behavior.
-10. **Core module specifications** — The module handbooks under [modules/](./modules/) translate the canonical standards into role, scope, journey, screen, permission, state, AI, security, performance, and acceptance contracts for Dashboard, Students, Teachers, Organization, Authentication, Profile, Attendance, Exams, Classes, Subjects, Routine, Academic Sessions, Fees, Reports, Analytics, Notifications, Search, Filters, AI Assistant, Roles and Permissions, Settings, Audit Logs, Integrations, Import and Export, Backup and Recovery, Multi-Tenancy, and Future Enterprise Modules.
-11. **Review guidance** — [REVIEW_CHECKLISTS.md](./REVIEW_CHECKLISTS.md), [QUALITY_GATES.md](./QUALITY_GATES.md), [CODE_REVIEW_GUIDELINES.md](./CODE_REVIEW_GUIDELINES.md), [QA_CHECKLIST.md](./QA_CHECKLIST.md), [USABILITY_HEURISTICS.md](./USABILITY_HEURISTICS.md), and [UX_LAWS.md](./UX_LAWS.md) help teams inspect work. Review guidance cannot override a release gate.
-12. **Operational change and support** — [CHANGE_MANAGEMENT.md](./CHANGE_MANAGEMENT.md), [MAINTENANCE_GUIDE.md](./MAINTENANCE_GUIDE.md), [SUPPORT_PLAYBOOK.md](./SUPPORT_PLAYBOOK.md), and [INCIDENT_RESPONSE.md](./INCIDENT_RESPONSE.md) coordinate safe change, upkeep, user support, and incident follow-up.
-13. **Planning and current state** — [ROADMAP.md](./ROADMAP.md), [IMPLEMENTATION_ROADMAP.md](./IMPLEMENTATION_ROADMAP.md), and [KNOWN_LIMITATIONS.md](./KNOWN_LIMITATIONS.md) distinguish direction, technical sequence, evidence gaps, and current capability.
+3. **UI/UX authority** — [UI_MASTER_RULES.md](./UI_MASTER_RULES.md) is the single source of truth for practical UI/UX decisions. Specialized design, interaction, component, accessibility, responsive, state, and domain handbooks implement or evidence its rules; they must not create competing UI/UX standards.
+4. **Release gates** — [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md), [ETHICAL_UX_GUIDELINES.md](./ETHICAL_UX_GUIDELINES.md), [ENGINEERING_STANDARDS.md](./ENGINEERING_STANDARDS.md), and [AI_UX_GUIDELINES.md](./AI_UX_GUIDELINES.md) define binding quality and safety requirements.
+5. **Architecture** — [FRONTEND_ARCHITECTURE.md](./FRONTEND_ARCHITECTURE.md), [BACKEND_ARCHITECTURE.md](./BACKEND_ARCHITECTURE.md), [FOLDER_STRUCTURE.md](./FOLDER_STRUCTURE.md), [ROUTING_ARCHITECTURE.md](./ROUTING_ARCHITECTURE.md), [STATE_MANAGEMENT.md](./STATE_MANAGEMENT.md), [API_LAYER_ARCHITECTURE.md](./API_LAYER_ARCHITECTURE.md), [DATA_FLOW_ARCHITECTURE.md](./DATA_FLOW_ARCHITECTURE.md), [AUTHENTICATION_ARCHITECTURE.md](./AUTHENTICATION_ARCHITECTURE.md), [AUTHORIZATION_ARCHITECTURE.md](./AUTHORIZATION_ARCHITECTURE.md), [SECURITY_ARCHITECTURE.md](./SECURITY_ARCHITECTURE.md), [DATABASE_ARCHITECTURE.md](./DATABASE_ARCHITECTURE.md), [FIREBASE_ARCHITECTURE.md](./FIREBASE_ARCHITECTURE.md), [CACHING_STRATEGY.md](./CACHING_STRATEGY.md), and [PERFORMANCE_ARCHITECTURE.md](./PERFORMANCE_ARCHITECTURE.md) describe implementation boundaries and distinguish current paths from target guidance.
+6. **Delivery and resilience** — [TESTING_STRATEGY.md](./TESTING_STRATEGY.md), [CI_CD_ARCHITECTURE.md](./CI_CD_ARCHITECTURE.md), [DEPLOYMENT_ARCHITECTURE.md](./DEPLOYMENT_ARCHITECTURE.md), [DEPLOYMENT_CHECKLIST.md](./DEPLOYMENT_CHECKLIST.md), [RELEASE_MANAGEMENT.md](./RELEASE_MANAGEMENT.md), [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md), [MONITORING_AND_LOGGING.md](./MONITORING_AND_LOGGING.md), [OBSERVABILITY.md](./OBSERVABILITY.md), [ERROR_MONITORING.md](./ERROR_MONITORING.md), [OPERATIONS_RUNBOOK.md](./OPERATIONS_RUNBOOK.md), [INCIDENT_RESPONSE.md](./INCIDENT_RESPONSE.md), and [DISASTER_RECOVERY.md](./DISASTER_RECOVERY.md) define evidence, promotion, operational signals, failure response, and recovery boundaries.
+7. **Contributor practice** — [ONBOARDING_GUIDE.md](./ONBOARDING_GUIDE.md), [CONTRIBUTING.md](./CONTRIBUTING.md), [ENVIRONMENT_SETUP.md](./ENVIRONMENT_SETUP.md), [TECH_STACK.md](./TECH_STACK.md), [CODING_STANDARDS.md](./CODING_STANDARDS.md), [PROJECT_CONVENTIONS.md](./PROJECT_CONVENTIONS.md), [CODE_OWNERSHIP.md](./CODE_OWNERSHIP.md), [DEVELOPMENT_WORKFLOW.md](./DEVELOPMENT_WORKFLOW.md), [GIT_WORKFLOW.md](./GIT_WORKFLOW.md), and [CODE_REVIEW_GUIDELINES.md](./CODE_REVIEW_GUIDELINES.md) explain how to work within the governed repository without creating parallel standards.
+8. **Product structure and interaction** — Information Architecture, Navigation, Interaction, Forms, Search, Filters, Tables, Mobile, Responsive, Patterns, and Copywriting explain how the product behaves under the UI master authority.
+9. **Design system foundations and data** — Design Tokens, Spacing, Layout, Iconography, Elevation, State, Feedback, Notifications, Tables, Color, Typography, Motion, Gestalt, Dashboard, and Data Visualization implement or evidence the UI master rules.
+10. **Safety, resilience, and localization** — Error, Loading, Empty, Permission, Security, [SECURITY_CHECKLIST.md](./SECURITY_CHECKLIST.md), Internationalization, and accessibility testing handbooks define implementation-ready quality behavior.
+11. **Core module specifications** — The module handbooks under [modules/](./modules/) translate the UI master and canonical architecture standards into role, scope, journey, screen, permission, state, AI, security, performance, and acceptance contracts for Dashboard, Students, Teachers, Organization, Authentication, Profile, Attendance, Exams, Classes, Subjects, Routine, Academic Sessions, Fees, Reports, Analytics, Notifications, Search, Filters, AI Assistant, Roles and Permissions, Settings, Audit Logs, Integrations, Import and Export, Backup and Recovery, Multi-Tenancy, and Future Enterprise Modules.
+12. **Review guidance** — [REVIEW_CHECKLISTS.md](./REVIEW_CHECKLISTS.md), [QUALITY_GATES.md](./QUALITY_GATES.md), [CODE_REVIEW_GUIDELINES.md](./CODE_REVIEW_GUIDELINES.md), [QA_CHECKLIST.md](./QA_CHECKLIST.md), [USABILITY_HEURISTICS.md](./USABILITY_HEURISTICS.md), and [UX_LAWS.md](./UX_LAWS.md) help teams inspect work against the UI master. Review guidance cannot override a release gate.
+13. **Operational change and support** — [CHANGE_MANAGEMENT.md](./CHANGE_MANAGEMENT.md), [MAINTENANCE_GUIDE.md](./MAINTENANCE_GUIDE.md), [SUPPORT_PLAYBOOK.md](./SUPPORT_PLAYBOOK.md), and [INCIDENT_RESPONSE.md](./INCIDENT_RESPONSE.md) coordinate safe change, upkeep, user support, and incident follow-up.
+14. **Planning and current state** — [ROADMAP.md](./ROADMAP.md), [IMPLEMENTATION_ROADMAP.md](./IMPLEMENTATION_ROADMAP.md), and [KNOWN_LIMITATIONS.md](./KNOWN_LIMITATIONS.md) distinguish direction, technical sequence, evidence gaps, and current capability.
 
 See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and ownership matrix.
 
@@ -86,17 +88,18 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 
 ### Designing a feature
 
-1. [INFORMATION_ARCHITECTURE.md](./INFORMATION_ARCHITECTURE.md)
-2. [NAVIGATION_STANDARDS.md](./NAVIGATION_STANDARDS.md)
-3. [INTERACTION_DESIGN.md](./INTERACTION_DESIGN.md)
-4. [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) and the relevant foundation handbook
-5. [PATTERN_LIBRARY.md](./PATTERN_LIBRARY.md)
-6. [COMPONENT_SPECIFICATIONS.md](./COMPONENT_SPECIFICATIONS.md)
-7. The relevant component handbook under [components/](./components/), when one exists
-8. The relevant behavior handbook: [SEARCH_EXPERIENCE.md](./SEARCH_EXPERIENCE.md), [FILTER_SYSTEM.md](./FILTER_SYSTEM.md), [TABLE_DESIGN_GUIDE.md](./TABLE_DESIGN_GUIDE.md), or [NOTIFICATION_SYSTEM.md](./NOTIFICATION_SYSTEM.md)
-9. [COPYWRITING_GUIDELINES.md](./COPYWRITING_GUIDELINES.md)
-10. [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md) and [ACCESSIBILITY_TESTING.md](./ACCESSIBILITY_TESTING.md)
-11. [QUALITY_GATES.md](./QUALITY_GATES.md)
+1. [UI_MASTER_RULES.md](./UI_MASTER_RULES.md) for the single UI/UX authority.
+2. [INFORMATION_ARCHITECTURE.md](./INFORMATION_ARCHITECTURE.md)
+3. [NAVIGATION_STANDARDS.md](./NAVIGATION_STANDARDS.md)
+4. [INTERACTION_DESIGN.md](./INTERACTION_DESIGN.md)
+5. [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) and the relevant foundation handbook
+6. [PATTERN_LIBRARY.md](./PATTERN_LIBRARY.md)
+7. [COMPONENT_SPECIFICATIONS.md](./COMPONENT_SPECIFICATIONS.md)
+8. The relevant component handbook under [components/](./components/), when one exists
+9. The relevant behavior handbook: [SEARCH_EXPERIENCE.md](./SEARCH_EXPERIENCE.md), [FILTER_SYSTEM.md](./FILTER_SYSTEM.md), [TABLE_DESIGN_GUIDE.md](./TABLE_DESIGN_GUIDE.md), or [NOTIFICATION_SYSTEM.md](./NOTIFICATION_SYSTEM.md)
+10. [COPYWRITING_GUIDELINES.md](./COPYWRITING_GUIDELINES.md)
+11. [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md) and [ACCESSIBILITY_TESTING.md](./ACCESSIBILITY_TESTING.md)
+12. [QUALITY_GATES.md](./QUALITY_GATES.md)
 
 ### API or shared implementation work
 
@@ -109,13 +112,14 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 
 1. [PRODUCT_GOVERNANCE.md](./PRODUCT_GOVERNANCE.md)
 2. [ENGINEERING_STANDARDS.md](./ENGINEERING_STANDARDS.md)
-3. [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md)
-4. The relevant architecture handbook: [FRONTEND_ARCHITECTURE.md](./FRONTEND_ARCHITECTURE.md), [BACKEND_ARCHITECTURE.md](./BACKEND_ARCHITECTURE.md), [ROUTING_ARCHITECTURE.md](./ROUTING_ARCHITECTURE.md), [STATE_MANAGEMENT.md](./STATE_MANAGEMENT.md), [API_LAYER_ARCHITECTURE.md](./API_LAYER_ARCHITECTURE.md), [DATA_FLOW_ARCHITECTURE.md](./DATA_FLOW_ARCHITECTURE.md), [AUTHENTICATION_ARCHITECTURE.md](./AUTHENTICATION_ARCHITECTURE.md), [AUTHORIZATION_ARCHITECTURE.md](./AUTHORIZATION_ARCHITECTURE.md), [SECURITY_ARCHITECTURE.md](./SECURITY_ARCHITECTURE.md), [DATABASE_ARCHITECTURE.md](./DATABASE_ARCHITECTURE.md), [FIREBASE_ARCHITECTURE.md](./FIREBASE_ARCHITECTURE.md), [CACHING_STRATEGY.md](./CACHING_STRATEGY.md), or [PERFORMANCE_ARCHITECTURE.md](./PERFORMANCE_ARCHITECTURE.md)
-5. The relevant domain handbook: [DASHBOARD_DESIGN_GUIDE.md](./DASHBOARD_DESIGN_GUIDE.md), [DATA_VISUALIZATION_GUIDE.md](./DATA_VISUALIZATION_GUIDE.md), [FORM_DESIGN_GUIDE.md](./FORM_DESIGN_GUIDE.md), or [AI_UX_GUIDELINES.md](./AI_UX_GUIDELINES.md)
-6. The relevant [core module specification](./modules/) when the work affects Dashboard, Students, Teachers, Organization, Authentication, Profile, Attendance, Exams, Classes, Subjects, Routine, Academic Sessions, Fees, Reports, Analytics, Notifications, Search, Filters, AI Assistant, Roles and Permissions, Settings, Audit Logs, Integrations, Import and Export, Backup and Recovery, Multi-Tenancy, or Future Enterprise Modules
-7. [TESTING_STRATEGY.md](./TESTING_STRATEGY.md)
-8. [CI_CD_ARCHITECTURE.md](./CI_CD_ARCHITECTURE.md)
-9. [REVIEW_CHECKLISTS.md](./REVIEW_CHECKLISTS.md)
+3. [UI_MASTER_RULES.md](./UI_MASTER_RULES.md)
+4. [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md)
+5. The relevant architecture handbook: [FRONTEND_ARCHITECTURE.md](./FRONTEND_ARCHITECTURE.md), [BACKEND_ARCHITECTURE.md](./BACKEND_ARCHITECTURE.md), [ROUTING_ARCHITECTURE.md](./ROUTING_ARCHITECTURE.md), [STATE_MANAGEMENT.md](./STATE_MANAGEMENT.md), [API_LAYER_ARCHITECTURE.md](./API_LAYER_ARCHITECTURE.md), [DATA_FLOW_ARCHITECTURE.md](./DATA_FLOW_ARCHITECTURE.md), [AUTHENTICATION_ARCHITECTURE.md](./AUTHENTICATION_ARCHITECTURE.md), [AUTHORIZATION_ARCHITECTURE.md](./AUTHORIZATION_ARCHITECTURE.md), [SECURITY_ARCHITECTURE.md](./SECURITY_ARCHITECTURE.md), [DATABASE_ARCHITECTURE.md](./DATABASE_ARCHITECTURE.md), [FIREBASE_ARCHITECTURE.md](./FIREBASE_ARCHITECTURE.md), [CACHING_STRATEGY.md](./CACHING_STRATEGY.md), or [PERFORMANCE_ARCHITECTURE.md](./PERFORMANCE_ARCHITECTURE.md)
+6. The relevant domain handbook: [DASHBOARD_DESIGN_GUIDE.md](./DASHBOARD_DESIGN_GUIDE.md), [DATA_VISUALIZATION_GUIDE.md](./DATA_VISUALIZATION_GUIDE.md), [FORM_DESIGN_GUIDE.md](./FORM_DESIGN_GUIDE.md), or [AI_UX_GUIDELINES.md](./AI_UX_GUIDELINES.md)
+7. The relevant [core module specification](./modules/) when the work affects Dashboard, Students, Teachers, Organization, Authentication, Profile, Attendance, Exams, Classes, Subjects, Routine, Academic Sessions, Fees, Reports, Analytics, Notifications, Search, Filters, AI Assistant, Roles and Permissions, Settings, Audit Logs, Integrations, Import and Export, Backup and Recovery, Multi-Tenancy, or Future Enterprise Modules
+8. [TESTING_STRATEGY.md](./TESTING_STRATEGY.md)
+9. [CI_CD_ARCHITECTURE.md](./CI_CD_ARCHITECTURE.md)
+10. [REVIEW_CHECKLISTS.md](./REVIEW_CHECKLISTS.md)
 
 ### Intaking, deciding, and handing off work
 
@@ -152,6 +156,7 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 | --- | --- |
 | Understand product principles | [Product Constitution](./PRODUCT_CONSTITUTION.md) |
 | Resolve a standards conflict | [Product Governance](./PRODUCT_GOVERNANCE.md) |
+| Apply UI/UX rules | [UI Master Rules](./UI_MASTER_RULES.md) |
 | Find a canonical term | [Glossary](./GLOSSARY.md) |
 | Understand document ownership | [Documentation Map](./DOCUMENTATION_MAP.md) |
 | Understand implementation boundaries | [Frontend Architecture](./FRONTEND_ARCHITECTURE.md), [Backend Architecture](./BACKEND_ARCHITECTURE.md), and [Folder Structure](./FOLDER_STRUCTURE.md) |
@@ -214,6 +219,7 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 | Implement a primitive component | [Component Specifications](./COMPONENT_SPECIFICATIONS.md) and the relevant [component handbook](./components/) |
 | Extend or review a shared component | [Component Standards](./COMPONENT_STANDARDS.md) |
 | Apply the visual system | [Design System Guide](./DESIGN_SYSTEM_GUIDE.md) |
+| Apply the canonical UI/UX authority | [UI Master Rules](./UI_MASTER_RULES.md) |
 | Apply foundation tokens | [Design Tokens](./DESIGN_TOKENS.md), [Spacing System](./SPACING_SYSTEM.md), and [Layout Grid](./LAYOUT_GRID.md) |
 | Write interface copy | [Copywriting Guidelines](./COPYWRITING_GUIDELINES.md) |
 | Design a Dashboard | [Dashboard Design Guide](./DASHBOARD_DESIGN_GUIDE.md) |
@@ -269,6 +275,7 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 | [DASHBOARD_DESIGN_GUIDE.md](./DASHBOARD_DESIGN_GUIDE.md) | Defines Dashboard priorities, metrics, scope, and states. |
 | [DATA_VISUALIZATION_GUIDE.md](./DATA_VISUALIZATION_GUIDE.md) | Defines honest and accessible Reports and Analytics presentation. |
 | [DESIGN_SYSTEM_GUIDE.md](./DESIGN_SYSTEM_GUIDE.md) | Defines design-system layers, contributions, and quality gates. |
+| [UI_MASTER_RULES.md](./UI_MASTER_RULES.md) | Owns practical UI/UX decisions for the entire enterprise SaaS product; specialized handbooks implement or evidence its rules. |
 | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | Defines semantic token roles, tiers, consumption, and versioning. |
 | [ELEVATION_SYSTEM.md](./ELEVATION_SYSTEM.md) | Defines surfaces, overlays, depth, and stacking behavior. |
 | [EMPTY_STATES.md](./EMPTY_STATES.md) | Defines truthful empty states and recovery actions. |
@@ -479,7 +486,7 @@ The component library covers 51 approved primitive components organized by categ
 | [Banner](./components/Banner.md) | Persistent page or scope-level information. |
 | [Alert](./components/Alert.md) | Important inline status or recovery message. |
 | [Progress](./components/Progress.md) | Measurable completion feedback for scoped operations. |
-| [Skeleton](./components/Skeleton.md) | Structural placeholder when the resulting layout is known. |
+| [Skeleton](./components/Skeleton.md) | Reserves known loading structure without implying values or completion. |
 | [Loading Spinner](./components/Loading%20Spinner.md) | Brief indeterminate work indicator. |
 | [Empty State](./components/Empty%20State.md) | Truthful message and next action when no content is available. |
 | [Error State](./components/Error%20State.md) | Recovery message and next action for failed or unavailable work. |

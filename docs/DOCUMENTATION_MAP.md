@@ -32,9 +32,10 @@ related_documents:
   - ./ROADMAP.md
   - ./KNOWN_LIMITATIONS.md
   - ./IMPLEMENTATION_ROADMAP.md
+  - ./UI_MASTER_RULES.md
 review_frequency: Quarterly and after documentation architecture changes
 owner: Product Governance Council
-version: 4.0.0
+version: 5.0.0
 status: Active architecture map
 last_updated: 2026-08-02
 normative_level: Governance reference
@@ -43,7 +44,7 @@ canonical_terms: standard, guidance, release gate, owner, dependency, source of 
 
 # EduTrack Documentation Map
 
-This map shows which documents own standards and which documents consume them. A document may explain a rule locally, but the owner listed below is the source of truth for that rule.
+This map shows which documents own standards and which documents consume them. [UI_MASTER_RULES.md](./UI_MASTER_RULES.md) is the single source of truth for practical UI/UX decisions; specialized handbooks remain the implementation or evidence owners named below. A document may explain a rule locally, but the owner listed below is the source of truth for that rule.
 
 ## Visual hierarchy
 
@@ -53,6 +54,12 @@ PRODUCT_CONSTITUTION
         v
 PRODUCT_GOVERNANCE -----> DECISION_LOG / CHANGELOG
         |
+         +--> UI/UX AUTHORITY
+         |      UI_MASTER_RULES --> DESIGN_SYSTEM_GUIDE / DESIGN_TOKENS / COMPONENT_SPECIFICATIONS
+         |                         --> ACCESSIBILITY_STANDARDS / RESPONSIVE_SYSTEM / MOBILE_UX_GUIDE
+         |                         --> NAVIGATION_STANDARDS / FORM_DESIGN_GUIDE / DASHBOARD_DESIGN_GUIDE
+         |                         --> UX_LAWS / USABILITY_HEURISTICS / GESTALT_PRINCIPLES
+         |
          +--> RELEASE GATES
          |      ACCESSIBILITY_STANDARDS --> ACCESSIBILITY_TESTING
         |      ETHICAL_UX_GUIDELINES
@@ -159,6 +166,7 @@ INDEX is the navigation homepage for every layer.
 | --- | --- | --- |
 | Product principles and ethical commitments | [PRODUCT_CONSTITUTION.md](./PRODUCT_CONSTITUTION.md) | Ethical UX, AI UX, Accessibility |
 | Authority, precedence, exceptions, and document lifecycle | [PRODUCT_GOVERNANCE.md](./PRODUCT_GOVERNANCE.md) | Decision Log, Changelog, Review Checklists |
+| Practical UI/UX decisions across every role, module, state, and viewport | [UI_MASTER_RULES.md](./UI_MASTER_RULES.md) | Design System, Design Tokens, Components, Accessibility, Responsive, Mobile, Navigation, Forms, Dashboard, UX Laws, Usability Heuristics, Gestalt |
 | Product vocabulary and object naming | [GLOSSARY.md](./GLOSSARY.md) and [INFORMATION_ARCHITECTURE.md](./INFORMATION_ARCHITECTURE.md) | Copywriting, Navigation, Forms |
 | Accessibility requirements | [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md) | Accessibility Testing, Mobile, Motion, Components, Review Checklists |
 | Safety, dignity, fairness, privacy, and accountability | [ETHICAL_UX_GUIDELINES.md](./ETHICAL_UX_GUIDELINES.md) | Constitution, AI UX, Governance |
@@ -246,7 +254,7 @@ INDEX is the navigation homepage for every layer.
 | Architecture decision method | [ARCHITECTURE_DECISIONS.md](./ARCHITECTURE_DECISIONS.md) | Product Governance, Decision Log, owning architecture handbooks |
 | Contributor setup and implementation path | [CONTRIBUTING.md](./CONTRIBUTING.md) | Environment Setup, Tech Stack, Coding Standards, Git Workflow, Code Review Guidelines |
 | Review evidence and release handoff | [CODE_REVIEW_GUIDELINES.md](./CODE_REVIEW_GUIDELINES.md) and [RELEASE_MANAGEMENT.md](./RELEASE_MANAGEMENT.md) | Review Checklists, Quality Gates, CI/CD Architecture, Deployment Architecture |
-| Usability rationale and review prompts | UX Laws, Usability Heuristics, Gestalt Principles | Governance, Accessibility, Interaction |
+| Practical UI/UX authority and usability rationale | [UI_MASTER_RULES.md](./UI_MASTER_RULES.md) | UX Laws, Usability Heuristics, Gestalt Principles, Accessibility, Interaction |
 
 ## Core module dependency map
 
@@ -287,6 +295,9 @@ Every module below consumes the same canonical structure, interaction, component
 - Depend on a higher-level document; do not override it.
 - Link to the canonical owner when repeating a principle for context.
 - Do not create a second threshold for a requirement owned by a release-gate handbook.
+- `UI_MASTER_RULES.md` is the only UI/UX authority. Specialized design, component, interaction, accessibility, responsive, state, content, mobile, dashboard, and review handbooks may provide implementation detail or evidence, but must link to this owner and must not create competing UI/UX standards.
+- `DESIGN_TOKENS.md`, `TYPOGRAPHY_SYSTEM.md`, `SPACING_SYSTEM.md`, `LAYOUT_GRID.md`, `COLOR_SYSTEM.md`, and `MOTION_GUIDELINES.md` remain implementation owners for their foundations under the UI master rules; the master document must not duplicate their registries or raw values.
+- `UX_LAWS.md`, `USABILITY_HEURISTICS.md`, and `GESTALT_PRINCIPLES.md` remain explanatory sources; their rationale supports UI decisions but cannot override accessibility, safety, governance, or release gates.
 - If a new Enterprise Module introduces a term, add it to [GLOSSARY.md](./GLOSSARY.md) before using it in another handbook.
 - Component handbooks under [components/](./components/) may clarify an implementation contract but may not override a higher-level standard.
 - Add a component handbook only when the component is approved in [COMPONENT_SPECIFICATIONS.md](./COMPONENT_SPECIFICATIONS.md); do not create parallel component documentation elsewhere.
