@@ -12,13 +12,20 @@ related_documents:
   - ./TESTING_STRATEGY.md
   - ./CI_CD_ARCHITECTURE.md
   - ./DEPLOYMENT_ARCHITECTURE.md
+  - ./CONTRIBUTING.md
+  - ./ENVIRONMENT_SETUP.md
+  - ./TECH_STACK.md
+  - ./CODING_STANDARDS.md
+  - ./GIT_WORKFLOW.md
+  - ./CODE_REVIEW_GUIDELINES.md
+  - ./RELEASE_MANAGEMENT.md
   - ./MONITORING_AND_LOGGING.md
   - ./OBSERVABILITY.md
   - ./ERROR_MONITORING.md
   - ./DISASTER_RECOVERY.md
 review_frequency: Quarterly and after documentation architecture or governance changes
 owner: Product Governance Council
-version: 1.7.0
+version: 1.8.0
 status: Active documentation homepage
 last_updated: 2026-08-02
 normative_level: Navigation and orientation
@@ -35,12 +42,13 @@ EduTrack documentation is a governed system of product principles, release stand
 2. **Governance** — [PRODUCT_GOVERNANCE.md](./PRODUCT_GOVERNANCE.md) defines authority, precedence, exceptions, evidence, and change control.
 3. **Release gates** — [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md), [ETHICAL_UX_GUIDELINES.md](./ETHICAL_UX_GUIDELINES.md), [ENGINEERING_STANDARDS.md](./ENGINEERING_STANDARDS.md), and [AI_UX_GUIDELINES.md](./AI_UX_GUIDELINES.md) define binding quality and safety requirements.
 4. **Architecture** — [FRONTEND_ARCHITECTURE.md](./FRONTEND_ARCHITECTURE.md), [BACKEND_ARCHITECTURE.md](./BACKEND_ARCHITECTURE.md), [FOLDER_STRUCTURE.md](./FOLDER_STRUCTURE.md), [ROUTING_ARCHITECTURE.md](./ROUTING_ARCHITECTURE.md), [STATE_MANAGEMENT.md](./STATE_MANAGEMENT.md), [API_LAYER_ARCHITECTURE.md](./API_LAYER_ARCHITECTURE.md), [DATA_FLOW_ARCHITECTURE.md](./DATA_FLOW_ARCHITECTURE.md), [AUTHENTICATION_ARCHITECTURE.md](./AUTHENTICATION_ARCHITECTURE.md), [AUTHORIZATION_ARCHITECTURE.md](./AUTHORIZATION_ARCHITECTURE.md), [SECURITY_ARCHITECTURE.md](./SECURITY_ARCHITECTURE.md), [DATABASE_ARCHITECTURE.md](./DATABASE_ARCHITECTURE.md), [FIREBASE_ARCHITECTURE.md](./FIREBASE_ARCHITECTURE.md), [CACHING_STRATEGY.md](./CACHING_STRATEGY.md), and [PERFORMANCE_ARCHITECTURE.md](./PERFORMANCE_ARCHITECTURE.md) describe implementation boundaries and distinguish current paths from target guidance.
-5. **Delivery and resilience** — [TESTING_STRATEGY.md](./TESTING_STRATEGY.md), [CI_CD_ARCHITECTURE.md](./CI_CD_ARCHITECTURE.md), [DEPLOYMENT_ARCHITECTURE.md](./DEPLOYMENT_ARCHITECTURE.md), [MONITORING_AND_LOGGING.md](./MONITORING_AND_LOGGING.md), [OBSERVABILITY.md](./OBSERVABILITY.md), [ERROR_MONITORING.md](./ERROR_MONITORING.md), and [DISASTER_RECOVERY.md](./DISASTER_RECOVERY.md) define evidence, promotion, operational signals, failure response, and recovery boundaries.
-6. **Product structure and interaction** — Information Architecture, Navigation, Interaction, Forms, Search, Filters, Tables, Mobile, Responsive, Patterns, and Copywriting explain how the product behaves.
-7. **Design system foundations and data** — Design Tokens, Spacing, Layout, Iconography, Elevation, State, Feedback, Notifications, Tables, Color, Typography, Motion, Gestalt, Dashboard, and Data Visualization define reusable expression and domain presentation.
-8. **Safety, resilience, and localization** — Error, Loading, Empty, Permission, Security, Internationalization, and accessibility testing handbooks define implementation-ready quality behavior.
-9. **Core module specifications** — The module handbooks under [modules/](./modules/) translate the canonical standards into role, scope, journey, screen, permission, state, AI, security, performance, and acceptance contracts for Dashboard, Students, Teachers, Organization, Authentication, Profile, Attendance, Exams, Classes, Subjects, Routine, Academic Sessions, Fees, Reports, Analytics, Notifications, Search, Filters, AI Assistant, Roles and Permissions, Settings, Audit Logs, Integrations, Import and Export, Backup and Recovery, Multi-Tenancy, and Future Enterprise Modules.
-10. **Review guidance** — [REVIEW_CHECKLISTS.md](./REVIEW_CHECKLISTS.md), [QUALITY_GATES.md](./QUALITY_GATES.md), [USABILITY_HEURISTICS.md](./USABILITY_HEURISTICS.md), and [UX_LAWS.md](./UX_LAWS.md) help teams inspect work. Review guidance cannot override a release gate.
+5. **Delivery and resilience** — [TESTING_STRATEGY.md](./TESTING_STRATEGY.md), [CI_CD_ARCHITECTURE.md](./CI_CD_ARCHITECTURE.md), [DEPLOYMENT_ARCHITECTURE.md](./DEPLOYMENT_ARCHITECTURE.md), [RELEASE_MANAGEMENT.md](./RELEASE_MANAGEMENT.md), [MONITORING_AND_LOGGING.md](./MONITORING_AND_LOGGING.md), [OBSERVABILITY.md](./OBSERVABILITY.md), [ERROR_MONITORING.md](./ERROR_MONITORING.md), and [DISASTER_RECOVERY.md](./DISASTER_RECOVERY.md) define evidence, promotion, operational signals, failure response, and recovery boundaries.
+6. **Contributor practice** — [CONTRIBUTING.md](./CONTRIBUTING.md), [ENVIRONMENT_SETUP.md](./ENVIRONMENT_SETUP.md), [TECH_STACK.md](./TECH_STACK.md), [CODING_STANDARDS.md](./CODING_STANDARDS.md), [GIT_WORKFLOW.md](./GIT_WORKFLOW.md), and [CODE_REVIEW_GUIDELINES.md](./CODE_REVIEW_GUIDELINES.md) explain how to work within the governed repository without creating parallel standards.
+7. **Product structure and interaction** — Information Architecture, Navigation, Interaction, Forms, Search, Filters, Tables, Mobile, Responsive, Patterns, and Copywriting explain how the product behaves.
+8. **Design system foundations and data** — Design Tokens, Spacing, Layout, Iconography, Elevation, State, Feedback, Notifications, Tables, Color, Typography, Motion, Gestalt, Dashboard, and Data Visualization define reusable expression and domain presentation.
+9. **Safety, resilience, and localization** — Error, Loading, Empty, Permission, Security, Internationalization, and accessibility testing handbooks define implementation-ready quality behavior.
+10. **Core module specifications** — The module handbooks under [modules/](./modules/) translate the canonical standards into role, scope, journey, screen, permission, state, AI, security, performance, and acceptance contracts for Dashboard, Students, Teachers, Organization, Authentication, Profile, Attendance, Exams, Classes, Subjects, Routine, Academic Sessions, Fees, Reports, Analytics, Notifications, Search, Filters, AI Assistant, Roles and Permissions, Settings, Audit Logs, Integrations, Import and Export, Backup and Recovery, Multi-Tenancy, and Future Enterprise Modules.
+11. **Review guidance** — [REVIEW_CHECKLISTS.md](./REVIEW_CHECKLISTS.md), [QUALITY_GATES.md](./QUALITY_GATES.md), [CODE_REVIEW_GUIDELINES.md](./CODE_REVIEW_GUIDELINES.md), [USABILITY_HEURISTICS.md](./USABILITY_HEURISTICS.md), and [UX_LAWS.md](./UX_LAWS.md) help teams inspect work. Review guidance cannot override a release gate.
 
 See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and ownership matrix.
 
@@ -51,9 +59,14 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 1. [PRODUCT_CONSTITUTION.md](./PRODUCT_CONSTITUTION.md)
 2. [PRODUCT_GOVERNANCE.md](./PRODUCT_GOVERNANCE.md)
 3. [GLOSSARY.md](./GLOSSARY.md)
-4. [INFORMATION_ARCHITECTURE.md](./INFORMATION_ARCHITECTURE.md)
-5. [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md)
-6. [REVIEW_CHECKLISTS.md](./REVIEW_CHECKLISTS.md)
+4. [CONTRIBUTING.md](./CONTRIBUTING.md)
+5. [TECH_STACK.md](./TECH_STACK.md) and [ENVIRONMENT_SETUP.md](./ENVIRONMENT_SETUP.md)
+6. [FOLDER_STRUCTURE.md](./FOLDER_STRUCTURE.md)
+7. [INFORMATION_ARCHITECTURE.md](./INFORMATION_ARCHITECTURE.md)
+8. [CODING_STANDARDS.md](./CODING_STANDARDS.md)
+9. [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md)
+10. [REVIEW_CHECKLISTS.md](./REVIEW_CHECKLISTS.md) and [CODE_REVIEW_GUIDELINES.md](./CODE_REVIEW_GUIDELINES.md)
+11. [GIT_WORKFLOW.md](./GIT_WORKFLOW.md) and [RELEASE_MANAGEMENT.md](./RELEASE_MANAGEMENT.md)
 
 ### Designing a feature
 
@@ -104,6 +117,13 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 | Define test layers and release evidence | [Testing Strategy](./TESTING_STRATEGY.md) |
 | Understand pipeline checks and promotion | [CI/CD Architecture](./CI_CD_ARCHITECTURE.md) |
 | Understand environments and deployment recovery | [Deployment Architecture](./DEPLOYMENT_ARCHITECTURE.md) |
+| Set up a safe contributor environment | [Environment Setup](./ENVIRONMENT_SETUP.md) |
+| Understand the repository technology boundaries | [Technology Stack](./TECH_STACK.md) |
+| Follow implementation conventions | [Coding Standards](./CODING_STANDARDS.md) |
+| Contribute a change | [Contributing Guide](./CONTRIBUTING.md) |
+| Synchronize branches and commits | [Git Workflow](./GIT_WORKFLOW.md) |
+| Prepare or perform a review | [Code Review Guidelines](./CODE_REVIEW_GUIDELINES.md) |
+| Manage a release handoff | [Release Management](./RELEASE_MANAGEMENT.md) |
 | Understand operational signals and structured logs | [Monitoring and Logging](./MONITORING_AND_LOGGING.md) |
 | Correlate journeys, signals, and outcomes | [Observability](./OBSERVABILITY.md) |
 | Group and triage application errors | [Error Monitoring](./ERROR_MONITORING.md) |
@@ -173,6 +193,13 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 | [ELEVATION_SYSTEM.md](./ELEVATION_SYSTEM.md) | Defines surfaces, overlays, depth, and stacking behavior. |
 | [EMPTY_STATES.md](./EMPTY_STATES.md) | Defines truthful empty states and recovery actions. |
 | [ENGINEERING_STANDARDS.md](./ENGINEERING_STANDARDS.md) | Defines technical correctness, security, reliability, and maintainability. |
+| [CODING_STANDARDS.md](./CODING_STANDARDS.md) | Defines practical implementation conventions without replacing binding standards. |
+| [CONTRIBUTING.md](./CONTRIBUTING.md) | Explains repository orientation, contribution flow, evidence, and handoff. |
+| [ENVIRONMENT_SETUP.md](./ENVIRONMENT_SETUP.md) | Defines safe local setup, configuration names, environment boundaries, and validation commands. |
+| [TECH_STACK.md](./TECH_STACK.md) | Records the repository technology boundaries and current-versus-target distinctions. |
+| [GIT_WORKFLOW.md](./GIT_WORKFLOW.md) | Defines synchronization, branches, commits, conflicts, and safe Git recovery. |
+| [CODE_REVIEW_GUIDELINES.md](./CODE_REVIEW_GUIDELINES.md) | Defines evidence-based review order, findings, and change-type guidance. |
+| [RELEASE_MANAGEMENT.md](./RELEASE_MANAGEMENT.md) | Defines practical release classification, readiness, promotion, verification, and recovery handoff. |
 | [FRONTEND_ARCHITECTURE.md](./FRONTEND_ARCHITECTURE.md) | Defines the React/Vite web composition, frontend boundaries, and current Firebase data path. |
 | [BACKEND_ARCHITECTURE.md](./BACKEND_ARCHITECTURE.md) | Defines the current Firebase boundary and separate Express/OpenAPI/Drizzle backend architecture. |
 | [FOLDER_STRUCTURE.md](./FOLDER_STRUCTURE.md) | Defines repository package ownership and implementation placement. |
