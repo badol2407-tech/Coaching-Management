@@ -25,9 +25,16 @@ related_documents:
   - ./MAINTENANCE_GUIDE.md
   - ./CHANGE_MANAGEMENT.md
   - ./SUPPORT_PLAYBOOK.md
+  - ./ONBOARDING_GUIDE.md
+  - ./DEVELOPMENT_WORKFLOW.md
+  - ./RELEASE_CHECKLIST.md
+  - ./MIGRATION_GUIDE.md
+  - ./ROADMAP.md
+  - ./KNOWN_LIMITATIONS.md
+  - ./IMPLEMENTATION_ROADMAP.md
 review_frequency: Quarterly and after documentation architecture changes
 owner: Product Governance Council
-version: 3.0.0
+version: 4.0.0
 status: Active architecture map
 last_updated: 2026-08-02
 normative_level: Governance reference
@@ -115,6 +122,11 @@ PRODUCT_GOVERNANCE -----> DECISION_LOG / CHANGELOG
                   RELEASE_MANAGEMENT --> CHANGE_MANAGEMENT --> CHANGELOG / DECISION_LOG
                   MAINTENANCE_GUIDE --> CHANGE_MANAGEMENT
                   INCIDENT_RESPONSE --> SUPPORT_PLAYBOOK
+                  PRODUCT_GOVERNANCE --> ROADMAP --> IMPLEMENTATION_ROADMAP
+                  KNOWN_LIMITATIONS --> ROADMAP / IMPLEMENTATION_ROADMAP
+                  ONBOARDING_GUIDE --> DEVELOPMENT_WORKFLOW --> IMPLEMENTATION_CHECKLIST
+                  RELEASE_MANAGEMENT --> RELEASE_CHECKLIST --> DEPLOYMENT_CHECKLIST
+                  DATABASE_ARCHITECTURE --> MIGRATION_GUIDE --> DISASTER_RECOVERY
         |
          +--> VISUAL AND DATA SYSTEM
          |      DESIGN_TOKENS --> SPACING_SYSTEM / LAYOUT_GRID / ICONOGRAPHY / ELEVATION_SYSTEM
@@ -196,6 +208,13 @@ INDEX is the navigation homepage for every layer.
 | Dependency, drift, provider, and recovery maintenance | [MAINTENANCE_GUIDE.md](./MAINTENANCE_GUIDE.md) | Engineering Standards, Security Architecture, Deployment Architecture, Database Architecture, Firebase Architecture, Documentation Map |
 | Change intake, impact, decision, and closeout | [CHANGE_MANAGEMENT.md](./CHANGE_MANAGEMENT.md) | Product Governance, Architecture Decisions, PR Template, Quality Gates, Release Management, Changelog |
 | Safe support intake, triage, escalation, and closure | [SUPPORT_PLAYBOOK.md](./SUPPORT_PLAYBOOK.md) | Feedback System, Error Handling, Authorization Architecture, Security Architecture, Operations Runbook, Incident Response |
+| Contributor orientation, setup, ownership, and safe delivery | [ONBOARDING_GUIDE.md](./ONBOARDING_GUIDE.md) | Index, Contributing, Environment Setup, Tech Stack, Folder Structure, Code Ownership |
+| Development implementation and handoff flow | [DEVELOPMENT_WORKFLOW.md](./DEVELOPMENT_WORKFLOW.md) | Developer Playbook, Implementation Checklist, Change Management, Testing Strategy, Code Review Guidelines |
+| Release readiness, promotion, verification, and closeout | [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md) | Release Management, Deployment Checklist, Deployment Architecture, CI/CD Architecture, Quality Gates |
+| Source-of-truth, schema, provider, and data migration workflow | [MIGRATION_GUIDE.md](./MIGRATION_GUIDE.md) | Database Architecture, Firebase Architecture, Data Flow Architecture, Deployment Architecture, Disaster Recovery |
+| Governed product direction and planning vocabulary | [ROADMAP.md](./ROADMAP.md) | Product Governance, Information Architecture, Change Management, Architecture Decisions, Implementation Roadmap |
+| Current limitations and evidence-gap register | [KNOWN_LIMITATIONS.md](./KNOWN_LIMITATIONS.md) | Technology Stack, architecture handbooks, Automation Guide, Monitoring and Logging, Disaster Recovery, Roadmap |
+| Dependency-aware technical implementation sequence | [IMPLEMENTATION_ROADMAP.md](./IMPLEMENTATION_ROADMAP.md) | Roadmap, Development Workflow, Change Management, Architecture Decisions, Testing Strategy, Release Checklist |
 | Information structure and scope | [INFORMATION_ARCHITECTURE.md](./INFORMATION_ARCHITECTURE.md) | Navigation, Forms, Dashboard |
 | Navigation and route behavior | [NAVIGATION_STANDARDS.md](./NAVIGATION_STANDARDS.md) | Information Architecture, Accessibility, Mobile |
 | Interaction states and recovery | [INTERACTION_DESIGN.md](./INTERACTION_DESIGN.md) and [STATE_SYSTEM.md](./STATE_SYSTEM.md) | Feedback, Error Handling, Loading States, Empty States, Components, Forms, Motion, Patterns |
@@ -304,6 +323,13 @@ Every module below consumes the same canonical structure, interaction, component
 - `MAINTENANCE_GUIDE.md` organizes upkeep and drift review; it does not invent maintenance intervals, compatibility guarantees, retention periods, or automatic updates.
 - `CHANGE_MANAGEMENT.md` coordinates change work; Product Governance, Architecture Decisions, Quality Gates, and Release Management remain authoritative for decisions and release outcomes.
 - `SUPPORT_PLAYBOOK.md` organizes safe support handling; it does not create support SLAs, impersonation authority, privacy policy, retention periods, or user-facing message standards.
+- `ONBOARDING_GUIDE.md` routes contributors through existing owners; it does not replace Contributing, Environment Setup, Technology Stack, or repository-boundary documentation.
+- `DEVELOPMENT_WORKFLOW.md` connects existing implementation steps; it does not create a second coding, testing, review, branch, release, or recovery standard.
+- `RELEASE_CHECKLIST.md` organizes release evidence; Quality Gates, CI/CD Architecture, Deployment Architecture, and Release Management remain authoritative.
+- `MIGRATION_GUIDE.md` coordinates migrations; Database Architecture, Firebase Architecture, Data Flow Architecture, and Disaster Recovery remain authoritative for boundaries, source of truth, integrity, and recovery.
+- `ROADMAP.md` records direction and planning context; it does not create delivery dates, staffing commitments, release approvals, or implemented capability claims.
+- `KNOWN_LIMITATIONS.md` summarizes current-state evidence gaps; the owning architecture, security, engineering, operations, and governance documents remain authoritative for each limitation.
+- `IMPLEMENTATION_ROADMAP.md` sequences technical work; it does not replace product roadmap direction, architecture decisions, quality gates, release management, or recovery standards.
 - Operational handbooks may describe current gaps and target controls but may not claim deployed monitoring, tested recovery, protected branches, environment approvals, or service readiness without evidence.
 - The Firebase-first web path and the separate Express/OpenAPI/Drizzle path must remain explicitly distinguished until an approved source-of-truth and migration decision changes that relationship.
 - If a change affects a dependency, update the dependent document's Related documents metadata and record the change.

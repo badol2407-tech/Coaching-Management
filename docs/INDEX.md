@@ -30,9 +30,16 @@ related_documents:
   - ./MAINTENANCE_GUIDE.md
   - ./CHANGE_MANAGEMENT.md
   - ./SUPPORT_PLAYBOOK.md
+  - ./ONBOARDING_GUIDE.md
+  - ./DEVELOPMENT_WORKFLOW.md
+  - ./RELEASE_CHECKLIST.md
+  - ./MIGRATION_GUIDE.md
+  - ./ROADMAP.md
+  - ./KNOWN_LIMITATIONS.md
+  - ./IMPLEMENTATION_ROADMAP.md
 review_frequency: Quarterly and after documentation architecture or governance changes
 owner: Product Governance Council
-version: 3.0.0
+version: 4.0.0
 status: Active documentation homepage
 last_updated: 2026-08-02
 normative_level: Navigation and orientation
@@ -49,14 +56,15 @@ EduTrack documentation is a governed system of product principles, release stand
 2. **Governance** — [PRODUCT_GOVERNANCE.md](./PRODUCT_GOVERNANCE.md) defines authority, precedence, exceptions, evidence, and change control.
 3. **Release gates** — [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md), [ETHICAL_UX_GUIDELINES.md](./ETHICAL_UX_GUIDELINES.md), [ENGINEERING_STANDARDS.md](./ENGINEERING_STANDARDS.md), and [AI_UX_GUIDELINES.md](./AI_UX_GUIDELINES.md) define binding quality and safety requirements.
 4. **Architecture** — [FRONTEND_ARCHITECTURE.md](./FRONTEND_ARCHITECTURE.md), [BACKEND_ARCHITECTURE.md](./BACKEND_ARCHITECTURE.md), [FOLDER_STRUCTURE.md](./FOLDER_STRUCTURE.md), [ROUTING_ARCHITECTURE.md](./ROUTING_ARCHITECTURE.md), [STATE_MANAGEMENT.md](./STATE_MANAGEMENT.md), [API_LAYER_ARCHITECTURE.md](./API_LAYER_ARCHITECTURE.md), [DATA_FLOW_ARCHITECTURE.md](./DATA_FLOW_ARCHITECTURE.md), [AUTHENTICATION_ARCHITECTURE.md](./AUTHENTICATION_ARCHITECTURE.md), [AUTHORIZATION_ARCHITECTURE.md](./AUTHORIZATION_ARCHITECTURE.md), [SECURITY_ARCHITECTURE.md](./SECURITY_ARCHITECTURE.md), [DATABASE_ARCHITECTURE.md](./DATABASE_ARCHITECTURE.md), [FIREBASE_ARCHITECTURE.md](./FIREBASE_ARCHITECTURE.md), [CACHING_STRATEGY.md](./CACHING_STRATEGY.md), and [PERFORMANCE_ARCHITECTURE.md](./PERFORMANCE_ARCHITECTURE.md) describe implementation boundaries and distinguish current paths from target guidance.
-5. **Delivery and resilience** — [TESTING_STRATEGY.md](./TESTING_STRATEGY.md), [CI_CD_ARCHITECTURE.md](./CI_CD_ARCHITECTURE.md), [DEPLOYMENT_ARCHITECTURE.md](./DEPLOYMENT_ARCHITECTURE.md), [DEPLOYMENT_CHECKLIST.md](./DEPLOYMENT_CHECKLIST.md), [RELEASE_MANAGEMENT.md](./RELEASE_MANAGEMENT.md), [MONITORING_AND_LOGGING.md](./MONITORING_AND_LOGGING.md), [OBSERVABILITY.md](./OBSERVABILITY.md), [ERROR_MONITORING.md](./ERROR_MONITORING.md), [OPERATIONS_RUNBOOK.md](./OPERATIONS_RUNBOOK.md), [INCIDENT_RESPONSE.md](./INCIDENT_RESPONSE.md), and [DISASTER_RECOVERY.md](./DISASTER_RECOVERY.md) define evidence, promotion, operational signals, failure response, and recovery boundaries.
-6. **Contributor practice** — [CONTRIBUTING.md](./CONTRIBUTING.md), [ENVIRONMENT_SETUP.md](./ENVIRONMENT_SETUP.md), [TECH_STACK.md](./TECH_STACK.md), [CODING_STANDARDS.md](./CODING_STANDARDS.md), [PROJECT_CONVENTIONS.md](./PROJECT_CONVENTIONS.md), [CODE_OWNERSHIP.md](./CODE_OWNERSHIP.md), [GIT_WORKFLOW.md](./GIT_WORKFLOW.md), and [CODE_REVIEW_GUIDELINES.md](./CODE_REVIEW_GUIDELINES.md) explain how to work within the governed repository without creating parallel standards.
+5. **Delivery and resilience** — [TESTING_STRATEGY.md](./TESTING_STRATEGY.md), [CI_CD_ARCHITECTURE.md](./CI_CD_ARCHITECTURE.md), [DEPLOYMENT_ARCHITECTURE.md](./DEPLOYMENT_ARCHITECTURE.md), [DEPLOYMENT_CHECKLIST.md](./DEPLOYMENT_CHECKLIST.md), [RELEASE_MANAGEMENT.md](./RELEASE_MANAGEMENT.md), [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md), [MONITORING_AND_LOGGING.md](./MONITORING_AND_LOGGING.md), [OBSERVABILITY.md](./OBSERVABILITY.md), [ERROR_MONITORING.md](./ERROR_MONITORING.md), [OPERATIONS_RUNBOOK.md](./OPERATIONS_RUNBOOK.md), [INCIDENT_RESPONSE.md](./INCIDENT_RESPONSE.md), and [DISASTER_RECOVERY.md](./DISASTER_RECOVERY.md) define evidence, promotion, operational signals, failure response, and recovery boundaries.
+6. **Contributor practice** — [ONBOARDING_GUIDE.md](./ONBOARDING_GUIDE.md), [CONTRIBUTING.md](./CONTRIBUTING.md), [ENVIRONMENT_SETUP.md](./ENVIRONMENT_SETUP.md), [TECH_STACK.md](./TECH_STACK.md), [CODING_STANDARDS.md](./CODING_STANDARDS.md), [PROJECT_CONVENTIONS.md](./PROJECT_CONVENTIONS.md), [CODE_OWNERSHIP.md](./CODE_OWNERSHIP.md), [DEVELOPMENT_WORKFLOW.md](./DEVELOPMENT_WORKFLOW.md), [GIT_WORKFLOW.md](./GIT_WORKFLOW.md), and [CODE_REVIEW_GUIDELINES.md](./CODE_REVIEW_GUIDELINES.md) explain how to work within the governed repository without creating parallel standards.
 7. **Product structure and interaction** — Information Architecture, Navigation, Interaction, Forms, Search, Filters, Tables, Mobile, Responsive, Patterns, and Copywriting explain how the product behaves.
 8. **Design system foundations and data** — Design Tokens, Spacing, Layout, Iconography, Elevation, State, Feedback, Notifications, Tables, Color, Typography, Motion, Gestalt, Dashboard, and Data Visualization define reusable expression and domain presentation.
 9. **Safety, resilience, and localization** — Error, Loading, Empty, Permission, Security, [SECURITY_CHECKLIST.md](./SECURITY_CHECKLIST.md), Internationalization, and accessibility testing handbooks define implementation-ready quality behavior.
 10. **Core module specifications** — The module handbooks under [modules/](./modules/) translate the canonical standards into role, scope, journey, screen, permission, state, AI, security, performance, and acceptance contracts for Dashboard, Students, Teachers, Organization, Authentication, Profile, Attendance, Exams, Classes, Subjects, Routine, Academic Sessions, Fees, Reports, Analytics, Notifications, Search, Filters, AI Assistant, Roles and Permissions, Settings, Audit Logs, Integrations, Import and Export, Backup and Recovery, Multi-Tenancy, and Future Enterprise Modules.
 11. **Review guidance** — [REVIEW_CHECKLISTS.md](./REVIEW_CHECKLISTS.md), [QUALITY_GATES.md](./QUALITY_GATES.md), [CODE_REVIEW_GUIDELINES.md](./CODE_REVIEW_GUIDELINES.md), [QA_CHECKLIST.md](./QA_CHECKLIST.md), [USABILITY_HEURISTICS.md](./USABILITY_HEURISTICS.md), and [UX_LAWS.md](./UX_LAWS.md) help teams inspect work. Review guidance cannot override a release gate.
 12. **Operational change and support** — [CHANGE_MANAGEMENT.md](./CHANGE_MANAGEMENT.md), [MAINTENANCE_GUIDE.md](./MAINTENANCE_GUIDE.md), [SUPPORT_PLAYBOOK.md](./SUPPORT_PLAYBOOK.md), and [INCIDENT_RESPONSE.md](./INCIDENT_RESPONSE.md) coordinate safe change, upkeep, user support, and incident follow-up.
+13. **Planning and current state** — [ROADMAP.md](./ROADMAP.md), [IMPLEMENTATION_ROADMAP.md](./IMPLEMENTATION_ROADMAP.md), and [KNOWN_LIMITATIONS.md](./KNOWN_LIMITATIONS.md) distinguish direction, technical sequence, evidence gaps, and current capability.
 
 See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and ownership matrix.
 
@@ -128,6 +136,16 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 6. [CHANGE_MANAGEMENT.md](./CHANGE_MANAGEMENT.md) for impact, decision, implementation, communication, and closeout.
 7. [SUPPORT_PLAYBOOK.md](./SUPPORT_PLAYBOOK.md) for safe user intake, triage, escalation, and closure.
 
+### Joining, building, releasing, and migrating
+
+1. [ONBOARDING_GUIDE.md](./ONBOARDING_GUIDE.md) for product, repository, setup, and ownership orientation.
+2. [DEVELOPMENT_WORKFLOW.md](./DEVELOPMENT_WORKFLOW.md) for implementation, evidence, review, and handoff.
+3. [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md) for release readiness, promotion, verification, and closeout.
+4. [MIGRATION_GUIDE.md](./MIGRATION_GUIDE.md) for source-of-truth, schema, provider, data, and cutover work.
+5. [ROADMAP.md](./ROADMAP.md) for product direction and governed planning.
+6. [IMPLEMENTATION_ROADMAP.md](./IMPLEMENTATION_ROADMAP.md) for dependency-aware technical sequencing.
+7. [KNOWN_LIMITATIONS.md](./KNOWN_LIMITATIONS.md) for current-state constraints and evidence gaps.
+
 ## Quick navigation
 
 | Need | Start here |
@@ -179,6 +197,13 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 | Plan maintenance and reduce drift | [Maintenance Guide](./MAINTENANCE_GUIDE.md) |
 | Coordinate a cross-functional change | [Change Management](./CHANGE_MANAGEMENT.md) |
 | Handle a support request safely | [Support Playbook](./SUPPORT_PLAYBOOK.md) |
+| Start as a new contributor | [Onboarding Guide](./ONBOARDING_GUIDE.md) |
+| Follow development from intake to handoff | [Development Workflow](./DEVELOPMENT_WORKFLOW.md) |
+| Prepare a release | [Release Checklist](./RELEASE_CHECKLIST.md) |
+| Plan a migration | [Migration Guide](./MIGRATION_GUIDE.md) |
+| Understand product direction | [Roadmap](./ROADMAP.md) |
+| Sequence technical implementation | [Implementation Roadmap](./IMPLEMENTATION_ROADMAP.md) |
+| Review current limitations | [Known Limitations](./KNOWN_LIMITATIONS.md) |
 | Review a release | [Quality Gates](./QUALITY_GATES.md) and [Review Checklists](./REVIEW_CHECKLISTS.md) |
 | Design accessible behavior | [Accessibility Standards](./ACCESSIBILITY_STANDARDS.md) |
 | Test accessibility | [Accessibility Testing](./ACCESSIBILITY_TESTING.md) |
@@ -293,6 +318,13 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 | [MAINTENANCE_GUIDE.md](./MAINTENANCE_GUIDE.md) | Organizes dependency, drift, configuration, provider, observability, recovery, and documentation maintenance. |
 | [CHANGE_MANAGEMENT.md](./CHANGE_MANAGEMENT.md) | Coordinates change intake, impact, decisions, evidence, communication, release, and closeout. |
 | [SUPPORT_PLAYBOOK.md](./SUPPORT_PLAYBOOK.md) | Guides safe support intake, triage, escalation, communication, and resolution. |
+| [ONBOARDING_GUIDE.md](./ONBOARDING_GUIDE.md) | Orients contributors to product context, repository boundaries, setup, ownership, and safe delivery. |
+| [DEVELOPMENT_WORKFLOW.md](./DEVELOPMENT_WORKFLOW.md) | Connects scoped work to implementation, validation, review, release handoff, and recovery. |
+| [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md) | Organizes release readiness, promotion, verification, failure handling, and closeout evidence. |
+| [MIGRATION_GUIDE.md](./MIGRATION_GUIDE.md) | Organizes source-of-truth, compatibility, backfill, reconciliation, cutover, and retirement work. |
+| [ROADMAP.md](./ROADMAP.md) | Defines governed product direction, planning vocabulary, dependencies, uncertainty, and communication. |
+| [KNOWN_LIMITATIONS.md](./KNOWN_LIMITATIONS.md) | Maintains a source-linked register of current limitations, evidence gaps, impact, and ownership. |
+| [IMPLEMENTATION_ROADMAP.md](./IMPLEMENTATION_ROADMAP.md) | Provides dependency-aware technical sequencing from boundaries through implementation, evidence, and recovery. |
 | [ERROR_HANDLING.md](./ERROR_HANDLING.md) | Defines error categories, safe input preservation, and recovery. |
 | [ETHICAL_UX_GUIDELINES.md](./ETHICAL_UX_GUIDELINES.md) | Defines dignity, fairness, safety, privacy, and accountability expectations. |
 | [FEEDBACK_SYSTEM.md](./FEEDBACK_SYSTEM.md) | Defines point-of-action status, progress, consequence, and recovery feedback. |
