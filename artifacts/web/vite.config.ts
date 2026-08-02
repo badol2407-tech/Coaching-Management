@@ -14,6 +14,9 @@ const isReplit = process.env.REPL_ID !== undefined;
 
 export default defineConfig({
   base: basePath,
+  // Firebase's browser API key is public by design, but the workspace secret
+  // keeps it out of the repository and injects it into dev/build environments.
+  envPrefix: ['VITE_', 'FIREBASE_'],
   plugins: [
     react(),
     tailwindcss(),

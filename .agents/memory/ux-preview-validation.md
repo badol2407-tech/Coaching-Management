@@ -3,8 +3,8 @@ name: UX preview validation
 description: Environment constraint and validation approach for authenticated artifacts/web UI work
 ---
 
-Authenticated preview screens can fail before rendering when the local Firebase client configuration is unavailable, producing `auth/invalid-api-key`.
+Authenticated preview screens require the Firebase project metadata and the `FIREBASE_API_KEY` secret to be available to Vite. The API key is public at runtime but should remain out of the repository.
 
-**Why:** The failure occurs during Firebase initialization, before the UI mounts; changing Firebase setup during a UI-only audit would alter product infrastructure rather than validate the requested experience.
+**Why:** Firebase initializes before the UI mounts, so an absent key causes `auth/invalid-api-key` and a white screen. Centralizing the project metadata and injecting the key through Vite keeps primary and secondary auth clients consistent without committing the key.
 
-**How to apply:** Keep Firebase initialization unchanged for UI-only work. Validate with typecheck, production build, workflow health, focused code review, and viewport screenshots when available; report the Firebase blocker when authenticated screenshots cannot render.
+**How to apply:** Ensure `FIREBASE_API_KEY` is available to the development and production build environments, keep the Firebase project metadata consistent across auth clients, and validate with typecheck, build, workflow health, and viewport screenshots.
