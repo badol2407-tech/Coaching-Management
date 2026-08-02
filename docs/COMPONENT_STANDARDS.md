@@ -17,9 +17,10 @@ related_documents:
   - ./TABLE_DESIGN_GUIDE.md
   - ./DATA_VISUALIZATION_GUIDE.md
   - ./QUALITY_GATES.md
+  - ./PRODUCT_GOVERNANCE.md
 review_frequency: Quarterly and before a shared component API, state, variant, size, or lifecycle change
 owner: Product Design, Design Systems, and Frontend Engineering
-version: 2.0.0
+version: 2.0.1
 status: Canonical single source of truth for component implementation standards
 last_updated: 2026-08-02
 normative_level: Binding component implementation standard
@@ -31,6 +32,18 @@ canonical_terms: component, variant, size, state, Button, Input, Textarea, Selec
 This is the **single source of truth for shared UI component implementation standards**. It defines component behavior and implementation boundaries only.
 
 All component styling consumes [DESIGN_TOKENS.md](./DESIGN_TOKENS.md). This document does not define, rename, or duplicate design tokens. [UI_MASTER_RULES.md](./UI_MASTER_RULES.md) owns product-wide UI/UX precedence; [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md) owns the WCAG 2.2 AA release gate; the linked component handbooks provide existing evidence and examples.
+
+## Document Metadata
+
+| Field | Value |
+| --- | --- |
+| Owner | Product Design, Design Systems, and Frontend Engineering |
+| Status | Canonical single source of truth for component implementation standards |
+| Version | 2.0.1 |
+| Last Updated | 2026-08-02 |
+| Related Documents | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md), [COMPONENT_SPECIFICATIONS.md](./COMPONENT_SPECIFICATIONS.md), [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md), [RESPONSIVE_SYSTEM.md](./RESPONSIVE_SYSTEM.md), [DESIGN_SYSTEM_GUIDE.md](./DESIGN_SYSTEM_GUIDE.md) |
+| Scope | Shared component purpose, approved variants and sizes, states, accessibility, responsive behavior, layout, governance, lifecycle, versioning, and AI validation |
+| Out of Scope | Design-token definitions or values, app code, page-specific composition, business logic, data models, API behavior, and visual redesign |
 
 ## 1. Authority and implementation boundary
 
@@ -56,6 +69,130 @@ Implementation rules:
 - Keep authorization, business rules, data fetching, and persistence outside the visual component.
 - A component may hide or expose an action, but it is never the only permission boundary.
 - Prefer composition over forks. A new component requires documented evidence that an approved component or pattern cannot meet the need.
+
+### 1.1 Component Source Priority
+
+Resolve every component requirement against existing sources in this order:
+
+| Priority | Source | Resolution rule |
+| ---: | --- | --- |
+| 1 | Existing Component Standards | Reuse the approved implementation contract, behavior, variant, size, and state rule in this document. |
+| 2 | Existing Components | Reuse the existing shared component and its approved handbook under [components/](./components/). |
+| 3 | Existing Design System | Reuse the established component architecture and contribution rules in [DESIGN_SYSTEM_GUIDE.md](./DESIGN_SYSTEM_GUIDE.md) and [COMPONENT_SPECIFICATIONS.md](./COMPONENT_SPECIFICATIONS.md). |
+
+Source-priority rules:
+
+- Never create a new component if an existing component or approved composition meets the need.
+- Never create a new variant if an existing variant expresses the same behavior or hierarchy.
+- Never create a new size if an existing size preserves usability and accessibility.
+- Never create new behavior if an existing component behavior already solves the workflow.
+- If sources conflict, preserve the highest-priority approved rule and record the conflict through [PRODUCT_GOVERNANCE.md](./PRODUCT_GOVERNANCE.md).
+- A new component, variant, size, or behavior requires documented evidence that all higher-priority sources are insufficient.
+
+### 1.2 Component Governance
+
+Every component record and approved component handbook must include:
+
+| Required field | Standard |
+| --- | --- |
+| Name | One canonical component name; aliases point to the existing source and do not create duplicate components. |
+| Purpose | The user outcome and operational task the component supports. |
+| Owner | An accountable Product Design, Design Systems, or Frontend Engineering owner. |
+| Status | `Draft`, `Approved`, `Deprecated`, or `Removed`. |
+| Version | The component contract version that applies to the record. |
+| Related Tokens | A reference to [DESIGN_TOKENS.md](./DESIGN_TOKENS.md); token names and values are not defined here. |
+| Accessibility Status | Evidence that WCAG 2.2 AA, keyboard, screen-reader, focus, touch, zoom, and reduced-motion requirements are satisfied where applicable. |
+| Responsive Status | Evidence that mobile-first reflow, narrow-width behavior, zoom, localization, and essential task access are preserved. |
+| Replacement | The approved replacement component when Status is `Deprecated`; use `Not applicable` otherwise. |
+
+Anonymous components are forbidden. A component without a complete governance record cannot be Approved, introduced into shared product surfaces, or treated as an approved source.
+
+### 1.2.1 Component Governance Registry
+
+This registry supplies governance metadata for every component standard below. Behavioral rules remain in each component section; token definitions remain exclusively in [DESIGN_TOKENS.md](./DESIGN_TOKENS.md).
+
+| Name | Purpose | Owner | Status | Version | Related Tokens | Accessibility Status | Responsive Status | Replacement |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Button | [Button](#button) | Shared Design System owners | Approved | 1.0.0 | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | WCAG 2.2 AA; see section | Mobile-first; see section | Not applicable |
+| Input | [Input](#input) | Shared Design System owners | Approved | 1.0.0 | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | WCAG 2.2 AA; see section | Mobile-first; see section | Text Field |
+| Textarea | [Textarea](#textarea) | Shared Design System owners | Approved | 1.0.0 | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | WCAG 2.2 AA; see section | Mobile-first; see section | Not applicable |
+| Select | [Select](#select) | Shared Design System owners | Approved | 1.0.0 | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | WCAG 2.2 AA; see section | Mobile-first; see section | Not applicable |
+| Checkbox | [Checkbox](#checkbox) | Shared Design System owners | Approved | 1.0.0 | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | WCAG 2.2 AA; see section | Mobile-first; see section | Not applicable |
+| Radio | [Radio](#radio) | Shared Design System owners | Approved | 1.0.0 | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | WCAG 2.2 AA; see section | Mobile-first; see section | Not applicable |
+| Switch | [Switch](#switch) | Shared Design System owners | Approved | 1.0.0 | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | WCAG 2.2 AA; see section | Mobile-first; see section | Not applicable |
+| Badge | [Badge](#badge) | Shared Design System owners | Approved | 1.0.0 | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | WCAG 2.2 AA; see section | Mobile-first; see section | Not applicable |
+| Alert | [Alert](#alert) | Shared Design System owners | Approved | 1.0.0 | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | WCAG 2.2 AA; see section | Mobile-first; see section | Not applicable |
+| Tooltip | [Tooltip](#tooltip) | Shared Design System owners | Approved | 1.0.0 | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | WCAG 2.2 AA; see section | Mobile-first; see section | Not applicable |
+| Card | [Card](#card) | Shared Design System owners | Approved | 1.0.0 | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | WCAG 2.2 AA; see section | Mobile-first; see section | Not applicable |
+| Modal | [Modal](#modal) | Shared Design System owners | Approved | 1.0.0 | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | WCAG 2.2 AA; see section | Mobile-first; see section | Dialog |
+| Drawer | [Drawer](#drawer) | Shared Design System owners | Approved | 1.0.0 | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | WCAG 2.2 AA; see section | Mobile-first; see section | Not applicable |
+| Dropdown | [Dropdown](#dropdown) | Shared Design System owners | Approved | 1.0.0 | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | WCAG 2.2 AA; see section | Mobile-first; see section | Not applicable |
+| Tabs | [Tabs](#tabs) | Shared Design System owners | Approved | 1.0.0 | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | WCAG 2.2 AA; see section | Mobile-first; see section | Not applicable |
+| Accordion | [Accordion](#accordion) | Shared Design System owners | Approved | 1.0.0 | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | WCAG 2.2 AA; see section | Mobile-first; see section | Not applicable |
+| Table | [Table](#table) | Shared Design System owners | Approved | 1.0.0 | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | WCAG 2.2 AA; see section | Mobile-first; see section | Not applicable |
+| Pagination | [Pagination](#pagination) | Shared Design System owners | Approved | 1.0.0 | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | WCAG 2.2 AA; see section | Mobile-first; see section | Not applicable |
+| Sidebar | [Sidebar](#sidebar) | Shared Design System owners | Approved | 1.0.0 | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | WCAG 2.2 AA; see section | Mobile-first; see section | Not applicable |
+| Navbar | [Navbar](#navbar) | Shared Design System owners | Approved | 1.0.0 | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | WCAG 2.2 AA; see section | Mobile-first; see section | Top Navigation |
+| Breadcrumb | [Breadcrumb](#breadcrumb) | Shared Design System owners | Approved | 1.0.0 | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | WCAG 2.2 AA; see section | Mobile-first; see section | Not applicable |
+| Avatar | [Avatar](#avatar) | Shared Design System owners | Approved | 1.0.0 | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | WCAG 2.2 AA; see section | Mobile-first; see section | Not applicable |
+| Skeleton | [Skeleton](#skeleton) | Shared Design System owners | Approved | 1.0.0 | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | WCAG 2.2 AA; see section | Mobile-first; see section | Not applicable |
+| Spinner | [Spinner](#spinner) | Shared Design System owners | Approved | 1.0.0 | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | WCAG 2.2 AA; see section | Mobile-first; see section | Loading Spinner |
+| Toast | [Toast](#toast) | Shared Design System owners | Approved | 1.0.0 | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | WCAG 2.2 AA; see section | Mobile-first; see section | Not applicable |
+| Empty State | [Empty State](#empty-state) | Shared Design System owners | Approved | 1.0.0 | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | WCAG 2.2 AA; see section | Mobile-first; see section | Not applicable |
+| Loading State | [Loading State](#loading-state) | Shared Design System owners | Approved | 1.0.0 | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | WCAG 2.2 AA; see section | Mobile-first; see section | Not applicable |
+| Error State | [Error State](#error-state) | Shared Design System owners | Approved | 1.0.0 | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | WCAG 2.2 AA; see section | Mobile-first; see section | Not applicable |
+| Dashboard Cards | [Dashboard Cards](#dashboard-cards) | Shared Design System owners | Approved | 1.0.0 | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | WCAG 2.2 AA; see section | Mobile-first; see section | Not applicable |
+| Charts | [Charts](#charts) | Shared Design System owners | Approved | 1.0.0 | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | WCAG 2.2 AA; see section | Mobile-first; see section | Not applicable |
+| Forms | [Forms](#forms) | Shared Design System owners | Approved | 1.0.0 | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) | WCAG 2.2 AA; see section | Mobile-first; see section | Not applicable |
+
+The governance record applies to every component section below. The component heading supplies **Name**; the section’s Purpose row supplies **Purpose**; and the following shared record defines the required metadata without duplicating component behavior:
+
+| Governance field | Required source |
+| --- | --- |
+| Name | Canonical `###` component heading and approved source handbook |
+| Purpose | Component Purpose row in this document |
+| Owner | Owner in this document and the approved source handbook |
+| Status | Component lifecycle status: `Draft`, `Approved`, `Deprecated`, or `Removed` |
+| Version | Component contract version in the approved source handbook; update when the contract changes |
+| Related Tokens | [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) only; token definitions and values remain out of scope here |
+| Accessibility Status | Component Accessibility row plus evidence against [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md) |
+| Responsive Status | Component Responsive behavior row plus evidence against [RESPONSIVE_SYSTEM.md](./RESPONSIVE_SYSTEM.md) |
+| Replacement | Required approved replacement when the component is Deprecated; otherwise `Not applicable` |
+
+## 1.3 Component Lifecycle
+
+Every component follows this lifecycle:
+
+**Draft → Approved → Deprecated → Removed**
+
+| Stage | Meaning | Required gate |
+| --- | --- | --- |
+| Draft | Proposed component or contract under review; not available for shared product use. | Purpose, owner, source-priority review, accessibility plan, responsive plan, and affected consumers are recorded. |
+| Approved | Component may be consumed by approved product surfaces. | Governance fields, implementation contract, accessibility evidence, responsive evidence, and reuse decision pass review. |
+| Deprecated | Component remains available for backward compatibility but must not be used for new work. | Replacement component, migration mapping, owner, deprecation date, and consumer inventory are recorded. |
+| Removed | Component is no longer available after migration is complete. | All consumers migrate, validation passes, release evidence is recorded, and governance approves removal. |
+
+Lifecycle rules:
+
+- A component cannot skip from Draft to Removed.
+- Deprecation must precede removal.
+- A Deprecated component remains compatible until its migration is complete.
+- A component purpose must not be silently repurposed; create a governed replacement when behavior changes materially.
+
+## 1.4 Component Versioning
+
+| Version change | Meaning | Required handling |
+| --- | --- | --- |
+| Major | Breaking component behavior | Record compatibility impact, migration plan, consumer inventory, replacement or transition path, and release evidence. |
+| Minor | New component | Complete source-priority review and governance approval; do not silently alter existing component behavior. |
+| Patch | Documentation updates | Clarify guidance, correct references, or update metadata without changing component behavior or consumer contracts. |
+
+Versioning rules:
+
+- A Major change requires a migration plan before Approved consumers adopt it.
+- A Minor change must not introduce a duplicate component, variant, size, or behavior.
+- A Patch change must not alter the implementation contract.
+- Update this document and the owning component record when an approved standard changes.
 
 ## 2. Shared state contract
 
@@ -125,7 +262,7 @@ Each component below uses the same implementation contract: Purpose, Variants, S
 | Accessibility | Use a persistent programmatic label, instruction and error association, appropriate autocomplete and input mode, keyboard access, WCAG 2.2 AA contrast, and screen-reader state. |
 | Responsive behavior | Allow the field and its label, help, and error content to wrap at narrow widths and 200% zoom without horizontal scrolling. |
 | Layout & spacing rules | Keep the label, control, instruction, and error in one meaningful field group. Use [FORM_DESIGN_GUIDE.md](./FORM_DESIGN_GUIDE.md) and the token registry; never use arbitrary field spacing. |
-| Do / Don't | Do distinguish required from optional and validate at a useful point. Don’t clear typed input after validation or server failure, or use a placeholder as the label. |
+| Do / Don't | Do distinguish required from optional and validate at a useful point. Don’t clear typed input after validation or server failure, or use hint text as the label. |
 | AI Rules | Reuse the existing Text Field contract. Never invent input modes, field sizes, token values, or validation behavior. |
 
 ### Textarea
@@ -150,7 +287,7 @@ Each component below uses the same implementation contract: Purpose, Variants, S
 | Variants | Use only the approved Select pattern in [Select.md](./components/Select.md). Use Multi Select or Autocomplete when the existing source contract requires multiple or searchable values. |
 | Sizes | Use only existing Select sizes. Do not create a size to fit a toolbar or card. |
 | States | Default: label and current value context. Hover: pointer feedback. Active: open or committed interaction. Focus: visible focus and keyboard route. Disabled: unavailable with value context preserved. Loading: identify unavailable options and recovery. Error: preserve the prior value and explain the failed option load or validation. |
-| Accessibility | Use a programmatic label, keyboard opening and option navigation, announced selected value, visible focus, correct expanded/selected state, touch access, and WCAG 2.2 AA behavior. A placeholder is not a value. |
+| Accessibility | Use a programmatic label, keyboard opening and option navigation, announced selected value, visible focus, correct expanded/selected state, touch access, and WCAG 2.2 AA behavior. Hint text is not a value. |
 | Responsive behavior | Keep the option surface within the viewport and make all options reachable by keyboard and touch; use a responsive alternative only when the existing pattern requires it. |
 | Layout & spacing rules | Keep label, control, instruction, error, and option surface associated. Use only approved tokens and the existing Select implementation. |
 | Do / Don't | Do make selection reversible before commit and preserve scope. Don’t use Select for free text, an unbounded dataset, or a multi-value choice without the approved component. |
@@ -414,13 +551,13 @@ Each component below uses the same implementation contract: Purpose, Variants, S
 | --- | --- |
 | Purpose | Reserve the known shape of content while that content is loading. |
 | Variants | Use only the approved Skeleton shapes and compositions from [Skeleton.md](./components/Skeleton.md). |
-| Sizes | Match the known consuming content structure through existing implementation behavior; do not create arbitrary placeholder dimensions. |
+| Sizes | Match the known consuming content structure through existing implementation behavior; do not create arbitrary reserved dimensions. |
 | States | Default: not shown when content is ready. Hover: not applicable. Active: not applicable. Focus: not focusable. Disabled: not applicable. Loading: stable shape with truthful scope. Error: replace with Error State when loading fails; never leave Skeleton indefinitely. |
 | Accessibility | Do not expose decorative Skeletons as interactive content; announce meaningful loading status through the owning workflow and preserve reduced-motion behavior. |
 | Responsive behavior | Match the responsive structure of the content it reserves; prevent layout shift without blocking reflow or zoom. |
 | Layout & spacing rules | Place Skeletons exactly where the known content will appear and consume only approved tokens. |
 | Do / Don't | Do reserve predictable content structure. Don’t use Skeleton to imply success, show fake values, or mask an error or empty state. |
-| AI Rules | Reuse the existing Skeleton composition. Never invent placeholder content, shape, size, token, or indefinite loading behavior. |
+| AI Rules | Reuse the existing Skeleton composition. Never invent simulated content, shape, size, token, or indefinite loading behavior. |
 
 ### Spinner
 
@@ -476,7 +613,7 @@ Each component below uses the same implementation contract: Purpose, Variants, S
 | Responsive behavior | Preserve layout stability and reflow across mobile, desktop, and zoom without hiding the affected scope. |
 | Layout & spacing rules | Reserve space in the same relationship as the eventual content and use only approved tokens. |
 | Do / Don't | Do distinguish loading from empty, stale, unavailable, and error. Don’t show fake content, block unrelated work, or leave a loading state without a completion or recovery path. |
-| AI Rules | Reuse existing loading patterns. Never invent animation, duration, placeholder data, size, token, or completion claims. |
+| AI Rules | Reuse existing loading patterns. Never invent animation, duration, simulated data, size, token, or completion claims. |
 
 ### Error State
 
@@ -546,6 +683,22 @@ Before approving a component or component change, verify:
 - [ ] Mobile-first reflow preserves labels, scope, action access, status, and recovery.
 - [ ] Page composition, business logic, permission enforcement, and data contracts remain outside the shared visual component.
 - [ ] Existing component handbook, module examples, and [QUALITY_GATES.md](./QUALITY_GATES.md) evidence are linked.
+
+### 6.1 AI Validation Checklist
+
+Before finalizing any component-related design or implementation change, verify:
+
+- [ ] Uses [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) only for visual values.
+- [ ] No hardcoded colors, spacing, typography, radius, shadows, borders, icon dimensions, breakpoints, or animation values.
+- [ ] No duplicate components are introduced.
+- [ ] No duplicate variants are introduced.
+- [ ] No new sizes are introduced without approved governance evidence.
+- [ ] Accessibility is preserved, including WCAG 2.2 AA, keyboard, screen-reader, focus, touch, zoom, and reduced-motion behavior.
+- [ ] Responsive behavior is preserved across mobile-first, desktop, narrow-width, localization, and 200% zoom conditions.
+- [ ] Existing components and approved compositions are reused.
+- [ ] No implementation code is included in this documentation.
+
+If any checklist item fails, stop before finalizing and resolve or escalate the issue. AI must not silently create, rename, fork, or reinterpret a component, variant, size, behavior, or token.
 
 ## 7. References
 
