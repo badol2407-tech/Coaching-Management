@@ -794,7 +794,8 @@ export default function LandingPage() {
                 description="Admin, teacher এবং student — সবাইকে একই operational context-এ এনে daily work-কে আরও স্বচ্ছ করুন।"
                 align="left"
               />
-              <div className="mt-8 grid gap-3 sm:grid-cols-2">
+              <h3 className="mt-8 text-lg font-semibold">Benefits for your team</h3>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
                 {[
                   {
                     icon: LayoutDashboard,
