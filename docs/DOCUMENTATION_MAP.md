@@ -10,9 +10,9 @@ related_documents:
   - ./DECISION_LOG.md
 review_frequency: Quarterly and after documentation architecture changes
 owner: Product Governance Council
-version: 1.5.0
+version: 1.6.0
 status: Active architecture map
-last_updated: 2026-08-01
+last_updated: 2026-08-02
 normative_level: Governance reference
 canonical_terms: standard, guidance, release gate, owner, dependency, source of truth
 ---
@@ -62,8 +62,13 @@ PRODUCT_GOVERNANCE -----> DECISION_LOG / CHANGELOG
           +--> IMPLEMENTATION ARCHITECTURE
                  FOLDER_STRUCTURE
                  FRONTEND_ARCHITECTURE --> ROUTING_ARCHITECTURE / STATE_MANAGEMENT
-                 BACKEND_ARCHITECTURE --> API_LAYER_ARCHITECTURE
-                 DATA_FLOW_ARCHITECTURE --> FRONTEND_ARCHITECTURE / BACKEND_ARCHITECTURE / API_LAYER_ARCHITECTURE
+                  BACKEND_ARCHITECTURE --> API_LAYER_ARCHITECTURE / DATABASE_ARCHITECTURE
+                  AUTHENTICATION_ARCHITECTURE --> AUTHORIZATION_ARCHITECTURE
+                  AUTHORIZATION_ARCHITECTURE --> SECURITY_ARCHITECTURE
+                  FIREBASE_ARCHITECTURE --> AUTHENTICATION_ARCHITECTURE / DATABASE_ARCHITECTURE
+                  DATABASE_ARCHITECTURE --> CACHING_STRATEGY / PERFORMANCE_ARCHITECTURE
+                  DATA_FLOW_ARCHITECTURE --> FRONTEND_ARCHITECTURE / BACKEND_ARCHITECTURE / API_LAYER_ARCHITECTURE / CACHING_STRATEGY
+                  PERFORMANCE_ARCHITECTURE --> QUALITY_GATES
         |
          +--> VISUAL AND DATA SYSTEM
          |      DESIGN_TOKENS --> SPACING_SYSTEM / LAYOUT_GRID / ICONOGRAPHY / ELEVATION_SYSTEM
@@ -108,6 +113,13 @@ INDEX is the navigation homepage for every layer.
 | Frontend state ownership and cache identity | [STATE_MANAGEMENT.md](./STATE_MANAGEMENT.md) | State System, Interaction Design, Frontend Architecture, Data Flow Architecture |
 | API contract, generation, transport, and implementation status | [API_LAYER_ARCHITECTURE.md](./API_LAYER_ARCHITECTURE.md) | Backend Architecture, Frontend Architecture, Engineering Standards |
 | End-to-end identity, scope, record, upload, and error movement | [DATA_FLOW_ARCHITECTURE.md](./DATA_FLOW_ARCHITECTURE.md) | Multi-Tenancy, Authentication, Audit Logs, Frontend Architecture, Backend Architecture |
+| Provider identity, sessions, profile context, and impersonation | [AUTHENTICATION_ARCHITECTURE.md](./AUTHENTICATION_ARCHITECTURE.md) | Authentication, Security UX, Authorization Architecture, Firebase Architecture, State Management |
+| Role, Permission, Organization, Workspace, and direct-access enforcement | [AUTHORIZATION_ARCHITECTURE.md](./AUTHORIZATION_ARCHITECTURE.md) | Permission Design, Roles and Permissions, Multi-Tenancy, Authentication Architecture, Security Architecture |
+| Protected assets, trust boundaries, secrets, incidents, and security controls | [SECURITY_ARCHITECTURE.md](./SECURITY_ARCHITECTURE.md) | Engineering Standards, Security UX, Authentication Architecture, Authorization Architecture, Firebase Architecture, Database Architecture |
+| Persistence ownership, schema, integrity, tenancy readiness, and migrations | [DATABASE_ARCHITECTURE.md](./DATABASE_ARCHITECTURE.md) | Backend Architecture, Firebase Architecture, API Layer Architecture, Multi-Tenancy, Backup and Recovery, Data Flow Architecture |
+| Firebase Auth, Firestore, Realtime Database, Storage, rules, and provider boundaries | [FIREBASE_ARCHITECTURE.md](./FIREBASE_ARCHITECTURE.md) | Authentication Architecture, Authorization Architecture, Database Architecture, Security Architecture, Data Flow Architecture |
+| Cache ownership, identity, freshness, invalidation, privacy, and migration | [CACHING_STRATEGY.md](./CACHING_STRATEGY.md) | State Management, Data Flow Architecture, Authentication Architecture, Authorization Architecture, Security Architecture, Database Architecture |
+| Critical journeys, useful work, measurement, and performance evidence | [PERFORMANCE_ARCHITECTURE.md](./PERFORMANCE_ARCHITECTURE.md) | Engineering Standards, Product Constitution, Frontend Architecture, Backend Architecture, Caching Strategy, Quality Gates |
 | Information structure and scope | [INFORMATION_ARCHITECTURE.md](./INFORMATION_ARCHITECTURE.md) | Navigation, Forms, Dashboard |
 | Navigation and route behavior | [NAVIGATION_STANDARDS.md](./NAVIGATION_STANDARDS.md) | Information Architecture, Accessibility, Mobile |
 | Interaction states and recovery | [INTERACTION_DESIGN.md](./INTERACTION_DESIGN.md) and [STATE_SYSTEM.md](./STATE_SYSTEM.md) | Feedback, Error Handling, Loading States, Empty States, Components, Forms, Motion, Patterns |
@@ -186,5 +198,8 @@ Every module below consumes the same canonical structure, interaction, component
 - Core module specifications under [modules/](./modules/) translate the canonical standards into module contracts; they may clarify scope and behavior but may not override an owning handbook or create duplicate thresholds.
 - Architecture handbooks describe implementation boundaries and current-state observations; they may not convert a target contract into an implemented capability.
 - `FRONTEND_ARCHITECTURE.md` is the current web composition owner; `BACKEND_ARCHITECTURE.md` is the service and persistence boundary owner; `API_LAYER_ARCHITECTURE.md` is the contract/generation boundary owner; and `DATA_FLOW_ARCHITECTURE.md` describes their connections without replacing any of them.
+- `AUTHENTICATION_ARCHITECTURE.md` is the provider identity and session boundary owner; `AUTHORIZATION_ARCHITECTURE.md` is the access-evaluation and data-boundary owner; `SECURITY_ARCHITECTURE.md` connects cross-cutting security controls without replacing the binding security or engineering standards.
+- `DATABASE_ARCHITECTURE.md` is the persistence, integrity, and migration boundary owner; `FIREBASE_ARCHITECTURE.md` is the Firebase-service and rules-evidence owner; neither document claims a deployed control that is not evidenced.
+- `CACHING_STRATEGY.md` is the cache identity, freshness, invalidation, and persistence boundary owner; `PERFORMANCE_ARCHITECTURE.md` is the useful-work measurement and performance-evidence boundary owner. Neither replaces `STATE_SYSTEM.md` or `ENGINEERING_STANDARDS.md`.
 - The Firebase-first web path and the separate Express/OpenAPI/Drizzle path must remain explicitly distinguished until an approved source-of-truth and migration decision changes that relationship.
 - If a change affects a dependency, update the dependent document's Related documents metadata and record the change.

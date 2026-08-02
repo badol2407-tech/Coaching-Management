@@ -11,9 +11,9 @@ related_documents:
   - ./REVIEW_CHECKLISTS.md
 review_frequency: Quarterly and after documentation architecture or governance changes
 owner: Product Governance Council
-version: 1.5.0
+version: 1.6.0
 status: Active documentation homepage
-last_updated: 2026-08-01
+last_updated: 2026-08-02
 normative_level: Navigation and orientation
 canonical_terms: Dashboard, Students, Teachers, Attendance, Fees, Exams, Reports, Analytics, Notifications, Organization, Profile, Settings, Classes, Subjects, Routine, Academic Sessions, Search, Filters, AI Assistant, Roles and Permissions, Audit Logs, Integrations, Import, Export, Backup, Recovery, Multi-Tenancy, Future Enterprise Modules, Enterprise Module, Permission, Role, Workspace
 ---
@@ -27,7 +27,7 @@ EduTrack documentation is a governed system of product principles, release stand
 1. **Product principles** — [PRODUCT_CONSTITUTION.md](./PRODUCT_CONSTITUTION.md) defines the durable beliefs and ethical commitments.
 2. **Governance** — [PRODUCT_GOVERNANCE.md](./PRODUCT_GOVERNANCE.md) defines authority, precedence, exceptions, evidence, and change control.
 3. **Release gates** — [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md), [ETHICAL_UX_GUIDELINES.md](./ETHICAL_UX_GUIDELINES.md), [ENGINEERING_STANDARDS.md](./ENGINEERING_STANDARDS.md), and [AI_UX_GUIDELINES.md](./AI_UX_GUIDELINES.md) define binding quality and safety requirements.
-4. **Architecture** — [FRONTEND_ARCHITECTURE.md](./FRONTEND_ARCHITECTURE.md), [BACKEND_ARCHITECTURE.md](./BACKEND_ARCHITECTURE.md), [FOLDER_STRUCTURE.md](./FOLDER_STRUCTURE.md), [ROUTING_ARCHITECTURE.md](./ROUTING_ARCHITECTURE.md), [STATE_MANAGEMENT.md](./STATE_MANAGEMENT.md), [API_LAYER_ARCHITECTURE.md](./API_LAYER_ARCHITECTURE.md), and [DATA_FLOW_ARCHITECTURE.md](./DATA_FLOW_ARCHITECTURE.md) describe implementation boundaries and distinguish current paths from target guidance.
+4. **Architecture** — [FRONTEND_ARCHITECTURE.md](./FRONTEND_ARCHITECTURE.md), [BACKEND_ARCHITECTURE.md](./BACKEND_ARCHITECTURE.md), [FOLDER_STRUCTURE.md](./FOLDER_STRUCTURE.md), [ROUTING_ARCHITECTURE.md](./ROUTING_ARCHITECTURE.md), [STATE_MANAGEMENT.md](./STATE_MANAGEMENT.md), [API_LAYER_ARCHITECTURE.md](./API_LAYER_ARCHITECTURE.md), [DATA_FLOW_ARCHITECTURE.md](./DATA_FLOW_ARCHITECTURE.md), [AUTHENTICATION_ARCHITECTURE.md](./AUTHENTICATION_ARCHITECTURE.md), [AUTHORIZATION_ARCHITECTURE.md](./AUTHORIZATION_ARCHITECTURE.md), [SECURITY_ARCHITECTURE.md](./SECURITY_ARCHITECTURE.md), [DATABASE_ARCHITECTURE.md](./DATABASE_ARCHITECTURE.md), [FIREBASE_ARCHITECTURE.md](./FIREBASE_ARCHITECTURE.md), [CACHING_STRATEGY.md](./CACHING_STRATEGY.md), and [PERFORMANCE_ARCHITECTURE.md](./PERFORMANCE_ARCHITECTURE.md) describe implementation boundaries and distinguish current paths from target guidance.
 5. **Product structure and interaction** — Information Architecture, Navigation, Interaction, Forms, Search, Filters, Tables, Mobile, Responsive, Patterns, and Copywriting explain how the product behaves.
 6. **Design system foundations and data** — Design Tokens, Spacing, Layout, Iconography, Elevation, State, Feedback, Notifications, Tables, Color, Typography, Motion, Gestalt, Dashboard, and Data Visualization define reusable expression and domain presentation.
 7. **Safety, resilience, and localization** — Error, Loading, Empty, Permission, Security, Internationalization, and accessibility testing handbooks define implementation-ready quality behavior.
@@ -66,7 +66,7 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 1. [PRODUCT_GOVERNANCE.md](./PRODUCT_GOVERNANCE.md)
 2. [ENGINEERING_STANDARDS.md](./ENGINEERING_STANDARDS.md)
 3. [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md)
-4. The relevant architecture handbook: [FRONTEND_ARCHITECTURE.md](./FRONTEND_ARCHITECTURE.md), [BACKEND_ARCHITECTURE.md](./BACKEND_ARCHITECTURE.md), [ROUTING_ARCHITECTURE.md](./ROUTING_ARCHITECTURE.md), [STATE_MANAGEMENT.md](./STATE_MANAGEMENT.md), [API_LAYER_ARCHITECTURE.md](./API_LAYER_ARCHITECTURE.md), or [DATA_FLOW_ARCHITECTURE.md](./DATA_FLOW_ARCHITECTURE.md)
+4. The relevant architecture handbook: [FRONTEND_ARCHITECTURE.md](./FRONTEND_ARCHITECTURE.md), [BACKEND_ARCHITECTURE.md](./BACKEND_ARCHITECTURE.md), [ROUTING_ARCHITECTURE.md](./ROUTING_ARCHITECTURE.md), [STATE_MANAGEMENT.md](./STATE_MANAGEMENT.md), [API_LAYER_ARCHITECTURE.md](./API_LAYER_ARCHITECTURE.md), [DATA_FLOW_ARCHITECTURE.md](./DATA_FLOW_ARCHITECTURE.md), [AUTHENTICATION_ARCHITECTURE.md](./AUTHENTICATION_ARCHITECTURE.md), [AUTHORIZATION_ARCHITECTURE.md](./AUTHORIZATION_ARCHITECTURE.md), [SECURITY_ARCHITECTURE.md](./SECURITY_ARCHITECTURE.md), [DATABASE_ARCHITECTURE.md](./DATABASE_ARCHITECTURE.md), [FIREBASE_ARCHITECTURE.md](./FIREBASE_ARCHITECTURE.md), [CACHING_STRATEGY.md](./CACHING_STRATEGY.md), or [PERFORMANCE_ARCHITECTURE.md](./PERFORMANCE_ARCHITECTURE.md)
 5. The relevant domain handbook: [DASHBOARD_DESIGN_GUIDE.md](./DASHBOARD_DESIGN_GUIDE.md), [DATA_VISUALIZATION_GUIDE.md](./DATA_VISUALIZATION_GUIDE.md), [FORM_DESIGN_GUIDE.md](./FORM_DESIGN_GUIDE.md), or [AI_UX_GUIDELINES.md](./AI_UX_GUIDELINES.md)
 6. The relevant [core module specification](./modules/) when the work affects Dashboard, Students, Teachers, Organization, Authentication, Profile, Attendance, Exams, Classes, Subjects, Routine, Academic Sessions, Fees, Reports, Analytics, Notifications, Search, Filters, AI Assistant, Roles and Permissions, Settings, Audit Logs, Integrations, Import and Export, Backup and Recovery, Multi-Tenancy, or Future Enterprise Modules
 7. [REVIEW_CHECKLISTS.md](./REVIEW_CHECKLISTS.md)
@@ -84,6 +84,13 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 | Understand frontend state ownership | [State Management](./STATE_MANAGEMENT.md) |
 | Understand API contracts and generated clients | [API Layer Architecture](./API_LAYER_ARCHITECTURE.md) |
 | Trace identity, scope, and records | [Data Flow Architecture](./DATA_FLOW_ARCHITECTURE.md) |
+| Understand authentication identity and sessions | [Authentication Architecture](./AUTHENTICATION_ARCHITECTURE.md) |
+| Understand Roles, Permissions, and data-boundary access | [Authorization Architecture](./AUTHORIZATION_ARCHITECTURE.md) |
+| Understand cross-cutting security boundaries | [Security Architecture](./SECURITY_ARCHITECTURE.md) |
+| Understand persistence and schema boundaries | [Database Architecture](./DATABASE_ARCHITECTURE.md) |
+| Understand Firebase service boundaries and rules evidence | [Firebase Architecture](./FIREBASE_ARCHITECTURE.md) |
+| Understand cache identity, freshness, and invalidation | [Caching Strategy](./CACHING_STRATEGY.md) |
+| Understand performance measurement and critical paths | [Performance Architecture](./PERFORMANCE_ARCHITECTURE.md) |
 | Review a release | [Quality Gates](./QUALITY_GATES.md) and [Review Checklists](./REVIEW_CHECKLISTS.md) |
 | Design accessible behavior | [Accessibility Standards](./ACCESSIBILITY_STANDARDS.md) |
 | Test accessibility | [Accessibility Testing](./ACCESSIBILITY_TESTING.md) |
@@ -156,6 +163,13 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 | [STATE_MANAGEMENT.md](./STATE_MANAGEMENT.md) | Defines ownership of auth, profile, cache, URL, local, and mutation state. |
 | [API_LAYER_ARCHITECTURE.md](./API_LAYER_ARCHITECTURE.md) | Defines OpenAPI, generated clients, Zod schemas, transport, and Express implementation boundaries. |
 | [DATA_FLOW_ARCHITECTURE.md](./DATA_FLOW_ARCHITECTURE.md) | Defines identity, Organization scope, Firestore, cache, upload, audit, and API data movement. |
+| [AUTHENTICATION_ARCHITECTURE.md](./AUTHENTICATION_ARCHITECTURE.md) | Defines provider identity, session, profile, Organization context, sign-out, and impersonation boundaries. |
+| [AUTHORIZATION_ARCHITECTURE.md](./AUTHORIZATION_ARCHITECTURE.md) | Defines Role, Permission, Organization, Workspace, direct-access, and data-boundary enforcement. |
+| [SECURITY_ARCHITECTURE.md](./SECURITY_ARCHITECTURE.md) | Defines protected assets, trust boundaries, control layers, secrets, incidents, and security evidence. |
+| [DATABASE_ARCHITECTURE.md](./DATABASE_ARCHITECTURE.md) | Defines Firestore and PostgreSQL persistence ownership, integrity, tenancy readiness, and migrations. |
+| [FIREBASE_ARCHITECTURE.md](./FIREBASE_ARCHITECTURE.md) | Defines Firebase Auth, Firestore, Realtime Database, Storage, configuration, rules evidence, and provider boundaries. |
+| [CACHING_STRATEGY.md](./CACHING_STRATEGY.md) | Defines cache ownership, query identity, freshness, invalidation, privacy, and source migration behavior. |
+| [PERFORMANCE_ARCHITECTURE.md](./PERFORMANCE_ARCHITECTURE.md) | Defines critical journeys, measurement, loading order, responsive work, and performance evidence. |
 | [ERROR_HANDLING.md](./ERROR_HANDLING.md) | Defines error categories, safe input preservation, and recovery. |
 | [ETHICAL_UX_GUIDELINES.md](./ETHICAL_UX_GUIDELINES.md) | Defines dignity, fairness, safety, privacy, and accountability expectations. |
 | [FEEDBACK_SYSTEM.md](./FEEDBACK_SYSTEM.md) | Defines point-of-action status, progress, consequence, and recovery feedback. |
