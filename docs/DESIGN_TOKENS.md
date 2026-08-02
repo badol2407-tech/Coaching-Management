@@ -2,6 +2,7 @@
 title: EduTrack Design Tokens
 purpose: Define the canonical semantic token registry and token-only rules for the entire EduTrack product.
 scope: Color, typography, spacing, radius, elevation, border, motion, icons, grid, breakpoints, opacity, z-index, and accessibility tokens.
+out_of_scope: Component implementation, component behavior, page-specific styling, business logic, and product-level UI/UX precedence.
 audience: Product Design, Design Systems, Engineering, QA, Accessibility, and AI implementation contributors.
 related_documents:
   - ./UI_MASTER_RULES.md
@@ -20,7 +21,7 @@ related_documents:
   - ./PRODUCT_GOVERNANCE.md
 review_frequency: Quarterly and before any system-wide token change
 owner: Product Design and Design Systems
-version: 2.1.0
+version: 2.1.1
 status: Canonical single source of truth for design tokens
 last_updated: 2026-08-02
 normative_level: Binding token standard
@@ -63,6 +64,40 @@ The architecture is:
 | Component Tokens | Out of scope for this registry. | No component token names, values, or implementation are defined here; use [COMPONENT_STANDARDS.md](./COMPONENT_STANDARDS.md). |
 
 Primitive tokens are source material; semantic tokens are the product contract. A primitive may change between themes, but its semantic meaning must remain stable. A component must not bypass the semantic layer to consume an arbitrary primitive.
+
+### 3.1 Token Source Priority
+
+When resolving a token name, value, alias, or mapping, use sources in this order:
+
+| Priority | Source | Resolution rule |
+| ---: | --- | --- |
+| 1 | Existing Design Tokens | Use the existing approved token in this registry. This is the canonical semantic contract. |
+| 2 | Existing CSS Variables | Use an existing controlled CSS variable only when no approved semantic token already expresses the same purpose. |
+| 3 | Existing Tailwind Theme | Reuse an existing Tailwind theme token or utility only when its source and semantics match the approved token. |
+| 4 | Existing Design System Documentation | Use existing domain guidance to clarify purpose, evidence, or ownership; it must not override a higher-priority token source. |
+
+Source-priority rules:
+
+- Never create a new token if any higher-priority source already defines the required meaning or value.
+- A lower-priority source may clarify or implement a higher-priority token, but must not create a competing name or value.
+- If sources conflict, preserve the highest-priority definition and escalate the conflict through [PRODUCT_GOVERNANCE.md](./PRODUCT_GOVERNANCE.md).
+- If no source verifies the intended token, record a TODO/reference and keep the token in Draft; do not invent a value.
+- Source priority applies to AI proposals, design files, CSS, Tailwind usage, documentation updates, and migrations.
+
+### 3.2 Token Governance
+
+Every token record must include all of the following:
+
+| Required field | Rule |
+| --- | --- |
+| Name | One canonical semantic name using the naming rules in this document |
+| Purpose | The stable product meaning and intended use |
+| Owner | An accountable design-system or product owner |
+| Status | `Draft`, `Approved`, `Deprecated`, or `Removed` |
+| Version | The registry version in which the token status or contract applies |
+| Replacement | The approved replacement token when Status is `Deprecated`; use `Not applicable` otherwise |
+
+Anonymous tokens are forbidden. A token without a complete governance record cannot be Approved, consumed by components, or promoted from a source alias.
 
 ## 4. Allowed token categories
 
@@ -168,6 +203,21 @@ AI-assisted design and implementation must follow every rule below:
 | Components consume tokens only | Component behavior belongs in [COMPONENT_STANDARDS.md](./COMPONENT_STANDARDS.md); component styling consumes this registry. |
 
 AI must stop and request human review when no existing token expresses the intended meaning. It must not silently create, rename, delete, or reinterpret a token.
+
+### 6.1 AI Validation Checklist
+
+Before finalizing any token-related design or implementation change, verify:
+
+- [ ] No raw values are introduced in consumer code.
+- [ ] No duplicate tokens or aliases are introduced.
+- [ ] No unused tokens are introduced; every Approved token has a documented consumer or approved system need.
+- [ ] Semantic naming only is used.
+- [ ] Dark mode is supported through token value swaps, not duplicate components.
+- [ ] Accessibility is preserved, including contrast, focus, touch targets, zoom, and reduced motion.
+- [ ] Existing tokens and higher-priority sources are reused.
+- [ ] Component implementations are untouched when the request is documentation-only or registry-only.
+
+If any checklist item fails, stop before finalizing and resolve or escalate the issue. A passing checklist does not authorize a new token, raw value, or component change.
 
 ## 7. Token naming rules
 
