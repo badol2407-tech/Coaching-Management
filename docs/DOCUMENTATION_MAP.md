@@ -13,7 +13,7 @@ related_documents:
   - ./RELEASE_MANAGEMENT.md
 review_frequency: Quarterly and after documentation architecture changes
 owner: Product Governance Council
-version: 1.8.0
+version: 1.9.0
 status: Active architecture map
 last_updated: 2026-08-02
 normative_level: Governance reference
@@ -80,8 +80,15 @@ PRODUCT_GOVERNANCE -----> DECISION_LOG / CHANGELOG
           |
            +--> CONTRIBUTOR PRACTICE
                   TECH_STACK --> ENVIRONMENT_SETUP --> CONTRIBUTING
-                  CODING_STANDARDS --> CONTRIBUTING
+                   PROJECT_CONVENTIONS --> DEVELOPER_PLAYBOOK --> IMPLEMENTATION_CHECKLIST
+                   CODING_STANDARDS --> CONTRIBUTING
                   GIT_WORKFLOW --> CODE_REVIEW_GUIDELINES --> QUALITY_GATES
+          |
+           +--> IMPLEMENTATION SUPPORT
+                  API_LAYER_ARCHITECTURE --> API_CONTRACTS
+                  COMPONENT_SPECIFICATIONS --> COMPONENT_STANDARDS
+                  PRODUCT_GOVERNANCE --> ARCHITECTURE_DECISIONS --> DECISION_LOG
+                  DESIGN_TOKENS --> COMPONENT_STANDARDS
         |
          +--> VISUAL AND DATA SYSTEM
          |      DESIGN_TOKENS --> SPACING_SYSTEM / LAYOUT_GRID / ICONOGRAPHY / ELEVATION_SYSTEM
@@ -120,7 +127,9 @@ INDEX is the navigation homepage for every layer.
 | AI Assistant behavior | [AI_UX_GUIDELINES.md](./AI_UX_GUIDELINES.md) | Constitution, Ethical UX, Accessibility |
 | Technical correctness and reliability | [ENGINEERING_STANDARDS.md](./ENGINEERING_STANDARDS.md) | Governance, Review Checklists |
 | Practical implementation conventions | [CODING_STANDARDS.md](./CODING_STANDARDS.md) | Engineering Standards, Folder Structure, Frontend Architecture, Backend Architecture, Accessibility, Quality Gates |
+| Project placement, naming, and safe contributor quick reference | [PROJECT_CONVENTIONS.md](./PROJECT_CONVENTIONS.md) | Folder Structure, Coding Standards, Contributing, Git Workflow |
 | Contributor orientation and contribution flow | [CONTRIBUTING.md](./CONTRIBUTING.md) | Environment Setup, Tech Stack, Coding Standards, Git Workflow, Code Review Guidelines |
+| End-to-end implementation flow | [DEVELOPER_PLAYBOOK.md](./DEVELOPER_PLAYBOOK.md) | Contributing, Engineering Standards, Architecture Decisions, Implementation Checklist |
 | Runtime, package, and environment setup | [ENVIRONMENT_SETUP.md](./ENVIRONMENT_SETUP.md) | Tech Stack, Folder Structure, Frontend Architecture, Backend Architecture, Firebase Architecture, Deployment Architecture |
 | Technology inventory and current-versus-target stack boundary | [TECH_STACK.md](./TECH_STACK.md) | Environment Setup, Folder Structure, Frontend Architecture, Backend Architecture, API Layer Architecture |
 | Branch, synchronization, commit, and conflict workflow | [GIT_WORKFLOW.md](./GIT_WORKFLOW.md) | Contributing, Code Review Guidelines, CI/CD Architecture, Release Management |
@@ -132,6 +141,7 @@ INDEX is the navigation homepage for every layer.
 | Route families, Role layouts, and deep-link implementation | [ROUTING_ARCHITECTURE.md](./ROUTING_ARCHITECTURE.md) | Navigation Standards, Information Architecture, Frontend Architecture |
 | Frontend state ownership and cache identity | [STATE_MANAGEMENT.md](./STATE_MANAGEMENT.md) | State System, Interaction Design, Frontend Architecture, Data Flow Architecture |
 | API contract, generation, transport, and implementation status | [API_LAYER_ARCHITECTURE.md](./API_LAYER_ARCHITECTURE.md) | Backend Architecture, Frontend Architecture, Engineering Standards |
+| API contract authoring and compatibility workflow | [API_CONTRACTS.md](./API_CONTRACTS.md) | API Layer Architecture, Backend Architecture, Error Handling, Implementation Checklist |
 | End-to-end identity, scope, record, upload, and error movement | [DATA_FLOW_ARCHITECTURE.md](./DATA_FLOW_ARCHITECTURE.md) | Multi-Tenancy, Authentication, Audit Logs, Frontend Architecture, Backend Architecture |
 | Provider identity, sessions, profile context, and impersonation | [AUTHENTICATION_ARCHITECTURE.md](./AUTHENTICATION_ARCHITECTURE.md) | Authentication, Security UX, Authorization Architecture, Firebase Architecture, State Management |
 | Role, Permission, Organization, Workspace, and direct-access enforcement | [AUTHORIZATION_ARCHITECTURE.md](./AUTHORIZATION_ARCHITECTURE.md) | Permission Design, Roles and Permissions, Multi-Tenancy, Authentication Architecture, Security Architecture |
@@ -152,6 +162,7 @@ INDEX is the navigation homepage for every layer.
 | Interaction states and recovery | [INTERACTION_DESIGN.md](./INTERACTION_DESIGN.md) and [STATE_SYSTEM.md](./STATE_SYSTEM.md) | Feedback, Error Handling, Loading States, Empty States, Components, Forms, Motion, Patterns |
 | Reusable workflow patterns | [PATTERN_LIBRARY.md](./PATTERN_LIBRARY.md) | Components, Design System, Interaction |
 | Component contracts | [COMPONENT_SPECIFICATIONS.md](./COMPONENT_SPECIFICATIONS.md) | Accessibility, Design System, State, Feedback, component handbooks |
+| Shared component selection and extension workflow | [COMPONENT_STANDARDS.md](./COMPONENT_STANDARDS.md) | Component Specifications, Design System, Design Tokens, Accessibility, Responsive |
 | Primitive component implementation | [components/](./components/) | Component Specifications, Design System, Accessibility, Form Design, Interaction |
 | Action components (Button, Icon Button, Link, FAB) | [components/](./components/) | Component Specifications, Accessibility, Mobile, Permission Design |
 | Form input components (Text Field, Textarea, Password Field, Search Field, Select, Multi Select, Autocomplete, Checkbox, Radio, Switch, Slider, Date Picker, Time Picker, File Upload) | [components/](./components/) | Form Design, Accessibility, Internationalization, Engineering Standards |
@@ -172,6 +183,8 @@ INDEX is the navigation homepage for every layer.
 | Dashboard and reporting presentation | Dashboard, Data Visualization, and Table handbooks | Information Architecture, Search, Filters, Accessibility |
 | Core module behavior | [modules/](./modules/) | Information Architecture, Navigation, Forms, Search, Filters, Patterns, Components, States, Permissions, Security, AI, Notifications, Review Checklists |
 | Release evidence | [QUALITY_GATES.md](./QUALITY_GATES.md) | Review Checklists, Accessibility Testing, every release-gate handbook |
+| Implementation evidence and handoff | [IMPLEMENTATION_CHECKLIST.md](./IMPLEMENTATION_CHECKLIST.md) | Developer Playbook, Testing Strategy, Code Review Guidelines, Quality Gates |
+| Architecture decision method | [ARCHITECTURE_DECISIONS.md](./ARCHITECTURE_DECISIONS.md) | Product Governance, Decision Log, owning architecture handbooks |
 | Contributor setup and implementation path | [CONTRIBUTING.md](./CONTRIBUTING.md) | Environment Setup, Tech Stack, Coding Standards, Git Workflow, Code Review Guidelines |
 | Review evidence and release handoff | [CODE_REVIEW_GUIDELINES.md](./CODE_REVIEW_GUIDELINES.md) and [RELEASE_MANAGEMENT.md](./RELEASE_MANAGEMENT.md) | Review Checklists, Quality Gates, CI/CD Architecture, Deployment Architecture |
 | Usability rationale and review prompts | UX Laws, Usability Heuristics, Gestalt Principles | Governance, Accessibility, Interaction |
@@ -229,6 +242,11 @@ Every module below consumes the same canonical structure, interaction, component
 - `FRONTEND_ARCHITECTURE.md` is the current web composition owner; `BACKEND_ARCHITECTURE.md` is the service and persistence boundary owner; `API_LAYER_ARCHITECTURE.md` is the contract/generation boundary owner; and `DATA_FLOW_ARCHITECTURE.md` describes their connections without replacing any of them.
 - `TECH_STACK.md` is a reference inventory, not proof of runtime use; `ENVIRONMENT_SETUP.md` describes contributor setup without changing deployment ownership; and `CONTRIBUTING.md` routes contributors to the existing canonical owners.
 - `CODING_STANDARDS.md` provides implementation conventions but may not create competing product, accessibility, security, engineering, or release thresholds.
+- `PROJECT_CONVENTIONS.md` is a quick reference; it may not override Folder Structure, Coding Standards, Git Workflow, Product Governance, or an owning architecture handbook.
+- `DEVELOPER_PLAYBOOK.md` and `IMPLEMENTATION_CHECKLIST.md` organize implementation and evidence; they may not replace Testing Strategy, Review Checklists, Quality Gates, or Release Management.
+- `API_CONTRACTS.md` organizes contract work; `API_LAYER_ARCHITECTURE.md` remains the API boundary owner and the OpenAPI source remains authoritative.
+- `COMPONENT_STANDARDS.md` organizes component contribution; `COMPONENT_SPECIFICATIONS.md`, component handbooks, and the design-system and accessibility owners remain authoritative.
+- `ARCHITECTURE_DECISIONS.md` organizes decision preparation; `DECISION_LOG.md`, Product Governance, and the relevant architecture handbook remain the durable authorities.
 - `GIT_WORKFLOW.md` describes source-control practice; it does not claim branch protection, CI enforcement, deployment, or recovery controls that are not evidenced.
 - `CODE_REVIEW_GUIDELINES.md` organizes review evidence; `REVIEW_CHECKLISTS.md` and `QUALITY_GATES.md` remain the owners of their respective evidence and release decisions.
 - `RELEASE_MANAGEMENT.md` translates existing delivery and deployment architecture into a practical release flow; it may not replace CI/CD sequencing, deployment boundaries, quality gates, monitoring, or disaster recovery.

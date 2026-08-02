@@ -25,7 +25,7 @@ related_documents:
   - ./DISASTER_RECOVERY.md
 review_frequency: Quarterly and after documentation architecture or governance changes
 owner: Product Governance Council
-version: 1.8.0
+version: 1.9.0
 status: Active documentation homepage
 last_updated: 2026-08-02
 normative_level: Navigation and orientation
@@ -43,7 +43,7 @@ EduTrack documentation is a governed system of product principles, release stand
 3. **Release gates** — [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md), [ETHICAL_UX_GUIDELINES.md](./ETHICAL_UX_GUIDELINES.md), [ENGINEERING_STANDARDS.md](./ENGINEERING_STANDARDS.md), and [AI_UX_GUIDELINES.md](./AI_UX_GUIDELINES.md) define binding quality and safety requirements.
 4. **Architecture** — [FRONTEND_ARCHITECTURE.md](./FRONTEND_ARCHITECTURE.md), [BACKEND_ARCHITECTURE.md](./BACKEND_ARCHITECTURE.md), [FOLDER_STRUCTURE.md](./FOLDER_STRUCTURE.md), [ROUTING_ARCHITECTURE.md](./ROUTING_ARCHITECTURE.md), [STATE_MANAGEMENT.md](./STATE_MANAGEMENT.md), [API_LAYER_ARCHITECTURE.md](./API_LAYER_ARCHITECTURE.md), [DATA_FLOW_ARCHITECTURE.md](./DATA_FLOW_ARCHITECTURE.md), [AUTHENTICATION_ARCHITECTURE.md](./AUTHENTICATION_ARCHITECTURE.md), [AUTHORIZATION_ARCHITECTURE.md](./AUTHORIZATION_ARCHITECTURE.md), [SECURITY_ARCHITECTURE.md](./SECURITY_ARCHITECTURE.md), [DATABASE_ARCHITECTURE.md](./DATABASE_ARCHITECTURE.md), [FIREBASE_ARCHITECTURE.md](./FIREBASE_ARCHITECTURE.md), [CACHING_STRATEGY.md](./CACHING_STRATEGY.md), and [PERFORMANCE_ARCHITECTURE.md](./PERFORMANCE_ARCHITECTURE.md) describe implementation boundaries and distinguish current paths from target guidance.
 5. **Delivery and resilience** — [TESTING_STRATEGY.md](./TESTING_STRATEGY.md), [CI_CD_ARCHITECTURE.md](./CI_CD_ARCHITECTURE.md), [DEPLOYMENT_ARCHITECTURE.md](./DEPLOYMENT_ARCHITECTURE.md), [RELEASE_MANAGEMENT.md](./RELEASE_MANAGEMENT.md), [MONITORING_AND_LOGGING.md](./MONITORING_AND_LOGGING.md), [OBSERVABILITY.md](./OBSERVABILITY.md), [ERROR_MONITORING.md](./ERROR_MONITORING.md), and [DISASTER_RECOVERY.md](./DISASTER_RECOVERY.md) define evidence, promotion, operational signals, failure response, and recovery boundaries.
-6. **Contributor practice** — [CONTRIBUTING.md](./CONTRIBUTING.md), [ENVIRONMENT_SETUP.md](./ENVIRONMENT_SETUP.md), [TECH_STACK.md](./TECH_STACK.md), [CODING_STANDARDS.md](./CODING_STANDARDS.md), [GIT_WORKFLOW.md](./GIT_WORKFLOW.md), and [CODE_REVIEW_GUIDELINES.md](./CODE_REVIEW_GUIDELINES.md) explain how to work within the governed repository without creating parallel standards.
+6. **Contributor practice** — [CONTRIBUTING.md](./CONTRIBUTING.md), [ENVIRONMENT_SETUP.md](./ENVIRONMENT_SETUP.md), [TECH_STACK.md](./TECH_STACK.md), [CODING_STANDARDS.md](./CODING_STANDARDS.md), [PROJECT_CONVENTIONS.md](./PROJECT_CONVENTIONS.md), [GIT_WORKFLOW.md](./GIT_WORKFLOW.md), and [CODE_REVIEW_GUIDELINES.md](./CODE_REVIEW_GUIDELINES.md) explain how to work within the governed repository without creating parallel standards.
 7. **Product structure and interaction** — Information Architecture, Navigation, Interaction, Forms, Search, Filters, Tables, Mobile, Responsive, Patterns, and Copywriting explain how the product behaves.
 8. **Design system foundations and data** — Design Tokens, Spacing, Layout, Iconography, Elevation, State, Feedback, Notifications, Tables, Color, Typography, Motion, Gestalt, Dashboard, and Data Visualization define reusable expression and domain presentation.
 9. **Safety, resilience, and localization** — Error, Loading, Empty, Permission, Security, Internationalization, and accessibility testing handbooks define implementation-ready quality behavior.
@@ -82,6 +82,13 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 10. [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md) and [ACCESSIBILITY_TESTING.md](./ACCESSIBILITY_TESTING.md)
 11. [QUALITY_GATES.md](./QUALITY_GATES.md)
 
+### API or shared implementation work
+
+1. [API_CONTRACTS.md](./API_CONTRACTS.md) for API contract, generation, route, and consumer work.
+2. [COMPONENT_STANDARDS.md](./COMPONENT_STANDARDS.md) for shared component work.
+3. [ARCHITECTURE_DECISIONS.md](./ARCHITECTURE_DECISIONS.md) when an ownership or source-of-truth boundary changes.
+4. [IMPLEMENTATION_CHECKLIST.md](./IMPLEMENTATION_CHECKLIST.md) for evidence and handoff.
+
 ### Building a feature
 
 1. [PRODUCT_GOVERNANCE.md](./PRODUCT_GOVERNANCE.md)
@@ -106,6 +113,7 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 | Understand routes and Role layouts | [Routing Architecture](./ROUTING_ARCHITECTURE.md) |
 | Understand frontend state ownership | [State Management](./STATE_MANAGEMENT.md) |
 | Understand API contracts and generated clients | [API Layer Architecture](./API_LAYER_ARCHITECTURE.md) |
+| Author or evolve an API contract | [API Contracts](./API_CONTRACTS.md) |
 | Trace identity, scope, and records | [Data Flow Architecture](./DATA_FLOW_ARCHITECTURE.md) |
 | Understand authentication identity and sessions | [Authentication Architecture](./AUTHENTICATION_ARCHITECTURE.md) |
 | Understand Roles, Permissions, and data-boundary access | [Authorization Architecture](./AUTHORIZATION_ARCHITECTURE.md) |
@@ -120,7 +128,9 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 | Set up a safe contributor environment | [Environment Setup](./ENVIRONMENT_SETUP.md) |
 | Understand the repository technology boundaries | [Technology Stack](./TECH_STACK.md) |
 | Follow implementation conventions | [Coding Standards](./CODING_STANDARDS.md) |
+| Use the implementation quick map | [Project Conventions](./PROJECT_CONVENTIONS.md) |
 | Contribute a change | [Contributing Guide](./CONTRIBUTING.md) |
+| Follow the end-to-end developer flow | [Developer Playbook](./DEVELOPER_PLAYBOOK.md) |
 | Synchronize branches and commits | [Git Workflow](./GIT_WORKFLOW.md) |
 | Prepare or perform a review | [Code Review Guidelines](./CODE_REVIEW_GUIDELINES.md) |
 | Manage a release handoff | [Release Management](./RELEASE_MANAGEMENT.md) |
@@ -136,6 +146,7 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 | Define states, feedback, or recovery | [State System](./STATE_SYSTEM.md), [Feedback System](./FEEDBACK_SYSTEM.md), and [Error Handling](./ERROR_HANDLING.md) |
 | Use a reusable UI pattern | [Pattern Library](./PATTERN_LIBRARY.md) |
 | Implement a primitive component | [Component Specifications](./COMPONENT_SPECIFICATIONS.md) and the relevant [component handbook](./components/) |
+| Extend or review a shared component | [Component Standards](./COMPONENT_STANDARDS.md) |
 | Apply the visual system | [Design System Guide](./DESIGN_SYSTEM_GUIDE.md) |
 | Apply foundation tokens | [Design Tokens](./DESIGN_TOKENS.md), [Spacing System](./SPACING_SYSTEM.md), and [Layout Grid](./LAYOUT_GRID.md) |
 | Write interface copy | [Copywriting Guidelines](./COPYWRITING_GUIDELINES.md) |
@@ -174,6 +185,8 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 | Specify Multi-Tenancy behavior | [Multi-Tenancy module](./modules/Multi_Tenancy.md) |
 | Govern future Enterprise Modules | [Future Enterprise Modules](./modules/Future_Enterprise_Modules.md) |
 | Understand changes over time | [Changelog](./CHANGELOG.md) and [Decision Log](./DECISION_LOG.md) |
+| Propose or apply an architecture decision | [Architecture Decisions](./ARCHITECTURE_DECISIONS.md) |
+| Prepare implementation evidence | [Implementation Checklist](./IMPLEMENTATION_CHECKLIST.md) |
 
 ## Handbook directory
 
@@ -184,6 +197,7 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 | [AI_UX_GUIDELINES.md](./AI_UX_GUIDELINES.md) | Defines transparent, safe, human-controlled AI Assistant behavior. |
 | [COLOR_SYSTEM.md](./COLOR_SYSTEM.md) | Defines semantic color roles and non-color status communication. |
 | [COMPONENT_SPECIFICATIONS.md](./COMPONENT_SPECIFICATIONS.md) | Defines reusable component contracts and states. |
+| [COMPONENT_STANDARDS.md](./COMPONENT_STANDARDS.md) | Provides the practical selection, extension, evidence, and lifecycle flow for shared components. |
 | [components/](./components/) | Defines implementation-ready handbooks for the approved primitive, navigation, disclosure, surface, collection, overlay, feedback, loading, recovery, status, identity, data, temporal, upload, and floating-action components. |
 | [COPYWRITING_GUIDELINES.md](./COPYWRITING_GUIDELINES.md) | Defines clear, honest, canonical product language. |
 | [DASHBOARD_DESIGN_GUIDE.md](./DASHBOARD_DESIGN_GUIDE.md) | Defines Dashboard priorities, metrics, scope, and states. |
@@ -194,7 +208,9 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 | [EMPTY_STATES.md](./EMPTY_STATES.md) | Defines truthful empty states and recovery actions. |
 | [ENGINEERING_STANDARDS.md](./ENGINEERING_STANDARDS.md) | Defines technical correctness, security, reliability, and maintainability. |
 | [CODING_STANDARDS.md](./CODING_STANDARDS.md) | Defines practical implementation conventions without replacing binding standards. |
+| [PROJECT_CONVENTIONS.md](./PROJECT_CONVENTIONS.md) | Provides a quick map for placement, naming, source boundaries, and safe contributor behavior. |
 | [CONTRIBUTING.md](./CONTRIBUTING.md) | Explains repository orientation, contribution flow, evidence, and handoff. |
+| [DEVELOPER_PLAYBOOK.md](./DEVELOPER_PLAYBOOK.md) | Routes contributors from work intake through implementation, evidence, review, and release. |
 | [ENVIRONMENT_SETUP.md](./ENVIRONMENT_SETUP.md) | Defines safe local setup, configuration names, environment boundaries, and validation commands. |
 | [TECH_STACK.md](./TECH_STACK.md) | Records the repository technology boundaries and current-versus-target distinctions. |
 | [GIT_WORKFLOW.md](./GIT_WORKFLOW.md) | Defines synchronization, branches, commits, conflicts, and safe Git recovery. |
@@ -206,6 +222,7 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 | [ROUTING_ARCHITECTURE.md](./ROUTING_ARCHITECTURE.md) | Defines public, authenticated, Role-specific, and impersonated route families. |
 | [STATE_MANAGEMENT.md](./STATE_MANAGEMENT.md) | Defines ownership of auth, profile, cache, URL, local, and mutation state. |
 | [API_LAYER_ARCHITECTURE.md](./API_LAYER_ARCHITECTURE.md) | Defines OpenAPI, generated clients, Zod schemas, transport, and Express implementation boundaries. |
+| [API_CONTRACTS.md](./API_CONTRACTS.md) | Provides the practical API contract authoring, generation, implementation, and compatibility flow. |
 | [DATA_FLOW_ARCHITECTURE.md](./DATA_FLOW_ARCHITECTURE.md) | Defines identity, Organization scope, Firestore, cache, upload, audit, and API data movement. |
 | [AUTHENTICATION_ARCHITECTURE.md](./AUTHENTICATION_ARCHITECTURE.md) | Defines provider identity, session, profile, Organization context, sign-out, and impersonation boundaries. |
 | [AUTHORIZATION_ARCHITECTURE.md](./AUTHORIZATION_ARCHITECTURE.md) | Defines Role, Permission, Organization, Workspace, direct-access, and data-boundary enforcement. |
@@ -242,6 +259,8 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 | [PRODUCT_CONSTITUTION.md](./PRODUCT_CONSTITUTION.md) | Defines durable product, UX, AI, engineering, and ethical principles. |
 | [PRODUCT_GOVERNANCE.md](./PRODUCT_GOVERNANCE.md) | Defines authority, precedence, exceptions, and change control. |
 | [QUALITY_GATES.md](./QUALITY_GATES.md) | Defines evidence, decisions, and exceptions before acceptance or release. |
+| [IMPLEMENTATION_CHECKLIST.md](./IMPLEMENTATION_CHECKLIST.md) | Provides a reusable implementation, validation, review, release, and recovery handoff checklist. |
+| [ARCHITECTURE_DECISIONS.md](./ARCHITECTURE_DECISIONS.md) | Provides a decision workflow while keeping durable records in the existing decision log. |
 | [REVIEW_CHECKLISTS.md](./REVIEW_CHECKLISTS.md) | Defines release and design evidence gates. |
 | [RESPONSIVE_SYSTEM.md](./RESPONSIVE_SYSTEM.md) | Defines cross-viewport, input, zoom, and device adaptation. |
 | [SEARCH_EXPERIENCE.md](./SEARCH_EXPERIENCE.md) | Defines scoped, accessible, private, and comprehensible Search. |
