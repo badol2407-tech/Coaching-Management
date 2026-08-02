@@ -1,7 +1,7 @@
 ---
 title: EduTrack Design Tokens
 purpose: Define the canonical semantic token registry and token-only rules for the entire EduTrack product.
-scope: Color, typography, spacing, radius, elevation, border, icon, motion, responsive, grid, and accessibility tokens.
+scope: Color, typography, spacing, radius, elevation, border, motion, icons, grid, breakpoints, opacity, z-index, and accessibility tokens.
 audience: Product Design, Design Systems, Engineering, QA, Accessibility, and AI implementation contributors.
 related_documents:
   - ./UI_MASTER_RULES.md
@@ -17,13 +17,14 @@ related_documents:
   - ./RESPONSIVE_SYSTEM.md
   - ./ACCESSIBILITY_STANDARDS.md
   - ./QUALITY_GATES.md
+  - ./PRODUCT_GOVERNANCE.md
 review_frequency: Quarterly and before any system-wide token change
 owner: Product Design and Design Systems
-version: 2.0.0
+version: 2.1.0
 status: Canonical single source of truth for design tokens
 last_updated: 2026-08-02
 normative_level: Binding token standard
-canonical_terms: design token, semantic token, primitive, alias, theme, mode, color, typography, spacing, radius, elevation, border, icon, motion, breakpoint, grid, accessibility
+canonical_terms: design token, semantic token, primitive, alias, theme, mode, color, typography, spacing, radius, elevation, border, motion, icon, grid, breakpoint, opacity, z-index, lifecycle, versioning, mapping, accessibility
 ---
 
 # EduTrack Design Tokens
@@ -49,7 +50,108 @@ Specialized foundation handbooks explain rationale and evidence for their domain
 5. **Immutable primitives:** a token is a stable contract. Changing its value is a system-wide change; changing its meaning requires a new token and a migration path.
 6. **Mode-safe meaning:** light and dark modes swap token values, not markup, components, or semantics.
 
-## 3. AI token rules
+## 3. Token architecture
+
+The architecture is:
+
+**Primitive Tokens → Semantic Tokens → Component Tokens**
+
+| Layer | Definition | Rule in this document |
+| --- | --- | --- |
+| Primitive Tokens | Verified low-level values from the controlled source, such as existing CSS variables for theme channels, spacing base, radius base, and font families. | Reference verified primitives only. Do not invent or promote an unverified value. |
+| Semantic Tokens | Stable product meanings such as `color-primary`, `color-surface`, `font-body`, and `space-4`. | Define and govern these tokens here. Consumers use semantic names. |
+| Component Tokens | Out of scope for this registry. | No component token names, values, or implementation are defined here; use [COMPONENT_STANDARDS.md](./COMPONENT_STANDARDS.md). |
+
+Primitive tokens are source material; semantic tokens are the product contract. A primitive may change between themes, but its semantic meaning must remain stable. A component must not bypass the semantic layer to consume an arbitrary primitive.
+
+## 4. Allowed token categories
+
+Only these shared token categories are allowed:
+
+| Category | Namespace | Status |
+| --- | --- | --- |
+| Colors | `color-*` | Registered |
+| Typography | `font-*` | Registered |
+| Spacing | `space-*` | Registered |
+| Radius | `radius-*` | Registered |
+| Elevation | `elevation-*` | Registered |
+| Border | `border-*` | Registered |
+| Motion | `motion-*` | Registered |
+| Icons | `icon-*` | Registered |
+| Grid | `grid-*`, `container-*`, `gutter-*`, `margin-*` | Registered |
+| Breakpoints | `breakpoint-*` | Semantic category allowed; only verified source values may be registered |
+| Opacity | `opacity-*` | Allowed category; `TODO: verify a controlled project token source before registering values` |
+| Z-index | `z-index-*` | Allowed category; `TODO: verify a controlled project token source before registering values` |
+
+Do not add a new category as a workaround for a missing semantic role. If a value does not fit an allowed category, record a governance decision before creating a token.
+
+## 5. Token mapping
+
+This table maps the semantic design token to the verified project CSS variable and the applicable Tailwind token or utility. The Tailwind theme bridge is defined in [`artifacts/web/src/index.css`](../artifacts/web/src/index.css). A dash means no direct project mapping is verified; a TODO is a deliberate reference gap, not permission to invent a value.
+
+### 5.1 Verified mappings
+
+| Design token | CSS variable | Tailwind token or utility |
+| --- | --- | --- |
+| `color-background` | `--background` | `bg-background` |
+| `color-surface` | `--card` | `bg-card` |
+| `color-border` | `--border` | `border-border` |
+| `color-primary` | `--primary` | `bg-primary`, `text-primary`, `border-primary` |
+| `color-secondary` | `--secondary` | `bg-secondary`, `text-secondary`, `border-secondary` |
+| `color-accent` | `--accent` | `bg-accent`, `text-accent`, `border-accent` |
+| `color-danger` | `--destructive` | `bg-destructive`, `text-destructive`, `border-destructive` |
+| `color-text-primary` | `--foreground` | `text-foreground` |
+| `color-text-secondary` | `--muted-foreground` | `text-muted-foreground` |
+| `color-focus` | `--ring` | `ring-ring` |
+| `font-family-base` | `--app-font-sans` → `--font-sans` | `font-sans` |
+| `font-family-mono` | `--app-font-mono` → `--font-mono` | `font-mono` |
+| `font-heading-lg` size | `--text-2xl` | `text-2xl` |
+| `font-heading-md` size | `--text-xl` | `text-xl` |
+| `font-heading-sm` size | `--text-lg` | `text-lg` |
+| `font-body` size | `--text-base` | `text-base` |
+| `font-label` and `font-button` size | `--text-sm` | `text-sm` |
+| `space-1` | `--spacing` × 1 | `p-1`, `m-1`, `gap-1` |
+| `space-2` | `--spacing` × 2 | `p-2`, `m-2`, `gap-2` |
+| `space-3` | `--spacing` × 3 | `p-3`, `m-3`, `gap-3` |
+| `space-4` | `--spacing` × 4 | `p-4`, `m-4`, `gap-4` |
+| `space-5` | `--spacing` × 5 | `p-5`, `m-5`, `gap-5` |
+| `space-6` | `--spacing` × 6 | `p-6`, `m-6`, `gap-6` |
+| `space-7` | `--spacing` × 7 | `p-7`, `m-7`, `gap-7` |
+| `space-8` | `--spacing` × 8 | `p-8`, `m-8`, `gap-8` |
+| `radius-sm` | `--radius-sm` | `rounded-sm` |
+| `radius-md` | `--radius-md` | `rounded-md` |
+| `radius-lg` | `--radius-lg` | `rounded-lg` |
+| `radius-xl` | `--radius-xl` | `rounded-xl` |
+| `border-color-default` | `--border` | `border-border` |
+| `focus-ring-color` | `--ring` | `ring-ring` |
+
+Typography rows marked “size” map only the size utility. Weight, line-height, and letter-spacing remain semantic token properties and must not be inferred from a utility name.
+
+### 5.2 Mapping gaps that require verification
+
+| Design token or category | CSS variable | Tailwind token or utility | Required next step |
+| --- | --- | --- | --- |
+| `color-info` | `TODO: verify semantic source variable` | — | Reconcile with the approved informational color role before mapping |
+| `color-hover` | `TODO: verify semantic source variable` | — | Reconcile state treatment before mapping |
+| `color-pressed` | `TODO: verify semantic source variable` | — | Reconcile state treatment before mapping |
+| `color-text-disabled` | `TODO: verify semantic source variable` | — | Reconcile disabled-content treatment before mapping |
+| `radius-xs` | `TODO: no verified CSS variable` | — | Do not add a value until the source registry defines it |
+| `radius-full` | `TODO: no verified CSS variable` | — | Do not add a value until the source registry defines it |
+| `elevation-*` | `TODO: verify semantic shadow mapping` | — | Map only after elevation levels are tied to existing shadow variables |
+| `motion-*` | `TODO: no verified CSS duration variable` | — | Do not invent a CSS duration variable |
+| `breakpoint-*` | `TODO: verify CSS token source; mobile threshold is currently defined in code` | — | Reconcile responsive source before adding mappings |
+| `opacity-*` | `TODO: no verified project token source` | — | Register only after a controlled source exists |
+| `z-index-*` | `TODO: no verified project token source` | — | Register only after a controlled source exists |
+
+### 5.3 Mapping rules
+
+- A mapping must point to an existing project variable or an existing Tailwind theme token.
+- A missing mapping is not a reason to create a new value.
+- A CSS variable and a Tailwind utility may be mapped only when their semantics and value source match.
+- Mapping documentation must be updated when a source variable is renamed, deprecated, or removed.
+- Component code consumes the semantic token; this table does not define component implementation.
+
+## 6. AI token rules
 
 AI-assisted design and implementation must follow every rule below:
 
@@ -67,9 +169,9 @@ AI-assisted design and implementation must follow every rule below:
 
 AI must stop and request human review when no existing token expresses the intended meaning. It must not silently create, rename, delete, or reinterpret a token.
 
-## 4. Token naming rules
+## 7. Token naming rules
 
-### 4.1 Canonical naming
+### 7.1 Canonical naming
 
 Use lowercase semantic names with stable hyphen-separated roles:
 
@@ -86,7 +188,7 @@ Use lowercase semantic names with stable hyphen-separated roles:
 | `elevation-2` | `card-shadow` |
 | `motion-duration-standard` | `fast-animation` |
 
-### 4.2 Naming constraints
+### 7.2 Naming constraints
 
 - Name by meaning: `color-danger`, not a color hue.
 - Name by role: `font-body`, not a component name.
@@ -96,7 +198,7 @@ Use lowercase semantic names with stable hyphen-separated roles:
 - Do not use page, component, brand-campaign, or one-off names in the shared registry.
 - Every token has a purpose, type, owner, supported mode, fallback, and deprecation status.
 
-## 5. Color tokens
+## 8. Color tokens
 
 The color token is the consumer-facing contract. The light and dark columns record the current private theme-source values or semantic aliases; they are not values to copy into UI code. Product consumers must never use HEX, RGB, or HSL directly. Literal theme values belong only in the controlled token source.
 
@@ -108,15 +210,15 @@ The color token is the consumer-facing contract. The light and dark columns reco
 | `color-background` | Application canvas behind all surfaces | `0 0% 100%` | `222 47% 9%` |
 | `color-surface` | Card, panel, field, and grouped content surface | `0 0% 100%` | `222 47% 11%` |
 | `color-border` | Default structural boundary and divider | `214 32% 91%` | `215 28% 18%` |
-| `color-success` | Confirmed, complete, or healthy state | `142 71% 45%` | `142 71% 45%` |
-| `color-warning` | Caution requiring attention but not failure | `36 100% 50%` | `36 100% 50%` |
+| `color-success` | Confirmed, complete, or healthy state | `TODO: verify semantic source variable` | `TODO: verify semantic source variable` |
+| `color-warning` | Caution requiring attention but not failure | `TODO: verify semantic source variable` | `TODO: verify semantic source variable` |
 | `color-danger` | Destructive, failed, invalid, or high-risk state | `0 72% 51%` | `0 63% 46%` |
-| `color-info` | Neutral informative state or guidance | `color-primary` | `color-primary` |
+| `color-info` | Neutral informative state or guidance | `TODO: verify semantic source variable` | `TODO: verify semantic source variable` |
 | `color-text-primary` | Main readable content and headings | `222 47% 11%` | `213 31% 91%` |
 | `color-text-secondary` | Supporting content and metadata | `215 16% 47%` | `215 20% 55%` |
-| `color-text-disabled` | Inactive content that remains discoverable | `color-text-secondary / 60%` | `color-text-secondary / 60%` |
-| `color-hover` | Hover or pointer-preview state | `color-accent` | `color-accent` |
-| `color-pressed` | Active press or committed pointer state | `color-secondary` | `color-secondary` |
+| `color-text-disabled` | Inactive content that remains discoverable | `TODO: verify semantic source variable` | `TODO: verify semantic source variable` |
+| `color-hover` | Hover or pointer-preview state | `TODO: verify semantic source variable` | `TODO: verify semantic source variable` |
+| `color-pressed` | Active press or committed pointer state | `TODO: verify semantic source variable` | `TODO: verify semantic source variable` |
 | `color-focus` | Keyboard, switch, or programmatic focus indication | `221 83% 53%` | `224 76% 48%` |
 
 ### Color rules
@@ -132,31 +234,31 @@ The color token is the consumer-facing contract. The light and dark columns reco
 
 See [COLOR_SYSTEM.md](./COLOR_SYSTEM.md) for color meaning and evidence requirements.
 
-## 6. Typography tokens
+## 9. Typography tokens
 
-### 6.1 Family and fallback
+### 9.1 Family and fallback
 
 | Token | Canonical value |
 | --- | --- |
 | `font-family-base` | `Hind Siliguri` |
-| `font-family-fallback` | `ui-sans-serif, system-ui, sans-serif` |
-| `font-family-mono` | `ui-monospace, SFMono-Regular, monospace` |
+| `font-family-fallback` | `sans-serif` |
+| `font-family-mono` | `'JetBrains Mono', Menlo, monospace` |
 
-### 6.2 Type roles
+### 9.2 Type roles
 
 | Token | Size | Weight | Line height | Letter spacing | Use |
 | --- | ---: | ---: | ---: | ---: | --- |
-| `font-heading-xl` | `2rem` | `700` | `1.2` | `-0.02em` | Rare page or product-level heading |
-| `font-heading-lg` | `1.5rem` | `700` | `1.25` | `-0.01em` | Page title or major section |
-| `font-heading-md` | `1.25rem` | `600` | `1.3` | `0` | Section heading |
-| `font-heading-sm` | `1.125rem` | `600` | `1.35` | `0` | Subsection heading |
-| `font-body` | `1rem` | `400` | `1.5` | `0` | Operational copy and instructions |
-| `font-subtitle` | `0.9375rem` | `500` | `1.45` | `0` | Supporting lead or summary |
-| `font-caption` | `0.8125rem` | `400` | `1.35` | `0.01em` | Non-critical metadata |
-| `font-label` | `0.875rem` | `600` | `1.3` | `0.01em` | Field, metric, and status label |
-| `font-button` | `0.875rem` | `600` | `1.2` | `0.01em` | Action label |
-| `font-input` | `1rem` | `400` | `1.4` | `0` | User-entered value |
-| `font-table` | `0.875rem` | `400` | `1.4` | `0` | Tabular records and supporting values |
+| `font-heading-xl` | `TODO: verify source role scale` | `TODO: verify source role weight` | `TODO: verify source role line-height` | `TODO: verify source role tracking` | Rare page or product-level heading |
+| `font-heading-lg` | 1.5rem; CSS variable `--text-2xl` | `TODO: verify source role weight` | `--text-2xl--line-height` | `TODO: verify source role tracking` | Page title or major section |
+| `font-heading-md` | 1.25rem; CSS variable `--text-xl` | `TODO: verify source role weight` | `--text-xl--line-height` | `TODO: verify source role tracking` | Section heading |
+| `font-heading-sm` | 1.125rem; CSS variable `--text-lg` | `TODO: verify source role weight` | `--text-lg--line-height` | `TODO: verify source role tracking` | Subsection heading |
+| `font-body` | 1rem; CSS variable `--text-base` | `TODO: verify source role weight` | `--text-base--line-height` | `TODO: verify source role tracking` | Operational copy and instructions |
+| `font-subtitle` | `TODO: verify source role scale` | `TODO: verify source role weight` | `TODO: verify source role line-height` | `TODO: verify source role tracking` | Supporting lead or summary |
+| `font-caption` | `TODO: verify source role scale` | `TODO: verify source role weight` | `TODO: verify source role line-height` | `TODO: verify source role tracking` | Non-critical metadata |
+| `font-label` | 0.875rem; CSS variable `--text-sm` | `TODO: verify source role weight` | `--text-sm--line-height` | `TODO: verify source role tracking` | Field, metric, and status label |
+| `font-button` | 0.875rem; CSS variable `--text-sm` | `TODO: verify source role weight` | `--text-sm--line-height` | `TODO: verify source role tracking` | Action label |
+| `font-input` | 1rem; CSS variable `--text-base` | `TODO: verify source role weight` | `--text-base--line-height` | `TODO: verify source role tracking` | User-entered value |
+| `font-table` | 0.875rem; CSS variable `--text-sm` | `TODO: verify source role weight` | `--text-sm--line-height` | `TODO: verify source role tracking` | Tabular records and supporting values |
 
 ### Typography rules
 
@@ -171,7 +273,7 @@ See [COLOR_SYSTEM.md](./COLOR_SYSTEM.md) for color meaning and evidence requirem
 
 See [TYPOGRAPHY_SYSTEM.md](./TYPOGRAPHY_SYSTEM.md) for type rationale and review evidence.
 
-## 7. Spacing tokens
+## 10. Spacing tokens
 
 EduTrack uses an 8pt system. The only base spacing values are 4, 8, 12, 16, 24, 32, 48, and 64. Product consumers use the semantic token, not a raw number.
 
@@ -196,16 +298,16 @@ EduTrack uses an 8pt system. The only base spacing values are 4, 8, 12, 16, 24, 
 
 See [SPACING_SYSTEM.md](./SPACING_SYSTEM.md) for density and responsive spacing evidence.
 
-## 8. Radius tokens
+## 11. Radius tokens
 
 | Token | Value | Semantic use |
 | --- | ---: | --- |
-| `radius-xs` | `2px` | Minimal restraint for compact controls or data surfaces |
+| `radius-xs` | `TODO: no verified CSS variable` | Minimal restraint for compact controls or data surfaces |
 | `radius-sm` | `4px` | Small fields, tags, and compact controls |
 | `radius-md` | `6px` | Default fields, buttons, cards, and panels |
 | `radius-lg` | `8px` | Prominent cards and grouped surfaces |
 | `radius-xl` | `12px` | Large containers and intentional emphasis |
-| `radius-full` | `9999px` | Pills, circular controls, and status badges |
+| `radius-full` | `TODO: no verified CSS variable` | Pills, circular controls, and status badges |
 
 Radius rules:
 
@@ -214,7 +316,7 @@ Radius rules:
 - Do not encode component names into radius tokens.
 - A radius change is a system change; update the token, not every consumer.
 
-## 9. Elevation tokens
+## 12. Elevation tokens
 
 Elevation tokens define semantic elevation only, not decoration. The shadow recipe for each level is maintained by the token source and is never written inline.
 
@@ -234,16 +336,16 @@ Elevation rules:
 
 See [ELEVATION_SYSTEM.md](./ELEVATION_SYSTEM.md) for layering and evidence requirements.
 
-## 10. Border tokens
+## 13. Border tokens
 
 | Token | Canonical value or reference | Semantic use |
 | --- | --- | --- |
-| `border-width-default` | `1px` | Standard structural boundary |
-| `border-width-strong` | `2px` | Emphasis, selected boundary, or critical separation |
+| `border-width-default` | `TODO: verify source border-width token` | Standard structural boundary |
+| `border-width-strong` | `TODO: verify source border-width token` | Emphasis, selected boundary, or critical separation |
 | `border-color-default` | `color-border` | Default border and divider color |
 | `border-color-focus` | `color-focus` | Focus boundary and focus-ring companion |
-| `border-style-default` | `solid` | Default border style |
-| `border-focus-width` | `2px` | Minimum visible focus boundary |
+| `border-style-default` | `TODO: verify source border-style token` | Default border style |
+| `border-focus-width` | `TODO: verify source focus-border token` | Minimum visible focus boundary |
 
 Border rules:
 
@@ -252,17 +354,17 @@ Border rules:
 - Use `color-border` or a semantic state color, never a raw color.
 - Do not create one-off border widths or styles in consumer code.
 
-## 11. Icon tokens
+## 14. Icon tokens
 
 | Token | Value | Semantic use |
 | --- | ---: | --- |
-| `icon-size-xs` | `12px` | Dense metadata or inline status support |
-| `icon-size-sm` | `16px` | Compact labels and secondary controls |
-| `icon-size-md` | `20px` | Default inline and control icon |
-| `icon-size-lg` | `24px` | Navigation and primary action icon |
-| `icon-size-xl` | `32px` | Prominent empty, status, or orientation icon |
-| `icon-stroke-default` | `2` | Default outline stroke |
-| `icon-stroke-emphasis` | `2.5` | Emphasis where the icon remains legible |
+| `icon-size-xs` | `TODO: verify source icon-size token` | Dense metadata or inline status support |
+| `icon-size-sm` | `TODO: verify source icon-size token` | Compact labels and secondary controls |
+| `icon-size-md` | `TODO: verify source icon-size token` | Default inline and control icon |
+| `icon-size-lg` | `TODO: verify source icon-size token` | Navigation and primary action icon |
+| `icon-size-xl` | `TODO: verify source icon-size token` | Prominent empty, status, or orientation icon |
+| `icon-stroke-default` | `TODO: verify source icon-stroke token` | Default outline stroke |
+| `icon-stroke-emphasis` | `TODO: verify source icon-stroke token` | Emphasis where the icon remains legible |
 | `icon-gap-inline` | `space-2` | Icon-to-label relationship |
 | `icon-gap-control` | `space-2` | Icon-to-control text relationship |
 | `icon-gap-status` | `space-2` | Status icon-to-status text relationship |
@@ -276,7 +378,7 @@ Icon rules:
 
 See [ICONOGRAPHY.md](./ICONOGRAPHY.md) for icon meaning and accessibility evidence.
 
-## 12. Motion tokens
+## 15. Motion tokens
 
 Only these animation durations are allowed:
 
@@ -297,17 +399,17 @@ Motion rules:
 
 See [MOTION_GUIDELINES.md](./MOTION_GUIDELINES.md) for behavior and reduced-motion evidence.
 
-## 13. Responsive tokens
+## 16. Responsive tokens
 
 Breakpoints are behavior thresholds, not device-brand assumptions. Components and pages reflow when content or task needs require it.
 
 | Token | Threshold or range | Primary mode |
 | --- | --- | --- |
 | `breakpoint-mobile` | `0–767px` | Single-column task flow and touch-first controls |
-| `breakpoint-tablet` | `768px` | Two-region composition and 8-column layout |
-| `breakpoint-laptop` | `1024px` | Expanded work area and desktop navigation threshold |
-| `breakpoint-desktop` | `1280px` | Full 12-column composition |
-| `breakpoint-large-desktop` | `1536px` | Wider container with stable reading measure |
+| `breakpoint-tablet` | `TODO: verify source threshold` | Two-region composition and 8-column layout |
+| `breakpoint-laptop` | `TODO: verify source threshold` | Expanded work area and desktop navigation threshold |
+| `breakpoint-desktop` | `TODO: verify source threshold` | Full 12-column composition |
+| `breakpoint-large-desktop` | `TODO: verify source threshold` | Wider container with stable reading measure |
 
 Responsive rules:
 
@@ -319,9 +421,9 @@ Responsive rules:
 
 See [RESPONSIVE_SYSTEM.md](./RESPONSIVE_SYSTEM.md) for reflow and platform evidence.
 
-## 14. Grid tokens
+## 17. Grid tokens
 
-### 14.1 Columns
+### 17.1 Columns
 
 | Token | Value | Use |
 | --- | ---: | --- |
@@ -329,15 +431,15 @@ See [RESPONSIVE_SYSTEM.md](./RESPONSIVE_SYSTEM.md) for reflow and platform evide
 | `grid-columns-tablet` | `8` | Tablet composition |
 | `grid-columns-desktop` | `12` | Laptop, desktop, and large desktop composition |
 
-### 14.2 Containers, gutters, and margins
+### 17.2 Containers, gutters, and margins
 
 | Token | Value | Use |
 | --- | ---: | --- |
-| `container-mobile` | `100%` | Full available width within mobile inset |
-| `container-tablet` | `720px` | Centered tablet content limit |
-| `container-laptop` | `960px` | Centered laptop content limit |
-| `container-desktop` | `1200px` | Centered desktop content limit |
-| `container-large-desktop` | `1440px` | Centered large desktop content limit |
+| `container-mobile` | `TODO: verify source container width` | Full available width within mobile inset |
+| `container-tablet` | `TODO: verify source container width` | Centered tablet content limit |
+| `container-laptop` | `TODO: verify source container width` | Centered laptop content limit |
+| `container-desktop` | `TODO: verify source container width` | Centered desktop content limit |
+| `container-large-desktop` | `TODO: verify source container width` | Centered large desktop content limit |
 | `gutter-mobile` | `space-4` | Mobile column and page inset |
 | `gutter-tablet` | `space-5` | Tablet column gutter and page inset |
 | `gutter-laptop` | `space-5` | Laptop column gutter |
@@ -356,21 +458,21 @@ Grid rules:
 
 See [LAYOUT_GRID.md](./LAYOUT_GRID.md) for geometry and alignment evidence.
 
-## 15. Accessibility tokens
+## 18. Accessibility tokens
 
 These tokens are minimum release requirements. [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md) remains the evidence and release gate.
 
 | Token | Canonical value | Requirement |
 | --- | --- | --- |
 | `focus-ring-color` | `color-focus` | Visible against every supported surface |
-| `focus-ring-width` | `3px` | Minimum visible focus indicator |
+| `focus-ring-width` | `TODO: verify source focus-ring width` | Minimum visible focus indicator |
 | `focus-ring-offset` | `space-1` | Separates focus from the control boundary |
 | `touch-target-min` | `44×44 CSS px` | Minimum operable target with safe separation |
 | `touch-target-primary` | `48×48 CSS px` | Preferred size for primary mobile actions |
 | `contrast-text-normal` | `4.5:1 minimum` | WCAG 2.2 AA normal text |
 | `contrast-text-large` | `3:1 minimum` | WCAG 2.2 AA large text |
 | `contrast-non-text` | `3:1 minimum` | Meaningful controls, focus, and graphical boundaries |
-| `font-size-accessible-min` | `14px` | Minimum functional interface text |
+| `font-size-accessible-min` | `TODO: verify project minimum; see TYPOGRAPHY_SYSTEM.md` | Minimum functional interface text |
 | `reflow-zoom` | `200%` | Required zoom and text enlargement condition |
 
 Accessibility rules:
@@ -380,7 +482,7 @@ Accessibility rules:
 - Contrast tokens are minimums, not targets to work around.
 - Reduced motion, high contrast, text enlargement, localization, and assistive technology are supported token conditions.
 
-## 16. Validation rules
+## 19. Validation rules
 
 Every UI must:
 
@@ -407,7 +509,54 @@ Every UI must:
 
 Validation fails when a consumer introduces an undefined token, raw value, duplicate alias, unowned token, unsupported mode, or token reference that cannot resolve.
 
-## 17. Maintenance rules
+## 20. Token lifecycle
+
+Every token follows this lifecycle:
+
+**Draft → Approved → Deprecated → Removed**
+
+| Stage | Meaning | Required gate |
+| --- | --- | --- |
+| Draft | Proposed token or mapping under review; not available to product consumers. | Semantic purpose, source evidence, owner, and affected surfaces are recorded. |
+| Approved | Registered token may be consumed by approved product code. | Naming, source mapping, accessibility, mode behavior, and usage evidence pass review. |
+| Deprecated | Token remains available for backward compatibility but must not be used for new work. | Replacement token, migration mapping, owner, deprecation date, and consumer inventory are recorded. |
+| Removed | Token is no longer available after migration is complete. | All consumers migrate, validation passes, release evidence is recorded, and governance approves removal. |
+
+Lifecycle rules:
+
+- A token cannot skip from Draft to Removed.
+- A token is not Approved because it appears in a design file or generated output; it must be registered here.
+- A TODO/reference value remains Draft until its source is verified.
+- Lifecycle status must be reviewable without inspecting component implementation.
+
+## 21. Deprecation rules
+
+- Never delete tokens directly.
+- Mark the token as Deprecated in this registry.
+- Provide a replacement token with equivalent or intentionally documented semantics.
+- Maintain backward compatibility while consumers migrate.
+- Inventory and migrate every consumer before removal.
+- Remove a token only after migration validation, release evidence, and governance approval.
+- Do not repurpose a deprecated token for a new meaning.
+
+## 22. Token versioning
+
+Token registry versions use semantic versioning:
+
+| Version change | Meaning | Examples |
+| --- | --- | --- |
+| Major | Breaking token changes | Rename, removal, changed meaning, incompatible value contract, or migration required |
+| Minor | New tokens | New approved semantic token or non-breaking token category addition |
+| Patch | Documentation/metadata updates | Clarification, mapping correction, source reference, lifecycle metadata, or typo fix |
+
+Versioning rules:
+
+- A major change requires a replacement mapping, migration plan, compatibility window, and release evidence.
+- A minor change must not silently alter existing token meaning or values.
+- A patch must not change token meaning, consumer behavior, or registered values.
+- Update the version in this document with every approved registry change.
+
+## 23. Maintenance rules
 
 - Design tokens may evolve through a reviewed, versioned change.
 - Component implementations MUST NOT encode token values or change merely because a token value changes.
@@ -419,7 +568,7 @@ Validation fails when a consumer introduces an undefined token, raw value, dupli
 - Keep token source, generated outputs, and consumer usage separately reviewable.
 - Record system-wide token changes and evidence through [QUALITY_GATES.md](./QUALITY_GATES.md) and [PRODUCT_GOVERNANCE.md](./PRODUCT_GOVERNANCE.md).
 
-## 18. References and boundaries
+## 24. References and boundaries
 
 | Need | Canonical reference |
 | --- | --- |
@@ -436,3 +585,4 @@ Validation fails when a consumer introduces an undefined token, raw value, dupli
 | Responsive adaptation | [RESPONSIVE_SYSTEM.md](./RESPONSIVE_SYSTEM.md) |
 | Accessibility release gate | [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md) |
 | Evidence and release decision | [QUALITY_GATES.md](./QUALITY_GATES.md) |
+| Token governance and escalation | [PRODUCT_GOVERNANCE.md](./PRODUCT_GOVERNANCE.md) |
