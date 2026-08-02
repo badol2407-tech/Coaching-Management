@@ -11,7 +11,7 @@ related_documents:
   - ./REVIEW_CHECKLISTS.md
 review_frequency: Quarterly and after documentation architecture or governance changes
 owner: Product Governance Council
-version: 1.4.0
+version: 1.5.0
 status: Active documentation homepage
 last_updated: 2026-08-01
 normative_level: Navigation and orientation
@@ -27,11 +27,12 @@ EduTrack documentation is a governed system of product principles, release stand
 1. **Product principles** — [PRODUCT_CONSTITUTION.md](./PRODUCT_CONSTITUTION.md) defines the durable beliefs and ethical commitments.
 2. **Governance** — [PRODUCT_GOVERNANCE.md](./PRODUCT_GOVERNANCE.md) defines authority, precedence, exceptions, evidence, and change control.
 3. **Release gates** — [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md), [ETHICAL_UX_GUIDELINES.md](./ETHICAL_UX_GUIDELINES.md), [ENGINEERING_STANDARDS.md](./ENGINEERING_STANDARDS.md), and [AI_UX_GUIDELINES.md](./AI_UX_GUIDELINES.md) define binding quality and safety requirements.
-4. **Product structure and interaction** — Information Architecture, Navigation, Interaction, Forms, Search, Filters, Tables, Mobile, Responsive, Patterns, and Copywriting explain how the product behaves.
-5. **Design system foundations and data** — Design Tokens, Spacing, Layout, Iconography, Elevation, State, Feedback, Notifications, Tables, Color, Typography, Motion, Gestalt, Dashboard, and Data Visualization define reusable expression and domain presentation.
-6. **Safety, resilience, and localization** — Error, Loading, Empty, Permission, Security, Internationalization, and accessibility testing handbooks define implementation-ready quality behavior.
-7. **Core module specifications** — The module handbooks under [modules/](./modules/) translate the canonical standards into role, scope, journey, screen, permission, state, AI, security, performance, and acceptance contracts for Dashboard, Students, Teachers, Organization, Authentication, Profile, Attendance, Exams, Classes, Subjects, Routine, Academic Sessions, Fees, Reports, Analytics, Notifications, Search, Filters, AI Assistant, Roles and Permissions, Settings, Audit Logs, Integrations, Import and Export, Backup and Recovery, Multi-Tenancy, and Future Enterprise Modules.
-8. **Review guidance** — [REVIEW_CHECKLISTS.md](./REVIEW_CHECKLISTS.md), [QUALITY_GATES.md](./QUALITY_GATES.md), [USABILITY_HEURISTICS.md](./USABILITY_HEURISTICS.md), and [UX_LAWS.md](./UX_LAWS.md) help teams inspect work. Review guidance cannot override a release gate.
+4. **Architecture** — [FRONTEND_ARCHITECTURE.md](./FRONTEND_ARCHITECTURE.md), [BACKEND_ARCHITECTURE.md](./BACKEND_ARCHITECTURE.md), [FOLDER_STRUCTURE.md](./FOLDER_STRUCTURE.md), [ROUTING_ARCHITECTURE.md](./ROUTING_ARCHITECTURE.md), [STATE_MANAGEMENT.md](./STATE_MANAGEMENT.md), [API_LAYER_ARCHITECTURE.md](./API_LAYER_ARCHITECTURE.md), and [DATA_FLOW_ARCHITECTURE.md](./DATA_FLOW_ARCHITECTURE.md) describe implementation boundaries and distinguish current paths from target guidance.
+5. **Product structure and interaction** — Information Architecture, Navigation, Interaction, Forms, Search, Filters, Tables, Mobile, Responsive, Patterns, and Copywriting explain how the product behaves.
+6. **Design system foundations and data** — Design Tokens, Spacing, Layout, Iconography, Elevation, State, Feedback, Notifications, Tables, Color, Typography, Motion, Gestalt, Dashboard, and Data Visualization define reusable expression and domain presentation.
+7. **Safety, resilience, and localization** — Error, Loading, Empty, Permission, Security, Internationalization, and accessibility testing handbooks define implementation-ready quality behavior.
+8. **Core module specifications** — The module handbooks under [modules/](./modules/) translate the canonical standards into role, scope, journey, screen, permission, state, AI, security, performance, and acceptance contracts for Dashboard, Students, Teachers, Organization, Authentication, Profile, Attendance, Exams, Classes, Subjects, Routine, Academic Sessions, Fees, Reports, Analytics, Notifications, Search, Filters, AI Assistant, Roles and Permissions, Settings, Audit Logs, Integrations, Import and Export, Backup and Recovery, Multi-Tenancy, and Future Enterprise Modules.
+9. **Review guidance** — [REVIEW_CHECKLISTS.md](./REVIEW_CHECKLISTS.md), [QUALITY_GATES.md](./QUALITY_GATES.md), [USABILITY_HEURISTICS.md](./USABILITY_HEURISTICS.md), and [UX_LAWS.md](./UX_LAWS.md) help teams inspect work. Review guidance cannot override a release gate.
 
 See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and ownership matrix.
 
@@ -65,9 +66,10 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 1. [PRODUCT_GOVERNANCE.md](./PRODUCT_GOVERNANCE.md)
 2. [ENGINEERING_STANDARDS.md](./ENGINEERING_STANDARDS.md)
 3. [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md)
-4. The relevant domain handbook: [DASHBOARD_DESIGN_GUIDE.md](./DASHBOARD_DESIGN_GUIDE.md), [DATA_VISUALIZATION_GUIDE.md](./DATA_VISUALIZATION_GUIDE.md), [FORM_DESIGN_GUIDE.md](./FORM_DESIGN_GUIDE.md), or [AI_UX_GUIDELINES.md](./AI_UX_GUIDELINES.md)
-5. The relevant [core module specification](./modules/) when the work affects Dashboard, Students, Teachers, Organization, Authentication, Profile, Attendance, Exams, Classes, Subjects, Routine, Academic Sessions, Fees, Reports, Analytics, Notifications, Search, Filters, AI Assistant, Roles and Permissions, Settings, Audit Logs, Integrations, Import and Export, Backup and Recovery, Multi-Tenancy, or Future Enterprise Modules
-6. [REVIEW_CHECKLISTS.md](./REVIEW_CHECKLISTS.md)
+4. The relevant architecture handbook: [FRONTEND_ARCHITECTURE.md](./FRONTEND_ARCHITECTURE.md), [BACKEND_ARCHITECTURE.md](./BACKEND_ARCHITECTURE.md), [ROUTING_ARCHITECTURE.md](./ROUTING_ARCHITECTURE.md), [STATE_MANAGEMENT.md](./STATE_MANAGEMENT.md), [API_LAYER_ARCHITECTURE.md](./API_LAYER_ARCHITECTURE.md), or [DATA_FLOW_ARCHITECTURE.md](./DATA_FLOW_ARCHITECTURE.md)
+5. The relevant domain handbook: [DASHBOARD_DESIGN_GUIDE.md](./DASHBOARD_DESIGN_GUIDE.md), [DATA_VISUALIZATION_GUIDE.md](./DATA_VISUALIZATION_GUIDE.md), [FORM_DESIGN_GUIDE.md](./FORM_DESIGN_GUIDE.md), or [AI_UX_GUIDELINES.md](./AI_UX_GUIDELINES.md)
+6. The relevant [core module specification](./modules/) when the work affects Dashboard, Students, Teachers, Organization, Authentication, Profile, Attendance, Exams, Classes, Subjects, Routine, Academic Sessions, Fees, Reports, Analytics, Notifications, Search, Filters, AI Assistant, Roles and Permissions, Settings, Audit Logs, Integrations, Import and Export, Backup and Recovery, Multi-Tenancy, or Future Enterprise Modules
+7. [REVIEW_CHECKLISTS.md](./REVIEW_CHECKLISTS.md)
 
 ## Quick navigation
 
@@ -77,6 +79,11 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 | Resolve a standards conflict | [Product Governance](./PRODUCT_GOVERNANCE.md) |
 | Find a canonical term | [Glossary](./GLOSSARY.md) |
 | Understand document ownership | [Documentation Map](./DOCUMENTATION_MAP.md) |
+| Understand implementation boundaries | [Frontend Architecture](./FRONTEND_ARCHITECTURE.md), [Backend Architecture](./BACKEND_ARCHITECTURE.md), and [Folder Structure](./FOLDER_STRUCTURE.md) |
+| Understand routes and Role layouts | [Routing Architecture](./ROUTING_ARCHITECTURE.md) |
+| Understand frontend state ownership | [State Management](./STATE_MANAGEMENT.md) |
+| Understand API contracts and generated clients | [API Layer Architecture](./API_LAYER_ARCHITECTURE.md) |
+| Trace identity, scope, and records | [Data Flow Architecture](./DATA_FLOW_ARCHITECTURE.md) |
 | Review a release | [Quality Gates](./QUALITY_GATES.md) and [Review Checklists](./REVIEW_CHECKLISTS.md) |
 | Design accessible behavior | [Accessibility Standards](./ACCESSIBILITY_STANDARDS.md) |
 | Test accessibility | [Accessibility Testing](./ACCESSIBILITY_TESTING.md) |
@@ -142,6 +149,13 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 | [ELEVATION_SYSTEM.md](./ELEVATION_SYSTEM.md) | Defines surfaces, overlays, depth, and stacking behavior. |
 | [EMPTY_STATES.md](./EMPTY_STATES.md) | Defines truthful empty states and recovery actions. |
 | [ENGINEERING_STANDARDS.md](./ENGINEERING_STANDARDS.md) | Defines technical correctness, security, reliability, and maintainability. |
+| [FRONTEND_ARCHITECTURE.md](./FRONTEND_ARCHITECTURE.md) | Defines the React/Vite web composition, frontend boundaries, and current Firebase data path. |
+| [BACKEND_ARCHITECTURE.md](./BACKEND_ARCHITECTURE.md) | Defines the current Firebase boundary and separate Express/OpenAPI/Drizzle backend architecture. |
+| [FOLDER_STRUCTURE.md](./FOLDER_STRUCTURE.md) | Defines repository package ownership and implementation placement. |
+| [ROUTING_ARCHITECTURE.md](./ROUTING_ARCHITECTURE.md) | Defines public, authenticated, Role-specific, and impersonated route families. |
+| [STATE_MANAGEMENT.md](./STATE_MANAGEMENT.md) | Defines ownership of auth, profile, cache, URL, local, and mutation state. |
+| [API_LAYER_ARCHITECTURE.md](./API_LAYER_ARCHITECTURE.md) | Defines OpenAPI, generated clients, Zod schemas, transport, and Express implementation boundaries. |
+| [DATA_FLOW_ARCHITECTURE.md](./DATA_FLOW_ARCHITECTURE.md) | Defines identity, Organization scope, Firestore, cache, upload, audit, and API data movement. |
 | [ERROR_HANDLING.md](./ERROR_HANDLING.md) | Defines error categories, safe input preservation, and recovery. |
 | [ETHICAL_UX_GUIDELINES.md](./ETHICAL_UX_GUIDELINES.md) | Defines dignity, fairness, safety, privacy, and accountability expectations. |
 | [FEEDBACK_SYSTEM.md](./FEEDBACK_SYSTEM.md) | Defines point-of-action status, progress, consequence, and recovery feedback. |

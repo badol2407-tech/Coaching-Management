@@ -10,7 +10,7 @@ related_documents:
   - ./DECISION_LOG.md
 review_frequency: Quarterly and after documentation architecture changes
 owner: Product Governance Council
-version: 1.4.0
+version: 1.5.0
 status: Active architecture map
 last_updated: 2026-08-01
 normative_level: Governance reference
@@ -58,6 +58,12 @@ PRODUCT_GOVERNANCE -----> DECISION_LOG / CHANGELOG
          |                               --> DESIGN_SYSTEM_GUIDE
          |      FORM_DESIGN_GUIDE --> SEARCH_EXPERIENCE / FILTER_SYSTEM
          |      MOBILE_UX_GUIDE --> RESPONSIVE_SYSTEM
+         |
+          +--> IMPLEMENTATION ARCHITECTURE
+                 FOLDER_STRUCTURE
+                 FRONTEND_ARCHITECTURE --> ROUTING_ARCHITECTURE / STATE_MANAGEMENT
+                 BACKEND_ARCHITECTURE --> API_LAYER_ARCHITECTURE
+                 DATA_FLOW_ARCHITECTURE --> FRONTEND_ARCHITECTURE / BACKEND_ARCHITECTURE / API_LAYER_ARCHITECTURE
         |
          +--> VISUAL AND DATA SYSTEM
          |      DESIGN_TOKENS --> SPACING_SYSTEM / LAYOUT_GRID / ICONOGRAPHY / ELEVATION_SYSTEM
@@ -95,6 +101,13 @@ INDEX is the navigation homepage for every layer.
 | Safety, dignity, fairness, privacy, and accountability | [ETHICAL_UX_GUIDELINES.md](./ETHICAL_UX_GUIDELINES.md) | Constitution, AI UX, Governance |
 | AI Assistant behavior | [AI_UX_GUIDELINES.md](./AI_UX_GUIDELINES.md) | Constitution, Ethical UX, Accessibility |
 | Technical correctness and reliability | [ENGINEERING_STANDARDS.md](./ENGINEERING_STANDARDS.md) | Governance, Review Checklists |
+| Repository and package placement | [FOLDER_STRUCTURE.md](./FOLDER_STRUCTURE.md) | Frontend Architecture, Backend Architecture, API Layer Architecture |
+| Web composition and frontend runtime boundaries | [FRONTEND_ARCHITECTURE.md](./FRONTEND_ARCHITECTURE.md) | Routing Architecture, State Management, Data Flow Architecture, Components |
+| Service, persistence, and backend boundaries | [BACKEND_ARCHITECTURE.md](./BACKEND_ARCHITECTURE.md) | API Layer Architecture, Data Flow Architecture, Engineering Standards |
+| Route families, Role layouts, and deep-link implementation | [ROUTING_ARCHITECTURE.md](./ROUTING_ARCHITECTURE.md) | Navigation Standards, Information Architecture, Frontend Architecture |
+| Frontend state ownership and cache identity | [STATE_MANAGEMENT.md](./STATE_MANAGEMENT.md) | State System, Interaction Design, Frontend Architecture, Data Flow Architecture |
+| API contract, generation, transport, and implementation status | [API_LAYER_ARCHITECTURE.md](./API_LAYER_ARCHITECTURE.md) | Backend Architecture, Frontend Architecture, Engineering Standards |
+| End-to-end identity, scope, record, upload, and error movement | [DATA_FLOW_ARCHITECTURE.md](./DATA_FLOW_ARCHITECTURE.md) | Multi-Tenancy, Authentication, Audit Logs, Frontend Architecture, Backend Architecture |
 | Information structure and scope | [INFORMATION_ARCHITECTURE.md](./INFORMATION_ARCHITECTURE.md) | Navigation, Forms, Dashboard |
 | Navigation and route behavior | [NAVIGATION_STANDARDS.md](./NAVIGATION_STANDARDS.md) | Information Architecture, Accessibility, Mobile |
 | Interaction states and recovery | [INTERACTION_DESIGN.md](./INTERACTION_DESIGN.md) and [STATE_SYSTEM.md](./STATE_SYSTEM.md) | Feedback, Error Handling, Loading States, Empty States, Components, Forms, Motion, Patterns |
@@ -171,4 +184,7 @@ Every module below consumes the same canonical structure, interaction, component
 - File Upload is subordinate to FORM_DESIGN_GUIDE.md, ENGINEERING_STANDARDS.md, and ETHICAL_UX_GUIDELINES.md.
 - FAB is subordinate to MOBILE_UX_GUIDE.md, RESPONSIVE_SYSTEM.md, and PERMISSION_DESIGN.md.
 - Core module specifications under [modules/](./modules/) translate the canonical standards into module contracts; they may clarify scope and behavior but may not override an owning handbook or create duplicate thresholds.
+- Architecture handbooks describe implementation boundaries and current-state observations; they may not convert a target contract into an implemented capability.
+- `FRONTEND_ARCHITECTURE.md` is the current web composition owner; `BACKEND_ARCHITECTURE.md` is the service and persistence boundary owner; `API_LAYER_ARCHITECTURE.md` is the contract/generation boundary owner; and `DATA_FLOW_ARCHITECTURE.md` describes their connections without replacing any of them.
+- The Firebase-first web path and the separate Express/OpenAPI/Drizzle path must remain explicitly distinguished until an approved source-of-truth and migration decision changes that relationship.
 - If a change affects a dependency, update the dependent document's Related documents metadata and record the change.
