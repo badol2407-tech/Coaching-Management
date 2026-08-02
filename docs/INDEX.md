@@ -23,9 +23,16 @@ related_documents:
   - ./OBSERVABILITY.md
   - ./ERROR_MONITORING.md
   - ./DISASTER_RECOVERY.md
+  - ./SECURITY_CHECKLIST.md
+  - ./DEPLOYMENT_CHECKLIST.md
+  - ./OPERATIONS_RUNBOOK.md
+  - ./INCIDENT_RESPONSE.md
+  - ./MAINTENANCE_GUIDE.md
+  - ./CHANGE_MANAGEMENT.md
+  - ./SUPPORT_PLAYBOOK.md
 review_frequency: Quarterly and after documentation architecture or governance changes
 owner: Product Governance Council
-version: 2.0.0
+version: 3.0.0
 status: Active documentation homepage
 last_updated: 2026-08-02
 normative_level: Navigation and orientation
@@ -42,13 +49,14 @@ EduTrack documentation is a governed system of product principles, release stand
 2. **Governance** — [PRODUCT_GOVERNANCE.md](./PRODUCT_GOVERNANCE.md) defines authority, precedence, exceptions, evidence, and change control.
 3. **Release gates** — [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md), [ETHICAL_UX_GUIDELINES.md](./ETHICAL_UX_GUIDELINES.md), [ENGINEERING_STANDARDS.md](./ENGINEERING_STANDARDS.md), and [AI_UX_GUIDELINES.md](./AI_UX_GUIDELINES.md) define binding quality and safety requirements.
 4. **Architecture** — [FRONTEND_ARCHITECTURE.md](./FRONTEND_ARCHITECTURE.md), [BACKEND_ARCHITECTURE.md](./BACKEND_ARCHITECTURE.md), [FOLDER_STRUCTURE.md](./FOLDER_STRUCTURE.md), [ROUTING_ARCHITECTURE.md](./ROUTING_ARCHITECTURE.md), [STATE_MANAGEMENT.md](./STATE_MANAGEMENT.md), [API_LAYER_ARCHITECTURE.md](./API_LAYER_ARCHITECTURE.md), [DATA_FLOW_ARCHITECTURE.md](./DATA_FLOW_ARCHITECTURE.md), [AUTHENTICATION_ARCHITECTURE.md](./AUTHENTICATION_ARCHITECTURE.md), [AUTHORIZATION_ARCHITECTURE.md](./AUTHORIZATION_ARCHITECTURE.md), [SECURITY_ARCHITECTURE.md](./SECURITY_ARCHITECTURE.md), [DATABASE_ARCHITECTURE.md](./DATABASE_ARCHITECTURE.md), [FIREBASE_ARCHITECTURE.md](./FIREBASE_ARCHITECTURE.md), [CACHING_STRATEGY.md](./CACHING_STRATEGY.md), and [PERFORMANCE_ARCHITECTURE.md](./PERFORMANCE_ARCHITECTURE.md) describe implementation boundaries and distinguish current paths from target guidance.
-5. **Delivery and resilience** — [TESTING_STRATEGY.md](./TESTING_STRATEGY.md), [CI_CD_ARCHITECTURE.md](./CI_CD_ARCHITECTURE.md), [DEPLOYMENT_ARCHITECTURE.md](./DEPLOYMENT_ARCHITECTURE.md), [RELEASE_MANAGEMENT.md](./RELEASE_MANAGEMENT.md), [MONITORING_AND_LOGGING.md](./MONITORING_AND_LOGGING.md), [OBSERVABILITY.md](./OBSERVABILITY.md), [ERROR_MONITORING.md](./ERROR_MONITORING.md), and [DISASTER_RECOVERY.md](./DISASTER_RECOVERY.md) define evidence, promotion, operational signals, failure response, and recovery boundaries.
+5. **Delivery and resilience** — [TESTING_STRATEGY.md](./TESTING_STRATEGY.md), [CI_CD_ARCHITECTURE.md](./CI_CD_ARCHITECTURE.md), [DEPLOYMENT_ARCHITECTURE.md](./DEPLOYMENT_ARCHITECTURE.md), [DEPLOYMENT_CHECKLIST.md](./DEPLOYMENT_CHECKLIST.md), [RELEASE_MANAGEMENT.md](./RELEASE_MANAGEMENT.md), [MONITORING_AND_LOGGING.md](./MONITORING_AND_LOGGING.md), [OBSERVABILITY.md](./OBSERVABILITY.md), [ERROR_MONITORING.md](./ERROR_MONITORING.md), [OPERATIONS_RUNBOOK.md](./OPERATIONS_RUNBOOK.md), [INCIDENT_RESPONSE.md](./INCIDENT_RESPONSE.md), and [DISASTER_RECOVERY.md](./DISASTER_RECOVERY.md) define evidence, promotion, operational signals, failure response, and recovery boundaries.
 6. **Contributor practice** — [CONTRIBUTING.md](./CONTRIBUTING.md), [ENVIRONMENT_SETUP.md](./ENVIRONMENT_SETUP.md), [TECH_STACK.md](./TECH_STACK.md), [CODING_STANDARDS.md](./CODING_STANDARDS.md), [PROJECT_CONVENTIONS.md](./PROJECT_CONVENTIONS.md), [CODE_OWNERSHIP.md](./CODE_OWNERSHIP.md), [GIT_WORKFLOW.md](./GIT_WORKFLOW.md), and [CODE_REVIEW_GUIDELINES.md](./CODE_REVIEW_GUIDELINES.md) explain how to work within the governed repository without creating parallel standards.
 7. **Product structure and interaction** — Information Architecture, Navigation, Interaction, Forms, Search, Filters, Tables, Mobile, Responsive, Patterns, and Copywriting explain how the product behaves.
 8. **Design system foundations and data** — Design Tokens, Spacing, Layout, Iconography, Elevation, State, Feedback, Notifications, Tables, Color, Typography, Motion, Gestalt, Dashboard, and Data Visualization define reusable expression and domain presentation.
-9. **Safety, resilience, and localization** — Error, Loading, Empty, Permission, Security, Internationalization, and accessibility testing handbooks define implementation-ready quality behavior.
+9. **Safety, resilience, and localization** — Error, Loading, Empty, Permission, Security, [SECURITY_CHECKLIST.md](./SECURITY_CHECKLIST.md), Internationalization, and accessibility testing handbooks define implementation-ready quality behavior.
 10. **Core module specifications** — The module handbooks under [modules/](./modules/) translate the canonical standards into role, scope, journey, screen, permission, state, AI, security, performance, and acceptance contracts for Dashboard, Students, Teachers, Organization, Authentication, Profile, Attendance, Exams, Classes, Subjects, Routine, Academic Sessions, Fees, Reports, Analytics, Notifications, Search, Filters, AI Assistant, Roles and Permissions, Settings, Audit Logs, Integrations, Import and Export, Backup and Recovery, Multi-Tenancy, and Future Enterprise Modules.
 11. **Review guidance** — [REVIEW_CHECKLISTS.md](./REVIEW_CHECKLISTS.md), [QUALITY_GATES.md](./QUALITY_GATES.md), [CODE_REVIEW_GUIDELINES.md](./CODE_REVIEW_GUIDELINES.md), [QA_CHECKLIST.md](./QA_CHECKLIST.md), [USABILITY_HEURISTICS.md](./USABILITY_HEURISTICS.md), and [UX_LAWS.md](./UX_LAWS.md) help teams inspect work. Review guidance cannot override a release gate.
+12. **Operational change and support** — [CHANGE_MANAGEMENT.md](./CHANGE_MANAGEMENT.md), [MAINTENANCE_GUIDE.md](./MAINTENANCE_GUIDE.md), [SUPPORT_PLAYBOOK.md](./SUPPORT_PLAYBOOK.md), and [INCIDENT_RESPONSE.md](./INCIDENT_RESPONSE.md) coordinate safe change, upkeep, user support, and incident follow-up.
 
 See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and ownership matrix.
 
@@ -110,6 +118,16 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 5. [TEST_CASE_TEMPLATE.md](./TEST_CASE_TEMPLATE.md) and [QA_CHECKLIST.md](./QA_CHECKLIST.md) for scoped QA evidence.
 6. [AUTOMATION_GUIDE.md](./AUTOMATION_GUIDE.md) when checks or delivery automation are selected or changed.
 
+### Operating, changing, and supporting service
+
+1. [SECURITY_CHECKLIST.md](./SECURITY_CHECKLIST.md) for security and privacy evidence.
+2. [DEPLOYMENT_CHECKLIST.md](./DEPLOYMENT_CHECKLIST.md) for deployment execution and verification.
+3. [OPERATIONS_RUNBOOK.md](./OPERATIONS_RUNBOOK.md) for operational diagnosis and safe first action.
+4. [INCIDENT_RESPONSE.md](./INCIDENT_RESPONSE.md) when impact requires coordinated response.
+5. [MAINTENANCE_GUIDE.md](./MAINTENANCE_GUIDE.md) for upkeep, drift, dependencies, and recovery readiness.
+6. [CHANGE_MANAGEMENT.md](./CHANGE_MANAGEMENT.md) for impact, decision, implementation, communication, and closeout.
+7. [SUPPORT_PLAYBOOK.md](./SUPPORT_PLAYBOOK.md) for safe user intake, triage, escalation, and closure.
+
 ## Quick navigation
 
 | Need | Start here |
@@ -149,11 +167,18 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 | Execute QA evidence | [QA Checklist](./QA_CHECKLIST.md) |
 | Record a repeatable test | [Test Case Template](./TEST_CASE_TEMPLATE.md) |
 | Select or evolve automation | [Automation Guide](./AUTOMATION_GUIDE.md) |
+| Review security readiness | [Security Checklist](./SECURITY_CHECKLIST.md) |
+| Execute and verify a deployment | [Deployment Checklist](./DEPLOYMENT_CHECKLIST.md) |
 | Manage a release handoff | [Release Management](./RELEASE_MANAGEMENT.md) |
 | Understand operational signals and structured logs | [Monitoring and Logging](./MONITORING_AND_LOGGING.md) |
 | Correlate journeys, signals, and outcomes | [Observability](./OBSERVABILITY.md) |
 | Group and triage application errors | [Error Monitoring](./ERROR_MONITORING.md) |
+| Diagnose an operational condition | [Operations Runbook](./OPERATIONS_RUNBOOK.md) |
+| Coordinate an incident | [Incident Response](./INCIDENT_RESPONSE.md) |
 | Plan disaster response and return to service | [Disaster Recovery](./DISASTER_RECOVERY.md) |
+| Plan maintenance and reduce drift | [Maintenance Guide](./MAINTENANCE_GUIDE.md) |
+| Coordinate a cross-functional change | [Change Management](./CHANGE_MANAGEMENT.md) |
+| Handle a support request safely | [Support Playbook](./SUPPORT_PLAYBOOK.md) |
 | Review a release | [Quality Gates](./QUALITY_GATES.md) and [Review Checklists](./REVIEW_CHECKLISTS.md) |
 | Design accessible behavior | [Accessibility Standards](./ACCESSIBILITY_STANDARDS.md) |
 | Test accessibility | [Accessibility Testing](./ACCESSIBILITY_TESTING.md) |
@@ -238,6 +263,8 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 | [QA_CHECKLIST.md](./QA_CHECKLIST.md) | Organizes scoped QA execution, evidence, defects, retest, and release handoff. |
 | [TEST_CASE_TEMPLATE.md](./TEST_CASE_TEMPLATE.md) | Records repeatable test intent, procedure, execution context, result, and retest. |
 | [AUTOMATION_GUIDE.md](./AUTOMATION_GUIDE.md) | Describes safe validation and delivery automation without claiming unevidenced automation. |
+| [SECURITY_CHECKLIST.md](./SECURITY_CHECKLIST.md) | Organizes security, privacy, access, data, telemetry, incident, and evidence review. |
+| [DEPLOYMENT_CHECKLIST.md](./DEPLOYMENT_CHECKLIST.md) | Organizes deployment preparation, promotion, verification, rollback, and closeout evidence. |
 | [RELEASE_MANAGEMENT.md](./RELEASE_MANAGEMENT.md) | Defines practical release classification, readiness, promotion, verification, and recovery handoff. |
 | [FRONTEND_ARCHITECTURE.md](./FRONTEND_ARCHITECTURE.md) | Defines the React/Vite web composition, frontend boundaries, and current Firebase data path. |
 | [BACKEND_ARCHITECTURE.md](./BACKEND_ARCHITECTURE.md) | Defines the current Firebase boundary and separate Express/OpenAPI/Drizzle backend architecture. |
@@ -261,6 +288,11 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 | [OBSERVABILITY.md](./OBSERVABILITY.md) | Defines correlation of signals across journeys, releases, dependencies, outcomes, and recovery. |
 | [ERROR_MONITORING.md](./ERROR_MONITORING.md) | Defines error grouping, severity, triage, regression detection, and remediation evidence. |
 | [DISASTER_RECOVERY.md](./DISASTER_RECOVERY.md) | Defines disaster scenarios, recovery objectives, restoration, validation, and return to service. |
+| [OPERATIONS_RUNBOOK.md](./OPERATIONS_RUNBOOK.md) | Provides operational diagnosis, containment, recovery routing, and closeout guidance. |
+| [INCIDENT_RESPONSE.md](./INCIDENT_RESPONSE.md) | Coordinates incident declaration, containment, evidence, communication, recovery, and learning. |
+| [MAINTENANCE_GUIDE.md](./MAINTENANCE_GUIDE.md) | Organizes dependency, drift, configuration, provider, observability, recovery, and documentation maintenance. |
+| [CHANGE_MANAGEMENT.md](./CHANGE_MANAGEMENT.md) | Coordinates change intake, impact, decisions, evidence, communication, release, and closeout. |
+| [SUPPORT_PLAYBOOK.md](./SUPPORT_PLAYBOOK.md) | Guides safe support intake, triage, escalation, communication, and resolution. |
 | [ERROR_HANDLING.md](./ERROR_HANDLING.md) | Defines error categories, safe input preservation, and recovery. |
 | [ETHICAL_UX_GUIDELINES.md](./ETHICAL_UX_GUIDELINES.md) | Defines dignity, fairness, safety, privacy, and accountability expectations. |
 | [FEEDBACK_SYSTEM.md](./FEEDBACK_SYSTEM.md) | Defines point-of-action status, progress, consequence, and recovery feedback. |

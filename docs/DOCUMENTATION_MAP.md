@@ -18,9 +18,16 @@ related_documents:
   - ./TEST_CASE_TEMPLATE.md
   - ./CODE_OWNERSHIP.md
   - ./AUTOMATION_GUIDE.md
+  - ./SECURITY_CHECKLIST.md
+  - ./DEPLOYMENT_CHECKLIST.md
+  - ./OPERATIONS_RUNBOOK.md
+  - ./INCIDENT_RESPONSE.md
+  - ./MAINTENANCE_GUIDE.md
+  - ./CHANGE_MANAGEMENT.md
+  - ./SUPPORT_PLAYBOOK.md
 review_frequency: Quarterly and after documentation architecture changes
 owner: Product Governance Council
-version: 2.0.0
+version: 3.0.0
 status: Active architecture map
 last_updated: 2026-08-02
 normative_level: Governance reference
@@ -100,6 +107,14 @@ PRODUCT_GOVERNANCE -----> DECISION_LOG / CHANGELOG
                   ARCHITECTURE_DECISIONS --> ADR_TEMPLATE
                   TESTING_STRATEGY --> TEST_CASE_TEMPLATE --> QA_CHECKLIST --> QUALITY_GATES
                   TESTING_STRATEGY --> AUTOMATION_GUIDE --> CI_CD_ARCHITECTURE
+                  SECURITY_ARCHITECTURE --> SECURITY_CHECKLIST --> QUALITY_GATES
+                  DEPLOYMENT_ARCHITECTURE --> DEPLOYMENT_CHECKLIST --> RELEASE_MANAGEMENT
+                  MONITORING_AND_LOGGING --> OPERATIONS_RUNBOOK --> INCIDENT_RESPONSE
+                  ERROR_MONITORING --> INCIDENT_RESPONSE
+                  DISASTER_RECOVERY --> INCIDENT_RESPONSE
+                  RELEASE_MANAGEMENT --> CHANGE_MANAGEMENT --> CHANGELOG / DECISION_LOG
+                  MAINTENANCE_GUIDE --> CHANGE_MANAGEMENT
+                  INCIDENT_RESPONSE --> SUPPORT_PLAYBOOK
         |
          +--> VISUAL AND DATA SYSTEM
          |      DESIGN_TOKENS --> SPACING_SYSTEM / LAYOUT_GRID / ICONOGRAPHY / ELEVATION_SYSTEM
@@ -169,11 +184,18 @@ INDEX is the navigation homepage for every layer.
 | QA execution and handoff | [QA_CHECKLIST.md](./QA_CHECKLIST.md) | Testing Strategy, Test Case Template, Quality Gates, Accessibility Testing |
 | Delivery stages, generated artifacts, and promotion checks | [CI_CD_ARCHITECTURE.md](./CI_CD_ARCHITECTURE.md) | Testing Strategy, Engineering Standards, Quality Gates, Security Architecture, Deployment Architecture |
 | Validation and delivery automation guidance | [AUTOMATION_GUIDE.md](./AUTOMATION_GUIDE.md) | Testing Strategy, CI/CD Architecture, Quality Gates, Environment Setup |
+| Security review and evidence checklist | [SECURITY_CHECKLIST.md](./SECURITY_CHECKLIST.md) | Security Architecture, Authentication Architecture, Authorization Architecture, Testing Strategy, Quality Gates |
 | Environments, deployment units, readiness, and rollback | [DEPLOYMENT_ARCHITECTURE.md](./DEPLOYMENT_ARCHITECTURE.md) | CI/CD Architecture, Backend Architecture, Firebase Architecture, Database Architecture, Security Architecture, Disaster Recovery |
+| Deployment execution and verification checklist | [DEPLOYMENT_CHECKLIST.md](./DEPLOYMENT_CHECKLIST.md) | Deployment Architecture, CI/CD Architecture, Release Management, Quality Gates, Disaster Recovery |
 | Operational signals, structured logs, and health monitoring | [MONITORING_AND_LOGGING.md](./MONITORING_AND_LOGGING.md) | Engineering Standards, Security Architecture, Error Handling, Performance Architecture, Audit Logs |
 | Cross-signal journey correlation and operational diagnosis | [OBSERVABILITY.md](./OBSERVABILITY.md) | Monitoring and Logging, Performance Architecture, Data Flow Architecture, Deployment Architecture, Error Monitoring |
 | Error grouping, severity, triage, and regression monitoring | [ERROR_MONITORING.md](./ERROR_MONITORING.md) | Error Handling, Monitoring and Logging, Observability, Security Architecture, Deployment Architecture |
 | Disaster scenarios, recovery coordination, and return to service | [DISASTER_RECOVERY.md](./DISASTER_RECOVERY.md) | Backup and Recovery, Deployment Architecture, Monitoring and Logging, Security Architecture, Database Architecture |
+| Operational diagnosis, containment, and closeout | [OPERATIONS_RUNBOOK.md](./OPERATIONS_RUNBOOK.md) | Monitoring and Logging, Observability, Error Monitoring, Deployment Architecture, Disaster Recovery |
+| Incident declaration, response, recovery, and learning | [INCIDENT_RESPONSE.md](./INCIDENT_RESPONSE.md) | Operations Runbook, Security Architecture, Error Monitoring, Disaster Recovery, Release Management |
+| Dependency, drift, provider, and recovery maintenance | [MAINTENANCE_GUIDE.md](./MAINTENANCE_GUIDE.md) | Engineering Standards, Security Architecture, Deployment Architecture, Database Architecture, Firebase Architecture, Documentation Map |
+| Change intake, impact, decision, and closeout | [CHANGE_MANAGEMENT.md](./CHANGE_MANAGEMENT.md) | Product Governance, Architecture Decisions, PR Template, Quality Gates, Release Management, Changelog |
+| Safe support intake, triage, escalation, and closure | [SUPPORT_PLAYBOOK.md](./SUPPORT_PLAYBOOK.md) | Feedback System, Error Handling, Authorization Architecture, Security Architecture, Operations Runbook, Incident Response |
 | Information structure and scope | [INFORMATION_ARCHITECTURE.md](./INFORMATION_ARCHITECTURE.md) | Navigation, Forms, Dashboard |
 | Navigation and route behavior | [NAVIGATION_STANDARDS.md](./NAVIGATION_STANDARDS.md) | Information Architecture, Accessibility, Mobile |
 | Interaction states and recovery | [INTERACTION_DESIGN.md](./INTERACTION_DESIGN.md) and [STATE_SYSTEM.md](./STATE_SYSTEM.md) | Feedback, Error Handling, Loading States, Empty States, Components, Forms, Motion, Patterns |
@@ -275,6 +297,13 @@ Every module below consumes the same canonical structure, interaction, component
 - `DEPLOYMENT_ARCHITECTURE.md` owns environment and deployment-unit boundaries; `BACKEND_ARCHITECTURE.md`, `FIREBASE_ARCHITECTURE.md`, and `DATABASE_ARCHITECTURE.md` remain owners of their respective runtime and persistence boundaries.
 - `MONITORING_AND_LOGGING.md` owns signal emission and safe structured telemetry; `OBSERVABILITY.md` owns cross-signal interpretation; `ERROR_MONITORING.md` owns operational error grouping and triage; `ERROR_HANDLING.md` remains the user-facing error owner.
 - `DISASTER_RECOVERY.md` coordinates cross-service disaster response and return to service; `modules/Backup_and_Recovery.md` remains the source of truth for snapshot, restore, validation, retention, and recovery-operation behavior.
+- `SECURITY_CHECKLIST.md` organizes security evidence; Security Architecture and the identity, authorization, Firebase, database, privacy, and engineering owners remain authoritative.
+- `DEPLOYMENT_CHECKLIST.md` organizes deployment execution evidence; Deployment Architecture, CI/CD Architecture, Release Management, and Quality Gates remain authoritative.
+- `OPERATIONS_RUNBOOK.md` routes operational diagnosis and safe actions; Monitoring and Logging, Observability, Error Monitoring, Deployment Architecture, and Disaster Recovery remain authoritative.
+- `INCIDENT_RESPONSE.md` coordinates incident work; it does not create a severity, response-time, notification, retention, legal, security, or recovery policy.
+- `MAINTENANCE_GUIDE.md` organizes upkeep and drift review; it does not invent maintenance intervals, compatibility guarantees, retention periods, or automatic updates.
+- `CHANGE_MANAGEMENT.md` coordinates change work; Product Governance, Architecture Decisions, Quality Gates, and Release Management remain authoritative for decisions and release outcomes.
+- `SUPPORT_PLAYBOOK.md` organizes safe support handling; it does not create support SLAs, impersonation authority, privacy policy, retention periods, or user-facing message standards.
 - Operational handbooks may describe current gaps and target controls but may not claim deployed monitoring, tested recovery, protected branches, environment approvals, or service readiness without evidence.
 - The Firebase-first web path and the separate Express/OpenAPI/Drizzle path must remain explicitly distinguished until an approved source-of-truth and migration decision changes that relationship.
 - If a change affects a dependency, update the dependent document's Related documents metadata and record the change.
