@@ -9,9 +9,16 @@ related_documents:
   - ./PRODUCT_CONSTITUTION.md
   - ./PRODUCT_GOVERNANCE.md
   - ./REVIEW_CHECKLISTS.md
+  - ./TESTING_STRATEGY.md
+  - ./CI_CD_ARCHITECTURE.md
+  - ./DEPLOYMENT_ARCHITECTURE.md
+  - ./MONITORING_AND_LOGGING.md
+  - ./OBSERVABILITY.md
+  - ./ERROR_MONITORING.md
+  - ./DISASTER_RECOVERY.md
 review_frequency: Quarterly and after documentation architecture or governance changes
 owner: Product Governance Council
-version: 1.6.0
+version: 1.7.0
 status: Active documentation homepage
 last_updated: 2026-08-02
 normative_level: Navigation and orientation
@@ -28,11 +35,12 @@ EduTrack documentation is a governed system of product principles, release stand
 2. **Governance** — [PRODUCT_GOVERNANCE.md](./PRODUCT_GOVERNANCE.md) defines authority, precedence, exceptions, evidence, and change control.
 3. **Release gates** — [ACCESSIBILITY_STANDARDS.md](./ACCESSIBILITY_STANDARDS.md), [ETHICAL_UX_GUIDELINES.md](./ETHICAL_UX_GUIDELINES.md), [ENGINEERING_STANDARDS.md](./ENGINEERING_STANDARDS.md), and [AI_UX_GUIDELINES.md](./AI_UX_GUIDELINES.md) define binding quality and safety requirements.
 4. **Architecture** — [FRONTEND_ARCHITECTURE.md](./FRONTEND_ARCHITECTURE.md), [BACKEND_ARCHITECTURE.md](./BACKEND_ARCHITECTURE.md), [FOLDER_STRUCTURE.md](./FOLDER_STRUCTURE.md), [ROUTING_ARCHITECTURE.md](./ROUTING_ARCHITECTURE.md), [STATE_MANAGEMENT.md](./STATE_MANAGEMENT.md), [API_LAYER_ARCHITECTURE.md](./API_LAYER_ARCHITECTURE.md), [DATA_FLOW_ARCHITECTURE.md](./DATA_FLOW_ARCHITECTURE.md), [AUTHENTICATION_ARCHITECTURE.md](./AUTHENTICATION_ARCHITECTURE.md), [AUTHORIZATION_ARCHITECTURE.md](./AUTHORIZATION_ARCHITECTURE.md), [SECURITY_ARCHITECTURE.md](./SECURITY_ARCHITECTURE.md), [DATABASE_ARCHITECTURE.md](./DATABASE_ARCHITECTURE.md), [FIREBASE_ARCHITECTURE.md](./FIREBASE_ARCHITECTURE.md), [CACHING_STRATEGY.md](./CACHING_STRATEGY.md), and [PERFORMANCE_ARCHITECTURE.md](./PERFORMANCE_ARCHITECTURE.md) describe implementation boundaries and distinguish current paths from target guidance.
-5. **Product structure and interaction** — Information Architecture, Navigation, Interaction, Forms, Search, Filters, Tables, Mobile, Responsive, Patterns, and Copywriting explain how the product behaves.
-6. **Design system foundations and data** — Design Tokens, Spacing, Layout, Iconography, Elevation, State, Feedback, Notifications, Tables, Color, Typography, Motion, Gestalt, Dashboard, and Data Visualization define reusable expression and domain presentation.
-7. **Safety, resilience, and localization** — Error, Loading, Empty, Permission, Security, Internationalization, and accessibility testing handbooks define implementation-ready quality behavior.
-8. **Core module specifications** — The module handbooks under [modules/](./modules/) translate the canonical standards into role, scope, journey, screen, permission, state, AI, security, performance, and acceptance contracts for Dashboard, Students, Teachers, Organization, Authentication, Profile, Attendance, Exams, Classes, Subjects, Routine, Academic Sessions, Fees, Reports, Analytics, Notifications, Search, Filters, AI Assistant, Roles and Permissions, Settings, Audit Logs, Integrations, Import and Export, Backup and Recovery, Multi-Tenancy, and Future Enterprise Modules.
-9. **Review guidance** — [REVIEW_CHECKLISTS.md](./REVIEW_CHECKLISTS.md), [QUALITY_GATES.md](./QUALITY_GATES.md), [USABILITY_HEURISTICS.md](./USABILITY_HEURISTICS.md), and [UX_LAWS.md](./UX_LAWS.md) help teams inspect work. Review guidance cannot override a release gate.
+5. **Delivery and resilience** — [TESTING_STRATEGY.md](./TESTING_STRATEGY.md), [CI_CD_ARCHITECTURE.md](./CI_CD_ARCHITECTURE.md), [DEPLOYMENT_ARCHITECTURE.md](./DEPLOYMENT_ARCHITECTURE.md), [MONITORING_AND_LOGGING.md](./MONITORING_AND_LOGGING.md), [OBSERVABILITY.md](./OBSERVABILITY.md), [ERROR_MONITORING.md](./ERROR_MONITORING.md), and [DISASTER_RECOVERY.md](./DISASTER_RECOVERY.md) define evidence, promotion, operational signals, failure response, and recovery boundaries.
+6. **Product structure and interaction** — Information Architecture, Navigation, Interaction, Forms, Search, Filters, Tables, Mobile, Responsive, Patterns, and Copywriting explain how the product behaves.
+7. **Design system foundations and data** — Design Tokens, Spacing, Layout, Iconography, Elevation, State, Feedback, Notifications, Tables, Color, Typography, Motion, Gestalt, Dashboard, and Data Visualization define reusable expression and domain presentation.
+8. **Safety, resilience, and localization** — Error, Loading, Empty, Permission, Security, Internationalization, and accessibility testing handbooks define implementation-ready quality behavior.
+9. **Core module specifications** — The module handbooks under [modules/](./modules/) translate the canonical standards into role, scope, journey, screen, permission, state, AI, security, performance, and acceptance contracts for Dashboard, Students, Teachers, Organization, Authentication, Profile, Attendance, Exams, Classes, Subjects, Routine, Academic Sessions, Fees, Reports, Analytics, Notifications, Search, Filters, AI Assistant, Roles and Permissions, Settings, Audit Logs, Integrations, Import and Export, Backup and Recovery, Multi-Tenancy, and Future Enterprise Modules.
+10. **Review guidance** — [REVIEW_CHECKLISTS.md](./REVIEW_CHECKLISTS.md), [QUALITY_GATES.md](./QUALITY_GATES.md), [USABILITY_HEURISTICS.md](./USABILITY_HEURISTICS.md), and [UX_LAWS.md](./UX_LAWS.md) help teams inspect work. Review guidance cannot override a release gate.
 
 See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and ownership matrix.
 
@@ -69,7 +77,9 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 4. The relevant architecture handbook: [FRONTEND_ARCHITECTURE.md](./FRONTEND_ARCHITECTURE.md), [BACKEND_ARCHITECTURE.md](./BACKEND_ARCHITECTURE.md), [ROUTING_ARCHITECTURE.md](./ROUTING_ARCHITECTURE.md), [STATE_MANAGEMENT.md](./STATE_MANAGEMENT.md), [API_LAYER_ARCHITECTURE.md](./API_LAYER_ARCHITECTURE.md), [DATA_FLOW_ARCHITECTURE.md](./DATA_FLOW_ARCHITECTURE.md), [AUTHENTICATION_ARCHITECTURE.md](./AUTHENTICATION_ARCHITECTURE.md), [AUTHORIZATION_ARCHITECTURE.md](./AUTHORIZATION_ARCHITECTURE.md), [SECURITY_ARCHITECTURE.md](./SECURITY_ARCHITECTURE.md), [DATABASE_ARCHITECTURE.md](./DATABASE_ARCHITECTURE.md), [FIREBASE_ARCHITECTURE.md](./FIREBASE_ARCHITECTURE.md), [CACHING_STRATEGY.md](./CACHING_STRATEGY.md), or [PERFORMANCE_ARCHITECTURE.md](./PERFORMANCE_ARCHITECTURE.md)
 5. The relevant domain handbook: [DASHBOARD_DESIGN_GUIDE.md](./DASHBOARD_DESIGN_GUIDE.md), [DATA_VISUALIZATION_GUIDE.md](./DATA_VISUALIZATION_GUIDE.md), [FORM_DESIGN_GUIDE.md](./FORM_DESIGN_GUIDE.md), or [AI_UX_GUIDELINES.md](./AI_UX_GUIDELINES.md)
 6. The relevant [core module specification](./modules/) when the work affects Dashboard, Students, Teachers, Organization, Authentication, Profile, Attendance, Exams, Classes, Subjects, Routine, Academic Sessions, Fees, Reports, Analytics, Notifications, Search, Filters, AI Assistant, Roles and Permissions, Settings, Audit Logs, Integrations, Import and Export, Backup and Recovery, Multi-Tenancy, or Future Enterprise Modules
-7. [REVIEW_CHECKLISTS.md](./REVIEW_CHECKLISTS.md)
+7. [TESTING_STRATEGY.md](./TESTING_STRATEGY.md)
+8. [CI_CD_ARCHITECTURE.md](./CI_CD_ARCHITECTURE.md)
+9. [REVIEW_CHECKLISTS.md](./REVIEW_CHECKLISTS.md)
 
 ## Quick navigation
 
@@ -91,6 +101,13 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 | Understand Firebase service boundaries and rules evidence | [Firebase Architecture](./FIREBASE_ARCHITECTURE.md) |
 | Understand cache identity, freshness, and invalidation | [Caching Strategy](./CACHING_STRATEGY.md) |
 | Understand performance measurement and critical paths | [Performance Architecture](./PERFORMANCE_ARCHITECTURE.md) |
+| Define test layers and release evidence | [Testing Strategy](./TESTING_STRATEGY.md) |
+| Understand pipeline checks and promotion | [CI/CD Architecture](./CI_CD_ARCHITECTURE.md) |
+| Understand environments and deployment recovery | [Deployment Architecture](./DEPLOYMENT_ARCHITECTURE.md) |
+| Understand operational signals and structured logs | [Monitoring and Logging](./MONITORING_AND_LOGGING.md) |
+| Correlate journeys, signals, and outcomes | [Observability](./OBSERVABILITY.md) |
+| Group and triage application errors | [Error Monitoring](./ERROR_MONITORING.md) |
+| Plan disaster response and return to service | [Disaster Recovery](./DISASTER_RECOVERY.md) |
 | Review a release | [Quality Gates](./QUALITY_GATES.md) and [Review Checklists](./REVIEW_CHECKLISTS.md) |
 | Design accessible behavior | [Accessibility Standards](./ACCESSIBILITY_STANDARDS.md) |
 | Test accessibility | [Accessibility Testing](./ACCESSIBILITY_TESTING.md) |
@@ -170,6 +187,13 @@ See [DOCUMENTATION_MAP.md](./DOCUMENTATION_MAP.md) for the dependency graph and 
 | [FIREBASE_ARCHITECTURE.md](./FIREBASE_ARCHITECTURE.md) | Defines Firebase Auth, Firestore, Realtime Database, Storage, configuration, rules evidence, and provider boundaries. |
 | [CACHING_STRATEGY.md](./CACHING_STRATEGY.md) | Defines cache ownership, query identity, freshness, invalidation, privacy, and source migration behavior. |
 | [PERFORMANCE_ARCHITECTURE.md](./PERFORMANCE_ARCHITECTURE.md) | Defines critical journeys, measurement, loading order, responsive work, and performance evidence. |
+| [TESTING_STRATEGY.md](./TESTING_STRATEGY.md) | Defines test layers, representative coverage, evidence, and validation boundaries. |
+| [CI_CD_ARCHITECTURE.md](./CI_CD_ARCHITECTURE.md) | Defines delivery stages, generated artifacts, checks, approvals, and promotion. |
+| [DEPLOYMENT_ARCHITECTURE.md](./DEPLOYMENT_ARCHITECTURE.md) | Defines environments, deployment units, migration sequencing, readiness, and rollback. |
+| [MONITORING_AND_LOGGING.md](./MONITORING_AND_LOGGING.md) | Defines safe operational signals, structured logs, health, dependencies, and monitoring ownership. |
+| [OBSERVABILITY.md](./OBSERVABILITY.md) | Defines correlation of signals across journeys, releases, dependencies, outcomes, and recovery. |
+| [ERROR_MONITORING.md](./ERROR_MONITORING.md) | Defines error grouping, severity, triage, regression detection, and remediation evidence. |
+| [DISASTER_RECOVERY.md](./DISASTER_RECOVERY.md) | Defines disaster scenarios, recovery objectives, restoration, validation, and return to service. |
 | [ERROR_HANDLING.md](./ERROR_HANDLING.md) | Defines error categories, safe input preservation, and recovery. |
 | [ETHICAL_UX_GUIDELINES.md](./ETHICAL_UX_GUIDELINES.md) | Defines dignity, fairness, safety, privacy, and accountability expectations. |
 | [FEEDBACK_SYSTEM.md](./FEEDBACK_SYSTEM.md) | Defines point-of-action status, progress, consequence, and recovery feedback. |

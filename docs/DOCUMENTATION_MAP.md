@@ -10,7 +10,7 @@ related_documents:
   - ./DECISION_LOG.md
 review_frequency: Quarterly and after documentation architecture changes
 owner: Product Governance Council
-version: 1.6.0
+version: 1.7.0
 status: Active architecture map
 last_updated: 2026-08-02
 normative_level: Governance reference
@@ -69,6 +69,11 @@ PRODUCT_GOVERNANCE -----> DECISION_LOG / CHANGELOG
                   DATABASE_ARCHITECTURE --> CACHING_STRATEGY / PERFORMANCE_ARCHITECTURE
                   DATA_FLOW_ARCHITECTURE --> FRONTEND_ARCHITECTURE / BACKEND_ARCHITECTURE / API_LAYER_ARCHITECTURE / CACHING_STRATEGY
                   PERFORMANCE_ARCHITECTURE --> QUALITY_GATES
+         |
+          +--> DELIVERY AND RESILIENCE
+                 TESTING_STRATEGY --> CI_CD_ARCHITECTURE --> DEPLOYMENT_ARCHITECTURE
+                 MONITORING_AND_LOGGING --> OBSERVABILITY --> ERROR_MONITORING
+                 DISASTER_RECOVERY --> BACKUP_AND_RECOVERY / DEPLOYMENT_ARCHITECTURE
         |
          +--> VISUAL AND DATA SYSTEM
          |      DESIGN_TOKENS --> SPACING_SYSTEM / LAYOUT_GRID / ICONOGRAPHY / ELEVATION_SYSTEM
@@ -120,6 +125,13 @@ INDEX is the navigation homepage for every layer.
 | Firebase Auth, Firestore, Realtime Database, Storage, rules, and provider boundaries | [FIREBASE_ARCHITECTURE.md](./FIREBASE_ARCHITECTURE.md) | Authentication Architecture, Authorization Architecture, Database Architecture, Security Architecture, Data Flow Architecture |
 | Cache ownership, identity, freshness, invalidation, privacy, and migration | [CACHING_STRATEGY.md](./CACHING_STRATEGY.md) | State Management, Data Flow Architecture, Authentication Architecture, Authorization Architecture, Security Architecture, Database Architecture |
 | Critical journeys, useful work, measurement, and performance evidence | [PERFORMANCE_ARCHITECTURE.md](./PERFORMANCE_ARCHITECTURE.md) | Engineering Standards, Product Constitution, Frontend Architecture, Backend Architecture, Caching Strategy, Quality Gates |
+| Test layers, representative coverage, and release evidence | [TESTING_STRATEGY.md](./TESTING_STRATEGY.md) | Engineering Standards, Quality Gates, Accessibility Testing, Security Architecture, Performance Architecture |
+| Delivery stages, generated artifacts, and promotion checks | [CI_CD_ARCHITECTURE.md](./CI_CD_ARCHITECTURE.md) | Testing Strategy, Engineering Standards, Quality Gates, Security Architecture, Deployment Architecture |
+| Environments, deployment units, readiness, and rollback | [DEPLOYMENT_ARCHITECTURE.md](./DEPLOYMENT_ARCHITECTURE.md) | CI/CD Architecture, Backend Architecture, Firebase Architecture, Database Architecture, Security Architecture, Disaster Recovery |
+| Operational signals, structured logs, and health monitoring | [MONITORING_AND_LOGGING.md](./MONITORING_AND_LOGGING.md) | Engineering Standards, Security Architecture, Error Handling, Performance Architecture, Audit Logs |
+| Cross-signal journey correlation and operational diagnosis | [OBSERVABILITY.md](./OBSERVABILITY.md) | Monitoring and Logging, Performance Architecture, Data Flow Architecture, Deployment Architecture, Error Monitoring |
+| Error grouping, severity, triage, and regression monitoring | [ERROR_MONITORING.md](./ERROR_MONITORING.md) | Error Handling, Monitoring and Logging, Observability, Security Architecture, Deployment Architecture |
+| Disaster scenarios, recovery coordination, and return to service | [DISASTER_RECOVERY.md](./DISASTER_RECOVERY.md) | Backup and Recovery, Deployment Architecture, Monitoring and Logging, Security Architecture, Database Architecture |
 | Information structure and scope | [INFORMATION_ARCHITECTURE.md](./INFORMATION_ARCHITECTURE.md) | Navigation, Forms, Dashboard |
 | Navigation and route behavior | [NAVIGATION_STANDARDS.md](./NAVIGATION_STANDARDS.md) | Information Architecture, Accessibility, Mobile |
 | Interaction states and recovery | [INTERACTION_DESIGN.md](./INTERACTION_DESIGN.md) and [STATE_SYSTEM.md](./STATE_SYSTEM.md) | Feedback, Error Handling, Loading States, Empty States, Components, Forms, Motion, Patterns |
@@ -201,5 +213,10 @@ Every module below consumes the same canonical structure, interaction, component
 - `AUTHENTICATION_ARCHITECTURE.md` is the provider identity and session boundary owner; `AUTHORIZATION_ARCHITECTURE.md` is the access-evaluation and data-boundary owner; `SECURITY_ARCHITECTURE.md` connects cross-cutting security controls without replacing the binding security or engineering standards.
 - `DATABASE_ARCHITECTURE.md` is the persistence, integrity, and migration boundary owner; `FIREBASE_ARCHITECTURE.md` is the Firebase-service and rules-evidence owner; neither document claims a deployed control that is not evidenced.
 - `CACHING_STRATEGY.md` is the cache identity, freshness, invalidation, and persistence boundary owner; `PERFORMANCE_ARCHITECTURE.md` is the useful-work measurement and performance-evidence boundary owner. Neither replaces `STATE_SYSTEM.md` or `ENGINEERING_STANDARDS.md`.
+- `TESTING_STRATEGY.md` owns test-layer selection and evidence shape; `CI_CD_ARCHITECTURE.md` owns pipeline sequencing and artifact promotion; `QUALITY_GATES.md` owns the release decision. They must not create competing thresholds.
+- `DEPLOYMENT_ARCHITECTURE.md` owns environment and deployment-unit boundaries; `BACKEND_ARCHITECTURE.md`, `FIREBASE_ARCHITECTURE.md`, and `DATABASE_ARCHITECTURE.md` remain owners of their respective runtime and persistence boundaries.
+- `MONITORING_AND_LOGGING.md` owns signal emission and safe structured telemetry; `OBSERVABILITY.md` owns cross-signal interpretation; `ERROR_MONITORING.md` owns operational error grouping and triage; `ERROR_HANDLING.md` remains the user-facing error owner.
+- `DISASTER_RECOVERY.md` coordinates cross-service disaster response and return to service; `modules/Backup_and_Recovery.md` remains the source of truth for snapshot, restore, validation, retention, and recovery-operation behavior.
+- Operational handbooks may describe current gaps and target controls but may not claim deployed monitoring, tested recovery, protected branches, environment approvals, or service readiness without evidence.
 - The Firebase-first web path and the separate Express/OpenAPI/Drizzle path must remain explicitly distinguished until an approved source-of-truth and migration decision changes that relationship.
 - If a change affects a dependency, update the dependent document's Related documents metadata and record the change.
