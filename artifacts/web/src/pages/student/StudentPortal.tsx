@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useSearch } from "wouter";
 import {
-  AlertCircle,
   ArrowUpRight,
   Bell,
   BookOpen,
@@ -37,6 +36,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 const DAYS: Record<string, string> = {
@@ -135,84 +135,165 @@ export default function StudentPortal() {
   let content: React.ReactNode;
 
   if (activeTab === "dashboard") {
+    const attendancePercentage = totalDays ? Math.round((presentDays / totalDays) * 100) : 0;
+    const dueAssignments = (homework as any[]).filter((assignment) => assignment.dueDate);
+    const resultCount = (results as any[]).length;
+    const paidFees = (fees as any[]).filter((fee) => fee.status === "paid");
+    const pendingAmount = pendingFees.reduce((sum, fee) => sum + Number(fee.amount || 0), 0);
+    const recentActivity = [
+      ...(notices as any[]).map((notice) => ({
+        id: `notice-${notice.id}`,
+        label: "Notice",
+        title: notice.title,
+        date: notice.createdAt,
+        tab: "notifications",
+      })),
+      ...(homework as any[]).map((assignment) => ({
+        id: `homework-${assignment.id}`,
+        label: "Assignment",
+        title: assignment.title,
+        date: assignment.createdAt || assignment.dueDate,
+        tab: "assignments",
+      })),
+      ...(exams as any[]).map((exam) => ({
+        id: `exam-${exam.id}`,
+        label: "Exam",
+        title: exam.title,
+        date: exam.createdAt || exam.date,
+        tab: "exams",
+      })),
+      ...(results as any[]).map((result) => ({
+        id: `result-${result.id}`,
+        label: "Result",
+        title: examTitle(result.examId),
+        date: result.createdAt,
+        tab: "results",
+      })),
+      ...(fees as any[]).map((fee) => ({
+        id: `fee-${fee.id}`,
+        label: "Fee",
+        title: fee.month || "Fee record",
+        date: fee.createdAt || fee.paidAt,
+        tab: "fees",
+      })),
+    ]
+      .filter((item) => item.date)
+      .sort((a, b) => new Date(String(b.date)).getTime() - new Date(String(a.date)).getTime())
+      .slice(0, 5);
+
     content = (
-      <div className="space-y-6">
-        <div className="grid gap-4 lg:grid-cols-2">
-          <Card className="bg-primary text-primary-foreground">
-            <CardContent className="flex items-start justify-between gap-4 p-6">
-              <div>
-                <p className="text-sm opacity-80">Your academic command center</p>
-                <h2 className="mt-2 text-2xl font-semibold">Good to see you, {userProfile?.name || "Student"}.</h2>
-                <p className="mt-2 max-w-lg text-sm opacity-80">Review what needs your attention, then continue where you left off.</p>
-              </div>
-              <BookOpen className="h-8 w-8 shrink-0 opacity-80" aria-hidden="true" />
-            </CardContent>
-          </Card>
+      <div className="space-y-4">
+        <Card className="overflow-hidden border-primary/20 bg-primary/5">
+          <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-primary">Student workspace</p>
+              <h2 className="mt-1 text-xl font-semibold tracking-tight">Welcome back, {userProfile?.name || "Student"}.</h2>
+              <p className="mt-1 text-sm text-muted-foreground">A focused view of your academic work, progress, and updates.</p>
+            </div>
+            <Button variant="outline" onClick={() => go("notifications")} className="shrink-0">
+              <Bell aria-hidden="true" />Review updates<ArrowUpRight aria-hidden="true" />
+            </Button>
+          </CardContent>
+        </Card>
 
-          <Card>
-            <CardHeader><CardTitle className="text-base">Needs attention</CardTitle></CardHeader>
-            <CardContent className="space-y-2 text-sm">
-              <button
-                type="button"
-                onClick={() => go("fees")}
-                className="flex min-h-11 w-full items-center justify-between rounded-md p-2 text-left hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                <span className="flex items-center gap-2"><AlertCircle className="h-4 w-4 text-destructive" aria-hidden="true" />Pending fees</span>
-                <span className="font-semibold">{pendingFees.length}</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => go("assignments")}
-                className="flex min-h-11 w-full items-center justify-between rounded-md p-2 text-left hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                <span className="flex items-center gap-2"><ClipboardCheck className="h-4 w-4 text-primary" aria-hidden="true" />Assignments</span>
-                <span className="font-semibold">{homework.length}</span>
-              </button>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="Quick actions">
           {[
-            { label: "Attendance", value: totalDays ? `${Math.round((presentDays / totalDays) * 100)}%` : "—", detail: `${presentDays} of ${totalDays} days`, icon: CalendarCheck, tab: "attendance" },
-            { label: "Pending fees", value: `৳${pendingFees.reduce((sum, fee) => sum + fee.amount, 0).toLocaleString()}`, detail: `${pendingFees.length} records`, icon: Wallet, tab: "fees" },
-            { label: "Results", value: String((results as any[]).length), detail: "Published results", icon: ClipboardList, tab: "results" },
-            { label: "Notifications", value: String(notices.length), detail: "Class updates", icon: Bell, tab: "notifications" },
-          ].map(({ label, value, detail, icon: Icon, tab }) => (
+            { label: "Attendance", detail: "View daily records", icon: CalendarCheck, tab: "attendance" },
+            { label: "Assignments", detail: "Check coursework", icon: ClipboardCheck, tab: "assignments" },
+            { label: "Exams", detail: "Review schedule", icon: CalendarDays, tab: "exams" },
+            { label: "Fees", detail: "Check payment status", icon: Wallet, tab: "fees" },
+          ].map(({ label, detail, icon: Icon, tab }) => (
             <button
-              key={label}
+              key={tab}
               type="button"
               onClick={() => go(tab)}
+              data-testid={`button-dashboard-${tab}`}
               className="rounded-xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <Card className="h-full transition-colors hover:bg-accent">
-                <CardContent className="flex items-start justify-between p-5">
-                  <div><p className="text-sm text-muted-foreground">{label}</p><p className="mt-2 text-2xl font-semibold">{value}</p><p className="mt-1 text-xs text-muted-foreground">{detail}</p></div>
-                  <Icon className="h-5 w-5 text-primary" aria-hidden="true" />
+                <CardContent className="flex items-center gap-3 p-4">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"><Icon className="h-4 w-4" aria-hidden="true" /></span>
+                  <span className="min-w-0"><span className="block font-semibold">{label}</span><span className="block truncate text-sm text-muted-foreground">{detail}</span></span>
+                  <ArrowUpRight className="ml-auto h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
                 </CardContent>
               </Card>
             </button>
           ))}
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-2">
-          <Card>
-            <CardHeader><CardTitle className="text-base">Upcoming work</CardTitle></CardHeader>
-            <CardContent>
-              {homework.length ? homework.slice(0, 3).map((assignment: any) => (
-                <div key={assignment.id} className="flex items-center justify-between gap-3 border-b py-3 last:border-0">
-                  <div className="min-w-0"><p className="truncate font-medium">{assignment.title}</p><p className="text-sm text-muted-foreground">{assignment.subject || "Course work"}</p></div>
-                  <Badge variant="outline">{assignment.dueDate || "Open"}</Badge>
-                </div>
-              )) : <p className="text-sm text-muted-foreground">No assignments are currently listed.</p>}
+        <div className="grid gap-4 lg:grid-cols-3">
+          <Card className="lg:col-span-2">
+            <CardHeader className="pb-3"><CardTitle className="text-base">Attendance health</CardTitle></CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex flex-wrap items-end justify-between gap-3">
+                <div><p className="text-3xl font-semibold">{totalDays ? `${attendancePercentage}%` : "—"}</p><p className="text-sm text-muted-foreground" id="dashboard-attendance-summary">{totalDays ? `${presentDays} present days across ${totalDays} recorded days` : "No attendance records available yet"}</p></div>
+                <Button variant="outline" size="sm" onClick={() => go("attendance")}>Open attendance</Button>
+              </div>
+              <Progress value={attendancePercentage} aria-label={totalDays ? `Attendance ${attendancePercentage} percent` : "Attendance unavailable"} aria-describedby="dashboard-attendance-summary" />
             </CardContent>
           </Card>
           <Card>
-            <CardHeader><CardTitle className="text-base">Latest notices</CardTitle></CardHeader>
+            <CardHeader className="pb-3"><CardTitle className="text-base">Fee status</CardTitle></CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-center justify-between gap-3"><span className="text-sm text-muted-foreground">Outstanding</span><span className="font-semibold">৳{pendingAmount.toLocaleString()}</span></div>
+              <div className="flex items-center justify-between gap-3"><span className="text-sm text-muted-foreground">Paid records</span><Badge variant={paidFees.length ? "secondary" : "outline"}>{paidFees.length}</Badge></div>
+              <div className="flex items-center justify-between gap-3"><span className="text-sm text-muted-foreground">Pending records</span><Badge variant={pendingFees.length ? "destructive" : "secondary"}>{pendingFees.length}</Badge></div>
+              <Button variant="outline" size="sm" onClick={() => go("fees")}>View fee records</Button>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid gap-4 lg:grid-cols-3">
+          <Card>
+            <CardHeader className="pb-3"><CardTitle className="text-base">Assignments due</CardTitle></CardHeader>
+            <CardContent className="space-y-2">
+              {dueAssignments.length ? dueAssignments.slice(0, 3).map((assignment: any) => (
+                <button key={assignment.id} type="button" onClick={() => go("assignments")} data-testid={`button-dashboard-assignment-${assignment.id}`} className="flex min-h-11 w-full items-center justify-between gap-3 rounded-md border-b py-2 text-left last:border-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                  <span className="min-w-0"><span className="block truncate font-medium">{assignment.title}</span><span className="block text-sm text-muted-foreground">{assignment.subject || "Course work"}</span></span><Badge variant="outline">{assignment.dueDate}</Badge>
+                </button>
+              )) : <p className="text-sm text-muted-foreground">No assignments with due dates are listed.</p>}
+              <Button variant="link" size="sm" onClick={() => go("assignments")} className="px-0">Open assignments</Button>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-3"><CardTitle className="text-base">Upcoming exams</CardTitle></CardHeader>
+            <CardContent className="space-y-2">
+              {exams.length ? (exams as any[]).slice(0, 3).map((exam) => (
+                <button key={exam.id} type="button" onClick={() => go("exams")} data-testid={`button-dashboard-exam-${exam.id}`} className="flex min-h-11 w-full items-center justify-between gap-3 rounded-md border-b py-2 text-left last:border-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                  <span className="min-w-0"><span className="block truncate font-medium">{exam.title}</span><span className="block text-sm text-muted-foreground">{exam.totalMarks} marks</span></span><Badge variant="outline">{exam.date || "Date pending"}</Badge>
+                </button>
+              )) : <p className="text-sm text-muted-foreground">No exams are currently scheduled.</p>}
+              <Button variant="link" size="sm" onClick={() => go("exams")} className="px-0">Open exam schedule</Button>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-3"><CardTitle className="text-base">GPA / results</CardTitle></CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-end justify-between gap-3"><div><p className="text-3xl font-semibold">{resultCount || "—"}</p><p className="text-sm text-muted-foreground">Published results</p></div><ClipboardList className="h-5 w-5 text-primary" aria-hidden="true" /></div>
+              {resultCount ? <p className="text-sm text-muted-foreground">Review marks and grades by exam. GPA is not available in the current record.</p> : <p className="text-sm text-muted-foreground">Results will appear when they are published. GPA is not available in the current record.</p>}
+              <Button variant="outline" size="sm" onClick={() => go("results")}>View results</Button>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid gap-4 lg:grid-cols-2">
+          <Card>
+            <CardHeader className="pb-3"><CardTitle className="text-base">Notifications</CardTitle></CardHeader>
             <CardContent>
               {notices.length ? notices.slice(0, 3).map((notice: any) => (
-                <div key={notice.id} className="border-b py-3 last:border-0"><p className="font-medium">{notice.title}</p><p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{notice.content}</p></div>
+                <button key={notice.id} type="button" onClick={() => go("notifications")} data-testid={`button-dashboard-notice-${notice.id}`} className="block min-h-11 w-full border-b py-2 text-left last:border-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><p className="font-medium">{notice.title}</p><p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{notice.content}</p></button>
               )) : <p className="text-sm text-muted-foreground">No new notices are available.</p>}
+              <Button variant="link" size="sm" onClick={() => go("notifications")} className="mt-2 px-0">View all notifications</Button>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-3"><CardTitle className="text-base">Recent activity</CardTitle></CardHeader>
+            <CardContent>
+              {recentActivity.length ? recentActivity.map((item) => (
+                <button key={item.id} type="button" onClick={() => go(item.tab)} data-testid={`button-dashboard-activity-${item.id}`} className="flex min-h-11 w-full items-center justify-between gap-3 border-b py-2 text-left last:border-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                  <span className="min-w-0"><span className="block text-xs font-medium text-primary">{item.label}</span><span className="block truncate font-medium">{item.title}</span></span><span className="shrink-0 text-xs text-muted-foreground">{new Date(String(item.date)).toLocaleDateString()}</span>
+                </button>
+              )) : <p className="text-sm text-muted-foreground">Recent notices, work, exams, results, and fees will appear here.</p>}
             </CardContent>
           </Card>
         </div>
