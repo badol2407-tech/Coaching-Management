@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import {
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
@@ -57,6 +58,12 @@ import {
   Clock3,
   BarChart3,
   Sparkles,
+  Menu,
+  X,
+  TrendingUp,
+  MoreHorizontal,
+  CircleDollarSign,
+  GraduationCap as GraduationCapIcon,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { trackFeatureUsed, trackLogin, trackLoginFailed } from "@/lib/analytics";
@@ -106,6 +113,56 @@ const features = [
     icon: Receipt,
     title: "Expense Tracking",
     desc: "Coaching center-এর সব খরচ category wise log করুন",
+  },
+];
+
+const roleModules = [
+  {
+    icon: LayoutDashboard,
+    label: "Admin workspace",
+    title: "Run the whole school from one view.",
+    desc: "See operations, exceptions, payments, and performance without chasing updates across spreadsheets.",
+  },
+  {
+    icon: GraduationCap,
+    label: "Teacher portal",
+    title: "Give teachers more time to teach.",
+    desc: "Attendance, homework, routines, and results stay close to the daily classroom workflow.",
+  },
+  {
+    icon: Users,
+    label: "Student experience",
+    title: "Make progress easy to follow.",
+    desc: "Students can keep up with schedules, results, notices, and the next step in their learning.",
+  },
+  {
+    icon: ShieldCheck,
+    label: "Parent visibility",
+    title: "Keep families in the loop.",
+    desc: "Share the updates that matter without overwhelming parents with operational noise.",
+  },
+];
+
+const whyEduTrackPoints = [
+  {
+    icon: ShieldCheck,
+    title: "One source of truth",
+    desc: "Every role sees the same current context, with access shaped around what they need to do.",
+  },
+  {
+    icon: Clock3,
+    title: "Less admin, more progress",
+    desc: "Turn repetitive updates into simple routines your team can complete in minutes.",
+  },
+  {
+    icon: BarChart3,
+    title: "Decisions with context",
+    desc: "Move from numbers to next actions with clear trends across attendance, fees, and results.",
+  },
+  {
+    icon: Sparkles,
+    title: "Built to feel dependable",
+    desc: "A calm, focused experience that helps your team stay confident on busy school days.",
   },
 ];
 
@@ -407,40 +464,121 @@ function SectionHeading({
 }
 
 function ProductPreview() {
+  const reduceMotion = useReducedMotion();
+
   return (
-    <Card className="overflow-hidden border-primary/20">
-      <div className="flex items-center justify-between border-b bg-muted px-4 py-3">
-        <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-primary" aria-hidden="true" />
-          <span className="text-xs font-medium text-muted-foreground">
-            EduTrack workspace
-          </span>
-        </div>
-        <Badge variant="outline">Live preview</Badge>
-      </div>
-      <div className="bg-muted p-2 sm:p-3">
-        <img
-          src="/images/dashboard-mockup.png"
-          alt="EduTrack dashboard showing students, attendance, fees, and reporting overview"
-          className="aspect-video w-full rounded-lg border bg-card object-cover object-top"
-          width="1280"
-          height="720"
-          fetchPriority="high"
-        />
-      </div>
-      <CardContent className="grid grid-cols-3 gap-3 p-4">
-        {[
-          { label: "Students", icon: Users },
-          { label: "Attendance", icon: CalendarCheck },
-          { label: "Fees & reports", icon: BarChart3 },
-        ].map(({ label, icon: Icon }) => (
-          <div key={label} className="flex items-center gap-2 text-xs">
-            <Icon className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-            <span className="text-muted-foreground">{label}</span>
+    <motion.div
+      initial={reduceMotion ? false : { opacity: 0, y: 16 }}
+      animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+    >
+      <Card data-testid="card-dashboard-preview" className="glass-panel overflow-hidden border-primary/20 bg-card/80 shadow-xl">
+        <div className="flex items-center justify-between border-b bg-muted/70 px-4 py-3 sm:px-5">
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+              <GraduationCapIcon className="h-4 w-4" aria-hidden="true" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold">Good morning, Ayesha</p>
+              <p className="text-xs text-muted-foreground">Tuesday, 18 June 2024</p>
+            </div>
           </div>
-        ))}
-      </CardContent>
-    </Card>
+          <Badge variant="outline">Admin view</Badge>
+        </div>
+        <div className="grid gap-4 bg-muted/30 p-4 sm:p-5 lg:grid-cols-5">
+          <div className="space-y-4 lg:col-span-3">
+            <div className="flex items-end justify-between">
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">Overview</p>
+                <p className="mt-1 text-xl font-semibold tracking-tight">Tuesday at a glance</p>
+              </div>
+              <Button variant="ghost" size="icon" aria-label="More overview actions" data-testid="button-preview-more">
+                <MoreHorizontal aria-hidden="true" />
+              </Button>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { label: "Students", value: "1,248", meta: "+8.4%", icon: Users },
+                { label: "Attendance", value: "92.6%", meta: "Today", icon: CalendarCheck },
+                { label: "Fees collected", value: "৳8.42L", meta: "This month", icon: CircleDollarSign },
+                { label: "Active classes", value: "36", meta: "Running now", icon: GraduationCap },
+              ].map(({ label, value, meta, icon: Icon }) => (
+                <div key={label} className="rounded-lg border bg-card p-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs text-muted-foreground">{label}</span>
+                    <Icon className="h-4 w-4 text-primary" aria-hidden="true" />
+                  </div>
+                  <p className="mt-3 text-lg font-semibold tracking-tight">{value}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{meta}</p>
+                </div>
+              ))}
+            </div>
+            <div className="rounded-lg border bg-card p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold">Attendance trend</p>
+                  <p className="text-xs text-muted-foreground">Last 7 school days</p>
+                </div>
+                <TrendingUp className="h-4 w-4 text-primary" aria-hidden="true" />
+              </div>
+              <div className="mt-4 flex h-16 items-end gap-2" aria-label="Attendance trend chart">
+                {["h-8", "h-10", "h-9", "h-12", "h-11", "h-14", "h-12"].map((height, index) => (
+                  <div key={index} className="flex flex-1 flex-col items-center gap-1">
+                    <div className={`w-full rounded-t-sm bg-primary/70 ${height}`} />
+                    <span className="text-xs text-muted-foreground">{["M", "T", "W", "T", "F", "S", "M"][index]}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="space-y-4 lg:col-span-2">
+            <div className="rounded-lg border bg-card p-4">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold">Today’s focus</p>
+                <Badge variant="secondary">4 items</Badge>
+              </div>
+              <div className="mt-3 space-y-3">
+                {[
+                  ["Grade 8 results", "Ready to publish", CheckCircle],
+                  ["Fee reminders", "18 families pending", Wallet],
+                  ["Staff meeting", "03:30 PM · Room 2", CalendarCheck],
+                ].map(([title, meta, Icon]) => (
+                  <div key={title as string} className="flex items-center gap-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-md bg-accent text-primary">
+                      <Icon className="h-4 w-4" aria-hidden="true" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="truncate text-xs font-semibold">{title as string}</p>
+                      <p className="text-xs text-muted-foreground">{meta as string}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="rounded-lg border bg-card p-4">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold">Notifications</p>
+                <span className="text-xs text-primary">View all</span>
+              </div>
+              <div className="mt-3 flex items-start gap-3 rounded-md bg-muted/60 p-3">
+                <Bell className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                <div>
+                  <p className="text-xs font-medium">Parent orientation is tomorrow</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Notice sent to 248 parents</p>
+                </div>
+              </div>
+            </div>
+            <div className="rounded-lg border bg-primary p-4 text-primary-foreground">
+              <div className="flex items-center gap-2">
+                <BarChart3 className="h-4 w-4" aria-hidden="true" />
+                <p className="text-sm font-semibold">Weekly health</p>
+              </div>
+              <p className="mt-3 text-2xl font-semibold">On track</p>
+              <p className="mt-1 text-xs text-primary-foreground/75">All key operations are within target.</p>
+            </div>
+          </div>
+        </div>
+      </Card>
+    </motion.div>
   );
 }
 
@@ -630,6 +768,8 @@ function TestimonialsSection() {
 export default function LandingPage() {
   const [showAuth, setShowAuth] = useState(false);
   const [authMode, setAuthMode] = useState<AuthMode>("login");
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const reduceMotion = useReducedMotion();
 
   function openAuth(mode: AuthMode, source: string) {
     trackFeatureUsed("landing_cta_click", { mode, source });
@@ -680,7 +820,7 @@ export default function LandingPage() {
         </a>
       </Button>
 
-      <header className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur">
+      <header className="sticky top-0 z-30 border-b bg-background/90 backdrop-blur-xl">
         <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <a
             href="#top"
@@ -700,72 +840,117 @@ export default function LandingPage() {
           </a>
 
           <nav
-            className="hidden items-center gap-6 text-sm text-muted-foreground md:flex"
+            className="hidden items-center gap-6 text-sm text-muted-foreground lg:flex"
             aria-label="Primary navigation"
           >
-            <a className="transition-colors hover:text-foreground" href="#overview">
+            <a data-testid="link-nav-overview" className="transition-colors hover:text-foreground" href="#overview">
               Overview
             </a>
-            <a className="transition-colors hover:text-foreground" href="#features">
+            <a data-testid="link-nav-features" className="transition-colors hover:text-foreground" href="#features">
               Features
             </a>
-            <a className="transition-colors hover:text-foreground" href="#pricing">
+            <a data-testid="link-nav-pricing" className="transition-colors hover:text-foreground" href="#pricing">
               Pricing
             </a>
-            <a className="transition-colors hover:text-foreground" href="#faq">
+            <a data-testid="link-nav-modules" className="transition-colors hover:text-foreground" href="#modules">
+              Modules
+            </a>
+            <a data-testid="link-nav-faq" className="transition-colors hover:text-foreground" href="#faq">
               FAQ
             </a>
           </nav>
 
           <div className="flex items-center gap-2">
             <Button
+              data-testid="button-login-header"
               variant="ghost"
               size="sm"
               onClick={() => openAuth("login", "header")}
             >
               Login
             </Button>
-            <Button size="sm" onClick={() => openAuth("login", "header")}>
+            <Button data-testid="button-start-header" size="sm" onClick={() => openAuth("login", "header")}>
               বিনামূল্যে শুরু করুন
+            </Button>
+            <Button
+              data-testid="button-mobile-menu"
+              variant="outline"
+              size="icon"
+              className="lg:hidden"
+              aria-label={mobileNavOpen ? "Close navigation menu" : "Open navigation menu"}
+              aria-expanded={mobileNavOpen}
+              onClick={() => setMobileNavOpen((open) => !open)}
+            >
+              {mobileNavOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
             </Button>
           </div>
         </div>
+        {mobileNavOpen && (
+          <nav
+            className="border-t bg-background px-4 py-4 lg:hidden"
+            aria-label="Mobile navigation"
+            data-testid="nav-mobile"
+          >
+            <div className="mx-auto grid max-w-7xl gap-1">
+              {[
+                ["Overview", "#overview"],
+                ["Features", "#features"],
+                ["Modules", "#modules"],
+                ["Pricing", "#pricing"],
+                ["Why EduTrack", "#why-edutrack"],
+                ["FAQ", "#faq"],
+              ].map(([label, href]) => (
+                <a
+                  key={href}
+                  data-testid={`link-mobile-${label.toLowerCase()}`}
+                  className="rounded-md px-3 py-3 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  href={href}
+                  onClick={() => setMobileNavOpen(false)}
+                >
+                  {label}
+                </a>
+              ))}
+            </div>
+          </nav>
+        )}
       </header>
 
       <main id="top">
-        <section className="border-b bg-sidebar px-4 py-16 text-sidebar-foreground sm:px-6 lg:px-8 lg:py-24">
-          <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
-            <div className="max-w-2xl">
+        <section className="relative overflow-hidden border-b bg-sidebar px-4 py-16 text-sidebar-foreground sm:px-6 lg:px-8 lg:py-32">
+          <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-primary/10 blur-3xl" aria-hidden="true" />
+          <div className="pointer-events-none absolute bottom-0 left-1/3 h-48 w-48 rounded-full bg-accent/40 blur-3xl" aria-hidden="true" />
+          <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-12 lg:gap-16">
+            <div className="max-w-2xl lg:col-span-5">
               <Badge variant="secondary" className="mb-5">
                 Coaching center management, simplified
               </Badge>
-              <h1 className="font-display text-4xl leading-tight tracking-tight sm:text-5xl lg:text-6xl">
-                আপনার Coaching Center
-                <span className="mt-2 block text-primary">ডিজিটাল করুন আজই</span>
+              <h1 data-testid="text-hero-headline" className="font-display text-4xl leading-tight tracking-tight sm:text-5xl lg:text-7xl">
+                The calm behind
+                <span className="mt-2 block text-primary">a busy school day.</span>
               </h1>
-              <p className="mt-5 max-w-xl text-base leading-relaxed text-sidebar-foreground/75 sm:text-lg">
-                Students, Attendance, Fees ও Exams — সব একসাথে, সহজে এবং
-                নির্ভরযোগ্যভাবে পরিচালনা করুন।
+              <p className="mt-6 max-w-xl text-base leading-relaxed text-sidebar-foreground/75 sm:text-lg">
+                EduTrack gives administrators, teachers, students, and parents one clear place to keep learning moving — from first bell to final report.
               </p>
               <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-                <Button size="lg" onClick={() => openAuth("login", "hero")}>
-                  ফ্রি ট্রায়াল শুরু করুন
+                <Button data-testid="button-hero-trial" size="lg" onClick={() => openAuth("login", "hero")}>
+                  Start free trial
                   <ArrowRight aria-hidden="true" />
                 </Button>
                 <Button
+                  data-testid="button-hero-demo"
                   size="lg"
                   variant="outline"
                   className="bg-background/10 text-sidebar-foreground hover:bg-background/20"
                   onClick={() => openAuth("login", "hero_demo")}
                 >
-                  লাইভ ডেমো দেখুন
+                  See how it works
                 </Button>
               </div>
               <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm text-sidebar-foreground/70">
                 {[
-                  "Credit card দরকার নেই",
-                  "দ্রুত setup",
-                  "যেকোনো সময় cancel",
+                  "No credit card",
+                  "Set up in minutes",
+                  "Cancel anytime",
                 ].map((signal) => (
                   <span key={signal} className="flex items-center gap-2">
                     <CheckCircle
@@ -778,7 +963,22 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <ProductPreview />
+            <div className="lg:col-span-7">
+              <ProductPreview />
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b px-4 py-8 sm:px-6 lg:px-8" aria-label="Trusted by schools">
+          <div className="mx-auto flex max-w-6xl flex-col items-center gap-5 sm:flex-row sm:justify-between">
+            <p className="text-center text-xs font-medium uppercase tracking-widest text-muted-foreground sm:text-left">
+              Trusted by thoughtful school teams
+            </p>
+            <div className="grid w-full grid-cols-2 gap-3 text-center sm:flex sm:w-auto sm:items-center sm:gap-8">
+              {["Northbridge Academy", "BrightPath", "The Learning Room", "Cedar Grove"].map((name) => (
+                <span key={name} className="text-sm font-semibold tracking-tight text-muted-foreground/80">{name}</span>
+              ))}
+            </div>
           </div>
         </section>
 
@@ -889,20 +1089,29 @@ export default function LandingPage() {
               title="সব কিছু এক platform-এ"
               description="আপনার coaching center পরিচালনার জন্য দরকারী সব tools — এক জায়গায়।"
             />
-            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {features.map(({ icon: Icon, title, desc }) => (
-                <Card
+            <div className="mt-10 grid grid-flow-dense gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {features.map(({ icon: Icon, title, desc }, index) => (
+                <motion.div
                   key={title}
-                  className="group h-full p-5 transition-colors hover:border-primary/40"
+                  initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+                  whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+                  whileHover={reduceMotion ? undefined : { y: -4 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  className={index === 0 ? "lg:col-span-2 lg:row-span-2" : index === 1 ? "lg:col-span-2" : "lg:col-span-1"}
                 >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <Icon className="h-5 w-5" aria-hidden="true" />
-                  </div>
-                  <h3 className="mt-4 font-semibold">{title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    {desc}
-                  </p>
-                </Card>
+                  <Card
+                    data-testid={`card-feature-${index}`}
+                    className="group h-full p-5 transition-colors hover:border-primary/40"
+                  >
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <Icon className="h-5 w-5" aria-hidden="true" />
+                    </div>
+                    <h3 className="mt-4 font-semibold">{title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                      {desc}
+                    </p>
+                  </Card>
+                </motion.div>
               ))}
             </div>
           </div>
@@ -957,6 +1166,83 @@ export default function LandingPage() {
           </div>
         </section>
 
+        <section
+          id="modules"
+          className="scroll-mt-20 border-b bg-muted/40 px-4 py-16 sm:px-6 lg:px-8 lg:py-24"
+        >
+          <div className="mx-auto max-w-6xl">
+            <SectionHeading
+              eyebrow="Built around people"
+              title="Every role gets a clearer day."
+              description="EduTrack brings the full learning community into one shared rhythm, while keeping every view focused and relevant."
+            />
+            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {roleModules.map(({ icon: Icon, label, title, desc }, index) => (
+                <motion.div
+                  key={label}
+                  initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+                  whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                >
+                  <Card data-testid={`card-module-${index}`} className="h-full p-5">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <Icon className="h-5 w-5" aria-hidden="true" />
+                      </div>
+                      <Badge variant="secondary">{label}</Badge>
+                    </div>
+                    <h3 className="mt-6 text-lg font-semibold leading-tight">{title}</h3>
+                    <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{desc}</p>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section
+          id="why-edutrack"
+          className="scroll-mt-20 border-b px-4 py-16 sm:px-6 lg:px-8 lg:py-24"
+        >
+          <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-2 lg:items-start">
+            <div>
+              <SectionHeading
+                eyebrow="Why EduTrack"
+                title="More clarity, less coordination overhead."
+                description="A thoughtful system should make good work easier to repeat. EduTrack gives your team the context, confidence, and calm to keep moving."
+                align="left"
+              />
+              <Card className="mt-8 overflow-hidden bg-sidebar text-sidebar-foreground">
+                <CardContent className="p-6 sm:p-8">
+                  <Badge variant="secondary">A better operating rhythm</Badge>
+                  <p className="mt-6 font-display text-3xl leading-tight tracking-tight sm:text-4xl">
+                    One calm workspace for every busy school day.
+                  </p>
+                  <p className="mt-4 text-sm leading-relaxed text-sidebar-foreground/75">
+                    From the first attendance mark to the final result report, your team can see what is happening and what needs attention next.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {whyEduTrackPoints.map(({ icon: Icon, title, desc }, index) => (
+                <motion.div
+                  key={title}
+                  initial={reduceMotion ? false : { opacity: 0, scale: 0.98 }}
+                  whileInView={reduceMotion ? undefined : { opacity: 1, scale: 1 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                >
+                  <Card data-testid={`card-why-${index}`} className="h-full p-5">
+                    <Icon className="h-5 w-5 text-primary" aria-hidden="true" />
+                    <h3 className="mt-4 font-semibold">{title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{desc}</p>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <TestimonialsSection />
 
         <section
@@ -998,14 +1284,16 @@ export default function LandingPage() {
           id="faq"
           className="scroll-mt-20 border-b bg-muted/40 px-4 py-16 sm:px-6 lg:px-8 lg:py-24"
         >
-          <div className="mx-auto grid max-w-5xl gap-10 lg:grid-cols-[0.75fr_1.25fr]">
-            <SectionHeading
-              eyebrow="FAQ"
-              title="যা জানতে চান"
-              description="EduTrack শুরু করার আগে সবচেয়ে সাধারণ প্রশ্নগুলোর উত্তর এখানে।"
-              align="left"
-            />
-            <Card className="px-5">
+          <div className="mx-auto grid max-w-5xl gap-10 lg:grid-cols-5">
+            <div className="lg:col-span-2">
+              <SectionHeading
+                eyebrow="FAQ"
+                title="যা জানতে চান"
+                description="EduTrack শুরু করার আগে সবচেয়ে সাধারণ প্রশ্নগুলোর উত্তর এখানে।"
+                align="left"
+              />
+            </div>
+            <Card className="px-5 lg:col-span-3">
               <Accordion type="single" collapsible className="w-full">
                 {faqs.map((faq, index) => (
                   <AccordionItem key={faq.question} value={`faq-${index}`}>
@@ -1065,7 +1353,7 @@ export default function LandingPage() {
       </main>
 
       <footer className="border-t bg-sidebar text-sidebar-foreground">
-        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-[2fr_1fr_1fr_1fr] lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8">
           <div className="space-y-4">
             <a
               href="#top"

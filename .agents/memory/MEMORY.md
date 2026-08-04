@@ -9,3 +9,4 @@
 - [Student ID Card feature](student-id-card.md) — /id-cards route in AppLayout (admin) and TeacherLayout; page is artifacts/web/src/pages/StudentIdCard.tsx; uses window.open+print for both Print and Download PDF; QR and barcode are visual placeholders (no external lib needed)
 - [UX preview validation](ux-preview-validation.md) — authenticated UI screenshots require valid Firebase client configuration; preserve Firebase initialization during UI-only audits
 - [UI master rules](ui-master-rules.md) — UI_MASTER_RULES.md is the sole practical UI/UX authority; specialized handbooks remain implementation and evidence owners
+- [Imported web preview](imported-web-preview.md) — imported web artifacts may run through a scoped workflow while remaining absent from live artifact/screenshot registries
