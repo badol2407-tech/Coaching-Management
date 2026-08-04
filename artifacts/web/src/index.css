@@ -462,3 +462,84 @@
     border-color: color-mix(in srgb, hsl(var(--gold)) 30%, transparent);
   }
 }
+
+/* Landing page presentation utilities. These stay local to the public surface
+ * so the authenticated product shell keeps its operational density. */
+@layer utilities {
+  .landing-shell {
+    --landing-blue: 221 83% 53%;
+    --landing-indigo: 244 67% 54%;
+    --landing-lilac: 267 72% 75%;
+  }
+
+  .landing-hero {
+    background:
+      radial-gradient(circle at 78% 12%, hsl(var(--landing-lilac) / .34), transparent 27rem),
+      radial-gradient(circle at 15% 80%, hsl(var(--landing-blue) / .24), transparent 30rem),
+      linear-gradient(120deg, hsl(220 45% 97%) 0%, hsl(224 70% 96%) 45%, hsl(265 55% 96%) 100%);
+  }
+
+  .landing-hero::after,
+  .landing-cta::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: .25;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.78' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.08'/%3E%3C/svg%3E");
+    mix-blend-mode: multiply;
+  }
+
+  .surface-blue {
+    background: linear-gradient(180deg, hsl(220 70% 98%), hsl(217 74% 95%));
+  }
+
+  .surface-lavender {
+    background: linear-gradient(180deg, hsl(265 62% 98%), hsl(265 65% 96%));
+  }
+
+  .browser-mockup {
+    border-radius: 1.35rem;
+    border-color: hsl(var(--primary) / .18);
+    box-shadow:
+      0 1px 0 hsl(0 0% 100% / .9) inset,
+      0 2px 3px hsl(224 40% 20% / .06),
+      0 32px 70px -28px hsl(224 56% 25% / .38);
+  }
+
+  .browser-chrome {
+    background: linear-gradient(180deg, hsl(0 0% 100% / .82), hsl(220 32% 96% / .72));
+  }
+
+  .landing-nav {
+    box-shadow: 0 16px 40px -22px hsl(224 56% 25% / .38), 0 1px 0 hsl(0 0% 100% / .75) inset;
+  }
+
+  .landing-stat {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -.055em;
+  }
+
+  .landing-cta {
+    background:
+      radial-gradient(circle at 80% 10%, hsl(267 75% 72% / .3), transparent 22rem),
+      radial-gradient(circle at 10% 80%, hsl(221 83% 63% / .25), transparent 28rem),
+      linear-gradient(120deg, hsl(225 46% 16%), hsl(232 48% 23%) 52%, hsl(258 42% 25%));
+  }
+
+  .premium-badge {
+    box-shadow: 0 10px 24px -12px hsl(var(--primary) / .7), 0 1px 0 hsl(0 0% 100% / .35) inset;
+    letter-spacing: .01em;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .landing-shell *,
+    .landing-shell *::before,
+    .landing-shell *::after {
+      scroll-behavior: auto !important;
+      animation-duration: .001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: .001ms !important;
+    }
+  }
+}
