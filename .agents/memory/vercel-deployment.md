@@ -24,5 +24,8 @@ The Vercel CLI (`pnpm dlx vercel`) is blocked by Replit's package firewall (tar@
 - Vercel CLI via pnpm dlx: blocked by Replit package firewall (ERR_PNPM_FETCH_403 on tar)
 - File upload with `teamId` = userId: returns 403 Forbidden — use no teamId for personal accounts
 
+## Verification note
+- The deployment-specific Vercel URL may redirect to Vercel SSO when checked without a browser session. Verify public production releases through `coaching-management-three.vercel.app`; compare the deployed entry and lazy landing-page bundle hashes/content.
+
 ## vercel.json
 Points to `artifacts/web` build: `pnpm --filter @workspace/web run build`, output `artifacts/web/dist/public`.
