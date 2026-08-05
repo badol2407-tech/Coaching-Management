@@ -12,5 +12,6 @@
 - [Imported web preview](imported-web-preview.md) — imported web artifacts may run through a scoped workflow while remaining absent from live artifact/screenshot registries
 - [Premium sensory cues](premium-sensory-cues.md) — splash audio must use Web Audio with gesture fallback so browser autoplay restrictions never block the app
 - [Responsive landing header](responsive-landing-header.md) — keep the Flowora-style landing navigation visible from tablet/medium widths, not only large desktop
+- [Hero mini-window layout](hero-mini-window-layout.md) — separate motion wrappers from card transforms so desktop positioning and tilt remain predictable without changing mobile stacking
 - [Public signup architecture](public-signup-architecture.md) — registration creates a tenant plus its first org-admin profile with cleanup on partial failure
 - [Production Firestore rules source](firestore-rules-source.md) — retrieve and preserve live authorization rules before deploying a narrow onboarding change

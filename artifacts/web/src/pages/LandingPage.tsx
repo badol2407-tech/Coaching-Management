@@ -487,15 +487,10 @@ function TeamProgressWindow({ reduceMotion }: { reduceMotion: boolean | null }) 
             pathLength="1"
             style={{ strokeDashoffset: 1 - progress / 100 }}
           />
-          <line
-            className="hero-speedometer-needle"
-            x1="90"
-            y1="94"
-            x2="90"
-            y2="50"
-            style={{ transform: `rotate(${needleRotation}deg)` }}
-          />
-          <circle className="hero-speedometer-hub" cx="90" cy="94" r="5" />
+          <g className="hero-speedometer-needle" transform={`rotate(${needleRotation} 90 94)`}>
+            <line x1="90" y1="94" x2="90" y2="27" />
+          </g>
+          <circle className="hero-speedometer-hub" cx="90" cy="94" r="6" />
         </svg>
         <div className="hero-speedometer-value">
           <strong>{progress}%</strong>
@@ -538,7 +533,7 @@ function HeroMiniWindows({ reduceMotion }: { reduceMotion: boolean | null }) {
       <motion.div
         animate={reduceMotion ? undefined : { y: [0, -7, 0] }}
         transition={floatTransition(5.4)}
-        className="absolute z-10"
+        className="hero-mini-float hero-mini-team-float"
       >
         <TeamProgressWindow reduceMotion={reduceMotion} />
       </motion.div>
@@ -546,81 +541,85 @@ function HeroMiniWindows({ reduceMotion }: { reduceMotion: boolean | null }) {
       <motion.div
         animate={reduceMotion ? undefined : { y: [0, 7, 0] }}
         transition={floatTransition(5.8, 0.3)}
-        className="hero-mini-window hero-mini-plan glass-panel absolute z-10 rounded-2xl border border-white/70 bg-white/85 p-4 shadow-xl backdrop-blur-xl"
+        className="hero-mini-float hero-mini-plan-float"
         data-testid="hero-window-todays-plan"
       >
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Today's Plan</p>
-            <p className="mt-1 text-xs text-foreground/70">Keep the day moving</p>
-          </div>
-          <CalendarCheck className="h-4 w-4 text-primary" aria-hidden="true" />
-        </div>
-        <div className="mt-3 space-y-2.5">
-          {[
-            ["Design new dashboard", "10:00 AM"],
-            ["User research", "12:30 PM"],
-            ["Sprint planning", "02:00 PM"],
-          ].map(([task, time], index) => (
-            <div key={task} className="flex items-center gap-2.5">
-              <span className={`hero-plan-check ${index < 2 ? "is-done" : ""}`} aria-hidden="true">
-                {index < 2 && <Check className="h-2.5 w-2.5" />}
-              </span>
-              <span className="min-w-0 flex-1 truncate text-[11px] font-medium text-foreground/80">{task}</span>
-              <span className="text-[9px] text-muted-foreground">{time}</span>
+        <div className="hero-mini-window hero-mini-plan glass-panel rounded-2xl border border-white/70 bg-white/85 p-4 shadow-xl backdrop-blur-xl">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Today's Plan</p>
+              <p className="mt-1 text-xs text-foreground/70">Keep the day moving</p>
             </div>
-          ))}
+            <CalendarCheck className="h-4 w-4 text-primary" aria-hidden="true" />
+          </div>
+          <div className="mt-3 space-y-2.5">
+            {[
+              ["Design new dashboard", "10:00 AM"],
+              ["User research", "12:30 PM"],
+              ["Sprint planning", "02:00 PM"],
+            ].map(([task, time], index) => (
+              <div key={task} className="flex items-center gap-2.5">
+                <span className={`hero-plan-check ${index < 2 ? "is-done" : ""}`} aria-hidden="true">
+                  {index < 2 && <Check className="h-2.5 w-2.5" />}
+                </span>
+                <span className="min-w-0 flex-1 truncate text-[11px] font-medium text-foreground/80">{task}</span>
+                <span className="text-[9px] text-muted-foreground">{time}</span>
+              </div>
+            ))}
+          </div>
+          <p className="mt-3 text-[10px] font-semibold text-primary">View all tasks →</p>
         </div>
-        <p className="mt-3 text-[10px] font-semibold text-primary">View all tasks →</p>
       </motion.div>
 
       <motion.div
         animate={reduceMotion ? undefined : { y: [0, -6, 0] }}
         transition={floatTransition(5.2, 0.55)}
-        className="hero-mini-window hero-mini-projects glass-panel absolute z-10 rounded-2xl border border-white/70 bg-white/85 p-4 shadow-xl backdrop-blur-xl"
-        data-testid="hero-window-active-projects"
+        className="hero-mini-float hero-mini-projects-float"
       >
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Active Projects</p>
-            <p className="mt-1 text-xs text-foreground/70">Work in progress</p>
-          </div>
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-100 text-violet-600">
-            <LayoutDashboard className="h-3.5 w-3.5" aria-hidden="true" />
-          </span>
-        </div>
-        <div className="mt-4 space-y-3">
-          {[
-            ["Website Redesign", "65%", "bg-primary"],
-            ["Mobile App", "30%", "bg-violet-500"],
-          ].map(([project, value, bar]) => (
-            <div key={project}>
-              <div className="flex items-center justify-between gap-3 text-[10px]">
-                <span className="font-semibold text-foreground/80">{project}</span>
-                <span className="text-muted-foreground">{value}</span>
-              </div>
-              <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-muted">
-                <div className={`h-full rounded-full ${bar}`} style={{ width: value }} />
-              </div>
+        <div className="hero-mini-window hero-mini-projects glass-panel rounded-2xl border border-white/70 bg-white/85 p-4 shadow-xl backdrop-blur-xl" data-testid="hero-window-active-projects">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Active Projects</p>
+              <p className="mt-1 text-xs text-foreground/70">Work in progress</p>
             </div>
-          ))}
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-100 text-violet-600">
+              <LayoutDashboard className="h-3.5 w-3.5" aria-hidden="true" />
+            </span>
+          </div>
+          <div className="mt-4 space-y-3">
+            {[
+              ["Website Redesign", "65%", "bg-primary"],
+              ["Mobile App", "30%", "bg-violet-500"],
+            ].map(([project, value, bar]) => (
+              <div key={project}>
+                <div className="flex items-center justify-between gap-3 text-[10px]">
+                  <span className="font-semibold text-foreground/80">{project}</span>
+                  <span className="text-muted-foreground">{value}</span>
+                </div>
+                <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-muted">
+                  <div className={`h-full rounded-full ${bar}`} style={{ width: value }} />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </motion.div>
 
       <motion.div
         animate={reduceMotion ? undefined : { y: [0, 5, 0] }}
         transition={floatTransition(5.1, 0.2)}
-        className="hero-mini-window hero-mini-due glass-panel absolute z-10 flex items-center gap-3 rounded-2xl border border-white/70 bg-white/90 p-3 shadow-xl backdrop-blur-xl"
-        data-testid="hero-window-tasks-due"
+        className="hero-mini-float hero-mini-due-float"
       >
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-600">
-          <ClipboardCheck className="h-4 w-4" aria-hidden="true" />
-        </span>
-        <span className="min-w-0">
-          <strong className="block text-[11px] font-semibold text-foreground">2 tasks due today</strong>
-          <span className="block truncate text-[9px] text-muted-foreground">Don’t forget to review</span>
-        </span>
-        <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+        <div className="hero-mini-window hero-mini-due glass-panel flex items-center gap-3 rounded-2xl border border-white/70 bg-white/90 p-3 shadow-xl backdrop-blur-xl" data-testid="hero-window-tasks-due">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-600">
+            <ClipboardCheck className="h-4 w-4" aria-hidden="true" />
+          </span>
+          <span className="min-w-0">
+            <strong className="block text-[11px] font-semibold text-foreground">2 tasks due today</strong>
+            <span className="block truncate text-[9px] text-muted-foreground">Don’t forget to review</span>
+          </span>
+          <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+        </div>
       </motion.div>
     </motion.div>
   );
