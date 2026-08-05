@@ -78,7 +78,7 @@ export function PromotionPopup({ onCtaClick }: PromotionPopupProps) {
         <>
           {/* Backdrop */}
           <motion.div
-            className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm"
+            className="promo-popup-backdrop fixed inset-0 z-[60]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -99,18 +99,17 @@ export function PromotionPopup({ onCtaClick }: PromotionPopupProps) {
             style={{ willChange: "transform, opacity" }}
           >
             <div
-              className="pointer-events-auto relative w-full max-w-md"
+              className="pointer-events-auto relative w-full max-w-[30rem]"
               onClick={(e) => e.stopPropagation()}
               onMouseEnter={stopAutoplay}
               onMouseLeave={startAutoplay}
             >
-              {/* Glass card — soft premium glow, not neon */}
-              <div className="rounded-[22px] overflow-hidden shadow-[0_32px_80px_rgba(0,0,0,0.6),0_0_90px_-20px_rgba(99,102,241,0.45)] ring-1 ring-white/10 bg-[#0d0f1a]">
+              <div className="promo-popup-shell">
 
                 {/* Close button */}
                 <button
                   onClick={dismiss}
-                  className="absolute top-3 right-3 z-20 h-8 w-8 rounded-full bg-black/40 backdrop-blur-sm text-white/80 hover:text-white hover:bg-black/60 flex items-center justify-center transition-all"
+                  className="promo-popup-close"
                   aria-label="বন্ধ করুন"
                 >
                   <X className="h-4 w-4" />
@@ -135,27 +134,23 @@ export function PromotionPopup({ onCtaClick }: PromotionPopupProps) {
                 </div>
 
                 {/* Bottom controls */}
-                <div className="flex items-center justify-between px-5 py-3 bg-black/30 backdrop-blur-sm">
+                <div className="promo-popup-controls flex items-center justify-between">
                   {/* Prev */}
                   <button
                     onClick={() => emblaApi?.scrollPrev()}
-                    className="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+                    className="promo-popup-control"
                     aria-label="Previous"
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </button>
 
                   {/* Dots */}
-                  <div className="flex gap-2">
+                  <div className="flex items-center gap-2">
                     {promoBanners.map((_, i) => (
                       <button
                         key={i}
                         onClick={() => emblaApi?.scrollTo(i)}
-                        className={`h-2 rounded-full transition-all duration-300 ${
-                          i === selectedIndex
-                            ? "w-6 bg-white"
-                            : "w-2 bg-white/30 hover:bg-white/50"
-                        }`}
+                        className={`promo-popup-dot ${i === selectedIndex ? "is-active" : ""}`}
                         aria-label={`Slide ${i + 1}`}
                       />
                     ))}
@@ -164,7 +159,7 @@ export function PromotionPopup({ onCtaClick }: PromotionPopupProps) {
                   {/* Next */}
                   <button
                     onClick={() => emblaApi?.scrollNext()}
-                    className="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+                    className="promo-popup-control"
                     aria-label="Next"
                   >
                     <ChevronRight className="h-4 w-4" />
