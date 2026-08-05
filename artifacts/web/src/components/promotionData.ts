@@ -18,7 +18,7 @@ const founderPrice = formatBnTaka(PLAN_CONFIG.founder_launch.price);
 
 export const promoBanners: PromoBanner[] = [
   {
-    tag: "🎉 Free Trial চলছে",
+    tag: "",
     headline: "আজই আপনার Coaching Center ডিজিটাল করুন",
     subtext: "৩০ দিন সম্পূর্ণ ফ্রি — কোনো credit card দরকার নেই",
     cta: "ফ্রি শুরু করুন",
@@ -29,7 +29,7 @@ export const promoBanners: PromoBanner[] = [
     imageUrl: "/banners/slide-1.jpg",
   },
   {
-    tag: "🔥 নতুন Feature",
+    tag: "",
     headline: "Online Admission Form",
     subtext: "Student নিজেরাই Registration করবে — আপনার সময় বাঁচুক",
     cta: "বিস্তারিত দেখুন",
@@ -41,7 +41,7 @@ export const promoBanners: PromoBanner[] = [
     imageUrl: "/banners/slide-2.jpg",
   },
   {
-    tag: "⚡ Time Saver",
+    tag: "",
     headline: "Attendance ১ মিনিটে",
     subtext: "Teacher-এর মূল্যবান সময় বাঁচান — digital attendance এখন আরও সহজ",
     cta: "Explore",
@@ -53,7 +53,7 @@ export const promoBanners: PromoBanner[] = [
     imageUrl: "/banners/slide-3.jpg",
   },
   {
-    tag: "💰 Limited Offer",
+    tag: "",
     headline: `Founder Launch মাত্র ${founderPrice}/মাস`,
     subtext: "ছোট Coaching Center-এর জন্য সেরা — আজই subscribe করুন",
     cta: "Subscribe",

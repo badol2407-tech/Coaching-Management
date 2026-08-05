@@ -775,6 +775,93 @@
     font-size: .58rem;
   }
 
+  .hero-attendance-chart {
+    position: relative;
+    margin-top: .65rem;
+    overflow: hidden;
+    border: 1px solid hsl(0 0% 100% / .78);
+    border-radius: 1rem;
+    background:
+      linear-gradient(145deg, hsl(0 0% 100% / .62), hsl(238 78% 96% / .32)),
+      hsl(0 0% 100% / .22);
+    padding: .35rem .2rem .15rem;
+    box-shadow:
+      0 12px 24px -20px hsl(224 56% 24% / .5),
+      0 1px 0 hsl(0 0% 100% / .88) inset,
+      0 0 0 1px hsl(267 75% 84% / .18);
+    backdrop-filter: blur(16px) saturate(140%);
+  }
+
+  .hero-attendance-chart::before {
+    position: absolute;
+    inset: -35% 15% auto;
+    height: 65%;
+    content: "";
+    border-radius: 50%;
+    background: hsl(221 83% 74% / .19);
+    filter: blur(22px);
+    pointer-events: none;
+  }
+
+  .hero-attendance-chart svg {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .hero-attendance-grid line {
+    stroke: hsl(231 32% 44% / .13);
+    stroke-dasharray: 1.5 2.5;
+    stroke-width: .7;
+  }
+
+  .hero-attendance-grid text,
+  .hero-attendance-grade,
+  .hero-attendance-axis-label {
+    fill: hsl(231 28% 36% / .74);
+    font-family: "Hind Siliguri", sans-serif;
+    font-size: 7px;
+    font-weight: 600;
+  }
+
+  .hero-attendance-axis-label {
+    fill: hsl(253 54% 47% / .82);
+    font-size: 6.5px;
+    font-weight: 700;
+  }
+
+  .hero-attendance-axis {
+    stroke: hsl(231 32% 40% / .24);
+    stroke-linecap: round;
+    stroke-width: .9;
+  }
+
+  .hero-attendance-area {
+    fill: url("#attendance-area-gradient");
+    opacity: .92;
+  }
+
+  .hero-attendance-line {
+    fill: none;
+    stroke: url("#attendance-line-gradient");
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2.8;
+  }
+
+  .hero-attendance-point-halo {
+    fill: hsl(221 83% 62% / .14);
+  }
+
+  .hero-attendance-point {
+    fill: hsl(0 0% 100% / .95);
+    stroke: hsl(253 74% 58%);
+    stroke-width: 1.5;
+  }
+
   .hero-avatar {
     display: inline-flex;
     width: 1.25rem;

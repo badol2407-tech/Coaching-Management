@@ -467,11 +467,11 @@ function TeamProgressWindow({ reduceMotion }: { reduceMotion: boolean | null }) 
     <div
       className="hero-mini-window hero-mini-team glass-panel rounded-2xl border border-white/70 bg-white/80 p-4 shadow-xl backdrop-blur-xl"
       data-testid="hero-window-team-progress"
-      aria-label={`Team Progress ${progress}% completed`}
+      aria-label={`স্কুলের স্বাস্থ্য ${progress}% Healthy`}
     >
       <div className="flex items-center justify-between gap-3">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Team Progress</p>
+          <p className="text-[10px] font-semibold tracking-[0.08em] text-muted-foreground">স্কুলের স্বাস্থ্য</p>
           <p className="mt-1 text-xs text-foreground/70">Weekly momentum</p>
         </div>
         <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -479,7 +479,7 @@ function TeamProgressWindow({ reduceMotion }: { reduceMotion: boolean | null }) 
         </span>
       </div>
       <div className="hero-speedometer mt-2">
-        <svg viewBox="0 0 180 112" role="img" aria-label={`${progress}% completed`}>
+          <svg viewBox="0 0 180 112" role="img" aria-label={`${progress}% Healthy`}>
           <path className="hero-speedometer-track" d="M 22 94 A 68 68 0 0 1 158 94" pathLength="1" />
           <path
             className="hero-speedometer-progress"
@@ -494,7 +494,7 @@ function TeamProgressWindow({ reduceMotion }: { reduceMotion: boolean | null }) 
         </svg>
         <div className="hero-speedometer-value">
           <strong>{progress}%</strong>
-          <span>Completed</span>
+          <span>Healthy</span>
         </div>
       </div>
       <div className="mt-1 flex items-center gap-1.5">
@@ -504,6 +504,74 @@ function TeamProgressWindow({ reduceMotion }: { reduceMotion: boolean | null }) 
         <span className="hero-avatar bg-sky-200 text-sky-700">N</span>
         <span className="ml-1 text-[10px] font-medium text-muted-foreground">+12 this week</span>
       </div>
+    </div>
+  );
+}
+
+function AttendanceChart() {
+  const grades = ["ষষ্ঠ", "সপ্তম", "অষ্টম", "নবম", "দশম"];
+  const values = [38, 45, 33, 42, 48];
+  const chart = { left: 31, top: 12, width: 139, height: 96 };
+  const points = values.map((value, index) => ({
+    x: chart.left + (chart.width / (values.length - 1)) * index,
+    y: chart.top + ((50 - value) / 40) * chart.height,
+  }));
+  const linePath = points.map(({ x, y }, index) => `${index === 0 ? "M" : "L"} ${x} ${y}`).join(" ");
+  const lastPoint = points[points.length - 1] ?? { x: chart.left, y: chart.top + chart.height };
+  const areaPath = `${linePath} L ${lastPoint.x} ${chart.top + chart.height} L ${chart.left} ${chart.top + chart.height} Z`;
+  const yTicks = [50, 40, 30, 20, 10];
+  const bnDigits = (value: number) => String(value).replace(/\d/g, (digit) => "০১২৩৪৫৬৭৮৯"[Number(digit)]);
+
+  return (
+    <div className="hero-attendance-chart" aria-label="শ্রেণিভিত্তিক উপস্থিতি চার্ট">
+      <svg viewBox="0 0 180 150" role="img" aria-labelledby="attendance-chart-title attendance-chart-description">
+        <title id="attendance-chart-title">আজকের উপস্থিতি</title>
+        <desc id="attendance-chart-description">ষষ্ঠ থেকে দশম শ্রেণির উপস্থিতি ১০ থেকে ৫০-এর স্কেলে দেখানো হয়েছে।</desc>
+        <defs>
+          <linearGradient id="attendance-area-gradient" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stopColor="hsl(221 83% 58% / .32)" />
+            <stop offset="100%" stopColor="hsl(267 75% 72% / .03)" />
+          </linearGradient>
+          <linearGradient id="attendance-line-gradient" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0%" stopColor="hsl(221 83% 58%)" />
+            <stop offset="100%" stopColor="hsl(267 75% 64%)" />
+          </linearGradient>
+          <filter id="attendance-point-glow" x="-100%" y="-100%" width="300%" height="300%">
+            <feGaussianBlur stdDeviation="2.2" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+
+        <g className="hero-attendance-grid">
+          {yTicks.map((tick) => {
+            const y = chart.top + ((50 - tick) / 40) * chart.height;
+            return (
+              <g key={tick}>
+                <line x1={chart.left} x2={chart.left + chart.width} y1={y} y2={y} />
+                <text x="25" y={y + 2.5} textAnchor="end">{bnDigits(tick)}</text>
+              </g>
+            );
+          })}
+        </g>
+        <line className="hero-attendance-axis" x1={chart.left} x2={chart.left} y1={chart.top} y2={chart.top + chart.height} />
+        <line className="hero-attendance-axis" x1={chart.left} x2={chart.left + chart.width} y1={chart.top + chart.height} y2={chart.top + chart.height} />
+        <path className="hero-attendance-area" d={areaPath} />
+        <path className="hero-attendance-line" d={linePath} />
+        {points.map(({ x, y }, index) => (
+          <g key={grades[index]} filter="url(#attendance-point-glow)">
+            <circle className="hero-attendance-point-halo" cx={x} cy={y} r="5.5" />
+            <circle className="hero-attendance-point" cx={x} cy={y} r="2.7" />
+          </g>
+        ))}
+        {grades.map((grade, index) => (
+          <text key={grade} className="hero-attendance-grade" x={points[index].x} y="121" textAnchor="middle">{grade}</text>
+        ))}
+        <text className="hero-attendance-axis-label" x="99" y="145" textAnchor="middle">শ্রেণি</text>
+        <text className="hero-attendance-axis-label" transform="translate(8 62) rotate(-90)" textAnchor="middle">উপস্থিতি</text>
+      </svg>
     </div>
   );
 }
@@ -578,30 +646,15 @@ function HeroMiniWindows({ reduceMotion }: { reduceMotion: boolean | null }) {
       >
         <div className="hero-mini-window hero-mini-projects glass-panel rounded-2xl border border-white/70 bg-white/85 p-4 shadow-xl backdrop-blur-xl" data-testid="hero-window-active-projects">
           <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Active Projects</p>
-              <p className="mt-1 text-xs text-foreground/70">Work in progress</p>
+           <div>
+             <p className="text-[10px] font-semibold tracking-[0.08em] text-muted-foreground">আজকের উপস্থিতি</p>
+             <p className="mt-1 text-xs text-foreground/70">শ্রেণিভিত্তিক উপস্থিতির চিত্র</p>
             </div>
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-100 text-violet-600">
-              <LayoutDashboard className="h-3.5 w-3.5" aria-hidden="true" />
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <TrendingUp className="h-3.5 w-3.5" aria-hidden="true" />
             </span>
           </div>
-          <div className="mt-4 space-y-3">
-            {[
-              ["Website Redesign", "65%", "bg-primary"],
-              ["Mobile App", "30%", "bg-violet-500"],
-            ].map(([project, value, bar]) => (
-              <div key={project}>
-                <div className="flex items-center justify-between gap-3 text-[10px]">
-                  <span className="font-semibold text-foreground/80">{project}</span>
-                  <span className="text-muted-foreground">{value}</span>
-                </div>
-                <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-muted">
-                  <div className={`h-full rounded-full ${bar}`} style={{ width: value }} />
-                </div>
-              </div>
-            ))}
-          </div>
+          <AttendanceChart />
         </div>
       </motion.div>
 

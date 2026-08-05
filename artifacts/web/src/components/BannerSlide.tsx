@@ -17,7 +17,7 @@ export function BannerSlide({ banner, compact, onCtaClick }: BannerSlideProps) {
       <div className="promo-banner-content relative z-10 flex shrink-0 flex-col justify-between">
         <div className="flex flex-col gap-2.5">
           {/* Tag badge */}
-          <span className="promo-banner-tag">{banner.tag}</span>
+          {banner.tag && <span className="promo-banner-tag">{banner.tag}</span>}
 
           {/* Headline */}
           <h3 className="promo-banner-headline">{banner.headline}</h3>
