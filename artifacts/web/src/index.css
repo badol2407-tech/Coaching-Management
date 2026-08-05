@@ -370,15 +370,15 @@
  */
 @layer utilities {
   .font-display {
-    font-family: 'Montserrat', var(--app-font-sans);
-    font-weight: 800;
-    letter-spacing: -0.03em;
+    font-family: 'Hind Siliguri', var(--app-font-sans);
+    font-weight: 700;
+    letter-spacing: -0.025em;
   }
 
   .text-display-gradient {
-    font-family: 'Montserrat', var(--app-font-sans);
-    font-weight: 800;
-    letter-spacing: -0.03em;
+    font-family: 'Hind Siliguri', var(--app-font-sans);
+    font-weight: 700;
+    letter-spacing: -0.025em;
     background-image: linear-gradient(90deg, hsl(var(--primary)) 0%, color-mix(in srgb, hsl(var(--primary)) 55%, white) 100%);
     -webkit-background-clip: text;
     background-clip: text;
@@ -386,8 +386,8 @@
   }
 
   .stat-display {
-    font-family: 'Montserrat', var(--app-font-sans);
-    font-weight: 800;
+    font-family: 'Hind Siliguri', var(--app-font-sans);
+    font-weight: 700;
     letter-spacing: -0.02em;
     font-variant-numeric: tabular-nums;
   }
@@ -470,13 +470,43 @@
     --landing-blue: 221 83% 53%;
     --landing-indigo: 244 67% 54%;
     --landing-lilac: 267 72% 75%;
+    font-family: 'Hind Siliguri', var(--app-font-sans);
+  }
+
+  .landing-background {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: .18;
+    background-image: url("/images/dashboard-mockup.png");
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    mix-blend-mode: multiply;
+  }
+
+  .landing-shell > :not(.landing-background) {
+    position: relative;
+    z-index: 2;
+  }
+
+  .landing-section {
+    background-color: hsl(var(--background) / .78);
+  }
+
+  .landing-shell [data-testid="section-trusted-by"],
+  .landing-shell [data-testid="section-features"],
+  .landing-shell [data-testid="section-dashboard"],
+  .landing-shell [data-testid="section-pricing"] {
+    background-color: hsl(var(--background) / .78);
   }
 
   .landing-hero {
     background:
-      radial-gradient(circle at 78% 12%, hsl(var(--landing-lilac) / .34), transparent 27rem),
-      radial-gradient(circle at 15% 80%, hsl(var(--landing-blue) / .24), transparent 30rem),
-      linear-gradient(120deg, hsl(220 45% 97%) 0%, hsl(224 70% 96%) 45%, hsl(265 55% 96%) 100%);
+      radial-gradient(circle at 78% 12%, hsl(var(--landing-lilac) / .28), transparent 27rem),
+      radial-gradient(circle at 15% 80%, hsl(var(--landing-blue) / .2), transparent 30rem),
+      linear-gradient(120deg, hsl(220 45% 97% / .82) 0%, hsl(224 70% 96% / .78) 45%, hsl(265 55% 96% / .82) 100%);
   }
 
   .landing-hero::after,
@@ -495,7 +525,7 @@
   }
 
   .surface-lavender {
-    background: linear-gradient(180deg, hsl(265 62% 98%), hsl(265 65% 96%));
+    background: linear-gradient(180deg, hsl(265 62% 98% / .78), hsl(265 65% 96% / .76));
   }
 
   .browser-mockup {
@@ -522,9 +552,17 @@
 
   .landing-cta {
     background:
-      radial-gradient(circle at 80% 10%, hsl(267 75% 72% / .3), transparent 22rem),
-      radial-gradient(circle at 10% 80%, hsl(221 83% 63% / .25), transparent 28rem),
-      linear-gradient(120deg, hsl(225 46% 16%), hsl(232 48% 23%) 52%, hsl(258 42% 25%));
+      radial-gradient(circle at 80% 10%, hsl(267 75% 72% / .24), transparent 22rem),
+      radial-gradient(circle at 10% 80%, hsl(221 83% 63% / .2), transparent 28rem),
+      linear-gradient(120deg, hsl(225 46% 16% / .88), hsl(232 48% 23% / .88) 52%, hsl(258 42% 25% / .88)),
+      url("/images/dashboard-mockup.png") center / cover;
+    background-blend-mode: screen, screen, normal, normal;
+  }
+
+  .landing-footer {
+    background:
+      linear-gradient(120deg, hsl(225 46% 16% / .9), hsl(232 48% 23% / .9) 52%, hsl(258 42% 25% / .9)),
+      url("/images/dashboard-mockup.png") center / cover;
   }
 
   .premium-badge {
