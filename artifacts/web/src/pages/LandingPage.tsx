@@ -813,14 +813,12 @@ function LandingContent({
         <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-primary/15 blur-3xl" aria-hidden="true" />
         <div className="pointer-events-none absolute bottom-0 left-1/3 h-72 w-72 rounded-full bg-chart-4/10 blur-3xl" aria-hidden="true" />
         <motion.div className="relative mx-auto max-w-4xl text-center" initial={reduceMotion ? false : { opacity: 0, y: 12 }} animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}>
-          <Badge variant="secondary" className="mb-5">স্কুল ম্যানেজমেন্টের সহজ সমাধান</Badge>
           <h1 data-testid="text-hero-headline" className="font-display text-[42px] leading-[1.08] tracking-tight sm:text-[58px] lg:text-[76px]">এক প্ল্যাটফর্মে <span className="block text-primary">পুরো স্কুল পরিচালনা করুন</span></h1>
           <p className="mx-auto mt-7 max-w-2xl text-base leading-relaxed text-foreground/70 sm:text-lg">EduTrack-এর মাধ্যমে attendance, fees, exams, results, notices এবং প্রতিদিনের school operations এক জায়গা থেকে সহজে পরিচালনা করুন।</p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Button data-testid="button-hero-start-free" size="lg" className="glow-primary" onClick={() => openAuth("signup", "hero_start_free")}>ফ্রি ট্রায়াল শুরু করুন <ArrowRight aria-hidden="true" /></Button>
             <Button data-testid="button-hero-book-demo" size="lg" variant="outline" className="bg-background/80 text-foreground shadow-sm hover:bg-background" onClick={() => openAuth("login", "hero_book_demo")}>ডেমো দেখুন <CalendarCheck aria-hidden="true" /></Button>
           </div>
-          <div className="mt-6 flex flex-wrap justify-center gap-x-5 gap-y-2 text-sm text-foreground/65">{["কোনো credit card লাগবে না", "কয়েক মিনিটে setup", "চারটি focused portal"].map((signal) => <span key={signal} className="flex items-center gap-2"><CheckCircle className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />{signal}</span>)}</div>
         </motion.div>
          <HeroMiniWindows reduceMotion={reduceMotion} />
       </section>

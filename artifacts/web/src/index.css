@@ -693,7 +693,7 @@
 
   .hero-speedometer {
     position: relative;
-    height: 104px;
+    height: 132px;
   }
 
   .hero-speedometer svg {
@@ -738,13 +738,15 @@
   .hero-speedometer-value {
     position: absolute;
     right: 0;
-    bottom: 0;
     left: 0;
+    top: 106px;
     display: flex;
     flex-direction: column;
     align-items: center;
     line-height: 1;
     pointer-events: none;
+    white-space: nowrap;
+    z-index: 2;
   }
 
   .hero-speedometer-value strong {
@@ -867,9 +869,37 @@
     }
   }
 
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .hero-mini-stage {
+      min-height: 460px;
+    }
+
+    .hero-mini-team {
+      left: 4%;
+    }
+
+    .hero-mini-plan {
+      bottom: 2%;
+      left: 4%;
+      transform: none;
+    }
+
+    .hero-mini-projects {
+      top: 8%;
+      right: 4%;
+    }
+
+    .hero-mini-due {
+      right: 4%;
+      bottom: 2%;
+      left: auto;
+      width: 190px;
+    }
+  }
+
   @media (max-width: 767px) {
     .hero-mini-stage {
-      min-height: 620px;
+      min-height: 680px;
       margin-top: 2.75rem;
     }
 
@@ -884,15 +914,17 @@
     }
 
     .hero-mini-plan {
-      bottom: 17%;
-      left: auto;
-      right: .5rem;
-      transform: none;
+      bottom: 14%;
+      left: 50%;
+      right: auto;
+      width: min(245px, calc(100% - 1rem));
+      transform: translateX(-50%);
     }
 
     .hero-mini-projects {
       top: 35%;
       right: .5rem;
+      width: min(215px, calc(100% - 1rem));
     }
 
     .hero-mini-due {
