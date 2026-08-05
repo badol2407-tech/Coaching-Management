@@ -1,10 +1,9 @@
 /**
  * Setup page — shown when a Firebase Auth user has no Firestore profile.
  *
- * In the new flow, all accounts (org_admin, teacher, student) are pre-created
- * by an admin. Nobody self-registers or enters an Org ID manually.
- * If someone lands here it means their profile wasn't written correctly — they
- * should contact their admin.
+ * Organization admins can create their own workspace from the public signup
+ * flow. Teachers and students are still created by an organization admin.
+ * If someone lands here, their authenticated account has no matching profile.
  */
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -32,14 +31,14 @@ export default function Setup() {
           </div>
 
           <div className="space-y-2">
-            <h1 className="text-lg font-bold text-white">Account Not Configured</h1>
+            <h1 className="text-lg font-bold text-white">Profile setup incomplete</h1>
             <p className="text-sm text-slate-400 leading-relaxed">
               Your account{" "}
               <span className="text-slate-300 font-medium">{user?.email}</span>{" "}
               does not have a profile set up yet.
             </p>
             <p className="text-sm text-slate-500 leading-relaxed">
-              Please contact your organization admin to set up your account. Your admin needs to add you as a teacher or student from their dashboard.
+              Your sign-in worked, but the EduTrack profile could not be loaded. Sign out and try again. If this continues, ask your organization admin to confirm your account was added from the dashboard.
             </p>
           </div>
 

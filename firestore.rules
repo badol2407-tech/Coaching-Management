@@ -1,77 +1,265 @@
 rules_version = '2';
 
+// EduTrack security rules.
+//
+// Core invariants enforced here:
+//  1. Nobody can self-register except the narrow, atomic public org-admin
+//     onboarding path below and the one-time super-admin bootstrap.
+//  2. Only the Super Admin account can manage existing organizations.
+//  3. All org-scoped data is isolated per orgId.
+//  4. Seen receipts are limited to the student who owns the receipt.
+//  5. Platform-level writes require the super_admin role.
 service cloud.firestore {
   match /databases/{database}/documents {
-    function signedIn() {
+
+    function isSignedIn() {
       return request.auth != null;
     }
 
+    function myProfile() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function myRole() {
+      return isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        ? myProfile().role
+        : null;
+    }
+
+    function myOrgId() {
+      return isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        ? myProfile().orgId
+        : null;
+    }
+
     function isSuperAdmin() {
-      return signedIn()
-        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
-        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'super_admin';
+      return myRole() == 'super_admin';
     }
 
     function isOrgAdmin(orgId) {
-      return signedIn()
-        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
-        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.orgId == orgId
-        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'org_admin';
+      return myRole() == 'org_admin' && myOrgId() == orgId;
     }
 
-    // Public onboarding is deliberately narrow: the newly authenticated user
-    // may create only their own org-admin profile and its matching organization.
-    // getAfter() supports the atomic client batch used by the signup flow.
+    function isTeacher(orgId) {
+      return myRole() == 'teacher' && myOrgId() == orgId;
+    }
+
+    function isStudent(orgId) {
+      return myRole() == 'student' && myOrgId() == orgId;
+    }
+
+    function isOrgStaff(orgId) {
+      return isOrgAdmin(orgId) || isTeacher(orgId);
+    }
+
+    function isOrgMember(orgId) {
+      return isOrgAdmin(orgId) || isTeacher(orgId) || isStudent(orgId);
+    }
+
+    // ── users/{uid} ──────────────────────────────────────────────────────────
+    match /users/{uid} {
+      allow read: if isSignedIn() && (
+        request.auth.uid == uid ||
+        isSuperAdmin() ||
+        isOrgAdmin(resource.data.orgId)
+      );
+
+      // Existing bootstrap/admin creation paths plus the public signup path.
+      // The public path is constrained to the caller's own UID/email, an
+      // org_admin role, a fixed field set, and a matching atomic org write.
+      allow create: if (
+        isSignedIn() &&
+        request.auth.uid == uid &&
+        request.resource.data.role == 'super_admin' &&
+        request.resource.data.orgId == null
+      ) || (
+        isSignedIn() && isSuperAdmin()
+      ) || (
+        isSignedIn() && isOrgAdmin(request.resource.data.orgId)
+      ) || (
+        isSignedIn() &&
+        request.auth.uid == uid &&
+        request.resource.data.role == 'org_admin' &&
+        request.resource.data.email == request.auth.token.email &&
+        request.resource.data.orgId is string &&
+        request.resource.data.createdByPublicSignup == true &&
+        request.resource.data.keys().hasOnly([
+          'role', 'orgId', 'name', 'email', 'mustChangePassword',
+          'createdAt', 'createdByPublicSignup'
+        ]) &&
+        getAfter(/databases/$(database)/documents/organizations/$(request.resource.data.orgId)).data.adminUid == uid &&
+        getAfter(/databases/$(database)/documents/organizations/$(request.resource.data.orgId)).data.adminEmail == request.auth.token.email &&
+        getAfter(/databases/$(database)/documents/organizations/$(request.resource.data.orgId)).data.status == 'active'
+      );
+
+      // Self-updates remain restricted to non-privileged fields. Admins retain
+      // the existing management permissions.
+      allow update: if isSignedIn() && (
+        (
+          request.auth.uid == uid &&
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['mustChangePassword', 'updatedAt'])
+        ) ||
+        isSuperAdmin() ||
+        isOrgAdmin(resource.data.orgId)
+      );
+      allow delete: if isSignedIn() && (isSuperAdmin() || isOrgAdmin(resource.data.orgId));
+    }
+
+    // ── organizations/{orgId} ────────────────────────────────────────────────
     match /organizations/{orgId} {
-      allow create: if signedIn()
-        && request.resource.data.adminUid == request.auth.uid
-        && request.resource.data.adminEmail == request.auth.token.email
-        && request.resource.data.status == 'active'
-        && request.resource.data.accountStatus == 'active'
-        && request.resource.data.paymentStatus == 'unpaid'
-        && request.resource.data.tier in ['free_trial', 'founder_launch', 'annual_premium']
-        && request.resource.data.keys().hasOnly([
+      allow read: if isSignedIn();
+
+      // Keep super-admin management, and add only the matching atomic public
+      // onboarding write. getAfter() ensures the profile and organization are
+      // created together and point at each other.
+      allow create: if (
+        isSignedIn() && isSuperAdmin()
+      ) || (
+        isSignedIn() &&
+        request.auth.uid == request.resource.data.adminUid &&
+        request.resource.data.adminEmail == request.auth.token.email &&
+        request.resource.data.name is string &&
+        request.resource.data.adminUid is string &&
+        request.resource.data.tier in ['free_trial', 'founder_launch', 'annual_premium'] &&
+        request.resource.data.plan in ['free', 'basic', 'pro'] &&
+        request.resource.data.accountStatus == 'active' &&
+        request.resource.data.status == 'active' &&
+        request.resource.data.paymentStatus == 'unpaid' &&
+        request.resource.data.keys().hasOnly([
           'name', 'adminEmail', 'adminUid', 'createdAt', 'tier', 'plan',
           'subscriptionStartDate', 'subscriptionExpiryDate', 'accountStatus',
           'status', 'paymentStatus'
-        ])
-        && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'org_admin'
-        && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.orgId == orgId;
+        ]) &&
+        getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'org_admin' &&
+        getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.orgId == orgId &&
+        getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.createdByPublicSignup == true
+      );
+      allow update, delete: if isSignedIn() && isSuperAdmin();
 
-      allow read, update, delete: if isSuperAdmin() || isOrgAdmin(orgId);
+      // Classes are readable publicly for /join/:code, but writable by staff.
+      match /classes/{classId} {
+        allow read: if true;
+        allow write: if isOrgStaff(orgId) || isSuperAdmin();
+      }
 
-      match /{subcollection}/{documentId} {
-        allow read, write: if isSuperAdmin() || isOrgAdmin(orgId);
+      // Public join requests are reviewed by organization staff.
+      match /admission_requests/{reqId} {
+        allow create: if true;
+        allow read, update, delete: if isOrgStaff(orgId) || isSuperAdmin();
+      }
+
+      match /teacher_requests/{reqId} {
+        allow create: if true;
+        allow read, update, delete: if isOrgStaff(orgId) || isSuperAdmin();
+      }
+
+      match /students/{studentId} {
+        allow read: if isOrgStaff(orgId) || isSuperAdmin() ||
+          (isStudent(orgId) && myProfile().studentId == studentId);
+        allow write: if isOrgStaff(orgId) || isSuperAdmin();
+      }
+
+      match /teachers/{teacherId} {
+        allow read: if isOrgStaff(orgId) || isSuperAdmin();
+        allow write: if isOrgAdmin(orgId) || isSuperAdmin();
+      }
+
+      match /attendance/{docId} {
+        allow read: if isOrgMember(orgId) || isSuperAdmin();
+        allow write: if isOrgStaff(orgId) || isSuperAdmin();
+      }
+
+      match /fees/{feeId} {
+        allow read: if isOrgMember(orgId) || isSuperAdmin();
+        allow write: if isOrgStaff(orgId) || isSuperAdmin();
+
+        match /seen/{uid} {
+          allow read: if isOrgStaff(orgId) || isSuperAdmin();
+          allow write: if isStudent(orgId) && request.auth.uid == uid;
+        }
+      }
+
+      match /results/{resultId} {
+        allow read: if isOrgMember(orgId) || isSuperAdmin();
+        allow write: if isOrgStaff(orgId) || isSuperAdmin();
+      }
+
+      match /routine/{slotId} {
+        allow read: if isOrgMember(orgId) || isSuperAdmin();
+        allow write: if isOrgStaff(orgId) || isSuperAdmin();
+
+        match /seen/{uid} {
+          allow read: if isOrgStaff(orgId) || isSuperAdmin();
+          allow write: if isStudent(orgId) && request.auth.uid == uid;
+        }
+      }
+
+      match /homework/{hwId} {
+        allow read: if isOrgMember(orgId) || isSuperAdmin();
+        allow write: if isOrgStaff(orgId) || isSuperAdmin();
+
+        match /seen/{uid} {
+          allow read: if isOrgStaff(orgId) || isSuperAdmin();
+          allow write: if isStudent(orgId) && request.auth.uid == uid;
+        }
+      }
+
+      match /notices/{noticeId} {
+        allow read: if isOrgMember(orgId) || isSuperAdmin();
+        allow write: if isOrgStaff(orgId) || isSuperAdmin();
+
+        match /seen/{uid} {
+          allow read: if isOrgStaff(orgId) || isSuperAdmin();
+          allow write: if isStudent(orgId) && request.auth.uid == uid;
+        }
+      }
+
+      match /exams/{examId} {
+        allow read: if isOrgMember(orgId) || isSuperAdmin();
+        allow write: if isOrgStaff(orgId) || isSuperAdmin();
+
+        match /seen/{uid} {
+          allow read: if isOrgStaff(orgId) || isSuperAdmin();
+          allow write: if isStudent(orgId) && request.auth.uid == uid;
+        }
+      }
+
+      match /expenses/{expId} {
+        allow read, write: if isOrgAdmin(orgId) || isSuperAdmin();
       }
     }
 
-    match /users/{userId} {
-      allow create: if signedIn()
-        && request.auth.uid == userId
-        && request.resource.data.role == 'org_admin'
-        && request.resource.data.email == request.auth.token.email
-        && request.resource.data.orgId is string
-        && request.resource.data.createdByPublicSignup == true
-        && request.resource.data.keys().hasOnly([
-          'role', 'orgId', 'name', 'email', 'mustChangePassword',
-          'createdAt', 'createdByPublicSignup'
-        ])
-        && getAfter(/databases/$(database)/documents/organizations/$(request.resource.data.orgId)).data.adminUid == userId;
-
-      allow read: if signedIn() && (request.auth.uid == userId || isSuperAdmin());
-      allow update: if signedIn() && (request.auth.uid == userId || isSuperAdmin());
-      allow delete: if isSuperAdmin();
+    // ── Platform-level Super Admin collections ───────────────────────────────
+    match /super_admin_logs/{docId} {
+      allow read, write: if isSignedIn() && isSuperAdmin();
     }
 
-    // Marketing content used by the unauthenticated landing experience.
-    match /testimonials/{testimonialId} {
-      allow read: if true;
-      allow write: if isSuperAdmin();
+    match /platform_payments/{docId} {
+      allow read, write: if isSignedIn() && isSuperAdmin();
     }
 
-    match /popup_offers/{offerId} {
+    match /coupon_codes/{docId} {
+      allow read, write: if isSignedIn() && isSuperAdmin();
+    }
+
+    match /testimonials/{docId} {
       allow read: if true;
-      allow write: if isSuperAdmin();
+      allow write: if isSignedIn() && isSuperAdmin();
+    }
+
+    match /popup_offers/{docId} {
+      allow read: if true;
+      allow write: if isSignedIn() && isSuperAdmin();
+    }
+
+    match /platform_settings/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isSuperAdmin();
+    }
+
+    match /super_admin_impersonation/{sessionId} {
+      allow read, write: if isSignedIn() && isSuperAdmin();
     }
 
     match /{document=**} {

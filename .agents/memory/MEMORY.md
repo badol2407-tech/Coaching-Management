@@ -13,3 +13,4 @@
 - [Premium sensory cues](premium-sensory-cues.md) — splash audio must use Web Audio with gesture fallback so browser autoplay restrictions never block the app
 - [Responsive landing header](responsive-landing-header.md) — keep the Flowora-style landing navigation visible from tablet/medium widths, not only large desktop
 - [Public signup architecture](public-signup-architecture.md) — registration creates a tenant plus its first org-admin profile with cleanup on partial failure
+- [Production Firestore rules source](firestore-rules-source.md) — retrieve and preserve live authorization rules before deploying a narrow onboarding change
