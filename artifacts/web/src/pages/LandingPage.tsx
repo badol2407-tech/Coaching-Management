@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import {
   ArrowDownRight,
@@ -17,11 +17,13 @@ import {
   Eye,
   EyeOff,
   FileText,
+  Gauge,
   GraduationCap,
   LayoutDashboard,
   Library,
   Loader2,
   Mail,
+  MapPin,
   Menu,
   MessageCircle,
   MoreHorizontal,
@@ -224,6 +226,22 @@ function SectionHeading({ eyebrow, title, description, align = "center" }: { eye
   );
 }
 
+function AdminGauge() {
+  return (
+    <Card className="dashboard-gauge-card rounded-3xl border-primary/10 bg-card p-5 text-center shadow-lg" data-testid="admin-dashboard-gauge">
+      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+        <Gauge className="h-6 w-6" aria-hidden="true" />
+      </div>
+      <p className="mt-4 text-sm font-semibold">আজকের অপারেশন</p>
+      <div className="dashboard-gauge mt-5">
+        <div className="dashboard-gauge-value">92.6%</div>
+        <div className="dashboard-gauge-label">স্কুল হেলথ</div>
+      </div>
+      <p className="mt-4 text-xs leading-relaxed text-muted-foreground">অ্যাটেনড্যান্স, ফি এবং রেজাল্ট এক নজরে</p>
+    </Card>
+  );
+}
+
 function MiniSparkline({ bars = ["h-5", "h-8", "h-6", "h-10", "h-9", "h-12", "h-11"] }: { bars?: string[] }) {
   return (
     <div className="flex h-16 items-end gap-2" aria-label="Seven day trend chart">
@@ -321,38 +339,38 @@ function DashboardShowcase({ variant = "main" }: { variant?: string }) {
   const reduceMotion = useReducedMotion();
   return (
     <div className="relative isolate px-1 sm:px-4 lg:px-8" data-testid={`dashboard-showcase-shell-${variant}`}>
-      <Card className="browser-mockup relative z-10 overflow-hidden bg-sidebar text-sidebar-foreground lg:-rotate-1" data-testid={`dashboard-showcase-${variant}`}>
-        <div className="browser-chrome flex items-center justify-between gap-4 border-b border-sidebar-border px-4 py-2.5 sm:px-6">
+      <Card className="dashboard-showcase-card browser-mockup relative z-10 overflow-hidden bg-card text-card-foreground lg:-rotate-1" data-testid={`dashboard-showcase-${variant}`}>
+        <div className="browser-chrome flex items-center justify-between gap-4 border-b border-border px-4 py-2.5 sm:px-6">
           <div className="flex items-center gap-1.5" aria-label="Browser window controls">
             <span className="h-2.5 w-2.5 rounded-full bg-destructive/70" />
             <span className="h-2.5 w-2.5 rounded-full bg-chart-3/70" />
             <span className="h-2.5 w-2.5 rounded-full bg-primary/70" />
-            <span className="ml-2 hidden text-xs font-medium text-sidebar-foreground/50 sm:inline">edutrack.school · organization overview</span>
+            <span className="ml-2 hidden text-xs font-medium text-muted-foreground sm:inline">edutrack.school · organization overview</span>
           </div>
-          <span className="text-xs font-medium text-sidebar-foreground/50">LIVE</span>
+          <span className="text-xs font-medium text-muted-foreground">LIVE</span>
         </div>
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-sidebar-border px-4 py-3 sm:px-6">
-          <div className="flex items-center gap-3"><div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground"><School className="h-4 w-4" aria-hidden="true" /></div><div><p className="text-sm font-semibold">Greenfield Learning Centre</p><p className="text-xs text-sidebar-foreground/60">All operations · 18 June 2024</p></div></div>
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border px-4 py-3 sm:px-6">
+          <div className="flex items-center gap-3"><div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground"><School className="h-4 w-4" aria-hidden="true" /></div><div><p className="text-sm font-semibold">Greenfield Learning Centre</p><p className="text-xs text-muted-foreground">All operations · 18 June 2024</p></div></div>
           <Badge variant="secondary">Organization overview</Badge>
         </div>
-        <div className="grid gap-4 p-4 sm:p-6 lg:grid-cols-12">
+        <div className="grid gap-4 bg-muted/20 p-4 sm:p-6 lg:grid-cols-12">
           <div className="space-y-4 lg:col-span-8">
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               {[["Present today", "92.6%", CalendarCheck], ["Collected", "৳8.42L", Wallet], ["Results ready", "06", ClipboardList], ["Open tasks", "18", ClipboardCheck]].map(([label, value, Icon]) => (
-                <div key={label as string} className="rounded-xl border border-sidebar-border bg-sidebar/70 p-3 transition-transform hover:-translate-y-1" data-testid={`showcase-stat-${variant}-${String(label).toLowerCase().replace(/\s+/g, "-")}`}><Icon className="h-4 w-4 text-primary" aria-hidden="true" /><p className="mt-3 text-lg font-semibold">{value as string}</p><p className="text-xs text-sidebar-foreground/60">{label as string}</p></div>
+                <div key={label as string} className="rounded-xl border border-border bg-card p-3 transition-transform hover:-translate-y-1" data-testid={`showcase-stat-${variant}-${String(label).toLowerCase().replace(/\s+/g, "-")}`}><Icon className="h-4 w-4 text-primary" aria-hidden="true" /><p className="mt-3 text-lg font-semibold">{value as string}</p><p className="text-xs text-muted-foreground">{label as string}</p></div>
               ))}
             </div>
-            <div className="rounded-xl border border-sidebar-border bg-sidebar/70 p-4 sm:p-5">
-              <div className="flex items-center justify-between"><div><p className="text-sm font-semibold">Attendance across classes</p><p className="text-xs text-sidebar-foreground/60">A simple signal for a complex day</p></div><Button data-testid={`button-showcase-report-${variant}`} variant="outline" size="sm" className="text-sidebar-foreground">View report <ArrowRight aria-hidden="true" /></Button></div>
+            <div className="rounded-xl border border-border bg-card p-4 sm:p-5">
+              <div className="flex items-center justify-between"><div><p className="text-sm font-semibold">Attendance across classes</p><p className="text-xs text-muted-foreground">A simple signal for a complex day</p></div><Button data-testid={`button-showcase-report-${variant}`} variant="outline" size="sm">View report <ArrowRight aria-hidden="true" /></Button></div>
               <div className="mt-5 space-y-3">
                 {[["Grade 6", "96.2%", "h-10"], ["Grade 7", "91.8%", "h-8"], ["Grade 8", "94.5%", "h-9"], ["Grade 9", "88.4%", "h-6"]].map(([grade, value, height]) => (
-                  <div key={grade} className="flex items-center gap-3 text-xs"><span className="w-14 text-sidebar-foreground/65">{grade}</span><div className="h-2 flex-1 rounded-full bg-sidebar-border"><div className={`h-2 rounded-full bg-primary ${height} max-h-2 w-3/4`} /></div><span className="w-12 text-right font-medium">{value}</span></div>
+                  <div key={grade} className="flex items-center gap-3 text-xs"><span className="w-14 text-muted-foreground">{grade}</span><div className="h-2 flex-1 rounded-full bg-muted"><div className={`h-2 rounded-full bg-primary ${height} max-h-2 w-3/4`} /></div><span className="w-12 text-right font-medium">{value}</span></div>
                 ))}
               </div>
             </div>
           </div>
           <div className="space-y-4 lg:col-span-4">
-            <div className="rounded-xl border border-sidebar-border bg-sidebar/70 p-4"><div className="flex items-center justify-between"><p className="text-sm font-semibold">Needs attention</p><Badge variant="secondary">03</Badge></div><div className="mt-4 space-y-3">{[["18 fee follow-ups", "Finance", Wallet], ["Grade 8 results", "Academic", FileText], ["Route 04 delayed", "Transport", Bus]].map(([title, meta, Icon]) => <div key={title as string} className="flex items-start gap-3"><div className="flex h-8 w-8 items-center justify-center rounded-md bg-accent text-primary"><Icon className="h-4 w-4" aria-hidden="true" /></div><div><p className="text-xs font-semibold">{title as string}</p><p className="mt-1 text-xs text-sidebar-foreground/60">{meta as string}</p></div></div>)}</div></div>
+            <div className="rounded-xl border border-border bg-card p-4"><div className="flex items-center justify-between"><p className="text-sm font-semibold">Needs attention</p><Badge variant="secondary">03</Badge></div><div className="mt-4 space-y-3">{[["18 fee follow-ups", "Finance", Wallet], ["Grade 8 results", "Academic", FileText], ["Route 04 delayed", "Transport", Bus]].map(([title, meta, Icon]) => <div key={title as string} className="flex items-start gap-3"><div className="flex h-8 w-8 items-center justify-center rounded-md bg-accent text-primary"><Icon className="h-4 w-4" aria-hidden="true" /></div><div><p className="text-xs font-semibold">{title as string}</p><p className="mt-1 text-xs text-muted-foreground">{meta as string}</p></div></div>)}</div></div>
             <div className="rounded-xl border border-sidebar-border bg-primary p-4"><div className="flex items-center gap-2"><RefreshCw className="h-4 w-4" aria-hidden="true" /><p className="text-sm font-semibold">Live data, less chasing</p></div><p className="mt-3 text-sm leading-relaxed text-primary-foreground/80">Updates from every portal roll into one operating picture.</p></div>
           </div>
         </div>
@@ -410,6 +428,32 @@ export default function LandingPage() {
   const [authMode, setAuthMode] = useState<AuthMode>("login");
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const reduceMotion = useReducedMotion();
+  const heroRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const hero = heroRef.current;
+    if (!hero || reduceMotion) return;
+    const currentHero = hero;
+
+    function updateSpotlight(event: PointerEvent) {
+      if (event.pointerType === "touch") return;
+      const bounds = currentHero.getBoundingClientRect();
+      currentHero.style.setProperty("--pointer-x", `${event.clientX - bounds.left}px`);
+      currentHero.style.setProperty("--pointer-y", `${event.clientY - bounds.top}px`);
+      currentHero.style.setProperty("--pointer-opacity", "1");
+    }
+
+    function hideSpotlight() {
+      currentHero.style.setProperty("--pointer-opacity", "0");
+    }
+
+    currentHero.addEventListener("pointermove", updateSpotlight);
+    currentHero.addEventListener("pointerleave", hideSpotlight);
+    return () => {
+      currentHero.removeEventListener("pointermove", updateSpotlight);
+      currentHero.removeEventListener("pointerleave", hideSpotlight);
+    };
+  }, [reduceMotion]);
 
   function openAuth(mode: AuthMode, source: string) {
     trackFeatureUsed("landing_cta_click", { mode, source });
@@ -423,11 +467,10 @@ export default function LandingPage() {
     trackFeatureUsed("pricing_cta_click", { plan: tier });
     openAuth("login", `pricing_${tier}`);
   }
-  const navItems = [["Features", "#features"], ["Dashboard", "#dashboard"], ["Workflow", "#workflow"], ["Pricing", "#pricing"], ["FAQ", "#faq"]];
+  const navItems = [["হোম", "#top"], ["ড্যাশবোর্ড", "#dashboard-preview"], ["প্রাইসিং", "#pricing"], ["প্রশ্নোত্তর", "#faq"], ["যোগাযোগ", "#contact"]];
 
   return (
     <div className="landing-shell min-h-screen overflow-x-clip bg-background text-foreground" id="top">
-      <div className="landing-background" aria-hidden="true" />
       {showAuth && <AuthPanel defaultMode={authMode} onClose={() => setShowAuth(false)} />}
       <PromotionPopup onCtaClick={(cta, index) => { trackFeatureUsed("promo_popup_cta_click", { cta, index }); openAuth("login", `promo_popup_${index}`); }} />
       <Button asChild variant="secondary" className="fixed bottom-4 right-4 z-40 rounded-full sm:bottom-6 sm:right-6">
@@ -436,51 +479,55 @@ export default function LandingPage() {
 
       <header className="landing-nav glass-panel sticky top-4 z-30 mx-3 rounded-2xl border bg-background/75 backdrop-blur-xl sm:mx-5 lg:mx-auto lg:max-w-[calc(80rem-2rem)]" data-testid="navigation-header">
         <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-          <a data-testid="link-logo" href="#top" className="flex items-center gap-2 font-semibold tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" aria-label="EduTrack home"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground"><GraduationCap className="h-5 w-5" aria-hidden="true" /></span><span className="text-lg">EduTrack</span><Badge variant="secondary" className="hidden sm:inline-flex">OS for schools</Badge></a>
+           <a data-testid="link-logo" href="#top" className="flex items-center gap-2 font-semibold tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" aria-label="EduTrack home"><span data-app-logo className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground"><GraduationCap className="h-5 w-5" aria-hidden="true" /></span><span className="text-lg">EduTrack</span><Badge variant="secondary" className="hidden sm:inline-flex">OS for schools</Badge></a>
           <nav className="hidden items-center gap-6 text-sm text-muted-foreground lg:flex" aria-label="Primary navigation">{navItems.map(([label, href]) => <a key={href} data-testid={`link-nav-${label.toLowerCase()}`} className="transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" href={href}>{label}</a>)}</nav>
-          <div className="flex items-center gap-2"><Button data-testid="button-login-header" variant="ghost" size="sm" onClick={() => openAuth("login", "header")}>Login</Button><Button data-testid="button-start-header" size="sm" onClick={() => openAuth("login", "header")}>Get Started <ArrowRight aria-hidden="true" /></Button><Button data-testid="button-mobile-menu" variant="outline" size="icon" className="lg:hidden" aria-label={mobileNavOpen ? "Close navigation menu" : "Open navigation menu"} aria-expanded={mobileNavOpen} onClick={() => setMobileNavOpen((open) => !open)}>{mobileNavOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}</Button></div>
+           <div className="flex items-center gap-2"><Button data-testid="button-login-header" size="sm" onClick={() => openAuth("login", "header")}>লগইন <ArrowRight aria-hidden="true" /></Button><Button data-testid="button-mobile-menu" variant="outline" size="icon" className="lg:hidden" aria-label={mobileNavOpen ? "Close navigation menu" : "Open navigation menu"} aria-expanded={mobileNavOpen} onClick={() => setMobileNavOpen((open) => !open)}>{mobileNavOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}</Button></div>
         </div>
         {mobileNavOpen && <nav className="border-t bg-background px-4 py-4 lg:hidden" aria-label="Mobile navigation" data-testid="nav-mobile"><div className="mx-auto grid max-w-7xl gap-1">{navItems.map(([label, href]) => <a key={href} data-testid={`link-mobile-${label.toLowerCase()}`} className="rounded-md px-3 py-3 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" href={href} onClick={() => setMobileNavOpen(false)}>{label}</a>)}</div></nav>}
       </header>
 
       <main>
-        <section className="landing-hero relative overflow-hidden border-b px-4 pb-20 pt-24 text-foreground sm:px-6 sm:pb-28 sm:pt-28 lg:px-8 lg:pb-36 lg:pt-36" data-testid="section-hero">
-          <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-primary/20 blur-3xl" aria-hidden="true" /><div className="pointer-events-none absolute bottom-0 left-1/3 h-72 w-72 rounded-full bg-chart-4/20 blur-3xl" aria-hidden="true" /><div className="pointer-events-none absolute left-1/4 top-1/3 h-64 w-64 rounded-full bg-primary/10 blur-3xl" aria-hidden="true" />
-          <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-12 lg:gap-16">
-            <motion.div className="max-w-2xl lg:col-span-5" initial={reduceMotion ? false : { opacity: 0, y: 12 }} animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}>
-              <Badge variant="secondary" className="mb-5">The calm operating system for schools</Badge>
-              <h1 data-testid="text-hero-headline" className="font-display text-[42px] leading-[1.05] tracking-tight sm:text-[56px] lg:text-[72px]">One platform to manage <span className="block text-primary">every school.</span></h1>
-              <p className="mt-7 max-w-xl text-base leading-relaxed text-foreground/70 sm:text-lg">EduTrack gives administrators, teachers, parents, and students one trustworthy source of truth — from the first attendance mark to the final report.</p>
-              <div className="mt-7 flex flex-col gap-3 sm:flex-row"><Button data-testid="button-hero-start-free" size="lg" className="glow-primary" onClick={() => openAuth("login", "hero_start_free")}>Start Free <ArrowRight aria-hidden="true" /></Button><Button data-testid="button-hero-book-demo" size="lg" variant="outline" className="bg-background/55 text-foreground shadow-lg hover:bg-background/80" onClick={() => openAuth("login", "hero_book_demo")}>Book Demo <CalendarCheck aria-hidden="true" /></Button></div>
-              <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm text-foreground/65">{["No credit card", "Set up in minutes", "Made for busy teams"].map((signal) => <span key={signal} className="flex items-center gap-2"><CheckCircle className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />{signal}</span>)}</div>
-               <p className="mt-8 text-sm text-foreground/55">আজকের কাজ, আগামীকালের confidence.</p>
-            </motion.div>
-            <div className="lg:col-span-7"><ProductPreview /></div>
+        <section ref={heroRef} className="landing-hero relative overflow-hidden border-b px-4 py-24 text-foreground sm:px-6 sm:py-28 lg:px-8 lg:py-36" data-testid="section-hero">
+          <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-primary/15 blur-3xl" aria-hidden="true" />
+          <div className="pointer-events-none absolute bottom-0 left-1/3 h-72 w-72 rounded-full bg-chart-4/10 blur-3xl" aria-hidden="true" />
+          <motion.div className="relative mx-auto max-w-4xl text-center" initial={reduceMotion ? false : { opacity: 0, y: 12 }} animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}>
+            <Badge variant="secondary" className="mb-5">স্কুল ম্যানেজমেন্টের সহজ সমাধান</Badge>
+            <h1 data-testid="text-hero-headline" className="font-display text-[42px] leading-[1.08] tracking-tight sm:text-[58px] lg:text-[76px]">এক প্ল্যাটফর্মে <span className="block text-primary">পুরো স্কুল পরিচালনা করুন</span></h1>
+            <p className="mx-auto mt-7 max-w-2xl text-base leading-relaxed text-foreground/70 sm:text-lg">EduTrack-এর মাধ্যমে attendance, fees, exams, results, notices এবং প্রতিদিনের school operations এক জায়গা থেকে সহজে পরিচালনা করুন।</p>
+            <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row"><Button data-testid="button-hero-start-free" size="lg" className="glow-primary" onClick={() => openAuth("login", "hero_start_free")}>ফ্রি ট্রায়াল শুরু করুন <ArrowRight aria-hidden="true" /></Button><Button data-testid="button-hero-book-demo" size="lg" variant="outline" className="bg-background/80 text-foreground shadow-sm hover:bg-background" onClick={() => openAuth("login", "hero_book_demo")}>ডেমো দেখুন <CalendarCheck aria-hidden="true" /></Button></div>
+            <div className="mt-6 flex flex-wrap justify-center gap-x-5 gap-y-2 text-sm text-foreground/65">{["কোনো credit card লাগবে না", "কয়েক মিনিটে setup", "চারটি focused portal"].map((signal) => <span key={signal} className="flex items-center gap-2"><CheckCircle className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />{signal}</span>)}</div>
+          </motion.div>
+        </section>
+
+        <section id="dashboard-preview" className="dashboard-preview-section scroll-mt-20 border-b px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-dashboard-preview">
+          <div className="mx-auto max-w-6xl">
+            <SectionHeading eyebrow="অ্যাডমিন ড্যাশবোর্ড" title="এক নজরে পুরো স্কুলের অবস্থা দেখুন" description="কার attendance কম, fees কত collected, কোন result ready এবং কোন কাজ pending—সবকিছু একটি পরিষ্কার admin view-তে।" />
+            <div className="mt-10 grid items-center gap-8 lg:grid-cols-[190px_minmax(0,1fr)]">
+              <AdminGauge />
+              <DashboardShowcase variant="preview" />
+            </div>
           </div>
         </section>
 
-        <section className="border-b px-4 py-8 sm:px-6 lg:px-8" aria-label="Trusted by school teams" data-testid="section-trusted-by"><div className="mx-auto flex max-w-7xl flex-col items-center gap-5 sm:flex-row sm:justify-between"><p className="text-center text-xs font-medium uppercase tracking-widest text-muted-foreground sm:text-left">Trusted by thoughtful education teams</p><div className="grid w-full grid-cols-2 gap-3 text-center sm:flex sm:w-auto sm:items-center sm:gap-8">{["Northbridge Academy", "BrightPath", "The Learning Room", "Cedar Grove"].map((name) => <span data-testid={`text-trusted-${name.toLowerCase().replace(/\s+/g, "-")}`} key={name} className="text-sm font-semibold tracking-tight text-muted-foreground/80">{name}</span>)}</div></div></section>
+        <section id="pricing" className="landing-section scroll-mt-20 border-b px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-pricing">
+          <div className="mx-auto max-w-6xl">
+            <SectionHeading eyebrow="সহজ প্রাইসিং" title="আপনার স্কুলের জন্য সঠিক প্ল্যান বেছে নিন" description="কোনো hidden charge নেই। আজই শুরু করুন, প্রয়োজন অনুযায়ী পরে plan পরিবর্তন করুন।" />
+            <div className="mt-10 grid gap-5 lg:grid-cols-3">{(["free_trial", "founder_launch", "annual_premium"] as PlanTier[]).map((tier) => <PricingCard key={tier} tier={tier} onSelect={selectPlan} />)}</div>
+          </div>
+        </section>
 
-          <section id="features" className="landing-section scroll-mt-20 border-b px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-features"><div className="mx-auto max-w-7xl"><SectionHeading eyebrow="Core features" title="Everything important, without the clutter." description="The essentials for attendance, fees, academics, communication, portals, logistics, and decisions." /><div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{features.map(({ icon: Icon, title, desc, label }, index) => <motion.div key={title} initial={reduceMotion ? false : { opacity: 0, y: 10 }} whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.15 }} whileHover={reduceMotion ? undefined : { y: -3 }}><Card data-testid={`card-feature-${index}`} className="h-full rounded-2xl bg-background/72 p-5 shadow-sm transition-all hover:border-primary/35 hover:shadow-md"><div className="flex items-start justify-between gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary"><Icon className="h-5 w-5" aria-hidden="true" /></div><span className="text-xs text-muted-foreground">{label}</span></div><h3 className="mt-5 text-lg font-semibold">{title}</h3><p className="mt-2 text-sm leading-relaxed text-muted-foreground">{desc}</p></Card></motion.div>)}</div></div></section>
+          <section id="faq" className="surface-lavender scroll-mt-20 border-b px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-faq"><div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-5"><div className="lg:col-span-2"><SectionHeading eyebrow="প্রশ্নোত্তর" title="আপনার প্রশ্নের সহজ উত্তর" description="EduTrack শুরু করার আগে সাধারণ প্রশ্নগুলোর উত্তর এখানে।" align="left" /><div className="mt-6"><Button data-testid="button-faq-contact" variant="outline" onClick={() => openAuth("login", "faq_contact")}>আরও জানতে যোগাযোগ করুন <MessageCircle aria-hidden="true" /></Button></div></div><Card className="rounded-2xl bg-background px-5 shadow-sm lg:col-span-3"><Accordion type="single" collapsible className="w-full">{faqs.map((faq, index) => <AccordionItem key={faq.question} value={`faq-${index}`}><AccordionTrigger data-testid={`button-faq-${index}`}>{faq.question}</AccordionTrigger><AccordionContent className="leading-relaxed text-muted-foreground">{faq.answer}</AccordionContent></AccordionItem>)}</Accordion></Card></div></section>
 
-          <section id="dashboard" className="landing-section border-b px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-dashboard"><div className="mx-auto max-w-7xl"><div className="grid gap-10 lg:grid-cols-12 lg:items-center"><div className="lg:col-span-4"><SectionHeading eyebrow="One daily view" title="See what needs attention." description="Attendance, fees, results, assignments, notices, library, transport, and analytics—connected in one calm workspace." align="left" /><div className="mt-6 flex flex-wrap gap-2"><Badge variant="secondary">Attendance</Badge><Badge variant="secondary">Fees</Badge><Badge variant="secondary">Results</Badge><Badge variant="secondary">Analytics</Badge></div></div><div className="lg:col-span-8"><DashboardShowcase variant="command" /></div></div></div></section>
-
-          <section id="workflow" className="surface-lavender border-b px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-workflow"><div className="mx-auto max-w-7xl"><SectionHeading eyebrow="Simple workflow" title="Admin → Teacher → Parent → Student." description="One current record moves naturally through the people who run, teach, support, and learn." /><div className="relative mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{workflow.map(({ num, role, icon: Icon, title, desc }, index) => <motion.div key={role} initial={reduceMotion ? false : { opacity: 0, y: 10 }} whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} className="relative"><Card data-testid={`card-workflow-${index}`} className="h-full rounded-2xl bg-background/75 p-5 shadow-sm"><div className="flex items-center justify-between"><span className="font-mono text-sm text-primary">{num}</span><Icon className="h-5 w-5 text-primary" aria-hidden="true" /></div><Badge variant="outline" className="mt-5">{role}</Badge><h3 className="mt-3 text-lg font-semibold">{title}</h3><p className="mt-2 text-sm leading-relaxed text-muted-foreground">{desc}</p></Card>{index < workflow.length - 1 && <ArrowRight className="absolute -right-3 top-1/2 z-10 hidden h-5 w-5 -translate-y-1/2 text-primary lg:block" aria-hidden="true" />}</motion.div>)}</div></div></section>
-
-          <section id="pricing" className="landing-section scroll-mt-20 border-b px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-pricing"><div className="mx-auto max-w-7xl"><SectionHeading eyebrow="Simple pricing" title="Start small. Stay in control." description="কোনো hidden charge নেই। আপনার school বা coaching center-এর stage অনুযায়ী plan বেছে নিন।" /><div className="mt-10 grid gap-5 lg:grid-cols-3">{(["free_trial", "founder_launch", "annual_premium"] as PlanTier[]).map((tier) => <PricingCard key={tier} tier={tier} onSelect={selectPlan} />)}</div></div></section>
-
-         <section id="faq" className="surface-lavender scroll-mt-20 border-b px-4 py-20 sm:px-6 lg:px-8 lg:py-32" data-testid="section-faq"><div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-5"><div className="lg:col-span-2"><SectionHeading eyebrow="FAQ" title="Good questions deserve clear answers." description="EduTrack শুরু করার আগে সবচেয়ে সাধারণ প্রশ্নগুলোর উত্তর এখানে।" align="left" /><div className="mt-7"><Button data-testid="button-faq-contact" variant="outline" onClick={() => openAuth("login", "faq_contact")}>Still have a question <MessageCircle aria-hidden="true" /></Button></div></div><Card className="rounded-2xl bg-background/75 px-5 shadow-sm lg:col-span-3"><Accordion type="single" collapsible className="w-full">{faqs.map((faq, index) => <AccordionItem key={faq.question} value={`faq-${index}`}><AccordionTrigger data-testid={`button-faq-${index}`}>{faq.question}</AccordionTrigger><AccordionContent className="leading-relaxed text-muted-foreground">{faq.answer}</AccordionContent></AccordionItem>)}</Accordion></Card></div></section>
-
-          <section className="landing-cta relative overflow-hidden border-b px-4 py-20 text-sidebar-foreground sm:px-6 lg:px-8 lg:py-24" data-testid="section-final-cta"><div className="pointer-events-none absolute -left-24 -top-24 h-96 w-96 rounded-full bg-primary/20 blur-3xl" aria-hidden="true" /><div className="pointer-events-none absolute -bottom-32 -right-24 h-96 w-96 rounded-full bg-chart-4/20 blur-3xl" aria-hidden="true" /><div className="relative mx-auto max-w-3xl text-center"><Badge variant="secondary" className="mb-4">৭ দিনের Free Trial</Badge><h2 className="font-display text-3xl leading-tight tracking-tight sm:text-5xl">Ready to modernize <span className="text-primary">your school?</span></h2><p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-sidebar-foreground/75">আপনার team-এর জন্য একটি dependable workspace তৈরি করুন — আজই শুরু করুন, প্রথম দিন থেকেই clarity পান।</p><div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row"><Button data-testid="button-final-start" size="lg" className="glow-primary" onClick={() => openAuth("login", "final_cta")}>ফ্রি ট্রায়াল শুরু করুন <ArrowRight aria-hidden="true" /></Button><Button data-testid="button-final-demo" size="lg" variant="outline" className="bg-background/10 text-sidebar-foreground hover:bg-background/20" onClick={() => openAuth("login", "final_cta_demo")}>লাইভ ডেমো দেখুন <CalendarCheck aria-hidden="true" /></Button></div></div></section>
+          <section className="landing-cta relative overflow-hidden border-b px-4 py-20 text-white sm:px-6 lg:px-8 lg:py-24" data-testid="section-final-cta"><div className="pointer-events-none absolute -left-24 -top-24 h-96 w-96 rounded-full bg-primary/25 blur-3xl" aria-hidden="true" /><div className="pointer-events-none absolute -bottom-32 -right-24 h-96 w-96 rounded-full bg-chart-4/25 blur-3xl" aria-hidden="true" /><div className="relative mx-auto max-w-3xl text-center"><Badge variant="secondary" className="mb-4">৭ দিনের ফ্রি ট্রায়াল</Badge><h2 className="font-display text-3xl leading-tight tracking-tight sm:text-5xl">আপনার স্কুলকে আরও সহজে <span className="text-blue-300">পরিচালনা করুন</span></h2><p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-white/75">আপনার team-এর জন্য একটি dependable workspace তৈরি করুন — আজই শুরু করুন, প্রথম দিন থেকেই clarity পান।</p><div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row"><Button data-testid="button-final-start" size="lg" className="glow-primary" onClick={() => openAuth("login", "final_cta")}>ফ্রি ট্রায়াল শুরু করুন <ArrowRight aria-hidden="true" /></Button><Button data-testid="button-final-demo" size="lg" variant="outline" className="border-white/25 bg-white/10 text-white hover:bg-white/20" onClick={() => openAuth("login", "final_cta_demo")}>লাইভ ডেমো দেখুন <CalendarCheck aria-hidden="true" /></Button></div></div></section>
       </main>
 
-       <footer id="contact" className="landing-footer text-sidebar-foreground" data-testid="footer-site"><div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-12 lg:px-8"><div className="space-y-4 lg:col-span-5"><a data-testid="link-footer-logo" href="#top" className="flex items-center gap-2 font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground"><GraduationCap className="h-5 w-5" aria-hidden="true" /></span><span className="text-lg">EduTrack</span></a><p className="max-w-xs text-sm leading-relaxed text-sidebar-foreground/70">The calm operating system for Bangladesh-এর school এবং coaching center-দের জন্য।</p><div className="flex items-center gap-2"><a data-testid="link-footer-facebook" href="https://facebook.com/edutrack" target="_blank" rel="noopener noreferrer" onClick={() => trackFeatureUsed("footer_social_click", { channel: "facebook" })} className="flex h-9 w-9 items-center justify-center rounded-lg border border-sidebar-border text-sidebar-foreground/70 transition-colors hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="EduTrack on Facebook"><span aria-hidden="true" className="font-semibold">f</span></a><a data-testid="link-footer-whatsapp" href={`https://wa.me/${whatsappNumber}?text=${whatsappMsg}`} target="_blank" rel="noopener noreferrer" onClick={() => trackFeatureUsed("footer_social_click", { channel: "whatsapp" })} className="flex h-9 w-9 items-center justify-center rounded-lg border border-sidebar-border text-sidebar-foreground/70 transition-colors hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="EduTrack on WhatsApp"><MessageCircle className="h-4 w-4" aria-hidden="true" /></a></div></div><FooterColumn title="Product" links={[{ label: "Features", href: "#features" }, { label: "Dashboard", href: "#dashboard" }, { label: "Workflow", href: "#workflow" }, { label: "Pricing", href: "#pricing" }, { label: "Free Trial", onClick: () => openAuth("login", "footer_product") }]} /><FooterColumn title="Support" links={[{ label: "FAQ", href: "#faq" }, { label: "Documentation", href: "/help" }, { label: "Live Chat", href: `https://wa.me/${whatsappNumber}?text=${whatsappMsg}`, external: true }]} /><div className="space-y-4 lg:col-span-3"><h3 className="text-sm font-semibold">Contact</h3><ul className="space-y-3 text-sm text-sidebar-foreground/70"><li><a data-testid="link-contact-email" href="mailto:support@edutrack.com.bd" className="flex items-center gap-2 transition-colors hover:text-primary"><Mail className="h-4 w-4 shrink-0" aria-hidden="true" />support@edutrack.com.bd</a></li><li><a data-testid="link-contact-phone" href={`tel:+${whatsappNumber}`} className="flex items-center gap-2 transition-colors hover:text-primary"><Phone className="h-4 w-4 shrink-0" aria-hidden="true" />+880 1632-905056</a></li><li><Button data-testid="button-contact-demo" variant="outline" size="sm" className="text-sidebar-foreground" onClick={() => openAuth("login", "footer_contact")}>Book a demo <Send aria-hidden="true" /></Button></li></ul></div></div><div className="border-t border-sidebar-border"><div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-5 text-xs text-sidebar-foreground/60 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8"><p>© 2026 EduTrack. Made in Bangladesh.</p><div className="flex flex-wrap gap-x-5 gap-y-2"><a data-testid="link-footer-privacy" className="hover:text-primary" href="/privacy">Privacy Policy</a><a data-testid="link-footer-terms" className="hover:text-primary" href="/terms">Terms of Service</a><a data-testid="link-footer-refund" className="hover:text-primary" href="/refund">Refund Policy</a><button data-testid="button-footer-login" className="hover:text-primary" onClick={() => openAuth("login", "footer_bottom")}>Login</button></div></div></div></footer>
+       <footer id="contact" className="landing-footer text-white" data-testid="footer-site"><div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:grid-cols-2 sm:px-6 lg:grid-cols-12 lg:px-8"><div className="space-y-4 lg:col-span-4"><a data-testid="link-footer-logo" href="#top" className="flex items-center gap-2 font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground"><GraduationCap className="h-5 w-5" aria-hidden="true" /></span><span className="text-lg">EduTrack</span></a><p className="max-w-xs text-sm leading-relaxed text-white/70">বাংলাদেশের school এবং coaching center-এর জন্য সহজ, নির্ভরযোগ্য management platform।</p><div className="flex items-center gap-2"><a data-testid="link-footer-facebook" href="https://facebook.com/edutrack" target="_blank" rel="noopener noreferrer" onClick={() => trackFeatureUsed("footer_social_click", { channel: "facebook" })} className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/20 text-white/75 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="EduTrack on Facebook"><span aria-hidden="true" className="font-semibold">f</span></a><a data-testid="link-footer-whatsapp" href={`https://wa.me/${whatsappNumber}?text=${whatsappMsg}`} target="_blank" rel="noopener noreferrer" onClick={() => trackFeatureUsed("footer_social_click", { channel: "whatsapp" })} className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/20 text-white/75 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="EduTrack on WhatsApp"><MessageCircle className="h-4 w-4" aria-hidden="true" /></a></div></div><FooterColumn title="Product" links={[{ label: "ড্যাশবোর্ড", href: "#dashboard-preview" }, { label: "প্রাইসিং", href: "#pricing" }, { label: "ফ্রি ট্রায়াল", onClick: () => openAuth("login", "footer_product") }]} /><FooterColumn title="Support us" links={[{ label: "প্রশ্নোত্তর", href: "#faq" }, { label: "Help Center", href: "/help" }, { label: "WhatsApp Support", href: `https://wa.me/${whatsappNumber}?text=${whatsappMsg}`, external: true }]} /><div className="space-y-4 lg:col-span-3"><h3 className="text-sm font-semibold">Address & contact</h3><ul className="space-y-3 text-sm text-white/70"><li className="flex items-start gap-2"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-blue-300" aria-hidden="true" /><span>Dhaka, Bangladesh<br />শিক্ষা প্রতিষ্ঠান পরিচালনার জন্য</span></li><li><a data-testid="link-contact-email" href="mailto:support@edutrack.com.bd" className="flex items-center gap-2 transition-colors hover:text-blue-200"><Mail className="h-4 w-4 shrink-0 text-blue-300" aria-hidden="true" />support@edutrack.com.bd</a></li><li><a data-testid="link-contact-phone" href={`tel:+${whatsappNumber}`} className="flex items-center gap-2 transition-colors hover:text-blue-200"><Phone className="h-4 w-4 shrink-0 text-blue-300" aria-hidden="true" />+880 1632-905056</a></li><li><Button data-testid="button-contact-demo" variant="outline" size="sm" className="border-white/25 text-white hover:bg-white/10" onClick={() => openAuth("login", "footer_contact")}>Book a demo <Send aria-hidden="true" /></Button></li></ul></div></div><div className="border-t border-white/15"><div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-5 text-xs text-white/55 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8"><p>© 2026 EduTrack. Made in Bangladesh.</p><div className="flex flex-wrap gap-x-5 gap-y-2"><a data-testid="link-footer-privacy" className="hover:text-blue-200" href="/privacy">Privacy Policy</a><a data-testid="link-footer-terms" className="hover:text-blue-200" href="/terms">Terms of Service</a><a data-testid="link-footer-refund" className="hover:text-blue-200" href="/refund">Refund Policy</a><button data-testid="button-footer-login" className="hover:text-blue-200" onClick={() => openAuth("login", "footer_bottom")}>Login</button></div></div></div></footer>
     </div>
   );
 }
 
 function FooterColumn({ title, links }: { title: string; links: Array<{ label: string; href?: string; external?: boolean; onClick?: () => void }> }) {
-  return <div className="space-y-4"><h3 className="text-sm font-semibold text-sidebar-foreground">{title}</h3><ul className="space-y-3 text-sm text-sidebar-foreground/70">{links.map((link) => <li key={link.label}>{link.onClick ? <button data-testid={`button-footer-${link.label.toLowerCase().replace(/\s+/g, "-")}`} className="transition-colors hover:text-primary" onClick={link.onClick}>{link.label}</button> : <a data-testid={`link-footer-${link.label.toLowerCase().replace(/\s+/g, "-")}`} href={link.href} target={link.external ? "_blank" : undefined} rel={link.external ? "noopener noreferrer" : undefined} className="transition-colors hover:text-primary">{link.label}</a>}</li>)}</ul></div>;
+  return <div className="space-y-4"><h3 className="text-sm font-semibold text-white">{title}</h3><ul className="space-y-3 text-sm text-white/70">{links.map((link) => <li key={link.label}>{link.onClick ? <button data-testid={`button-footer-${link.label.toLowerCase().replace(/\s+/g, "-")}`} className="transition-colors hover:text-blue-200" onClick={link.onClick}>{link.label}</button> : <a data-testid={`link-footer-${link.label.toLowerCase().replace(/\s+/g, "-")}`} href={link.href} target={link.external ? "_blank" : undefined} rel={link.external ? "noopener noreferrer" : undefined} className="transition-colors hover:text-blue-200">{link.label}</a>}</li>)}</ul></div>;
 }
 
 function friendlyError(code: string): string {

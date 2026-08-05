@@ -1,6 +1,44 @@
 import { useEffect, useRef, useState } from "react";
 import { GraduationCap } from "lucide-react";
 
+function getAudioContextConstructor() {
+  const browserWindow = window as typeof window & {
+    webkitAudioContext?: typeof AudioContext;
+  };
+  return window.AudioContext ?? browserWindow.webkitAudioContext;
+}
+
+function playPremiumChime(context: AudioContext) {
+  const start = context.currentTime + 0.025;
+  const master = context.createGain();
+  master.gain.setValueAtTime(0.0001, start);
+  master.gain.exponentialRampToValueAtTime(0.045, start + 0.035);
+  master.gain.exponentialRampToValueAtTime(0.0001, start + 1.45);
+  master.connect(context.destination);
+
+  const tones = [
+    { frequency: 392, delay: 0, duration: 0.85, volume: 0.7 },
+    { frequency: 523.25, delay: 0.08, duration: 1.05, volume: 0.55 },
+    { frequency: 659.25, delay: 0.17, duration: 1.2, volume: 0.38 },
+    { frequency: 783.99, delay: 0.28, duration: 1.35, volume: 0.22 },
+  ];
+
+  tones.forEach(({ frequency, delay, duration, volume }) => {
+    const oscillator = context.createOscillator();
+    const toneGain = context.createGain();
+    const toneStart = start + delay;
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(frequency, toneStart);
+    toneGain.gain.setValueAtTime(0.0001, toneStart);
+    toneGain.gain.exponentialRampToValueAtTime(volume, toneStart + 0.025);
+    toneGain.gain.exponentialRampToValueAtTime(0.0001, toneStart + duration);
+    oscillator.connect(toneGain);
+    toneGain.connect(master);
+    oscillator.start(toneStart);
+    oscillator.stop(toneStart + duration + 0.04);
+  });
+}
+
 // ── Education icons (emoji — no import needed) ───────────────────────────────
 const ICONS = [
   { emoji: "🎓", label: "Graduation cap" },
@@ -200,6 +238,32 @@ export function SplashScreen({ onDone }: { onDone: () => void }) {
     let cancelled = false;
     const timers: ReturnType<typeof setTimeout>[] = [];
     let raf = 0;
+    let audioContext: AudioContext | null = null;
+    let audioPlayed = false;
+
+    async function triggerPremiumCue() {
+      if (cancelled || audioPlayed) return;
+      try {
+        const AudioContextConstructor = getAudioContextConstructor();
+        if (!AudioContextConstructor) return;
+        audioContext ??= new AudioContextConstructor();
+        if (audioContext.state === "suspended") await audioContext.resume();
+        if (audioContext.state !== "running") return;
+        playPremiumChime(audioContext);
+        audioPlayed = true;
+        if ("vibrate" in navigator) navigator.vibrate([8, 18, 12]);
+      } catch {
+        // Browsers can reject autoplay. The splash must remain fully functional
+        // and the next user gesture will retry the cue.
+      }
+    }
+
+    const unlockAudio = () => {
+      void triggerPremiumCue();
+    };
+    document.addEventListener("pointerdown", unlockAudio, { passive: true });
+    document.addEventListener("keydown", unlockAudio, { passive: true });
+    document.addEventListener("touchstart", unlockAudio, { passive: true });
 
     // Try to morph the splash logo into the real navbar/sidebar logo. Falls
     // back to a plain fade-out if the target never shows up (e.g. auth is
@@ -261,13 +325,20 @@ export function SplashScreen({ onDone }: { onDone: () => void }) {
       timers.push(setTimeout(() => { if (!cancelled) onDone(); }, 550));
     }
 
-    timers.push(setTimeout(() => setPhase("landed"), 920));
+    timers.push(setTimeout(() => {
+      setPhase("landed");
+      void triggerPremiumCue();
+    }, 920));
     timers.push(setTimeout(() => dockIntoNavbar(), 2400));
 
     return () => {
       cancelled = true;
       timers.forEach(clearTimeout);
       if (raf) cancelAnimationFrame(raf);
+      document.removeEventListener("pointerdown", unlockAudio);
+      document.removeEventListener("keydown", unlockAudio);
+      document.removeEventListener("touchstart", unlockAudio);
+      if (audioContext && audioContext.state !== "closed") void audioContext.close();
     };
   }, [onDone]);
 
