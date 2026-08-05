@@ -11,3 +11,4 @@
 - [UI master rules](ui-master-rules.md) — UI_MASTER_RULES.md is the sole practical UI/UX authority; specialized handbooks remain implementation and evidence owners
 - [Imported web preview](imported-web-preview.md) — imported web artifacts may run through a scoped workflow while remaining absent from live artifact/screenshot registries
 - [Premium sensory cues](premium-sensory-cues.md) — splash audio must use Web Audio with gesture fallback so browser autoplay restrictions never block the app
+- [Responsive landing header](responsive-landing-header.md) — keep the Flowora-style landing navigation visible from tablet/medium widths, not only large desktop
