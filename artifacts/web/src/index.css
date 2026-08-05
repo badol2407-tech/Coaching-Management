@@ -715,18 +715,19 @@
     inset: 0;
     z-index: 10;
     transform-origin: 50% 54%;
+    will-change: transform, opacity;
   }
 
   .hero-mini-stage--waiting .hero-mini-entrance-group {
     opacity: 0;
     visibility: hidden;
-    transform: translate3d(0, 124%, 0) scale(.76);
+    transform: translate3d(0, 132%, 0) scale(.68);
   }
 
   .hero-mini-stage--entering .hero-mini-entrance-group {
     opacity: 0;
     visibility: visible;
-    animation: hero-mini-windows-group-entrance 4.2s cubic-bezier(.22,.72,.2,1) both;
+    animation: hero-mini-ferris-rise 5s cubic-bezier(.16,.84,.22,1) both;
   }
 
   .hero-mini-stage--settled .hero-mini-entrance-group {
@@ -738,7 +739,8 @@
   .hero-mini-stage--entering .hero-mini-float {
     opacity: 1;
     visibility: visible;
-    animation: hero-mini-window-spread 4.2s cubic-bezier(.22,.72,.2,1) both;
+    animation: hero-mini-ferris-cabin 5s cubic-bezier(.16,.84,.22,1) both;
+    will-change: transform;
   }
 
   .hero-mini-stage--settled .hero-mini-float {
@@ -747,36 +749,46 @@
     transform: none;
   }
 
+  .hero-mini-stage--entering .hero-mini-window {
+    animation: hero-mini-ferris-cabin-level 5s cubic-bezier(.16,.84,.22,1) both;
+    will-change: transform;
+  }
+
   .hero-mini-team-float {
-    --hero-window-start-transform: translate3d(92%, 52%, 0) scale(.82);
+    --hero-window-start-transform: translate3d(180%, 100%, 0) scale(.76);
   }
 
   .hero-mini-plan-float {
-    --hero-window-start-transform: translate3d(12%, -40%, 0) scale(.82);
+    --hero-window-start-transform: translate3d(0, -145%, 0) scale(.76);
   }
 
   .hero-mini-projects-float {
-    --hero-window-start-transform: translate3d(-92%, 52%, 0) scale(.82);
+    --hero-window-start-transform: translate3d(-180%, 100%, 0) scale(.76);
   }
 
   .hero-mini-due-float {
-    --hero-window-start-transform: translate3d(64%, -40%, 0) scale(.82);
+    --hero-window-start-transform: translate3d(150%, -145%, 0) scale(.76);
   }
 
-  @keyframes hero-mini-windows-group-entrance {
+  @keyframes hero-mini-ferris-rise {
     0% {
       opacity: 0;
-      transform: translate3d(0, 124%, 0) rotate(0deg) scale(.76);
+      transform: translate3d(0, 132%, 0) rotate(0deg) scale(.68);
+    }
+    14% {
+      opacity: .72;
+      transform: translate3d(0, 74%, 0) rotate(0deg) scale(.76);
     }
     30% {
-      opacity: .88;
-      transform: translate3d(0, 46%, 0) rotate(-8deg) scale(.88);
-    }
-    46% {
       opacity: 1;
-      transform: translate3d(0, 0, 0) rotate(-16deg) scale(1);
+      transform: translate3d(0, 18%, 0) rotate(-14deg) scale(.88);
     }
-    70% {
+    43% {
+      opacity: 1;
+      transform: translate3d(0, 0, 0) rotate(-96deg) scale(.96);
+    }
+    68%,
+    82% {
       opacity: 1;
       transform: translate3d(0, 0, 0) rotate(-360deg) scale(1);
     }
@@ -786,13 +798,9 @@
     }
   }
 
-  @keyframes hero-mini-window-spread {
+  @keyframes hero-mini-ferris-cabin {
     0%,
-    70% {
-      opacity: 1;
-      transform: var(--hero-window-start-transform);
-    }
-    84% {
+    82% {
       opacity: 1;
       transform: var(--hero-window-start-transform);
     }
@@ -802,20 +810,43 @@
     }
   }
 
+  @keyframes hero-mini-ferris-cabin-level {
+    0% {
+      transform: rotate(0deg);
+    }
+    30% {
+      transform: rotate(14deg);
+    }
+    43% {
+      transform: rotate(96deg);
+    }
+    68%,
+    82% {
+      transform: rotate(360deg);
+    }
+    100% {
+      transform: rotate(calc(360deg + var(--hero-window-rest-rotation, 0deg)));
+    }
+  }
+
   .hero-mini-team {
     width: 164px;
+    --hero-window-rest-rotation: -10deg;
   }
 
   .hero-mini-plan {
     width: 212px;
+    --hero-window-rest-rotation: 4.5deg;
   }
 
   .hero-mini-projects {
     width: 182px;
+    --hero-window-rest-rotation: 7deg;
   }
 
   .hero-mini-due {
     width: 174px;
+    --hero-window-rest-rotation: 0deg;
   }
 
   .hero-mini-team-float {
@@ -1547,6 +1578,11 @@
       transform: none;
       animation: none;
     }
+
+    .hero-mini-stage--entering .hero-mini-window {
+      animation: none;
+      transform: none;
+    }
   }
 
   @media (min-width: 768px) and (max-width: 1023px) {
@@ -1617,6 +1653,10 @@
       margin-top: 2.75rem;
     }
 
+    .hero-mini-entrance-group {
+      transform-origin: 50% 33%;
+    }
+
     .hero-mini-horizon {
       inset: 3% 0 1%;
       border-radius: 2rem;
@@ -1638,6 +1678,22 @@
       left: 0;
       width: min(245px, calc(100% - 1rem));
       margin-inline: auto;
+    }
+
+    .hero-mini-team-float {
+      --hero-window-start-transform: translate3d(100%, 80%, 0) scale(.72);
+    }
+
+    .hero-mini-plan-float {
+      --hero-window-start-transform: translate3d(0, -110%, 0) scale(.72);
+    }
+
+    .hero-mini-projects-float {
+      --hero-window-start-transform: translate3d(-100%, 80%, 0) scale(.72);
+    }
+
+    .hero-mini-due-float {
+      --hero-window-start-transform: translate3d(100%, -110%, 0) scale(.72);
     }
 
     .hero-mini-projects-float {

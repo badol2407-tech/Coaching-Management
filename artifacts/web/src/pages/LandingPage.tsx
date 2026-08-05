@@ -870,7 +870,7 @@ function HeroMiniWindows({
     }
 
     setEntrancePhase("entering");
-    const timer = window.setTimeout(() => setEntrancePhase("settled"), 4700);
+    const timer = window.setTimeout(() => setEntrancePhase("settled"), 5200);
     return () => window.clearTimeout(timer);
   }, [enter, entrancePhase, reduceMotion]);
 
