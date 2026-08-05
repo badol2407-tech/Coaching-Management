@@ -40,13 +40,10 @@ import {
   X,
 } from "lucide-react";
 import {
-  addDoc,
   collection,
-  deleteDoc,
   doc,
-  getDoc,
+  runTransaction,
   serverTimestamp,
-  setDoc,
 } from "firebase/firestore";
 import {
   createUserWithEmailAndPassword,
@@ -58,6 +55,7 @@ import {
   browserLocalPersistence,
   browserSessionPersistence,
   GoogleAuthProvider,
+  signOut,
   signInWithPopup,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
@@ -138,21 +136,30 @@ async function createPublicOrgAccount({
   const startDate = new Date();
   const expiryDate = computeExpiryDate(tier, startDate);
   const legacyPlan = tier === "annual_premium" ? "pro" : tier === "founder_launch" ? "basic" : "free";
-  const organizationRef = await addDoc(collection(db, "organizations"), {
-    name: organizationName,
-    adminEmail: email,
-    createdAt: serverTimestamp(),
-    tier,
-    plan: legacyPlan,
-    subscriptionStartDate: startDate.toISOString(),
-    subscriptionExpiryDate: expiryDate.toISOString(),
-    accountStatus: "active",
-    status: "active",
-    paymentStatus: "unpaid",
-  });
+  const organizationRef = doc(collection(db, "organizations"));
+  const profileRef = doc(db, "users", uid);
+  await runTransaction(db, async (transaction) => {
+    const existingProfile = await transaction.get(profileRef);
+    if (existingProfile.exists()) {
+      const error = new Error("This account already has an EduTrack profile.");
+      (error as Error & { code: string }).code = "already-exists";
+      throw error;
+    }
 
-  try {
-    await setDoc(doc(db, "users", uid), {
+    transaction.set(organizationRef, {
+      name: organizationName,
+      adminEmail: email,
+      adminUid: uid,
+      createdAt: serverTimestamp(),
+      tier,
+      plan: legacyPlan,
+      subscriptionStartDate: startDate.toISOString(),
+      subscriptionExpiryDate: expiryDate.toISOString(),
+      accountStatus: "active",
+      status: "active",
+      paymentStatus: "unpaid",
+    });
+    transaction.set(profileRef, {
       role: "org_admin",
       orgId: organizationRef.id,
       name,
@@ -161,10 +168,7 @@ async function createPublicOrgAccount({
       createdAt: serverTimestamp(),
       createdByPublicSignup: true,
     });
-  } catch (error) {
-    await deleteDoc(organizationRef).catch(() => undefined);
-    throw error;
-  }
+  });
 
   return organizationRef.id;
 }
@@ -197,8 +201,7 @@ function AuthPanel({
     try {
       await setPersistence(auth, browserLocalPersistence);
       const result = await signInWithPopup(auth, googleProvider);
-      const existingProfile = await getDoc(doc(db, "users", result.user.uid));
-      if (mode === "signup" && !existingProfile.exists()) {
+      if (mode === "signup") {
         const googleName = result.user.displayName?.trim() || result.user.email?.split("@")[0] || "School Admin";
         try {
           await createPublicOrgAccount({
@@ -209,7 +212,12 @@ function AuthPanel({
             tier: signupTier,
           });
         } catch (error) {
-          await deleteUser(result.user).catch(() => undefined);
+          await signOut(auth).catch(() => undefined);
+          if ((error as { code?: string })?.code === "already-exists") {
+            const accountExistsError = new Error("This Google account already has an EduTrack profile.");
+            (accountExistsError as Error & { code: string }).code = "auth/account-exists";
+            throw accountExistsError;
+          }
           throw error;
         }
         await refreshProfile();
@@ -818,6 +826,22 @@ function FooterColumn({ title, links }: { title: string; links: Array<{ label: s
 }
 
 function friendlyError(code: string): string {
-  const map: Record<string, string> = { "auth/wrong-password": "Password ভুল হয়েছে।", "auth/user-not-found": "এই email-এ কোনো account নেই।", "auth/email-already-in-use": "Email ইতিমধ্যে registered।", "auth/weak-password": "Password কমপক্ষে ৬ characters হতে হবে।", "auth/invalid-email": "Email address সঠিক নয়।", "auth/invalid-credential": "Email বা Password ভুল হয়েছে।", "auth/too-many-requests": "অনেকবার চেষ্টা হয়েছে। একটু পরে আবার চেষ্টা করুন।" };
+  const map: Record<string, string> = {
+    "auth/wrong-password": "Password ভুল হয়েছে।",
+    "auth/user-not-found": "এই email-এ কোনো account নেই।",
+    "auth/email-already-in-use": "Email ইতিমধ্যে registered। Login করুন বা অন্য email ব্যবহার করুন।",
+    "auth/account-exists": "এই Google account-এর EduTrack profile আগে থেকেই আছে। Login করুন।",
+    "auth/weak-password": "Password কমপক্ষে ৬ characters হতে হবে।",
+    "auth/invalid-email": "Email address সঠিক নয়।",
+    "auth/invalid-credential": "Email বা Password ভুল হয়েছে।",
+    "auth/operation-not-allowed": "এই signup method Firebase-এ চালু করা নেই। Admin configuration check করুন।",
+    "auth/configuration-not-found": "Firebase authentication configuration পাওয়া যায়নি।",
+    "auth/network-request-failed": "Internet connection check করে আবার চেষ্টা করুন।",
+    "permission-denied": "Workspace setup Firebase permission-এর কারণে আটকে গেছে। Firestore rules update করার পর আবার চেষ্টা করুন।",
+    "failed-precondition": "Firebase setup অসম্পূর্ণ। Firestore database ও rules configuration check করুন।",
+    "unavailable": "Firebase service এখন সাময়িকভাবে unavailable। একটু পরে আবার চেষ্টা করুন।",
+    "deadline-exceeded": "Firebase response পেতে দেরি হচ্ছে। আবার চেষ্টা করুন।",
+    "already-exists": "এই workspace আগে থেকেই তৈরি হয়েছে। Login করে চেষ্টা করুন।",
+  };
   return map[code] ?? "কিছু একটা সমস্যা হয়েছে। আবার চেষ্টা করুন।";
 }
