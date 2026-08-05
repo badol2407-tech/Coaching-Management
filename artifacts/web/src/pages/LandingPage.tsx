@@ -95,6 +95,13 @@ const googleProvider = new GoogleAuthProvider();
 
 type AuthMode = "login" | "signup" | "reset";
 export type LandingSection = "home" | "features" | "solutions" | "pricing" | "resources" | "about";
+const toBanglaDigits = (value: number) => String(value).replace(/\d/g, (digit) => "০১২৩৪৫৬৭৮৯"[Number(digit)]);
+
+function triggerHeroHaptic() {
+  if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
+    navigator.vibrate(12);
+  }
+}
 
 const features = [
   { icon: CalendarCheck, title: "Attendance & Fees", desc: "Record attendance, track collections, and keep follow-ups in one daily view.", label: "Daily operations" },
@@ -468,12 +475,11 @@ function TeamProgressWindow({ reduceMotion }: { reduceMotion: boolean | null }) 
       className="hero-mini-window hero-mini-team glass-panel rounded-2xl border border-white/70 bg-white/80 p-4 shadow-xl backdrop-blur-xl"
       data-testid="hero-window-team-progress"
       aria-label={`স্কুলের স্বাস্থ্য ${progress}% Healthy`}
+      onTouchStart={triggerHeroHaptic}
     >
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <p className="text-[10px] font-semibold tracking-[0.08em] text-muted-foreground">স্কুলের স্বাস্থ্য</p>
-        </div>
-        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
+      <div className="hero-mini-header">
+        <p className="text-[10px] font-semibold tracking-[0.08em] text-muted-foreground">স্কুলের স্বাস্থ্য</p>
+        <span className="hero-mini-header-icon flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
           <TrendingUp className="h-3.5 w-3.5" aria-hidden="true" />
         </span>
       </div>
@@ -512,7 +518,6 @@ function AttendanceChart() {
   const lastPoint = points[points.length - 1] ?? { x: chart.left, y: chart.top + chart.height };
   const areaPath = `${linePath} L ${lastPoint.x} ${chart.top + chart.height} L ${chart.left} ${chart.top + chart.height} Z`;
   const yTicks = [50, 40, 30, 20, 10];
-  const bnDigits = (value: number) => String(value).replace(/\d/g, (digit) => "০১২৩৪৫৬৭৮৯"[Number(digit)]);
 
   return (
     <div className="hero-attendance-chart" aria-label="শ্রেণিভিত্তিক উপস্থিতি চার্ট">
@@ -543,7 +548,7 @@ function AttendanceChart() {
             return (
               <g key={tick}>
                 <line x1={chart.left} x2={chart.left + chart.width} y1={y} y2={y} />
-                <text x="25" y={y + 2.5} textAnchor="end">{bnDigits(tick)}</text>
+                <text x="25" y={y + 2.5} textAnchor="end">{toBanglaDigits(tick)}</text>
               </g>
             );
           })}
@@ -554,8 +559,8 @@ function AttendanceChart() {
         <path className="hero-attendance-line" pathLength="1" d={linePath} />
         {points.map(({ x, y }, index) => (
           <g key={grades[index]} filter="url(#attendance-point-glow)">
-            <circle className="hero-attendance-point-halo" cx={x} cy={y} r="5.5" />
-            <circle className="hero-attendance-point" cx={x} cy={y} r="2.7" />
+            <circle className="hero-attendance-point-halo" style={{ animationDelay: `${3.65 + index * 0.12}s` }} cx={x} cy={y} r="5.5" />
+            <circle className="hero-attendance-point" style={{ animationDelay: `${3.65 + index * 0.12}s` }} cx={x} cy={y} r="2.7" />
           </g>
         ))}
         {grades.map((grade, index) => (
@@ -563,6 +568,83 @@ function AttendanceChart() {
         ))}
         <text className="hero-attendance-axis-label" x="99" y="145" textAnchor="middle">শ্রেণি</text>
         <text className="hero-attendance-axis-label" transform="translate(8 62) rotate(-90)" textAnchor="middle">উপস্থিতি</text>
+      </svg>
+    </div>
+  );
+}
+
+const examResults = [
+  { subject: "পদার্থবিজ্ঞান", value: 89 },
+  { subject: "রসায়ন", value: 87 },
+  { subject: "উচ্চতর গণিত", value: 88 },
+  { subject: "জীববিজ্ঞান", value: 85 },
+  { subject: "ইংরেজি", value: 91 },
+];
+
+function RadarChart() {
+  const chart = { cx: 110, cy: 77, radius: 46, labelRadius: 67 };
+  const points = examResults.map((result, index) => {
+    const angle = -90 + index * 72;
+    const point = polarPoint(chart.cx, chart.cy, chart.radius * (result.value / 100), angle);
+    const labelPoint = polarPoint(chart.cx, chart.cy, chart.labelRadius, angle);
+    const valuePoint = polarPoint(chart.cx, chart.cy, chart.radius * (result.value / 100) + 8, angle);
+    return { ...result, angle, point, labelPoint, valuePoint };
+  });
+  const polygonPath = points.map(({ point }, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`).join(" ") + " Z";
+  const outerPoints = examResults.map((_, index) => polarPoint(chart.cx, chart.cy, chart.radius, -90 + index * 72));
+  const axisLabelAnchor = (x: number) => (x < chart.cx - 8 ? "end" : x > chart.cx + 8 ? "start" : "middle");
+
+  return (
+    <div className="hero-radar-chart" aria-label="রাফির পরীক্ষার ফলাফল">
+      <svg viewBox="0 0 220 165" role="img" aria-labelledby="radar-title radar-description">
+        <title id="radar-title">রাফির পরীক্ষার ফলাফল</title>
+        <desc id="radar-description">পদার্থবিজ্ঞান ৮৯, রসায়ন ৮৭, উচ্চতর গণিত ৮৮, জীববিজ্ঞান ৮৫, ইংরেজি ৯১।</desc>
+        <defs>
+          <linearGradient id="radar-fill-gradient" x1="0" x2="1" y1="0" y2="1">
+            <stop offset="0%" stopColor="hsl(221 83% 58% / .34)" />
+            <stop offset="100%" stopColor="hsl(267 75% 68% / .16)" />
+          </linearGradient>
+          <linearGradient id="radar-stroke-gradient" x1="0" x2="1" y1="0" y2="1">
+            <stop offset="0%" stopColor="hsl(221 83% 58%)" />
+            <stop offset="100%" stopColor="hsl(267 75% 64%)" />
+          </linearGradient>
+          <filter id="radar-point-glow" x="-100%" y="-100%" width="300%" height="300%">
+            <feGaussianBlur stdDeviation="2.2" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+        <g className="hero-radar-grid">
+          {[0.25, 0.5, 0.75, 1].map((scale) => (
+            <polygon
+              key={scale}
+              points={examResults.map((_, index) => {
+                const point = polarPoint(chart.cx, chart.cy, chart.radius * scale, -90 + index * 72);
+                return `${point.x},${point.y}`;
+              }).join(" ")}
+            />
+          ))}
+          {outerPoints.map((point, index) => (
+            <line key={examResults[index].subject} x1={chart.cx} y1={chart.cy} x2={point.x} y2={point.y} />
+          ))}
+        </g>
+        <polygon className="hero-radar-data-area" points={points.map(({ point }) => `${point.x},${point.y}`).join(" ")} />
+        <path className="hero-radar-data-line" d={polygonPath} />
+        {points.map(({ point, subject, value }, index) => (
+          <g key={subject} className="hero-radar-point" style={{ animationDelay: `${1.95 + index * 0.12}s` }} filter="url(#radar-point-glow)">
+            <circle className="hero-radar-point-halo" cx={point.x} cy={point.y} r="5.5" />
+            <circle className="hero-radar-point-core" cx={point.x} cy={point.y} r="2.7" />
+            <text className="hero-radar-value" x={point.x} y={point.y - 6} textAnchor="middle">{toBanglaDigits(value)}</text>
+          </g>
+        ))}
+        {points.map(({ labelPoint, subject, valuePoint }) => (
+          <g key={`${subject}-label`}>
+            <text className="hero-radar-subject" x={labelPoint.x} y={labelPoint.y + 2} textAnchor={axisLabelAnchor(labelPoint.x)}>{subject}</text>
+            <text className="hero-radar-value-outer" x={valuePoint.x} y={valuePoint.y + 2} textAnchor={axisLabelAnchor(valuePoint.x)}>{toBanglaDigits(examResults.find((result) => result.subject === subject)?.value ?? 0)}</text>
+          </g>
+        ))}
       </svg>
     </div>
   );
@@ -619,7 +701,19 @@ function donutSlicePath(
 
 function MonthlyFeeChart() {
   const total = monthlyFees.reduce((sum, slice) => sum + slice.amount, 0);
-  let startAngle = 0;
+  const feeSegments = monthlyFees.map((slice, index) => {
+    const startAngle = monthlyFees
+      .slice(0, index)
+      .reduce((sum, currentSlice) => sum + (currentSlice.amount / total) * 360, 0);
+    const endAngle = startAngle + (slice.amount / total) * 360;
+    const textAngle = startAngle + (endAngle - startAngle) / 2;
+    return {
+      slice,
+      startAngle,
+      endAngle,
+      amountPoint: polarPoint(140, 112, 56, textAngle),
+    };
+  });
 
   return (
     <div className="hero-fee-chart" aria-label="শিক্ষার্থীদের মাসিক ফি চার্ট">
@@ -648,26 +742,26 @@ function MonthlyFeeChart() {
         <g className="hero-fee-wheel" filter="url(#fee-wheel-shadow)">
           <circle className="hero-fee-wheel-shadow" cx="140" cy="112" r="75" />
           <circle className="hero-fee-wheel-base" cx="140" cy="112" r="73" />
-          {monthlyFees.map((slice) => {
-            const sliceStart = startAngle;
-            const sliceEnd = startAngle + (slice.amount / total) * 360;
-            const textAngle = sliceStart + (sliceEnd - sliceStart) / 2;
-            const amountPoint = polarPoint(140, 112, 58, textAngle);
-            startAngle = sliceEnd;
-
-            return (
-              <g key={slice.name}>
-                <path
-                  className="hero-fee-slice"
-                  d={donutSlicePath(140, 112, 72, 43, sliceStart + 1, sliceEnd - 1)}
-                  fill={slice.color}
-                />
-                <text className="hero-fee-amount" x={amountPoint.x} y={amountPoint.y + 2} textAnchor="middle">
-                  {slice.amountLabel}
-                </text>
-              </g>
-            );
-          })}
+          {feeSegments.map(({ slice, startAngle, endAngle }) => (
+            <path
+              key={`${slice.name}-branch`}
+              className="hero-fee-sunburst-branch"
+              d={donutSlicePath(140, 112, 78, 69, startAngle + 1, endAngle - 1)}
+              fill={slice.color}
+            />
+          ))}
+          {feeSegments.map(({ slice, startAngle, endAngle, amountPoint }) => (
+            <g key={slice.name}>
+              <path
+                className="hero-fee-slice"
+                d={donutSlicePath(140, 112, 69, 40, startAngle + 1, endAngle - 1)}
+                fill={slice.color}
+              />
+              <text className="hero-fee-amount" x={amountPoint.x} y={amountPoint.y + 2} textAnchor="middle">
+                {slice.amountLabel}
+              </text>
+            </g>
+          ))}
           <circle className="hero-fee-inner-glass" cx="140" cy="112" r="41" />
           <circle className="hero-fee-inner-highlight" cx="140" cy="112" r="29" />
           <path className="hero-fee-reflection" d="M 102 69 A 58 58 0 0 1 157 51" />
@@ -715,12 +809,13 @@ function HeroMiniWindows({ reduceMotion }: { reduceMotion: boolean | null }) {
         className="hero-mini-float hero-mini-plan-float"
         data-testid="hero-window-todays-plan"
       >
-        <div className="hero-mini-window hero-mini-plan glass-panel rounded-2xl border border-white/70 bg-white/85 p-4 shadow-xl backdrop-blur-xl">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-               <p className="text-xs font-semibold tracking-[0.08em] text-foreground/80">মাসিক ফি</p>
-            </div>
-             <Wallet className="h-4 w-4 text-primary" aria-hidden="true" />
+         <div
+           className="hero-mini-window hero-mini-plan glass-panel rounded-2xl border border-white/70 bg-white/85 p-4 shadow-xl backdrop-blur-xl"
+           onTouchStart={triggerHeroHaptic}
+         >
+           <div className="hero-mini-header">
+             <p className="text-xs font-semibold tracking-[0.08em] text-foreground/80">মাসিক ফি</p>
+             <Wallet className="hero-mini-header-icon h-4 w-4 text-primary" aria-hidden="true" />
           </div>
            <MonthlyFeeChart />
         </div>
@@ -731,12 +826,14 @@ function HeroMiniWindows({ reduceMotion }: { reduceMotion: boolean | null }) {
         transition={floatTransition(5.2, 0.55)}
         className="hero-mini-float hero-mini-projects-float"
       >
-        <div className="hero-mini-window hero-mini-projects glass-panel rounded-2xl border border-white/70 bg-white/85 p-4 shadow-xl backdrop-blur-xl" data-testid="hero-window-active-projects">
-          <div className="flex items-center justify-between gap-3">
-           <div>
+         <div
+           className="hero-mini-window hero-mini-projects glass-panel rounded-2xl border border-white/70 bg-white/85 p-4 shadow-xl backdrop-blur-xl"
+           data-testid="hero-window-active-projects"
+           onTouchStart={triggerHeroHaptic}
+         >
+           <div className="hero-mini-header">
              <p className="text-[10px] font-semibold tracking-[0.08em] text-muted-foreground">আজকের উপস্থিতি</p>
-            </div>
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
+             <span className="hero-mini-header-icon flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
               <TrendingUp className="h-3.5 w-3.5" aria-hidden="true" />
             </span>
           </div>
@@ -749,15 +846,20 @@ function HeroMiniWindows({ reduceMotion }: { reduceMotion: boolean | null }) {
         transition={floatTransition(5.1, 0.2)}
         className="hero-mini-float hero-mini-due-float"
       >
-        <div className="hero-mini-window hero-mini-due glass-panel flex items-center gap-3 rounded-2xl border border-white/70 bg-white/90 p-3 shadow-xl backdrop-blur-xl" data-testid="hero-window-tasks-due">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-600">
-            <ClipboardCheck className="h-4 w-4" aria-hidden="true" />
-          </span>
-          <span className="min-w-0">
-            <strong className="block text-[11px] font-semibold text-foreground">2 tasks due today</strong>
-            <span className="block truncate text-[9px] text-muted-foreground">Don’t forget to review</span>
-          </span>
-          <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+        <div
+          className="hero-mini-window hero-mini-due glass-panel rounded-2xl border border-white/70 bg-white/90 p-3 shadow-xl backdrop-blur-xl"
+          data-testid="hero-window-exam-results"
+          aria-label="পরীক্ষার ফলাফল রাফি"
+          onTouchStart={triggerHeroHaptic}
+        >
+          <div className="hero-mini-header">
+            <div className="text-center">
+              <p className="text-[10px] font-semibold tracking-[0.08em] text-foreground/80">পরীক্ষার ফলাফল</p>
+              <p className="mt-0.5 text-[9px] text-muted-foreground">রাফি</p>
+            </div>
+            <BarChart3 className="hero-mini-header-icon h-4 w-4 text-primary" aria-hidden="true" />
+          </div>
+          <RadarChart />
         </div>
       </motion.div>
     </motion.div>

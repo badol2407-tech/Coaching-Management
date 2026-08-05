@@ -664,6 +664,45 @@
 
   .hero-mini-window {
     color: hsl(var(--foreground));
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+      0 24px 42px -30px hsl(224 56% 22% / .58),
+      0 1px 0 hsl(0 0% 100% / .88) inset,
+      0 0 0 1px hsl(267 75% 84% / .16);
+  }
+
+  .hero-mini-window::before {
+    position: absolute;
+    top: -28%;
+    left: 12%;
+    width: 72%;
+    height: 42%;
+    content: "";
+    border-radius: 50%;
+    background: hsl(0 0% 100% / .42);
+    filter: blur(18px);
+    pointer-events: none;
+  }
+
+  .hero-mini-header {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 1.75rem;
+    text-align: center;
+  }
+
+  .hero-mini-header-icon {
+    position: absolute;
+    right: 0;
+  }
+
+  .hero-mini-window:focus-within {
+    outline: 2px solid hsl(var(--primary) / .35);
+    outline-offset: 3px;
   }
 
   .hero-mini-float {
@@ -873,7 +912,7 @@
 
   .hero-attendance-point-halo,
   .hero-attendance-point {
-    animation-delay: 2.2s;
+    animation-delay: 3.65s;
   }
 
   .hero-fee-chart {
@@ -945,6 +984,13 @@
     stroke-width: 1.2;
   }
 
+  .hero-fee-sunburst-branch {
+    opacity: .62;
+    stroke: hsl(0 0% 100% / .78);
+    stroke-linejoin: round;
+    stroke-width: 1;
+  }
+
   .hero-fee-slice {
     opacity: .9;
     stroke: hsl(0 0% 100% / .72);
@@ -1004,6 +1050,114 @@
     font-size: 9px;
   }
 
+  .hero-radar-chart {
+    position: relative;
+    z-index: 1;
+    margin-top: .15rem;
+    overflow: hidden;
+    border: 1px solid hsl(0 0% 100% / .78);
+    border-radius: 1.05rem;
+    background:
+      radial-gradient(circle at 36% 8%, hsl(0 0% 100% / .76), transparent 36%),
+      linear-gradient(145deg, hsl(0 0% 100% / .58), hsl(238 78% 96% / .28)),
+      hsl(0 0% 100% / .2);
+    padding: .2rem .1rem .05rem;
+    box-shadow:
+      0 14px 28px -22px hsl(224 56% 24% / .58),
+      0 1px 0 hsl(0 0% 100% / .9) inset,
+      0 0 0 1px hsl(267 75% 84% / .16);
+    backdrop-filter: blur(17px) saturate(145%);
+  }
+
+  .hero-radar-chart::after {
+    position: absolute;
+    right: -20%;
+    bottom: -30%;
+    width: 64%;
+    height: 62%;
+    content: "";
+    border-radius: 50%;
+    background: hsl(267 77% 77% / .18);
+    filter: blur(24px);
+    pointer-events: none;
+  }
+
+  .hero-radar-chart svg {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .hero-radar-grid polygon {
+    fill: hsl(0 0% 100% / .08);
+    stroke: hsl(231 32% 44% / .16);
+    stroke-dasharray: 1.5 2.5;
+    stroke-width: .7;
+  }
+
+  .hero-radar-grid line {
+    stroke: hsl(231 32% 44% / .14);
+    stroke-dasharray: 1.5 2.5;
+    stroke-width: .7;
+  }
+
+  .hero-radar-data-area {
+    fill: url("#radar-fill-gradient");
+    opacity: 0;
+    transform-origin: 110px 77px;
+    animation: hero-radar-area-reveal .8s ease-out .35s forwards;
+  }
+
+  .hero-radar-data-line {
+    fill: none;
+    stroke: url("#radar-stroke-gradient");
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2.3;
+    animation: hero-radar-line-draw 1.4s cubic-bezier(.22,.68,0,1) .4s forwards;
+  }
+
+  .hero-radar-point {
+    opacity: 0;
+    animation: hero-radar-point-reveal .42s ease-out forwards;
+  }
+
+  .hero-radar-point-halo {
+    fill: hsl(221 83% 62% / .16);
+  }
+
+  .hero-radar-point-core {
+    fill: hsl(0 0% 100% / .95);
+    stroke: hsl(253 74% 58%);
+    stroke-width: 1.4;
+  }
+
+  .hero-radar-subject,
+  .hero-radar-value,
+  .hero-radar-value-outer {
+    fill: hsl(231 28% 32% / .84);
+    font-family: "Hind Siliguri", sans-serif;
+    font-size: 6.5px;
+    font-weight: 700;
+  }
+
+  .hero-radar-value {
+    fill: hsl(253 54% 47% / .92);
+    font-size: 6px;
+    font-weight: 800;
+  }
+
+  .hero-radar-value-outer {
+    fill: hsl(231 28% 40% / .6);
+    font-size: 5.5px;
+    font-weight: 600;
+  }
+
   @keyframes hero-attendance-line-draw {
     from {
       stroke-dashoffset: 1;
@@ -1039,6 +1193,37 @@
     }
     to {
       transform: rotate(360deg);
+    }
+  }
+
+  @keyframes hero-radar-line-draw {
+    from {
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @keyframes hero-radar-area-reveal {
+    from {
+      opacity: 0;
+      transform: scale(.82);
+    }
+    to {
+      opacity: .9;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes hero-radar-point-reveal {
+    from {
+      opacity: 0;
+      transform: scale(.55);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
     }
   }
 
@@ -1150,7 +1335,10 @@
     .hero-attendance-area,
     .hero-attendance-point-halo,
     .hero-attendance-point,
-    .hero-fee-wheel {
+    .hero-fee-wheel,
+    .hero-radar-data-area,
+    .hero-radar-data-line,
+    .hero-radar-point {
       transition: none;
       animation: none;
       stroke-dashoffset: 0;
