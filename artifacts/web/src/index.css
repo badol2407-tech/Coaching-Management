@@ -593,6 +593,206 @@
     color: hsl(var(--muted-foreground));
   }
 
+  .hero-mini-stage {
+    min-height: 370px;
+    isolation: isolate;
+  }
+
+  .hero-mini-horizon {
+    position: absolute;
+    inset: 14% 2% 0;
+    overflow: hidden;
+    border-radius: 3rem 3rem 1.75rem 1.75rem;
+    background:
+      radial-gradient(circle at 50% 20%, hsl(267 72% 78% / .3), transparent 30%),
+      radial-gradient(circle at 82% 74%, hsl(221 83% 66% / .2), transparent 35%),
+      linear-gradient(160deg, hsl(224 80% 98% / .15), hsl(267 66% 91% / .34));
+    box-shadow: inset 0 1px 0 hsl(0 0% 100% / .75), 0 24px 55px -42px hsl(224 56% 25% / .4);
+  }
+
+  .hero-mini-horizon::before,
+  .hero-mini-horizon::after {
+    content: "";
+    position: absolute;
+    right: -8%;
+    bottom: -33%;
+    left: -8%;
+    height: 70%;
+    border-radius: 50% 50% 0 0;
+    background: linear-gradient(145deg, hsl(267 63% 81% / .5), hsl(221 83% 73% / .28));
+    filter: blur(2px);
+    transform: rotate(-3deg);
+  }
+
+  .hero-mini-horizon::after {
+    right: -12%;
+    bottom: -48%;
+    left: 18%;
+    height: 65%;
+    background: linear-gradient(145deg, hsl(221 83% 69% / .35), hsl(267 72% 76% / .5));
+    transform: rotate(7deg);
+  }
+
+  .hero-mini-orb {
+    position: absolute;
+    display: block;
+    border-radius: 50%;
+    background: hsl(0 0% 100% / .45);
+    filter: blur(1px);
+  }
+
+  .hero-mini-orb-one {
+    top: 24%;
+    left: 42%;
+    width: .35rem;
+    height: .35rem;
+  }
+
+  .hero-mini-orb-two {
+    top: 37%;
+    left: 58%;
+    width: .2rem;
+    height: .2rem;
+  }
+
+  .hero-mini-orb-three {
+    top: 48%;
+    left: 35%;
+    width: .25rem;
+    height: .25rem;
+  }
+
+  .hero-mini-window {
+    color: hsl(var(--foreground));
+  }
+
+  .hero-mini-team {
+    top: 5%;
+    left: 11%;
+    width: 196px;
+  }
+
+  .hero-mini-plan {
+    bottom: 2%;
+    left: 50%;
+    width: 245px;
+    transform: translateX(-50%);
+  }
+
+  .hero-mini-projects {
+    top: 35%;
+    right: 10%;
+    width: 215px;
+  }
+
+  .hero-mini-due {
+    bottom: 4%;
+    left: 10%;
+    width: 205px;
+  }
+
+  .hero-speedometer {
+    position: relative;
+    height: 104px;
+  }
+
+  .hero-speedometer svg {
+    display: block;
+    width: 100%;
+    height: 104px;
+    overflow: visible;
+  }
+
+  .hero-speedometer-track,
+  .hero-speedometer-progress {
+    fill: none;
+    stroke-width: 10;
+    stroke-linecap: round;
+  }
+
+  .hero-speedometer-track {
+    stroke: hsl(var(--muted));
+  }
+
+  .hero-speedometer-progress {
+    stroke: hsl(var(--primary));
+    stroke-dasharray: 1;
+    transition: stroke-dashoffset .08s linear;
+  }
+
+  .hero-speedometer-needle {
+    transform-box: fill-box;
+    transform-origin: 90px 94px;
+    stroke: hsl(var(--foreground));
+    stroke-linecap: round;
+    stroke-width: 2.5;
+    transition: transform .08s linear;
+  }
+
+  .hero-speedometer-hub {
+    fill: hsl(var(--foreground));
+    stroke: hsl(var(--background));
+    stroke-width: 2;
+  }
+
+  .hero-speedometer-value {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .hero-speedometer-value strong {
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: -.03em;
+  }
+
+  .hero-speedometer-value span {
+    margin-top: .3rem;
+    color: hsl(var(--muted-foreground));
+    font-size: .58rem;
+  }
+
+  .hero-avatar {
+    display: inline-flex;
+    width: 1.25rem;
+    height: 1.25rem;
+    align-items: center;
+    justify-content: center;
+    margin-left: -.25rem;
+    border: 2px solid hsl(0 0% 100% / .95);
+    border-radius: 999px;
+    font-size: .52rem;
+    font-weight: 700;
+  }
+
+  .hero-avatar:first-child {
+    margin-left: 0;
+  }
+
+  .hero-plan-check {
+    display: inline-flex;
+    width: .9rem;
+    height: .9rem;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid hsl(var(--primary) / .55);
+    border-radius: .25rem;
+    color: hsl(var(--primary-foreground));
+  }
+
+  .hero-plan-check.is-done {
+    border-color: hsl(var(--primary));
+    background: hsl(var(--primary));
+  }
+
   .browser-chrome {
     background: linear-gradient(180deg, hsl(0 0% 100% / .82), hsl(220 32% 96% / .72));
   }
@@ -659,6 +859,45 @@
   @media (prefers-reduced-motion: reduce) {
     .landing-hero::before {
       display: none;
+    }
+
+    .hero-speedometer-progress,
+    .hero-speedometer-needle {
+      transition: none;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .hero-mini-stage {
+      min-height: 620px;
+      margin-top: 2.75rem;
+    }
+
+    .hero-mini-horizon {
+      inset: 7% 0 1%;
+      border-radius: 2rem;
+    }
+
+    .hero-mini-team {
+      top: 0;
+      left: .5rem;
+    }
+
+    .hero-mini-plan {
+      bottom: 17%;
+      left: auto;
+      right: .5rem;
+      transform: none;
+    }
+
+    .hero-mini-projects {
+      top: 35%;
+      right: .5rem;
+    }
+
+    .hero-mini-due {
+      bottom: 1%;
+      left: .5rem;
     }
   }
 

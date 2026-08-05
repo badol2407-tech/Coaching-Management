@@ -437,6 +437,195 @@ function MiniSparkline({ bars = ["h-5", "h-8", "h-6", "h-10", "h-9", "h-12", "h-
   );
 }
 
+function TeamProgressWindow({ reduceMotion }: { reduceMotion: boolean | null }) {
+  const [progress, setProgress] = useState(reduceMotion ? 56 : 0);
+
+  useEffect(() => {
+    if (reduceMotion) {
+      setProgress(56);
+      return;
+    }
+
+    let frame = 0;
+    const startedAt = performance.now();
+    const duration = 2800;
+
+    function tick(now: number) {
+      const elapsed = Math.min((now - startedAt) / duration, 1);
+      const eased = 1 - Math.pow(1 - elapsed, 3);
+      setProgress(Math.round(eased * 56));
+      if (elapsed < 1) frame = requestAnimationFrame(tick);
+    }
+
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [reduceMotion]);
+
+  const needleRotation = -90 + progress * 1.8;
+
+  return (
+    <div
+      className="hero-mini-window hero-mini-team glass-panel rounded-2xl border border-white/70 bg-white/80 p-4 shadow-xl backdrop-blur-xl"
+      data-testid="hero-window-team-progress"
+      aria-label={`Team Progress ${progress}% completed`}
+    >
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Team Progress</p>
+          <p className="mt-1 text-xs text-foreground/70">Weekly momentum</p>
+        </div>
+        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <TrendingUp className="h-3.5 w-3.5" aria-hidden="true" />
+        </span>
+      </div>
+      <div className="hero-speedometer mt-2">
+        <svg viewBox="0 0 180 112" role="img" aria-label={`${progress}% completed`}>
+          <path className="hero-speedometer-track" d="M 22 94 A 68 68 0 0 1 158 94" pathLength="1" />
+          <path
+            className="hero-speedometer-progress"
+            d="M 22 94 A 68 68 0 0 1 158 94"
+            pathLength="1"
+            style={{ strokeDashoffset: 1 - progress / 100 }}
+          />
+          <line
+            className="hero-speedometer-needle"
+            x1="90"
+            y1="94"
+            x2="90"
+            y2="50"
+            style={{ transform: `rotate(${needleRotation}deg)` }}
+          />
+          <circle className="hero-speedometer-hub" cx="90" cy="94" r="5" />
+        </svg>
+        <div className="hero-speedometer-value">
+          <strong>{progress}%</strong>
+          <span>Completed</span>
+        </div>
+      </div>
+      <div className="mt-1 flex items-center gap-1.5">
+        <span className="hero-avatar bg-primary text-primary-foreground">A</span>
+        <span className="hero-avatar bg-indigo-200 text-indigo-700">R</span>
+        <span className="hero-avatar bg-violet-200 text-violet-700">S</span>
+        <span className="hero-avatar bg-sky-200 text-sky-700">N</span>
+        <span className="ml-1 text-[10px] font-medium text-muted-foreground">+12 this week</span>
+      </div>
+    </div>
+  );
+}
+
+function HeroMiniWindows({ reduceMotion }: { reduceMotion: boolean | null }) {
+  const floatTransition = (duration: number, delay = 0) => ({
+    duration,
+    repeat: Infinity,
+    ease: "easeInOut" as const,
+    delay,
+  });
+
+  return (
+    <motion.div
+      className="hero-mini-stage relative mx-auto mt-14 max-w-6xl"
+      initial={reduceMotion ? false : { opacity: 0, y: 18 }}
+      animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+      transition={{ duration: 0.7, delay: 0.15, ease: "easeOut" }}
+      data-testid="hero-mini-windows"
+    >
+      <div className="hero-mini-horizon" aria-hidden="true">
+        <span className="hero-mini-orb hero-mini-orb-one" />
+        <span className="hero-mini-orb hero-mini-orb-two" />
+        <span className="hero-mini-orb hero-mini-orb-three" />
+      </div>
+
+      <motion.div
+        animate={reduceMotion ? undefined : { y: [0, -7, 0] }}
+        transition={floatTransition(5.4)}
+        className="absolute z-10"
+      >
+        <TeamProgressWindow reduceMotion={reduceMotion} />
+      </motion.div>
+
+      <motion.div
+        animate={reduceMotion ? undefined : { y: [0, 7, 0] }}
+        transition={floatTransition(5.8, 0.3)}
+        className="hero-mini-window hero-mini-plan glass-panel absolute z-10 rounded-2xl border border-white/70 bg-white/85 p-4 shadow-xl backdrop-blur-xl"
+        data-testid="hero-window-todays-plan"
+      >
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Today's Plan</p>
+            <p className="mt-1 text-xs text-foreground/70">Keep the day moving</p>
+          </div>
+          <CalendarCheck className="h-4 w-4 text-primary" aria-hidden="true" />
+        </div>
+        <div className="mt-3 space-y-2.5">
+          {[
+            ["Design new dashboard", "10:00 AM"],
+            ["User research", "12:30 PM"],
+            ["Sprint planning", "02:00 PM"],
+          ].map(([task, time], index) => (
+            <div key={task} className="flex items-center gap-2.5">
+              <span className={`hero-plan-check ${index < 2 ? "is-done" : ""}`} aria-hidden="true">
+                {index < 2 && <Check className="h-2.5 w-2.5" />}
+              </span>
+              <span className="min-w-0 flex-1 truncate text-[11px] font-medium text-foreground/80">{task}</span>
+              <span className="text-[9px] text-muted-foreground">{time}</span>
+            </div>
+          ))}
+        </div>
+        <p className="mt-3 text-[10px] font-semibold text-primary">View all tasks →</p>
+      </motion.div>
+
+      <motion.div
+        animate={reduceMotion ? undefined : { y: [0, -6, 0] }}
+        transition={floatTransition(5.2, 0.55)}
+        className="hero-mini-window hero-mini-projects glass-panel absolute z-10 rounded-2xl border border-white/70 bg-white/85 p-4 shadow-xl backdrop-blur-xl"
+        data-testid="hero-window-active-projects"
+      >
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Active Projects</p>
+            <p className="mt-1 text-xs text-foreground/70">Work in progress</p>
+          </div>
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-100 text-violet-600">
+            <LayoutDashboard className="h-3.5 w-3.5" aria-hidden="true" />
+          </span>
+        </div>
+        <div className="mt-4 space-y-3">
+          {[
+            ["Website Redesign", "65%", "bg-primary"],
+            ["Mobile App", "30%", "bg-violet-500"],
+          ].map(([project, value, bar]) => (
+            <div key={project}>
+              <div className="flex items-center justify-between gap-3 text-[10px]">
+                <span className="font-semibold text-foreground/80">{project}</span>
+                <span className="text-muted-foreground">{value}</span>
+              </div>
+              <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-muted">
+                <div className={`h-full rounded-full ${bar}`} style={{ width: value }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </motion.div>
+
+      <motion.div
+        animate={reduceMotion ? undefined : { y: [0, 5, 0] }}
+        transition={floatTransition(5.1, 0.2)}
+        className="hero-mini-window hero-mini-due glass-panel absolute z-10 flex items-center gap-3 rounded-2xl border border-white/70 bg-white/90 p-3 shadow-xl backdrop-blur-xl"
+        data-testid="hero-window-tasks-due"
+      >
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-600">
+          <ClipboardCheck className="h-4 w-4" aria-hidden="true" />
+        </span>
+        <span className="min-w-0">
+          <strong className="block text-[11px] font-semibold text-foreground">2 tasks due today</strong>
+          <span className="block truncate text-[9px] text-muted-foreground">Don’t forget to review</span>
+        </span>
+        <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+      </motion.div>
+    </motion.div>
+  );
+}
+
 function ProductPreview() {
   const reduceMotion = useReducedMotion();
   return (
@@ -633,6 +822,7 @@ function LandingContent({
           </div>
           <div className="mt-6 flex flex-wrap justify-center gap-x-5 gap-y-2 text-sm text-foreground/65">{["কোনো credit card লাগবে না", "কয়েক মিনিটে setup", "চারটি focused portal"].map((signal) => <span key={signal} className="flex items-center gap-2"><CheckCircle className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />{signal}</span>)}</div>
         </motion.div>
+         <HeroMiniWindows reduceMotion={reduceMotion} />
       </section>
     );
   }
