@@ -7,10 +7,10 @@ Hero data widgets should use layered motion: keep attendance peak points visible
 
 **Why:** Motion adds the desired premium feel, but rotating text-heavy labels makes the mini-windows difficult to scan and undermines the transparent-glass reference style.
 
-**How to apply:** Keep label groups outside rotating SVG groups, make the wheel rotation slow and continuous, keep attendance dots present from the first frame, use a short navigator vibration on touch for all four cards, and disable chart/orbit/entrance motion under reduced motion.
+**How to apply:** Keep label groups outside rotating SVG groups, make the wheel rotation slow and continuous, use red/green fee slices for due/paid status, keep attendance dots present from the first frame, use a short navigator vibration on touch for all four cards, and disable chart/orbit/entrance motion under reduced motion.
 
 The four hero windows should stay hidden below the stage until the first-session promotion is dismissed, then enter together from below, rotate anticlockwise briefly, and settle into their existing floating positions. Store the completion in session storage so refreshes do not replay it.
 
 **Why:** The landing hero needs one intentional reveal tied to the promotion interaction without making repeat visits feel like an onboarding loop.
 
-**How to apply:** Let the promotion component notify the landing page exactly once on dismiss, start the shared entrance phase from React state, and treat either the promotion session marker or the entrance marker as proof that repeat sessions can start settled.
+**How to apply:** Let the promotion component notify the landing page exactly once on dismiss, start the shared entrance phase from React state, rotate a shared group rather than each window independently, spread windows to their final positions after the reveal, and treat either the promotion session marker or the entrance marker as proof that repeat sessions can start settled.

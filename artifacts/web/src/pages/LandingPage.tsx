@@ -598,6 +598,17 @@ function RadarChart({ animateOrbit }: { animateOrbit: boolean }) {
   const orbitMotionPath = orbitPoints
     .map(({ point }, index) => `${index === 0 ? "M" : "L"} ${point.x - points[0].point.x} ${point.y - points[0].point.y}`)
     .join(" ");
+  const orbitSegmentLengths = orbitPoints.slice(0, -1).map(({ point }, index) => {
+    const nextPoint = orbitPoints[index + 1]?.point ?? point;
+    return Math.hypot(nextPoint.x - point.x, nextPoint.y - point.y);
+  });
+  const orbitTotalLength = orbitSegmentLengths.reduce((sum, length) => sum + length, 0);
+  let travelledLength = 0;
+  const orbitVertexProgress = orbitSegmentLengths.map((length) => {
+    const progress = orbitTotalLength > 0 ? travelledLength / orbitTotalLength : 0;
+    travelledLength += length;
+    return progress;
+  });
   const outerPoints = examResults.map((_, index) => polarPoint(chart.cx, chart.cy, chart.radius, -90 + index * 72));
   const axisLabelAnchor = (x: number) => (x < chart.cx - 8 ? "end" : x > chart.cx + 8 ? "start" : "middle");
 
@@ -656,6 +667,46 @@ function RadarChart({ animateOrbit }: { animateOrbit: boolean }) {
               </>
             )}
           </circle>
+          {animateOrbit && (
+            <>
+              <g className="hero-radar-sparkle-trail" transform={`translate(${points[0].point.x} ${points[0].point.y})`}>
+                {[0.18, 0.34, 0.52, 0.72].map((offset, index) => (
+                  <g
+                    key={`sparkle-trail-${index}`}
+                    transform={`rotate(${index * 27 - 22}) scale(${0.7 + index * 0.12})`}
+                  >
+                    <path className="hero-radar-sparkle" d="M 0 -2 L 0 -5 M -2 0 L -5 0 M 0 2 L 0 5 M 2 0 L 5 0" />
+                    <animateMotion
+                      dur="8s"
+                      begin={`-${offset}s`}
+                      repeatCount="indefinite"
+                      path={orbitMotionPath}
+                    />
+                    <animate
+                      attributeName="opacity"
+                      dur={`${1.5 + index * 0.15}s`}
+                      repeatCount="indefinite"
+                      values=".25;.95;.18"
+                    />
+                  </g>
+                ))}
+              </g>
+              {orbitPoints.slice(0, -1).map(({ point }, index) => (
+                <g
+                  key={`sparkle-burst-${index}`}
+                  className="hero-radar-sparkle-burst"
+                  style={{ animationDelay: `${(orbitVertexProgress[index] ?? 0) * 8}s` }}
+                  transform={`translate(${point.x} ${point.y})`}
+                >
+                  <path
+                    className="hero-radar-sparkle-burst-line"
+                    d="M 0 -2 L 0 -8 M -2 0 L -8 0 M 0 2 L 0 8 M 2 0 L 8 0 M -1.5 -1.5 L -5 -5 M 1.5 1.5 L 5 5 M 1.5 -1.5 L 5 -5 M -1.5 1.5 L -5 5"
+                  />
+                  <circle className="hero-radar-sparkle-burst-core" cx="0" cy="0" r="1.8" />
+                </g>
+              ))}
+            </>
+          )}
         </g>
         <polygon className="hero-radar-data-area" points={points.map(({ point }) => `${point.x},${point.y}`).join(" ")} />
         <path className="hero-radar-data-line" d={polygonPath} />
@@ -681,19 +732,16 @@ function RadarChart({ animateOrbit }: { animateOrbit: boolean }) {
 type FeeSlice = {
   name: string;
   amount: number;
-  amountLabel: string;
   color: string;
-  labelX: number;
-  labelY: number;
-  labelAnchor: "start" | "middle" | "end";
+  status: "paid" | "due";
 };
 
 const monthlyFees: FeeSlice[] = [
-  { name: "নীলা", amount: 1650, amountLabel: "১৬৫০৳", color: "#3e78f2", labelX: 140, labelY: 13, labelAnchor: "middle" },
-  { name: "রাহুল", amount: 2150, amountLabel: "২১৫০৳", color: "#6374ef", labelX: 258, labelY: 63, labelAnchor: "start" },
-  { name: "মিথিলা", amount: 2750, amountLabel: "২৭৫০৳", color: "#8263e8", labelX: 239, labelY: 169, labelAnchor: "start" },
-  { name: "রাফি", amount: 3250, amountLabel: "৩২৫০৳", color: "#a66cde", labelX: 140, labelY: 218, labelAnchor: "middle" },
-  { name: "আদিবা", amount: 4800, amountLabel: "৪৮০০৳", color: "#5bc1c7", labelX: 41, labelY: 169, labelAnchor: "end" },
+  { name: "নীলা", amount: 1650, color: "#20b77a", status: "paid" },
+  { name: "রাহুল", amount: 2150, color: "#ef6877", status: "due" },
+  { name: "মিথিলা", amount: 2750, color: "#20b77a", status: "paid" },
+  { name: "রাফি", amount: 3250, color: "#ef6877", status: "due" },
+  { name: "আদিবা", amount: 4800, color: "#20b77a", status: "paid" },
 ];
 
 function polarPoint(cx: number, cy: number, radius: number, angle: number) {
@@ -739,15 +787,15 @@ function MonthlyFeeChart() {
       slice,
       startAngle,
       endAngle,
-      amountPoint: polarPoint(140, 112, 56, textAngle),
+      namePoint: polarPoint(140, 112, 56, textAngle),
     };
   });
 
   return (
-    <div className="hero-fee-chart" aria-label="শিক্ষার্থীদের মাসিক ফি চার্ট">
+    <div className="hero-fee-chart" aria-label="শিক্ষার্থীদের মাসিক ফি দেওয়ার অবস্থা">
       <svg viewBox="0 0 280 230" role="img" aria-labelledby="monthly-fee-title monthly-fee-description">
         <title id="monthly-fee-title">মাসিক ফি</title>
-        <desc id="monthly-fee-description">নীলা, রাহুল, মিথিলা, রাফি এবং আদিবার মাসিক ফি।</desc>
+        <desc id="monthly-fee-description">সবুজ অংশ ফি দিয়েছে এবং লাল অংশ ফি বাকি বোঝায়।</desc>
         <defs>
           <linearGradient id="fee-glass-highlight" x1="0" x2="1" y1="0" y2="1">
             <stop offset="0%" stopColor="hsl(0 0% 100% / .9)" />
@@ -758,14 +806,6 @@ function MonthlyFeeChart() {
             <feDropShadow dx="0" dy="8" stdDeviation="7" floodColor="hsl(224 56% 22% / .2)" />
           </filter>
         </defs>
-
-        <g className="hero-fee-labels">
-          {monthlyFees.map((slice) => (
-            <text key={slice.name} x={slice.labelX} y={slice.labelY} textAnchor={slice.labelAnchor}>
-              {slice.name}
-            </text>
-          ))}
-        </g>
 
         <g className="hero-fee-wheel" filter="url(#fee-wheel-shadow)">
           <circle className="hero-fee-wheel-shadow" cx="140" cy="112" r="75" />
@@ -778,25 +818,33 @@ function MonthlyFeeChart() {
               fill={slice.color}
             />
           ))}
-          {feeSegments.map(({ slice, startAngle, endAngle, amountPoint }) => (
+          {feeSegments.map(({ slice, startAngle, endAngle }) => (
             <g key={slice.name}>
               <path
-                className="hero-fee-slice"
+                className={`hero-fee-slice hero-fee-slice--${slice.status}`}
                 d={donutSlicePath(140, 112, 69, 40, startAngle + 1, endAngle - 1)}
                 fill={slice.color}
               />
-              <text className="hero-fee-amount" x={amountPoint.x} y={amountPoint.y + 2} textAnchor="middle">
-                {slice.amountLabel}
-              </text>
             </g>
           ))}
           <circle className="hero-fee-inner-glass" cx="140" cy="112" r="41" />
           <circle className="hero-fee-inner-highlight" cx="140" cy="112" r="29" />
           <path className="hero-fee-reflection" d="M 102 69 A 58 58 0 0 1 157 51" />
         </g>
+        <g className="hero-fee-labels" aria-hidden="true">
+          {feeSegments.map(({ slice, namePoint }) => (
+            <text key={`${slice.name}-label`} className="hero-fee-name" x={namePoint.x} y={namePoint.y + 2} textAnchor="middle">
+              {slice.name}
+            </text>
+          ))}
+        </g>
         <text className="hero-fee-center-label" x="140" y="109" textAnchor="middle">মাসিক</text>
         <text className="hero-fee-center-value" x="140" y="123" textAnchor="middle">ফি</text>
       </svg>
+      <div className="hero-fee-legend" aria-label="ফি status legend">
+        <span><i className="hero-fee-legend-dot hero-fee-legend-dot--paid" />দিয়েছে</span>
+        <span><i className="hero-fee-legend-dot hero-fee-legend-dot--due" />বাকি</span>
+      </div>
     </div>
   );
 }
@@ -847,73 +895,75 @@ function HeroMiniWindows({
         <span className="hero-mini-orb hero-mini-orb-three" />
       </div>
 
-      <motion.div
-        animate={reduceMotion || entrancePhase !== "settled" ? undefined : { y: [0, -7, 0] }}
-        transition={floatTransition(5.4)}
-        className="hero-mini-float hero-mini-team-float"
-      >
-        <TeamProgressWindow reduceMotion={reduceMotion} />
-      </motion.div>
-
-      <motion.div
-        animate={reduceMotion || entrancePhase !== "settled" ? undefined : { y: [0, 7, 0] }}
-        transition={floatTransition(5.8, 0.3)}
-        className="hero-mini-float hero-mini-plan-float"
-        data-testid="hero-window-todays-plan"
-      >
-         <div
-           className="hero-mini-window hero-mini-plan glass-panel rounded-2xl border border-white/70 bg-white/85 p-4 shadow-xl backdrop-blur-xl"
-           onTouchStart={triggerHeroHaptic}
-         >
-           <div className="hero-mini-header">
-             <p className="text-xs font-semibold tracking-[0.08em] text-foreground/80">মাসিক ফি</p>
-             <Wallet className="hero-mini-header-icon h-4 w-4 text-primary" aria-hidden="true" />
-          </div>
-           <MonthlyFeeChart />
-        </div>
-      </motion.div>
-
-      <motion.div
-        animate={reduceMotion || entrancePhase !== "settled" ? undefined : { y: [0, -6, 0] }}
-        transition={floatTransition(5.2, 0.55)}
-        className="hero-mini-float hero-mini-projects-float"
-      >
-         <div
-           className="hero-mini-window hero-mini-projects glass-panel rounded-2xl border border-white/70 bg-white/85 p-4 shadow-xl backdrop-blur-xl"
-           data-testid="hero-window-active-projects"
-           onTouchStart={triggerHeroHaptic}
-         >
-           <div className="hero-mini-header">
-             <p className="text-[10px] font-semibold tracking-[0.08em] text-muted-foreground">আজকের উপস্থিতি</p>
-             <span className="hero-mini-header-icon flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
-              <TrendingUp className="h-3.5 w-3.5" aria-hidden="true" />
-            </span>
-          </div>
-          <AttendanceChart />
-        </div>
-      </motion.div>
-
-      <motion.div
-        animate={reduceMotion || entrancePhase !== "settled" ? undefined : { y: [0, 5, 0] }}
-        transition={floatTransition(5.1, 0.2)}
-        className="hero-mini-float hero-mini-due-float"
-      >
-        <div
-          className="hero-mini-window hero-mini-due glass-panel rounded-2xl border border-white/70 bg-white/90 p-3 shadow-xl backdrop-blur-xl"
-          data-testid="hero-window-exam-results"
-          aria-label="পরীক্ষার ফলাফল রাফি"
-          onTouchStart={triggerHeroHaptic}
+      <div className="hero-mini-entrance-group">
+        <motion.div
+          animate={reduceMotion || entrancePhase !== "settled" ? undefined : { y: [0, -7, 0] }}
+          transition={floatTransition(5.4)}
+          className="hero-mini-float hero-mini-team-float"
         >
-          <div className="hero-mini-header">
-            <div className="text-center">
-              <p className="text-[10px] font-semibold tracking-[0.08em] text-foreground/80">পরীক্ষার ফলাফল</p>
-              <p className="mt-0.5 text-[9px] text-muted-foreground">রাফি</p>
-            </div>
-            <BarChart3 className="hero-mini-header-icon h-4 w-4 text-primary" aria-hidden="true" />
+          <TeamProgressWindow reduceMotion={reduceMotion} />
+        </motion.div>
+
+        <motion.div
+          animate={reduceMotion || entrancePhase !== "settled" ? undefined : { y: [0, 7, 0] }}
+          transition={floatTransition(5.8, 0.3)}
+          className="hero-mini-float hero-mini-plan-float"
+          data-testid="hero-window-todays-plan"
+        >
+           <div
+             className="hero-mini-window hero-mini-plan glass-panel rounded-2xl border border-white/70 bg-white/85 p-4 shadow-xl backdrop-blur-xl"
+             onTouchStart={triggerHeroHaptic}
+           >
+             <div className="hero-mini-header">
+               <p className="text-xs font-semibold tracking-[0.08em] text-foreground/80">মাসিক ফি</p>
+               <Wallet className="hero-mini-header-icon h-4 w-4 text-primary" aria-hidden="true" />
+             </div>
+             <MonthlyFeeChart />
           </div>
-           <RadarChart animateOrbit={reduceMotion !== true} />
-        </div>
-      </motion.div>
+        </motion.div>
+
+        <motion.div
+          animate={reduceMotion || entrancePhase !== "settled" ? undefined : { y: [0, -6, 0] }}
+          transition={floatTransition(5.2, 0.55)}
+          className="hero-mini-float hero-mini-projects-float"
+        >
+           <div
+             className="hero-mini-window hero-mini-projects glass-panel rounded-2xl border border-white/70 bg-white/85 p-4 shadow-xl backdrop-blur-xl"
+             data-testid="hero-window-active-projects"
+             onTouchStart={triggerHeroHaptic}
+           >
+             <div className="hero-mini-header">
+               <p className="text-[10px] font-semibold tracking-[0.08em] text-muted-foreground">আজকের উপস্থিতি</p>
+               <span className="hero-mini-header-icon flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <TrendingUp className="h-3.5 w-3.5" aria-hidden="true" />
+              </span>
+             </div>
+             <AttendanceChart />
+           </div>
+        </motion.div>
+
+        <motion.div
+          animate={reduceMotion || entrancePhase !== "settled" ? undefined : { y: [0, 5, 0] }}
+          transition={floatTransition(5.1, 0.2)}
+          className="hero-mini-float hero-mini-due-float"
+        >
+          <div
+            className="hero-mini-window hero-mini-due glass-panel rounded-2xl border border-white/70 bg-white/90 p-3 shadow-xl backdrop-blur-xl"
+            data-testid="hero-window-exam-results"
+            aria-label="পরীক্ষার ফলাফল রাফি"
+            onTouchStart={triggerHeroHaptic}
+          >
+            <div className="hero-mini-header">
+              <div className="text-center">
+                <p className="text-[10px] font-semibold tracking-[0.08em] text-foreground/80">পরীক্ষার ফলাফল</p>
+                <p className="mt-0.5 text-[9px] text-muted-foreground">রাফি</p>
+              </div>
+              <BarChart3 className="hero-mini-header-icon h-4 w-4 text-primary" aria-hidden="true" />
+            </div>
+             <RadarChart animateOrbit={reduceMotion !== true} />
+          </div>
+        </motion.div>
+      </div>
     </motion.div>
   );
 }
