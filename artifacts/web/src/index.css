@@ -829,7 +829,7 @@
   }
 
   .hero-mini-projects-float {
-    top: 9%;
+    top: 2%;
     right: 22%;
   }
 
@@ -1581,7 +1581,7 @@
     }
 
     .hero-mini-projects-float {
-      top: 9%;
+      top: 3%;
       right: 10%;
     }
 
@@ -1613,36 +1613,49 @@
 
   @media (max-width: 767px) {
     .hero-mini-stage {
-      min-height: 680px;
+      min-height: 1060px;
       margin-top: 2.75rem;
     }
 
     .hero-mini-horizon {
-      inset: 7% 0 1%;
+      inset: 3% 0 1%;
       border-radius: 2rem;
     }
 
     .hero-mini-team-float {
       top: 0;
-      left: .5rem;
+      right: 0;
+      left: 0;
+      bottom: auto;
+      width: 164px;
+      margin-inline: auto;
     }
 
     .hero-mini-plan-float {
-      bottom: 14%;
-      left: 50%;
-      right: auto;
+      top: 730px;
+      right: 0;
+      bottom: auto;
+      left: 0;
       width: min(245px, calc(100% - 1rem));
+      margin-inline: auto;
     }
 
     .hero-mini-projects-float {
-      top: 29%;
-      right: .5rem;
+      top: 225px;
+      right: 0;
+      bottom: auto;
+      left: 0;
       width: min(215px, calc(100% - 1rem));
+      margin-inline: auto;
     }
 
     .hero-mini-due-float {
-      bottom: 12%;
-      left: .5rem;
+      top: 485px;
+      right: 0;
+      bottom: auto;
+      left: 0;
+      width: 174px;
+      margin-inline: auto;
     }
 
     .hero-mini-plan-float .hero-mini-plan,

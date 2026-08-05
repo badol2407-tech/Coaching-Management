@@ -14,3 +14,9 @@ The four hero windows should stay hidden below the stage until the first-session
 **Why:** The landing hero needs one intentional reveal tied to the promotion interaction without making repeat visits feel like an onboarding loop.
 
 **How to apply:** Let the promotion component notify the landing page exactly once on dismiss, start the shared entrance phase from React state, rotate a shared group rather than each window independently, spread windows to their final positions after the reveal, and treat either the promotion session marker or the entrance marker as proof that repeat sessions can start settled.
+
+On mobile widths, the four hero windows should use separate vertical slots instead of opposing absolute bottom offsets; desktop can retain the floating composition with the attendance window raised above the lower pair.
+
+**Why:** Bottom-anchored cards collapse into the same vertical zone on narrow screens, causing the fee and result windows to overlap the attendance chart.
+
+**How to apply:** Use a taller mobile stage and centered top-based slots for health, attendance, results, and fees, while preserving the shared entrance group and touch/floating behavior.
