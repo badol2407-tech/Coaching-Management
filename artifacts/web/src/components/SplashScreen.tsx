@@ -240,9 +240,11 @@ export function SplashScreen({ onDone }: { onDone: () => void }) {
     let raf = 0;
     let audioContext: AudioContext | null = null;
     let audioPlayed = false;
+    let audioStarting = false;
 
     async function triggerPremiumCue() {
-      if (cancelled || audioPlayed) return;
+      if (cancelled || audioPlayed || audioStarting) return;
+      audioStarting = true;
       try {
         const AudioContextConstructor = getAudioContextConstructor();
         if (!AudioContextConstructor) return;
@@ -255,6 +257,8 @@ export function SplashScreen({ onDone }: { onDone: () => void }) {
       } catch {
         // Browsers can reject autoplay. The splash must remain fully functional
         // and the next user gesture will retry the cue.
+      } finally {
+        audioStarting = false;
       }
     }
 

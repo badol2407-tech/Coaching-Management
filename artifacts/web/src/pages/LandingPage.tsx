@@ -467,7 +467,13 @@ export default function LandingPage() {
     trackFeatureUsed("pricing_cta_click", { plan: tier });
     openAuth("login", `pricing_${tier}`);
   }
-  const navItems = [["হোম", "#top"], ["ড্যাশবোর্ড", "#dashboard-preview"], ["প্রাইসিং", "#pricing"], ["প্রশ্নোত্তর", "#faq"], ["যোগাযোগ", "#contact"]];
+  const navItems = [
+    { label: "Features", href: "#dashboard-preview" },
+    { label: "Solutions", href: "#dashboard-preview" },
+    { label: "Pricing", href: "#pricing" },
+    { label: "Resources", href: "#faq" },
+    { label: "About", href: "#contact" },
+  ];
 
   return (
     <div className="landing-shell min-h-screen overflow-x-clip bg-background text-foreground" id="top">
@@ -480,10 +486,16 @@ export default function LandingPage() {
       <header className="landing-nav glass-panel sticky top-4 z-30 mx-3 rounded-2xl border bg-background/75 backdrop-blur-xl sm:mx-5 lg:mx-auto lg:max-w-[calc(80rem-2rem)]" data-testid="navigation-header">
         <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
            <a data-testid="link-logo" href="#top" className="flex items-center gap-2 font-semibold tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" aria-label="EduTrack home"><span data-app-logo className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground"><GraduationCap className="h-5 w-5" aria-hidden="true" /></span><span className="text-lg">EduTrack</span><Badge variant="secondary" className="hidden sm:inline-flex">OS for schools</Badge></a>
-          <nav className="hidden items-center gap-6 text-sm text-muted-foreground lg:flex" aria-label="Primary navigation">{navItems.map(([label, href]) => <a key={href} data-testid={`link-nav-${label.toLowerCase()}`} className="transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" href={href}>{label}</a>)}</nav>
-           <div className="flex items-center gap-2"><Button data-testid="button-login-header" size="sm" onClick={() => openAuth("login", "header")}>লগইন <ArrowRight aria-hidden="true" /></Button><Button data-testid="button-mobile-menu" variant="outline" size="icon" className="lg:hidden" aria-label={mobileNavOpen ? "Close navigation menu" : "Open navigation menu"} aria-expanded={mobileNavOpen} onClick={() => setMobileNavOpen((open) => !open)}>{mobileNavOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}</Button></div>
+           <nav className="hidden items-center gap-7 text-[13px] font-medium text-muted-foreground lg:flex" aria-label="Primary navigation">{navItems.map(({ label, href }) => <a key={label} data-testid={`link-nav-${label.toLowerCase()}`} className="landing-nav-link transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" href={href}>{label}</a>)}</nav>
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="hidden items-center gap-1 sm:flex">
+                <Button data-testid="button-login-header" variant="ghost" size="sm" className="landing-nav-login px-3 text-sm font-medium" onClick={() => openAuth("login", "header")}>Log in</Button>
+                <Button data-testid="button-signup-header" size="sm" className="landing-nav-signup rounded-full px-4 text-sm font-semibold shadow-sm" onClick={() => openAuth("login", "header_signup")}>Sign Up</Button>
+              </div>
+              <Button data-testid="button-mobile-menu" variant="outline" size="icon" className="lg:hidden" aria-label={mobileNavOpen ? "Close navigation menu" : "Open navigation menu"} aria-expanded={mobileNavOpen} onClick={() => setMobileNavOpen((open) => !open)}>{mobileNavOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}</Button>
+            </div>
         </div>
-        {mobileNavOpen && <nav className="border-t bg-background px-4 py-4 lg:hidden" aria-label="Mobile navigation" data-testid="nav-mobile"><div className="mx-auto grid max-w-7xl gap-1">{navItems.map(([label, href]) => <a key={href} data-testid={`link-mobile-${label.toLowerCase()}`} className="rounded-md px-3 py-3 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" href={href} onClick={() => setMobileNavOpen(false)}>{label}</a>)}</div></nav>}
+        {mobileNavOpen && <div className="border-t bg-background px-4 py-4 lg:hidden"><nav className="mx-auto grid max-w-7xl gap-1" aria-label="Mobile navigation" data-testid="nav-mobile">{navItems.map(({ label, href }) => <a key={label} data-testid={`link-mobile-${label.toLowerCase()}`} className="rounded-md px-3 py-3 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" href={href} onClick={() => setMobileNavOpen(false)}>{label}</a>)}</nav><div className="mt-3 flex gap-2 border-t pt-3 sm:hidden"><Button data-testid="button-login-mobile" variant="ghost" className="flex-1" onClick={() => { setMobileNavOpen(false); openAuth("login", "header_mobile"); }}>Log in</Button><Button data-testid="button-signup-mobile" className="flex-1 rounded-full" onClick={() => { setMobileNavOpen(false); openAuth("login", "header_mobile_signup"); }}>Sign Up</Button></div></div>}
       </header>
 
       <main>

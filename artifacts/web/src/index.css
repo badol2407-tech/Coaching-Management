@@ -608,14 +608,41 @@
   }
 
   .landing-shell .glow-primary,
-  .landing-shell [data-testid="button-login-header"] {
+  .landing-shell [data-testid="button-login-header"],
+  .landing-shell [data-testid="button-signup-header"] {
     transition: transform .25s cubic-bezier(.22,.68,0,1.2), box-shadow .25s ease, filter .25s ease;
   }
 
   .landing-shell .glow-primary:hover,
-  .landing-shell [data-testid="button-login-header"]:hover {
+  .landing-shell [data-testid="button-login-header"]:hover,
+  .landing-shell [data-testid="button-signup-header"]:hover {
     transform: translateY(-2px);
     filter: saturate(1.08);
+  }
+
+  .landing-nav-link {
+    position: relative;
+    transition: color .2s ease;
+  }
+
+  .landing-nav-link::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: -.45rem;
+    left: 0;
+    height: 1.5px;
+    border-radius: 999px;
+    background: hsl(var(--primary));
+    opacity: 0;
+    transform: scaleX(.4);
+    transition: opacity .2s ease, transform .2s ease;
+  }
+
+  .landing-nav-link:hover::after,
+  .landing-nav-link:focus-visible::after {
+    opacity: .75;
+    transform: scaleX(1);
   }
 
   .landing-shell [data-testid^="card-pricing-"],
