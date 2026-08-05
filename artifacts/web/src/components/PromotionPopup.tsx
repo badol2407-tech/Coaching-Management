@@ -9,14 +9,16 @@ const SESSION_KEY = "et_promo_shown";
 
 interface PromotionPopupProps {
   onCtaClick: (cta: string, index: number) => void;
+  onDismiss: () => void;
 }
 
-export function PromotionPopup({ onCtaClick }: PromotionPopupProps) {
+export function PromotionPopup({ onCtaClick, onDismiss }: PromotionPopupProps) {
   const [visible, setVisible] = useState(false);
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "center" });
   const [selectedIndex, setSelectedIndex] = useState(0);
   const autoplayRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const interactingRef = useRef(false);
+  const dismissedRef = useRef(false);
 
   // Show once per session
   useEffect(() => {
@@ -26,10 +28,13 @@ export function PromotionPopup({ onCtaClick }: PromotionPopupProps) {
   }, []);
 
   const dismiss = useCallback(() => {
+    if (dismissedRef.current) return;
+    dismissedRef.current = true;
     sessionStorage.setItem(SESSION_KEY, "1");
     setVisible(false);
     stopAutoplay();
-  }, []);
+    onDismiss();
+  }, [onDismiss]);
 
   // Autoplay
   const startAutoplay = useCallback(() => {

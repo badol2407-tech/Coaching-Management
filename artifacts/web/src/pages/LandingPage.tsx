@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useLocation } from "wouter";
 import {
@@ -96,6 +96,8 @@ const googleProvider = new GoogleAuthProvider();
 type AuthMode = "login" | "signup" | "reset";
 export type LandingSection = "home" | "features" | "solutions" | "pricing" | "resources" | "about";
 const toBanglaDigits = (value: number) => String(value).replace(/\d/g, (digit) => "০১২৩৪৫৬৭৮৯"[Number(digit)]);
+const PROMOTION_SESSION_KEY = "et_promo_shown";
+const HERO_WINDOWS_ENTRANCE_KEY = "edutrack_hero_windows_entered";
 
 function triggerHeroHaptic() {
   if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
@@ -559,8 +561,8 @@ function AttendanceChart() {
         <path className="hero-attendance-line" pathLength="1" d={linePath} />
         {points.map(({ x, y }, index) => (
           <g key={grades[index]} filter="url(#attendance-point-glow)">
-            <circle className="hero-attendance-point-halo" style={{ animationDelay: `${3.65 + index * 0.12}s` }} cx={x} cy={y} r="5.5" />
-            <circle className="hero-attendance-point" style={{ animationDelay: `${3.65 + index * 0.12}s` }} cx={x} cy={y} r="2.7" />
+            <circle className="hero-attendance-point-halo" cx={x} cy={y} r="5.5" />
+            <circle className="hero-attendance-point" cx={x} cy={y} r="2.7" />
           </g>
         ))}
         {grades.map((grade, index) => (
@@ -581,16 +583,21 @@ const examResults = [
   { subject: "ইংরেজি", value: 91 },
 ];
 
-function RadarChart() {
+function RadarChart({ animateOrbit }: { animateOrbit: boolean }) {
   const chart = { cx: 110, cy: 77, radius: 46, labelRadius: 67 };
+  const totalScore = examResults.reduce((sum, result) => sum + result.value, 0);
   const points = examResults.map((result, index) => {
     const angle = -90 + index * 72;
     const point = polarPoint(chart.cx, chart.cy, chart.radius * (result.value / 100), angle);
     const labelPoint = polarPoint(chart.cx, chart.cy, chart.labelRadius, angle);
-    const valuePoint = polarPoint(chart.cx, chart.cy, chart.radius * (result.value / 100) + 8, angle);
-    return { ...result, angle, point, labelPoint, valuePoint };
+    return { ...result, angle, point, labelPoint };
   });
   const polygonPath = points.map(({ point }, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`).join(" ") + " Z";
+  const orbitPoints = [points[0], ...points.slice(1).reverse(), points[0]];
+  const orbitPath = orbitPoints.map(({ point }, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`).join(" ");
+  const orbitMotionPath = orbitPoints
+    .map(({ point }, index) => `${index === 0 ? "M" : "L"} ${point.x - points[0].point.x} ${point.y - points[0].point.y}`)
+    .join(" ");
   const outerPoints = examResults.map((_, index) => polarPoint(chart.cx, chart.cy, chart.radius, -90 + index * 72));
   const axisLabelAnchor = (x: number) => (x < chart.cx - 8 ? "end" : x > chart.cx + 8 ? "start" : "middle");
 
@@ -630,19 +637,40 @@ function RadarChart() {
             <line key={examResults[index].subject} x1={chart.cx} y1={chart.cy} x2={point.x} y2={point.y} />
           ))}
         </g>
+        <g className="hero-radar-orbit" aria-hidden="true">
+          <path className="hero-radar-orbit-track" d={orbitPath} />
+          <circle className="hero-radar-orbit-dot" cx={points[0].point.x} cy={points[0].point.y} r="2.4">
+            {animateOrbit && <animateMotion dur="8s" repeatCount="indefinite" path={orbitMotionPath} />}
+          </circle>
+          <circle className="hero-radar-orbit-glint" cx={points[0].point.x} cy={points[0].point.y} r="5.5">
+            {animateOrbit && (
+              <>
+                <animateMotion dur="8s" repeatCount="indefinite" path={orbitMotionPath} />
+                <animate
+                  attributeName="opacity"
+                  dur="8s"
+                  repeatCount="indefinite"
+                  values=".92;.18;.92;.18;.92;.18;.92;.18;.92;.18;.92"
+                  keyTimes="0;.12;.2;.32;.4;.52;.6;.72;.8;.92;1"
+                />
+              </>
+            )}
+          </circle>
+        </g>
         <polygon className="hero-radar-data-area" points={points.map(({ point }) => `${point.x},${point.y}`).join(" ")} />
         <path className="hero-radar-data-line" d={polygonPath} />
-        {points.map(({ point, subject, value }, index) => (
+        {points.map(({ point, subject }, index) => (
           <g key={subject} className="hero-radar-point" style={{ animationDelay: `${1.95 + index * 0.12}s` }} filter="url(#radar-point-glow)">
             <circle className="hero-radar-point-halo" cx={point.x} cy={point.y} r="5.5" />
             <circle className="hero-radar-point-core" cx={point.x} cy={point.y} r="2.7" />
-            <text className="hero-radar-value" x={point.x} y={point.y - 6} textAnchor="middle">{toBanglaDigits(value)}</text>
           </g>
         ))}
-        {points.map(({ labelPoint, subject, valuePoint }) => (
+        <text className="hero-radar-center-label" x={chart.cx} y={chart.cy - 2} textAnchor="middle">মোট স্কোর</text>
+        <text className="hero-radar-center-value" x={chart.cx} y={chart.cy + 8} textAnchor="middle">{toBanglaDigits(totalScore)}/৫০০</text>
+        {points.map(({ labelPoint, subject, value }) => (
           <g key={`${subject}-label`}>
             <text className="hero-radar-subject" x={labelPoint.x} y={labelPoint.y + 2} textAnchor={axisLabelAnchor(labelPoint.x)}>{subject}</text>
-            <text className="hero-radar-value-outer" x={valuePoint.x} y={valuePoint.y + 2} textAnchor={axisLabelAnchor(valuePoint.x)}>{toBanglaDigits(examResults.find((result) => result.subject === subject)?.value ?? 0)}</text>
+            <text className="hero-radar-value-outer" x={labelPoint.x} y={labelPoint.y + 10} textAnchor={axisLabelAnchor(labelPoint.x)}>{toBanglaDigits(value)}</text>
           </g>
         ))}
       </svg>
@@ -661,11 +689,11 @@ type FeeSlice = {
 };
 
 const monthlyFees: FeeSlice[] = [
-  { name: "নীলা ষষ্ঠ শ্রেণি", amount: 1500, amountLabel: "১৫০০৳", color: "#5b8def", labelX: 140, labelY: 13, labelAnchor: "middle" },
-  { name: "রাহুল সপ্তম শ্রেণি", amount: 2000, amountLabel: "২০০০৳", color: "#8b72e8", labelX: 258, labelY: 63, labelAnchor: "start" },
-  { name: "মিথিলা অষ্টম শ্রেণি", amount: 2500, amountLabel: "২৫০০৳", color: "#67c7c1", labelX: 239, labelY: 169, labelAnchor: "start" },
-  { name: "রাফি নবম শ্রেণি", amount: 3000, amountLabel: "৩০০০৳", color: "#f2b866", labelX: 140, labelY: 218, labelAnchor: "middle" },
-  { name: "আদিবা দশম শ্রেণি", amount: 5000, amountLabel: "৫০০০৳", color: "#e78aaf", labelX: 41, labelY: 169, labelAnchor: "end" },
+  { name: "নীলা", amount: 1650, amountLabel: "১৬৫০৳", color: "#3e78f2", labelX: 140, labelY: 13, labelAnchor: "middle" },
+  { name: "রাহুল", amount: 2150, amountLabel: "২১৫০৳", color: "#6374ef", labelX: 258, labelY: 63, labelAnchor: "start" },
+  { name: "মিথিলা", amount: 2750, amountLabel: "২৭৫০৳", color: "#8263e8", labelX: 239, labelY: 169, labelAnchor: "start" },
+  { name: "রাফি", amount: 3250, amountLabel: "৩২৫০৳", color: "#a66cde", labelX: 140, labelY: 218, labelAnchor: "middle" },
+  { name: "আদিবা", amount: 4800, amountLabel: "৪৮০০৳", color: "#5bc1c7", labelX: 41, labelY: 169, labelAnchor: "end" },
 ];
 
 function polarPoint(cx: number, cy: number, radius: number, angle: number) {
@@ -773,7 +801,31 @@ function MonthlyFeeChart() {
   );
 }
 
-function HeroMiniWindows({ reduceMotion }: { reduceMotion: boolean | null }) {
+type HeroWindowEntrancePhase = "waiting" | "entering" | "settled";
+
+function HeroMiniWindows({
+  reduceMotion,
+  enter,
+}: {
+  reduceMotion: boolean | null;
+  enter: boolean;
+}) {
+  const [entrancePhase, setEntrancePhase] = useState<HeroWindowEntrancePhase>(
+    () => (enter ? "settled" : "waiting"),
+  );
+
+  useEffect(() => {
+    if (!enter || entrancePhase !== "waiting") return;
+    if (reduceMotion) {
+      setEntrancePhase("settled");
+      return;
+    }
+
+    setEntrancePhase("entering");
+    const timer = window.setTimeout(() => setEntrancePhase("settled"), 4700);
+    return () => window.clearTimeout(timer);
+  }, [enter, entrancePhase, reduceMotion]);
+
   const floatTransition = (duration: number, delay = 0) => ({
     duration,
     repeat: Infinity,
@@ -783,7 +835,7 @@ function HeroMiniWindows({ reduceMotion }: { reduceMotion: boolean | null }) {
 
   return (
     <motion.div
-      className="hero-mini-stage relative mx-auto mt-14 max-w-6xl"
+      className={`hero-mini-stage hero-mini-stage--${entrancePhase} relative mx-auto mt-14 max-w-6xl`}
       initial={reduceMotion ? false : { opacity: 0, y: 18 }}
       animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
       transition={{ duration: 0.7, delay: 0.15, ease: "easeOut" }}
@@ -796,7 +848,7 @@ function HeroMiniWindows({ reduceMotion }: { reduceMotion: boolean | null }) {
       </div>
 
       <motion.div
-        animate={reduceMotion ? undefined : { y: [0, -7, 0] }}
+        animate={reduceMotion || entrancePhase !== "settled" ? undefined : { y: [0, -7, 0] }}
         transition={floatTransition(5.4)}
         className="hero-mini-float hero-mini-team-float"
       >
@@ -804,7 +856,7 @@ function HeroMiniWindows({ reduceMotion }: { reduceMotion: boolean | null }) {
       </motion.div>
 
       <motion.div
-        animate={reduceMotion ? undefined : { y: [0, 7, 0] }}
+        animate={reduceMotion || entrancePhase !== "settled" ? undefined : { y: [0, 7, 0] }}
         transition={floatTransition(5.8, 0.3)}
         className="hero-mini-float hero-mini-plan-float"
         data-testid="hero-window-todays-plan"
@@ -822,7 +874,7 @@ function HeroMiniWindows({ reduceMotion }: { reduceMotion: boolean | null }) {
       </motion.div>
 
       <motion.div
-        animate={reduceMotion ? undefined : { y: [0, -6, 0] }}
+        animate={reduceMotion || entrancePhase !== "settled" ? undefined : { y: [0, -6, 0] }}
         transition={floatTransition(5.2, 0.55)}
         className="hero-mini-float hero-mini-projects-float"
       >
@@ -842,7 +894,7 @@ function HeroMiniWindows({ reduceMotion }: { reduceMotion: boolean | null }) {
       </motion.div>
 
       <motion.div
-        animate={reduceMotion ? undefined : { y: [0, 5, 0] }}
+        animate={reduceMotion || entrancePhase !== "settled" ? undefined : { y: [0, 5, 0] }}
         transition={floatTransition(5.1, 0.2)}
         className="hero-mini-float hero-mini-due-float"
       >
@@ -859,7 +911,7 @@ function HeroMiniWindows({ reduceMotion }: { reduceMotion: boolean | null }) {
             </div>
             <BarChart3 className="hero-mini-header-icon h-4 w-4 text-primary" aria-hidden="true" />
           </div>
-          <RadarChart />
+           <RadarChart animateOrbit={reduceMotion !== true} />
         </div>
       </motion.div>
     </motion.div>
@@ -1040,12 +1092,14 @@ function LandingContent({
   reduceMotion,
   openAuth,
   selectPlan,
+  heroWindowsEnter,
 }: {
   section: LandingSection;
   heroRef: React.RefObject<HTMLElement | null>;
   reduceMotion: boolean | null;
   openAuth: (mode: AuthMode, source: string, tier?: PlanTier) => void;
   selectPlan: (tier: PlanTier) => void;
+  heroWindowsEnter: boolean;
 }) {
   if (section === "home") {
     return (
@@ -1060,7 +1114,7 @@ function LandingContent({
             <Button data-testid="button-hero-book-demo" size="lg" variant="outline" className="bg-background/80 text-foreground shadow-sm hover:bg-background" onClick={() => openAuth("login", "hero_book_demo")}>ডেমো দেখুন <CalendarCheck aria-hidden="true" /></Button>
           </div>
         </motion.div>
-         <HeroMiniWindows reduceMotion={reduceMotion} />
+         <HeroMiniWindows reduceMotion={reduceMotion} enter={heroWindowsEnter} />
       </section>
     );
   }
@@ -1149,6 +1203,11 @@ export default function LandingPage() {
   const [showAuth, setShowAuth] = useState(false);
   const [authMode, setAuthMode] = useState<AuthMode>("login");
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [heroWindowsEnter, setHeroWindowsEnter] = useState(
+    () =>
+      sessionStorage.getItem(HERO_WINDOWS_ENTRANCE_KEY) === "1" ||
+      sessionStorage.getItem(PROMOTION_SESSION_KEY) === "1",
+  );
   const reduceMotion = useReducedMotion();
   const heroRef = useRef<HTMLElement>(null);
   const [location] = useLocation();
@@ -1196,6 +1255,11 @@ export default function LandingPage() {
     setShowAuth(true);
   }
 
+  const handlePromotionDismiss = useCallback(() => {
+    sessionStorage.setItem(HERO_WINDOWS_ENTRANCE_KEY, "1");
+    setHeroWindowsEnter(true);
+  }, []);
+
   const whatsappMsg = encodeURIComponent("আমি EduTrack সম্পর্কে জানতে চাই। একটু বিস্তারিত বলবেন?");
   const whatsappNumber = "8801632905056";
   const [signupTier, setSignupTier] = useState<PlanTier>("free_trial");
@@ -1214,7 +1278,10 @@ export default function LandingPage() {
   return (
     <div className="landing-shell min-h-screen overflow-x-clip bg-background text-foreground" id="top">
        {showAuth && <AuthPanel defaultMode={authMode} defaultTier={signupTier} onClose={() => setShowAuth(false)} />}
-      <PromotionPopup onCtaClick={(cta, index) => { trackFeatureUsed("promo_popup_cta_click", { cta, index }); openAuth("login", `promo_popup_${index}`); }} />
+      <PromotionPopup
+        onDismiss={handlePromotionDismiss}
+        onCtaClick={(cta, index) => { trackFeatureUsed("promo_popup_cta_click", { cta, index }); openAuth("login", `promo_popup_${index}`); }}
+      />
       <Button asChild variant="secondary" className="fixed bottom-4 right-4 z-40 rounded-full sm:bottom-6 sm:right-6">
         <a data-testid="link-whatsapp-floating" href={`https://wa.me/${whatsappNumber}?text=${whatsappMsg}`} target="_blank" rel="noopener noreferrer" onClick={() => trackFeatureUsed("whatsapp_contact_click")} aria-label="Contact EduTrack on WhatsApp"><MessageCircle aria-hidden="true" /><span>Demo নিন</span></a>
       </Button>
@@ -1241,6 +1308,7 @@ export default function LandingPage() {
            reduceMotion={reduceMotion}
            openAuth={openAuth}
            selectPlan={selectPlan}
+           heroWindowsEnter={heroWindowsEnter}
          />
        </main>
 

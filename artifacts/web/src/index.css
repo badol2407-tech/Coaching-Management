@@ -710,6 +710,41 @@
     z-index: 10;
   }
 
+  .hero-mini-stage--waiting .hero-mini-float {
+    opacity: 0;
+    visibility: hidden;
+    transform: translate3d(0, 135%, 0) scale(.76);
+  }
+
+  .hero-mini-stage--entering .hero-mini-float {
+    opacity: 0;
+    visibility: visible;
+    animation: hero-mini-windows-entrance 4.6s cubic-bezier(.22,.72,.2,1) both;
+  }
+
+  @keyframes hero-mini-windows-entrance {
+    0% {
+      opacity: 0;
+      transform: translate3d(0, 135%, 0) rotate(0deg) scale(.76);
+    }
+    22% {
+      opacity: .92;
+      transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+    }
+    35% {
+      opacity: 1;
+      transform: translate3d(0, 0, 0) rotate(-120deg) scale(1.01);
+    }
+    78% {
+      opacity: 1;
+      transform: translate3d(0, 0, 0) rotate(-720deg) scale(1);
+    }
+    100% {
+      opacity: 1;
+      transform: translate3d(0, 0, 0) rotate(-720deg) scale(1);
+    }
+  }
+
   .hero-mini-team {
     width: 164px;
   }
@@ -898,21 +933,13 @@
 
   .hero-attendance-point-halo {
     fill: hsl(221 83% 62% / .14);
-    opacity: 0;
-    animation: hero-attendance-point-reveal .45s ease-out forwards;
+    opacity: 1;
   }
 
   .hero-attendance-point {
     fill: hsl(0 0% 100% / .95);
     stroke: hsl(253 74% 58%);
     stroke-width: 1.5;
-    opacity: 0;
-    animation: hero-attendance-point-reveal .45s ease-out forwards;
-  }
-
-  .hero-attendance-point-halo,
-  .hero-attendance-point {
-    animation-delay: 3.65s;
   }
 
   .hero-fee-chart {
@@ -1122,6 +1149,28 @@
     animation: hero-radar-line-draw 1.4s cubic-bezier(.22,.68,0,1) .4s forwards;
   }
 
+  .hero-radar-orbit {
+    pointer-events: none;
+  }
+
+  .hero-radar-orbit-track {
+    fill: none;
+    stroke: hsl(253 74% 66% / .16);
+    stroke-dasharray: 1.5 3;
+    stroke-width: .7;
+  }
+
+  .hero-radar-orbit-dot {
+    fill: hsl(0 0% 100% / .96);
+    stroke: hsl(221 83% 58% / .9);
+    stroke-width: 1.2;
+  }
+
+  .hero-radar-orbit-glint {
+    fill: hsl(221 83% 66% / .22);
+    filter: url("#radar-point-glow");
+  }
+
   .hero-radar-point {
     opacity: 0;
     animation: hero-radar-point-reveal .42s ease-out forwards;
@@ -1138,7 +1187,6 @@
   }
 
   .hero-radar-subject,
-  .hero-radar-value,
   .hero-radar-value-outer {
     fill: hsl(231 28% 32% / .84);
     font-family: "Hind Siliguri", sans-serif;
@@ -1146,16 +1194,28 @@
     font-weight: 700;
   }
 
-  .hero-radar-value {
+  .hero-radar-value-outer {
     fill: hsl(253 54% 47% / .92);
     font-size: 6px;
     font-weight: 800;
   }
 
-  .hero-radar-value-outer {
-    fill: hsl(231 28% 40% / .6);
-    font-size: 5.5px;
-    font-weight: 600;
+  .hero-radar-center-label,
+  .hero-radar-center-value {
+    fill: hsl(253 54% 47% / .84);
+    font-family: "Hind Siliguri", sans-serif;
+    pointer-events: none;
+  }
+
+  .hero-radar-center-label {
+    font-size: 6px;
+    font-weight: 700;
+  }
+
+  .hero-radar-center-value {
+    fill: hsl(231 35% 18% / .88);
+    font-size: 7px;
+    font-weight: 800;
   }
 
   @keyframes hero-attendance-line-draw {
@@ -1173,17 +1233,6 @@
     }
     to {
       opacity: .92;
-    }
-  }
-
-  @keyframes hero-attendance-point-reveal {
-    from {
-      opacity: 0;
-      transform: scale(.6);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
     }
   }
 
@@ -1336,6 +1385,8 @@
     .hero-attendance-point-halo,
     .hero-attendance-point,
     .hero-fee-wheel,
+    .hero-radar-orbit,
+    .hero-radar-orbit-glint,
     .hero-radar-data-area,
     .hero-radar-data-line,
     .hero-radar-point {
@@ -1343,6 +1394,13 @@
       animation: none;
       stroke-dashoffset: 0;
       opacity: 1;
+    }
+
+    .hero-mini-stage--entering .hero-mini-float {
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+      animation: none;
     }
   }
 
