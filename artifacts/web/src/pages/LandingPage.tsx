@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { motion, useReducedMotion } from "framer-motion";
+import { useLocation } from "wouter";
 import {
   ArrowDownRight,
   ArrowRight,
@@ -39,6 +40,18 @@ import {
   X,
 } from "lucide-react";
 import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  serverTimestamp,
+  setDoc,
+} from "firebase/firestore";
+import {
+  createUserWithEmailAndPassword,
+  deleteUser,
+  updateProfile,
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
   setPersistence,
@@ -48,8 +61,10 @@ import {
   signInWithPopup,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
 import {
   PLAN_CONFIG,
+  computeExpiryDate,
   getPricingDisplay,
   type PlanTier,
 } from "@/lib/plan-config";
@@ -74,12 +89,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { trackFeatureUsed, trackLogin, trackLoginFailed } from "@/lib/analytics";
+import { useAuth } from "@/contexts/AuthContext";
+import { trackFeatureUsed, trackLogin, trackLoginFailed, trackRegistered } from "@/lib/analytics";
 import { PromotionPopup } from "@/components/PromotionPopup";
 
 const googleProvider = new GoogleAuthProvider();
 
-type AuthMode = "login" | "reset";
+type AuthMode = "login" | "signup" | "reset";
+export type LandingSection = "home" | "features" | "solutions" | "pricing" | "resources" | "about";
 
 const features = [
   { icon: CalendarCheck, title: "Attendance & Fees", desc: "Record attendance, track collections, and keep follow-ups in one daily view.", label: "Daily operations" },
@@ -105,25 +122,108 @@ const faqs = [
   { question: "পরে plan পরিবর্তন বা cancel করা যাবে?", answer: "হ্যাঁ। Plan অনুযায়ী billing cycle এবং feature access আলাদা হতে পারে। আপনার account থেকে subscription settings পরিচালনা করা যাবে।" },
 ];
 
-function AuthPanel({ defaultMode, onClose }: { defaultMode: AuthMode; onClose: () => void }) {
+async function createPublicOrgAccount({
+  uid,
+  email,
+  name,
+  organizationName,
+  tier,
+}: {
+  uid: string;
+  email: string;
+  name: string;
+  organizationName: string;
+  tier: PlanTier;
+}) {
+  const startDate = new Date();
+  const expiryDate = computeExpiryDate(tier, startDate);
+  const legacyPlan = tier === "annual_premium" ? "pro" : tier === "founder_launch" ? "basic" : "free";
+  const organizationRef = await addDoc(collection(db, "organizations"), {
+    name: organizationName,
+    adminEmail: email,
+    createdAt: serverTimestamp(),
+    tier,
+    plan: legacyPlan,
+    subscriptionStartDate: startDate.toISOString(),
+    subscriptionExpiryDate: expiryDate.toISOString(),
+    accountStatus: "active",
+    status: "active",
+    paymentStatus: "unpaid",
+  });
+
+  try {
+    await setDoc(doc(db, "users", uid), {
+      role: "org_admin",
+      orgId: organizationRef.id,
+      name,
+      email,
+      mustChangePassword: false,
+      createdAt: serverTimestamp(),
+      createdByPublicSignup: true,
+    });
+  } catch (error) {
+    await deleteDoc(organizationRef).catch(() => undefined);
+    throw error;
+  }
+
+  return organizationRef.id;
+}
+
+function AuthPanel({
+  defaultMode,
+  defaultTier = "free_trial",
+  onClose,
+}: {
+  defaultMode: AuthMode;
+  defaultTier?: PlanTier;
+  onClose: () => void;
+}) {
   const [mode, setMode] = useState<AuthMode>(defaultMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [name, setName] = useState("");
+  const [organizationName, setOrganizationName] = useState("");
+  const [signupTier, setSignupTier] = useState<PlanTier>(defaultTier);
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [, navigate] = useLocation();
   const { toast } = useToast();
+  const { refreshProfile } = useAuth();
 
   async function handleGoogle() {
     setLoading(true);
     try {
-      await signInWithPopup(auth, googleProvider);
-      trackLogin("google");
+      await setPersistence(auth, browserLocalPersistence);
+      const result = await signInWithPopup(auth, googleProvider);
+      const existingProfile = await getDoc(doc(db, "users", result.user.uid));
+      if (mode === "signup" && !existingProfile.exists()) {
+        const googleName = result.user.displayName?.trim() || result.user.email?.split("@")[0] || "School Admin";
+        try {
+          await createPublicOrgAccount({
+            uid: result.user.uid,
+            email: result.user.email ?? email,
+            name: googleName,
+            organizationName: organizationName.trim() || `${googleName}'s School`,
+            tier: signupTier,
+          });
+        } catch (error) {
+          await deleteUser(result.user).catch(() => undefined);
+          throw error;
+        }
+        await refreshProfile();
+        trackRegistered("google");
+        navigate("/");
+      } else {
+        trackLogin("google");
+        navigate("/");
+      }
       onClose();
     } catch (err: any) {
       if (err.code !== "auth/popup-closed-by-user") {
-        trackLoginFailed("google", err.code ?? "unknown");
-        toast({ title: "Google Sign-In Error", description: friendlyError(err.code), variant: "destructive" });
+        if (mode === "login") trackLoginFailed("google", err.code ?? "unknown");
+        toast({ title: mode === "signup" ? "Sign Up Error" : "Google Sign-In Error", description: friendlyError(err.code), variant: "destructive" });
       }
     } finally {
       setLoading(false);
@@ -133,21 +233,55 @@ function AuthPanel({ defaultMode, onClose }: { defaultMode: AuthMode; onClose: (
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     if (!email) return;
+    if (mode === "signup" && (!name.trim() || !organizationName.trim())) {
+      toast({ title: "Name and organization are required", variant: "destructive" });
+      return;
+    }
+    if (mode === "signup" && password !== confirmPassword) {
+      toast({ title: "Passwords do not match", description: "Please enter the same password twice.", variant: "destructive" });
+      return;
+    }
+    if (mode !== "reset" && password.length < 6) {
+      toast({ title: "Password must be at least 6 characters", variant: "destructive" });
+      return;
+    }
     setLoading(true);
     try {
       if (mode === "reset") {
         await sendPasswordResetEmail(auth, email);
         toast({ title: "Reset link sent!", description: "Check your email for the password reset link." });
         setMode("login");
+      } else if (mode === "signup") {
+        await setPersistence(auth, browserLocalPersistence);
+        const credential = await createUserWithEmailAndPassword(auth, email.trim(), password);
+        await updateProfile(credential.user, { displayName: name.trim() });
+        try {
+          await createPublicOrgAccount({
+            uid: credential.user.uid,
+            email: email.trim(),
+            name: name.trim(),
+            organizationName: organizationName.trim(),
+            tier: signupTier,
+          });
+        } catch (error) {
+          await deleteUser(credential.user).catch(() => undefined);
+          throw error;
+        }
+        await refreshProfile();
+        trackRegistered("email");
+        toast({ title: "Account created!", description: "Your EduTrack workspace is ready." });
+        navigate("/");
+        onClose();
       } else {
         await setPersistence(auth, rememberMe ? browserLocalPersistence : browserSessionPersistence);
-        await signInWithEmailAndPassword(auth, email, password);
+        await signInWithEmailAndPassword(auth, email.trim(), password);
         trackLogin("email");
+        navigate("/");
         onClose();
       }
     } catch (err: any) {
-      trackLoginFailed("email", err.code ?? "unknown");
-      toast({ title: "Login Error", description: friendlyError(err.code), variant: "destructive" });
+      if (mode === "login") trackLoginFailed("email", err.code ?? "unknown");
+      toast({ title: mode === "signup" ? "Sign Up Error" : "Login Error", description: friendlyError(err.code), variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -162,21 +296,41 @@ function AuthPanel({ defaultMode, onClose }: { defaultMode: AuthMode; onClose: (
               <GraduationCap className="h-5 w-5" aria-hidden="true" />
             </div>
             <div>
-              <DialogTitle>{mode === "login" ? "Sign In to EduTrack" : "Reset Password"}</DialogTitle>
-              <DialogDescription className="mt-1">{mode === "login" ? "Enter your email and password to continue" : "Enter your email to receive a reset link"}</DialogDescription>
+              <DialogTitle>{mode === "login" ? "Sign In to EduTrack" : mode === "signup" ? "Create your EduTrack workspace" : "Reset Password"}</DialogTitle>
+              <DialogDescription className="mt-1">{mode === "login" ? "Enter your email and password to continue" : mode === "signup" ? "Start your school workspace in real time — no credit card required." : "Enter your email to receive a reset link"}</DialogDescription>
             </div>
           </div>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {mode === "signup" && (
+            <>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="signup-name">Your name</Label>
+                  <Input data-testid="input-signup-name" id="signup-name" placeholder="Your full name" value={name} onChange={(event) => setName(event.target.value)} required autoFocus />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signup-organization">School / coaching name</Label>
+                  <Input data-testid="input-signup-organization" id="signup-organization" placeholder="Your organization" value={organizationName} onChange={(event) => setOrganizationName(event.target.value)} required />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="signup-plan">Start with a plan</Label>
+                <select data-testid="select-signup-plan" id="signup-plan" value={signupTier} onChange={(event) => setSignupTier(event.target.value as PlanTier)} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                  {(Object.keys(PLAN_CONFIG) as PlanTier[]).map((tier) => <option key={tier} value={tier}>{PLAN_CONFIG[tier].name} — {getPricingDisplay(tier).price}</option>)}
+                </select>
+              </div>
+            </>
+          )}
           <div className="space-y-2">
             <Label htmlFor="auth-email">Email</Label>
             <Input data-testid="input-auth-email" id="auth-email" type="email" placeholder="you@example.com" value={email} onChange={(event) => setEmail(event.target.value)} required autoFocus />
           </div>
-          {mode === "login" && (
+          {mode !== "reset" && (
             <div className="space-y-2">
               <div className="flex items-center justify-between gap-3">
                 <Label htmlFor="auth-password">Password</Label>
-                <Button data-testid="button-forgot-password" type="button" variant="link" size="sm" className="h-auto px-0" onClick={() => setMode("reset")}>Forgot Password?</Button>
+                {mode === "login" && <Button data-testid="button-forgot-password" type="button" variant="link" size="sm" className="h-auto px-0" onClick={() => setMode("reset")}>Forgot Password?</Button>}
               </div>
               <div className="relative">
                 <Input data-testid="input-auth-password" id="auth-password" type={showPassword ? "text" : "password"} placeholder="••••••••" value={password} onChange={(event) => setPassword(event.target.value)} required className="pr-12" />
@@ -184,6 +338,20 @@ function AuthPanel({ defaultMode, onClose }: { defaultMode: AuthMode; onClose: (
                   {showPassword ? <EyeOff aria-hidden="true" /> : <Eye aria-hidden="true" />}
                 </Button>
               </div>
+            </div>
+          )}
+          {mode === "signup" && (
+            <div className="space-y-2">
+              <Label htmlFor="signup-confirm-password">Confirm password</Label>
+              <Input
+                data-testid="input-signup-confirm-password"
+                id="signup-confirm-password"
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
+                value={confirmPassword}
+                onChange={(event) => setConfirmPassword(event.target.value)}
+                required
+              />
             </div>
           )}
           {mode === "login" && (
@@ -195,22 +363,28 @@ function AuthPanel({ defaultMode, onClose }: { defaultMode: AuthMode; onClose: (
           <DialogFooter className="gap-2 sm:gap-3">
             <Button data-testid="button-auth-submit" type="submit" className="w-full" disabled={loading}>
               {loading && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
-              {mode === "login" ? "Login" : "Send Reset Link"}
+              {mode === "login" ? "Login" : mode === "signup" ? "Create account" : "Send Reset Link"}
             </Button>
           </DialogFooter>
         </form>
-        {mode === "login" && (
+        {mode !== "reset" && (
           <div className="space-y-3">
             <div className="relative flex items-center">
               <div className="w-full border-t" />
               <span className="absolute left-1/2 -translate-x-1/2 bg-background px-2 text-xs uppercase text-muted-foreground">or</span>
             </div>
-            <Button data-testid="button-google-login" type="button" variant="outline" className="w-full" onClick={handleGoogle} disabled={loading}>
+            <Button data-testid={`button-google-${mode}`} type="button" variant="outline" className="w-full" onClick={handleGoogle} disabled={loading}>
               <span className="font-semibold text-primary" aria-hidden="true">G</span> Continue with Google
             </Button>
           </div>
         )}
-        {mode === "reset" && <Button data-testid="button-back-login" type="button" variant="link" className="mx-auto" onClick={() => setMode("login")}>Back to Login</Button>}
+        {mode === "reset" ? (
+          <Button data-testid="button-back-login" type="button" variant="link" className="mx-auto" onClick={() => setMode("login")}>Back to Login</Button>
+        ) : (
+          <Button data-testid="button-toggle-auth-mode" type="button" variant="link" className="mx-auto" onClick={() => setMode(mode === "login" ? "signup" : "login")}>
+            {mode === "login" ? "New to EduTrack? Sign Up" : "Already have an account? Log in"}
+          </Button>
+        )}
       </DialogContent>
     </Dialog>
   );
@@ -423,12 +597,136 @@ function PricingCard({ tier, onSelect }: { tier: PlanTier; onSelect: (tier: Plan
   );
 }
 
+function LandingContent({
+  section,
+  heroRef,
+  reduceMotion,
+  openAuth,
+  selectPlan,
+}: {
+  section: LandingSection;
+  heroRef: React.RefObject<HTMLElement | null>;
+  reduceMotion: boolean | null;
+  openAuth: (mode: AuthMode, source: string, tier?: PlanTier) => void;
+  selectPlan: (tier: PlanTier) => void;
+}) {
+  if (section === "home") {
+    return (
+      <section ref={heroRef} className="landing-hero relative overflow-hidden border-b px-4 py-24 text-foreground sm:px-6 sm:py-28 lg:px-8 lg:py-36" data-testid="section-hero">
+        <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-primary/15 blur-3xl" aria-hidden="true" />
+        <div className="pointer-events-none absolute bottom-0 left-1/3 h-72 w-72 rounded-full bg-chart-4/10 blur-3xl" aria-hidden="true" />
+        <motion.div className="relative mx-auto max-w-4xl text-center" initial={reduceMotion ? false : { opacity: 0, y: 12 }} animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}>
+          <Badge variant="secondary" className="mb-5">স্কুল ম্যানেজমেন্টের সহজ সমাধান</Badge>
+          <h1 data-testid="text-hero-headline" className="font-display text-[42px] leading-[1.08] tracking-tight sm:text-[58px] lg:text-[76px]">এক প্ল্যাটফর্মে <span className="block text-primary">পুরো স্কুল পরিচালনা করুন</span></h1>
+          <p className="mx-auto mt-7 max-w-2xl text-base leading-relaxed text-foreground/70 sm:text-lg">EduTrack-এর মাধ্যমে attendance, fees, exams, results, notices এবং প্রতিদিনের school operations এক জায়গা থেকে সহজে পরিচালনা করুন।</p>
+          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+            <Button data-testid="button-hero-start-free" size="lg" className="glow-primary" onClick={() => openAuth("signup", "hero_start_free")}>ফ্রি ট্রায়াল শুরু করুন <ArrowRight aria-hidden="true" /></Button>
+            <Button data-testid="button-hero-book-demo" size="lg" variant="outline" className="bg-background/80 text-foreground shadow-sm hover:bg-background" onClick={() => openAuth("login", "hero_book_demo")}>ডেমো দেখুন <CalendarCheck aria-hidden="true" /></Button>
+          </div>
+          <div className="mt-6 flex flex-wrap justify-center gap-x-5 gap-y-2 text-sm text-foreground/65">{["কোনো credit card লাগবে না", "কয়েক মিনিটে setup", "চারটি focused portal"].map((signal) => <span key={signal} className="flex items-center gap-2"><CheckCircle className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />{signal}</span>)}</div>
+        </motion.div>
+      </section>
+    );
+  }
+
+  if (section === "features") {
+    return (
+      <section className="landing-section border-b px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-features">
+        <div className="mx-auto max-w-6xl">
+          <SectionHeading eyebrow="Features" title="সব কাজ, একটি পরিষ্কার workspace-এ" description="Attendance থেকে analytics—EduTrack প্রতিদিনের school operations-কে কম manual এবং বেশি visible করে।" />
+          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {features.map(({ icon: Icon, title, desc, label }) => (
+              <Card key={title} className="group h-full border-border/80 transition-transform duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg" data-testid={`card-feature-${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}>
+                <CardHeader><div className="mb-2 flex items-center justify-between gap-3"><div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground"><Icon className="h-5 w-5" aria-hidden="true" /></div><Badge variant="secondary">{label}</Badge></div><CardTitle className="text-xl">{title}</CardTitle></CardHeader>
+                <CardContent><p className="leading-relaxed text-muted-foreground">{desc}</p></CardContent>
+              </Card>
+            ))}
+          </div>
+          <div className="mt-10 rounded-2xl border bg-muted/30 p-6 sm:p-8">
+            <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center"><div><p className="text-sm font-semibold text-primary">Built for the full school day</p><h3 className="mt-1 text-2xl font-semibold tracking-tight">আপনার team যা ব্যবহার করে, সেটাই একসঙ্গে থাকে</h3><p className="mt-2 max-w-2xl text-muted-foreground">Role-based access, shared records এবং focused views দিয়ে duplication কমান, follow-up সহজ করুন।</p></div><Button onClick={() => openAuth("signup", "features_cta")}>Workspace শুরু করুন <ArrowRight aria-hidden="true" /></Button></div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (section === "solutions") {
+    return (
+      <section className="landing-section border-b px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-solutions">
+        <div className="mx-auto max-w-6xl">
+          <SectionHeading eyebrow="Solutions" title="Admin থেকে student—একটি connected workflow" description="যে role-ই ব্যবহার করুক, প্রত্যেকে নিজের কাজের জন্য প্রয়োজনীয় signal পায়।" />
+          <div className="mt-10 grid gap-5 md:grid-cols-2">
+            {workflow.map(({ num, role, icon: Icon, title, desc }) => (
+              <Card key={role} className="relative overflow-hidden border-border/80 p-6 transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg" data-testid={`card-solution-${role.toLowerCase()}`}>
+                <span className="absolute right-5 top-4 text-4xl font-semibold text-primary/10">{num}</span>
+                <div className="flex gap-4"><div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary"><Icon className="h-5 w-5" aria-hidden="true" /></div><div><Badge variant="outline">{role}</Badge><h3 className="mt-3 text-xl font-semibold">{title}</h3><p className="mt-2 leading-relaxed text-muted-foreground">{desc}</p></div></div>
+              </Card>
+            ))}
+          </div>
+          <div className="mt-10 grid gap-5 rounded-2xl bg-slate-950 p-6 text-white sm:grid-cols-3 sm:p-8">
+            {[["One source of truth", "একবার update করুন, team-এর সবাই relevant view-তে দেখুক।"], ["Less follow-up", "Pending কাজ এবং exceptions আলাদা করে চোখে পড়ে।"], ["Ready to grow", "ছোট coaching center থেকে multi-class school—workflow বদলাতে হয় না।"]].map(([title, desc]) => <div key={title} className="space-y-2"><CheckCircle className="h-5 w-5 text-blue-300" aria-hidden="true" /><h3 className="font-semibold">{title}</h3><p className="text-sm leading-relaxed text-white/65">{desc}</p></div>)}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (section === "pricing") {
+    return (
+      <section className="landing-section border-b px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-pricing">
+        <div className="mx-auto max-w-6xl">
+          <SectionHeading eyebrow="Pricing" title="আপনার স্কুলের জন্য সঠিক প্ল্যান বেছে নিন" description="কোনো hidden charge নেই। Free Trial দিয়ে শুরু করুন, তারপর আপনার growth অনুযায়ী plan বেছে নিন।" />
+          <div className="mt-10 grid gap-5 lg:grid-cols-3">{(["free_trial", "founder_launch", "annual_premium"] as PlanTier[]).map((tier) => <PricingCard key={tier} tier={tier} onSelect={selectPlan} />)}</div>
+          <div className="mt-10 grid gap-5 md:grid-cols-3">
+            {[["Free Trial", "৭ দিন", "সব premium features দিয়ে workspace দেখে নিন।"], ["Billing", "মাসিক / বার্ষিক", "Founder Launch মাসিক, Annual Premium বছরে billed হয়।"], ["No card required", "আজই শুরু করুন", "Trial শুরু করতে credit card বা upfront payment লাগে না।"]].map(([title, value, desc]) => <Card key={title} className="border-border/80 p-5"><p className="text-sm font-medium text-muted-foreground">{title}</p><p className="mt-2 text-xl font-semibold">{value}</p><p className="mt-2 text-sm leading-relaxed text-muted-foreground">{desc}</p></Card>)}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (section === "resources") {
+    return (
+      <section className="surface-lavender border-b px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-resources">
+        <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-5">
+          <div className="lg:col-span-2"><SectionHeading eyebrow="Resources" title="শুরু করার আগে যা জানা দরকার" description="FAQs, Help Center এবং সরাসরি support—সবকিছু এক জায়গায়।" align="left" /><div className="mt-6 flex flex-wrap gap-3"><Button variant="outline" asChild><a href="/help">Help Center <ArrowRight aria-hidden="true" /></a></Button><Button variant="outline" onClick={() => openAuth("login", "resources_contact")}>যোগাযোগ করুন <MessageCircle aria-hidden="true" /></Button></div></div>
+          <Card className="rounded-2xl bg-background px-5 shadow-sm lg:col-span-3"><Accordion type="single" collapsible className="w-full">{faqs.map((faq, index) => <AccordionItem key={faq.question} value={`faq-${index}`}><AccordionTrigger data-testid={`button-faq-${index}`}>{faq.question}</AccordionTrigger><AccordionContent className="leading-relaxed text-muted-foreground">{faq.answer}</AccordionContent></AccordionItem>)}</Accordion></Card>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="landing-section border-b px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-about">
+      <div className="mx-auto max-w-5xl">
+        <SectionHeading eyebrow="About EduTrack" title="বাংলাদেশের শিক্ষা প্রতিষ্ঠানকে আরও organized করার জন্য" description="EduTrack এমন একটি dependable operating layer, যেখানে school-এর মানুষ, process এবং progress একই workspace-এ যুক্ত থাকে।" />
+        <div className="mt-10 grid gap-5 md:grid-cols-3">
+          {[["Clarity", "প্রতিদিন কী হচ্ছে এবং কোথায় attention দরকার—এক নজরে বোঝা যায়।"], ["Connection", "Admin, teacher, parent এবং student একই তথ্যের চারটি focused view পায়।"], ["Confidence", "Role-based access এবং organization scope data-কে সঠিক জায়গায় রাখে।"]].map(([title, desc], index) => <Card key={title} className="p-6"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 font-semibold text-primary">0{index + 1}</div><h3 className="mt-5 text-xl font-semibold">{title}</h3><p className="mt-2 leading-relaxed text-muted-foreground">{desc}</p></Card>)}
+        </div>
+        <div className="mt-10 rounded-2xl border bg-muted/30 p-6 text-center sm:p-8"><h3 className="text-2xl font-semibold">আপনার school-এর জন্য workspace তৈরি করুন</h3><p className="mx-auto mt-2 max-w-2xl text-muted-foreground">আজই শুরু করুন এবং প্রথম দিন থেকেই operations-এর উপর আরও পরিষ্কার control পান।</p><Button className="mt-5" onClick={() => openAuth("signup", "about_cta")}>Sign Up করুন <ArrowRight aria-hidden="true" /></Button></div>
+      </div>
+    </section>
+  );
+}
+
 export default function LandingPage() {
   const [showAuth, setShowAuth] = useState(false);
   const [authMode, setAuthMode] = useState<AuthMode>("login");
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const reduceMotion = useReducedMotion();
   const heroRef = useRef<HTMLElement>(null);
+  const [location] = useLocation();
+  const section: LandingSection = location === "/features"
+    ? "features"
+    : location === "/solutions"
+      ? "solutions"
+      : location === "/pricing"
+        ? "pricing"
+        : location === "/resources"
+          ? "resources"
+          : location === "/about"
+            ? "about"
+            : "home";
 
   useEffect(() => {
     const hero = heroRef.current;
@@ -455,29 +753,31 @@ export default function LandingPage() {
     };
   }, [reduceMotion]);
 
-  function openAuth(mode: AuthMode, source: string) {
+  function openAuth(mode: AuthMode, source: string, tier: PlanTier = "free_trial") {
     trackFeatureUsed("landing_cta_click", { mode, source });
     setAuthMode(mode);
+    setSignupTier(tier);
     setShowAuth(true);
   }
 
   const whatsappMsg = encodeURIComponent("আমি EduTrack সম্পর্কে জানতে চাই। একটু বিস্তারিত বলবেন?");
   const whatsappNumber = "8801632905056";
+  const [signupTier, setSignupTier] = useState<PlanTier>("free_trial");
   function selectPlan(tier: PlanTier) {
     trackFeatureUsed("pricing_cta_click", { plan: tier });
-    openAuth("login", `pricing_${tier}`);
+    openAuth("signup", `pricing_${tier}`, tier);
   }
   const navItems = [
-    { label: "Features", href: "#dashboard-preview" },
-    { label: "Solutions", href: "#dashboard-preview" },
-    { label: "Pricing", href: "#pricing" },
-    { label: "Resources", href: "#faq" },
-    { label: "About", href: "#contact" },
+    { label: "Features", href: "/features" },
+    { label: "Solutions", href: "/solutions" },
+    { label: "Pricing", href: "/pricing" },
+    { label: "Resources", href: "/resources" },
+    { label: "About", href: "/about" },
   ];
 
   return (
     <div className="landing-shell min-h-screen overflow-x-clip bg-background text-foreground" id="top">
-      {showAuth && <AuthPanel defaultMode={authMode} onClose={() => setShowAuth(false)} />}
+       {showAuth && <AuthPanel defaultMode={authMode} defaultTier={signupTier} onClose={() => setShowAuth(false)} />}
       <PromotionPopup onCtaClick={(cta, index) => { trackFeatureUsed("promo_popup_cta_click", { cta, index }); openAuth("login", `promo_popup_${index}`); }} />
       <Button asChild variant="secondary" className="fixed bottom-4 right-4 z-40 rounded-full sm:bottom-6 sm:right-6">
         <a data-testid="link-whatsapp-floating" href={`https://wa.me/${whatsappNumber}?text=${whatsappMsg}`} target="_blank" rel="noopener noreferrer" onClick={() => trackFeatureUsed("whatsapp_contact_click")} aria-label="Contact EduTrack on WhatsApp"><MessageCircle aria-hidden="true" /><span>Demo নিন</span></a>
@@ -485,55 +785,30 @@ export default function LandingPage() {
 
       <header className="landing-nav glass-panel sticky top-4 z-30 mx-3 rounded-2xl border bg-background/75 backdrop-blur-xl sm:mx-5 lg:mx-auto lg:max-w-[calc(80rem-2rem)]" data-testid="navigation-header">
         <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-           <a data-testid="link-logo" href="#top" className="flex shrink-0 items-center gap-2 font-semibold tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" aria-label="EduTrack home"><span data-app-logo className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground"><GraduationCap className="h-5 w-5" aria-hidden="true" /></span><span className="text-lg">EduTrack</span><Badge variant="secondary" className="hidden lg:inline-flex">OS for schools</Badge></a>
+           <a data-testid="link-logo" href="/" className="flex shrink-0 items-center gap-2 font-semibold tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" aria-label="EduTrack home"><span data-app-logo className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground"><GraduationCap className="h-5 w-5" aria-hidden="true" /></span><span className="text-lg">EduTrack</span><Badge variant="secondary" className="hidden lg:inline-flex">OS for schools</Badge></a>
             <nav className="hidden items-center gap-4 text-[13px] font-medium text-muted-foreground md:flex lg:gap-7" aria-label="Primary navigation">{navItems.map(({ label, href }) => <a key={label} data-testid={`link-nav-${label.toLowerCase()}`} className="landing-nav-link whitespace-nowrap transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" href={href}>{label}</a>)}</nav>
             <div className="flex items-center gap-1.5 sm:gap-2">
               <div className="hidden items-center gap-1 sm:flex">
                 <Button data-testid="button-login-header" variant="ghost" size="sm" className="landing-nav-login px-3 text-sm font-medium" onClick={() => openAuth("login", "header")}>Log in</Button>
-                <Button data-testid="button-signup-header" size="sm" className="landing-nav-signup rounded-full px-4 text-sm font-semibold shadow-sm" onClick={() => openAuth("login", "header_signup")}>Sign Up</Button>
+                <Button data-testid="button-signup-header" size="sm" className="landing-nav-signup rounded-full px-4 text-sm font-semibold shadow-sm" onClick={() => openAuth("signup", "header_signup")}>Sign Up</Button>
               </div>
               <Button data-testid="button-mobile-menu" variant="outline" size="icon" className="md:hidden" aria-label={mobileNavOpen ? "Close navigation menu" : "Open navigation menu"} aria-expanded={mobileNavOpen} onClick={() => setMobileNavOpen((open) => !open)}>{mobileNavOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}</Button>
             </div>
         </div>
-        {mobileNavOpen && <div className="border-t bg-background px-4 py-4 md:hidden"><nav className="mx-auto grid max-w-7xl gap-1" aria-label="Mobile navigation" data-testid="nav-mobile">{navItems.map(({ label, href }) => <a key={label} data-testid={`link-mobile-${label.toLowerCase()}`} className="rounded-md px-3 py-3 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" href={href} onClick={() => setMobileNavOpen(false)}>{label}</a>)}</nav><div className="mt-3 flex gap-2 border-t pt-3 sm:hidden"><Button data-testid="button-login-mobile" variant="ghost" className="flex-1" onClick={() => { setMobileNavOpen(false); openAuth("login", "header_mobile"); }}>Log in</Button><Button data-testid="button-signup-mobile" className="flex-1 rounded-full" onClick={() => { setMobileNavOpen(false); openAuth("login", "header_mobile_signup"); }}>Sign Up</Button></div></div>}
+         {mobileNavOpen && <div className="border-t bg-background px-4 py-4 md:hidden"><nav className="mx-auto grid max-w-7xl gap-1" aria-label="Mobile navigation" data-testid="nav-mobile">{navItems.map(({ label, href }) => <a key={label} data-testid={`link-mobile-${label.toLowerCase()}`} className="rounded-md px-3 py-3 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" href={href} onClick={() => setMobileNavOpen(false)}>{label}</a>)}</nav><div className="mt-3 flex gap-2 border-t pt-3 sm:hidden"><Button data-testid="button-login-mobile" variant="ghost" className="flex-1" onClick={() => { setMobileNavOpen(false); openAuth("login", "header_mobile"); }}>Log in</Button><Button data-testid="button-signup-mobile" className="flex-1 rounded-full" onClick={() => { setMobileNavOpen(false); openAuth("signup", "header_mobile_signup"); }}>Sign Up</Button></div></div>}
       </header>
 
-      <main>
-        <section ref={heroRef} className="landing-hero relative overflow-hidden border-b px-4 py-24 text-foreground sm:px-6 sm:py-28 lg:px-8 lg:py-36" data-testid="section-hero">
-          <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-primary/15 blur-3xl" aria-hidden="true" />
-          <div className="pointer-events-none absolute bottom-0 left-1/3 h-72 w-72 rounded-full bg-chart-4/10 blur-3xl" aria-hidden="true" />
-          <motion.div className="relative mx-auto max-w-4xl text-center" initial={reduceMotion ? false : { opacity: 0, y: 12 }} animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}>
-            <Badge variant="secondary" className="mb-5">স্কুল ম্যানেজমেন্টের সহজ সমাধান</Badge>
-            <h1 data-testid="text-hero-headline" className="font-display text-[42px] leading-[1.08] tracking-tight sm:text-[58px] lg:text-[76px]">এক প্ল্যাটফর্মে <span className="block text-primary">পুরো স্কুল পরিচালনা করুন</span></h1>
-            <p className="mx-auto mt-7 max-w-2xl text-base leading-relaxed text-foreground/70 sm:text-lg">EduTrack-এর মাধ্যমে attendance, fees, exams, results, notices এবং প্রতিদিনের school operations এক জায়গা থেকে সহজে পরিচালনা করুন।</p>
-            <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row"><Button data-testid="button-hero-start-free" size="lg" className="glow-primary" onClick={() => openAuth("login", "hero_start_free")}>ফ্রি ট্রায়াল শুরু করুন <ArrowRight aria-hidden="true" /></Button><Button data-testid="button-hero-book-demo" size="lg" variant="outline" className="bg-background/80 text-foreground shadow-sm hover:bg-background" onClick={() => openAuth("login", "hero_book_demo")}>ডেমো দেখুন <CalendarCheck aria-hidden="true" /></Button></div>
-            <div className="mt-6 flex flex-wrap justify-center gap-x-5 gap-y-2 text-sm text-foreground/65">{["কোনো credit card লাগবে না", "কয়েক মিনিটে setup", "চারটি focused portal"].map((signal) => <span key={signal} className="flex items-center gap-2"><CheckCircle className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />{signal}</span>)}</div>
-          </motion.div>
-        </section>
+       <main>
+         <LandingContent
+           section={section}
+           heroRef={heroRef}
+           reduceMotion={reduceMotion}
+           openAuth={openAuth}
+           selectPlan={selectPlan}
+         />
+       </main>
 
-        <section id="dashboard-preview" className="dashboard-preview-section scroll-mt-20 border-b px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-dashboard-preview">
-          <div className="mx-auto max-w-6xl">
-            <SectionHeading eyebrow="অ্যাডমিন ড্যাশবোর্ড" title="এক নজরে পুরো স্কুলের অবস্থা দেখুন" description="কার attendance কম, fees কত collected, কোন result ready এবং কোন কাজ pending—সবকিছু একটি পরিষ্কার admin view-তে।" />
-            <div className="mt-10 grid items-center gap-8 lg:grid-cols-[190px_minmax(0,1fr)]">
-              <AdminGauge />
-              <DashboardShowcase variant="preview" />
-            </div>
-          </div>
-        </section>
-
-        <section id="pricing" className="landing-section scroll-mt-20 border-b px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-pricing">
-          <div className="mx-auto max-w-6xl">
-            <SectionHeading eyebrow="সহজ প্রাইসিং" title="আপনার স্কুলের জন্য সঠিক প্ল্যান বেছে নিন" description="কোনো hidden charge নেই। আজই শুরু করুন, প্রয়োজন অনুযায়ী পরে plan পরিবর্তন করুন।" />
-            <div className="mt-10 grid gap-5 lg:grid-cols-3">{(["free_trial", "founder_launch", "annual_premium"] as PlanTier[]).map((tier) => <PricingCard key={tier} tier={tier} onSelect={selectPlan} />)}</div>
-          </div>
-        </section>
-
-          <section id="faq" className="surface-lavender scroll-mt-20 border-b px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-faq"><div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-5"><div className="lg:col-span-2"><SectionHeading eyebrow="প্রশ্নোত্তর" title="আপনার প্রশ্নের সহজ উত্তর" description="EduTrack শুরু করার আগে সাধারণ প্রশ্নগুলোর উত্তর এখানে।" align="left" /><div className="mt-6"><Button data-testid="button-faq-contact" variant="outline" onClick={() => openAuth("login", "faq_contact")}>আরও জানতে যোগাযোগ করুন <MessageCircle aria-hidden="true" /></Button></div></div><Card className="rounded-2xl bg-background px-5 shadow-sm lg:col-span-3"><Accordion type="single" collapsible className="w-full">{faqs.map((faq, index) => <AccordionItem key={faq.question} value={`faq-${index}`}><AccordionTrigger data-testid={`button-faq-${index}`}>{faq.question}</AccordionTrigger><AccordionContent className="leading-relaxed text-muted-foreground">{faq.answer}</AccordionContent></AccordionItem>)}</Accordion></Card></div></section>
-
-          <section className="landing-cta relative overflow-hidden border-b px-4 py-20 text-white sm:px-6 lg:px-8 lg:py-24" data-testid="section-final-cta"><div className="pointer-events-none absolute -left-24 -top-24 h-96 w-96 rounded-full bg-primary/25 blur-3xl" aria-hidden="true" /><div className="pointer-events-none absolute -bottom-32 -right-24 h-96 w-96 rounded-full bg-chart-4/25 blur-3xl" aria-hidden="true" /><div className="relative mx-auto max-w-3xl text-center"><Badge variant="secondary" className="mb-4">৭ দিনের ফ্রি ট্রায়াল</Badge><h2 className="font-display text-3xl leading-tight tracking-tight sm:text-5xl">আপনার স্কুলকে আরও সহজে <span className="text-blue-300">পরিচালনা করুন</span></h2><p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-white/75">আপনার team-এর জন্য একটি dependable workspace তৈরি করুন — আজই শুরু করুন, প্রথম দিন থেকেই clarity পান।</p><div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row"><Button data-testid="button-final-start" size="lg" className="glow-primary" onClick={() => openAuth("login", "final_cta")}>ফ্রি ট্রায়াল শুরু করুন <ArrowRight aria-hidden="true" /></Button><Button data-testid="button-final-demo" size="lg" variant="outline" className="border-white/25 bg-white/10 text-white hover:bg-white/20" onClick={() => openAuth("login", "final_cta_demo")}>লাইভ ডেমো দেখুন <CalendarCheck aria-hidden="true" /></Button></div></div></section>
-      </main>
-
-       <footer id="contact" className="landing-footer text-white" data-testid="footer-site"><div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:grid-cols-2 sm:px-6 lg:grid-cols-12 lg:px-8"><div className="space-y-4 lg:col-span-4"><a data-testid="link-footer-logo" href="#top" className="flex items-center gap-2 font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground"><GraduationCap className="h-5 w-5" aria-hidden="true" /></span><span className="text-lg">EduTrack</span></a><p className="max-w-xs text-sm leading-relaxed text-white/70">বাংলাদেশের school এবং coaching center-এর জন্য সহজ, নির্ভরযোগ্য management platform।</p><div className="flex items-center gap-2"><a data-testid="link-footer-facebook" href="https://facebook.com/edutrack" target="_blank" rel="noopener noreferrer" onClick={() => trackFeatureUsed("footer_social_click", { channel: "facebook" })} className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/20 text-white/75 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="EduTrack on Facebook"><span aria-hidden="true" className="font-semibold">f</span></a><a data-testid="link-footer-whatsapp" href={`https://wa.me/${whatsappNumber}?text=${whatsappMsg}`} target="_blank" rel="noopener noreferrer" onClick={() => trackFeatureUsed("footer_social_click", { channel: "whatsapp" })} className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/20 text-white/75 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="EduTrack on WhatsApp"><MessageCircle className="h-4 w-4" aria-hidden="true" /></a></div></div><FooterColumn title="Product" links={[{ label: "ড্যাশবোর্ড", href: "#dashboard-preview" }, { label: "প্রাইসিং", href: "#pricing" }, { label: "ফ্রি ট্রায়াল", onClick: () => openAuth("login", "footer_product") }]} /><FooterColumn title="Support us" links={[{ label: "প্রশ্নোত্তর", href: "#faq" }, { label: "Help Center", href: "/help" }, { label: "WhatsApp Support", href: `https://wa.me/${whatsappNumber}?text=${whatsappMsg}`, external: true }]} /><div className="space-y-4 lg:col-span-3"><h3 className="text-sm font-semibold">Address & contact</h3><ul className="space-y-3 text-sm text-white/70"><li className="flex items-start gap-2"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-blue-300" aria-hidden="true" /><span>Dhaka, Bangladesh<br />শিক্ষা প্রতিষ্ঠান পরিচালনার জন্য</span></li><li><a data-testid="link-contact-email" href="mailto:support@edutrack.com.bd" className="flex items-center gap-2 transition-colors hover:text-blue-200"><Mail className="h-4 w-4 shrink-0 text-blue-300" aria-hidden="true" />support@edutrack.com.bd</a></li><li><a data-testid="link-contact-phone" href={`tel:+${whatsappNumber}`} className="flex items-center gap-2 transition-colors hover:text-blue-200"><Phone className="h-4 w-4 shrink-0 text-blue-300" aria-hidden="true" />+880 1632-905056</a></li><li><Button data-testid="button-contact-demo" variant="outline" size="sm" className="border-white/25 text-white hover:bg-white/10" onClick={() => openAuth("login", "footer_contact")}>Book a demo <Send aria-hidden="true" /></Button></li></ul></div></div><div className="border-t border-white/15"><div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-5 text-xs text-white/55 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8"><p>© 2026 EduTrack. Made in Bangladesh.</p><div className="flex flex-wrap gap-x-5 gap-y-2"><a data-testid="link-footer-privacy" className="hover:text-blue-200" href="/privacy">Privacy Policy</a><a data-testid="link-footer-terms" className="hover:text-blue-200" href="/terms">Terms of Service</a><a data-testid="link-footer-refund" className="hover:text-blue-200" href="/refund">Refund Policy</a><button data-testid="button-footer-login" className="hover:text-blue-200" onClick={() => openAuth("login", "footer_bottom")}>Login</button></div></div></div></footer>
+        <footer id="contact" className="landing-footer text-white" data-testid="footer-site"><div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:grid-cols-2 sm:px-6 lg:grid-cols-12 lg:px-8"><div className="space-y-4 lg:col-span-4"><a data-testid="link-footer-logo" href="/" className="flex items-center gap-2 font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground"><GraduationCap className="h-5 w-5" aria-hidden="true" /></span><span className="text-lg">EduTrack</span></a><p className="max-w-xs text-sm leading-relaxed text-white/70">বাংলাদেশের school এবং coaching center-এর জন্য সহজ, নির্ভরযোগ্য management platform।</p><div className="flex items-center gap-2"><a data-testid="link-footer-facebook" href="https://facebook.com/edutrack" target="_blank" rel="noopener noreferrer" onClick={() => trackFeatureUsed("footer_social_click", { channel: "facebook" })} className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/20 text-white/75 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="EduTrack on Facebook"><span aria-hidden="true" className="font-semibold">f</span></a><a data-testid="link-footer-whatsapp" href={`https://wa.me/${whatsappNumber}?text=${whatsappMsg}`} target="_blank" rel="noopener noreferrer" onClick={() => trackFeatureUsed("footer_social_click", { channel: "whatsapp" })} className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/20 text-white/75 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="EduTrack on WhatsApp"><MessageCircle className="h-4 w-4" aria-hidden="true" /></a></div></div><FooterColumn title="Product" links={[{ label: "Features", href: "/features" }, { label: "Solutions", href: "/solutions" }, { label: "Pricing", href: "/pricing" }, { label: "ফ্রি ট্রায়াল", onClick: () => openAuth("signup", "footer_product") }]} /><FooterColumn title="Support us" links={[{ label: "প্রশ্নোত্তর", href: "/resources" }, { label: "Help Center", href: "/help" }, { label: "WhatsApp Support", href: `https://wa.me/${whatsappNumber}?text=${whatsappMsg}`, external: true }]} /><div className="space-y-4 lg:col-span-3"><h3 className="text-sm font-semibold">Address & contact</h3><ul className="space-y-3 text-sm text-white/70"><li className="flex items-start gap-2"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-blue-300" aria-hidden="true" /><span>Dhaka, Bangladesh<br />শিক্ষা প্রতিষ্ঠান পরিচালনার জন্য</span></li><li><a data-testid="link-contact-email" href="mailto:support@edutrack.com.bd" className="flex items-center gap-2 transition-colors hover:text-blue-200"><Mail className="h-4 w-4 shrink-0 text-blue-300" aria-hidden="true" />support@edutrack.com.bd</a></li><li><a data-testid="link-contact-phone" href={`tel:+${whatsappNumber}`} className="flex items-center gap-2 transition-colors hover:text-blue-200"><Phone className="h-4 w-4 shrink-0 text-blue-300" aria-hidden="true" />+880 1632-905056</a></li><li><Button data-testid="button-contact-demo" variant="outline" size="sm" className="border-white/25 text-white hover:bg-white/10" onClick={() => openAuth("login", "footer_contact")}>Book a demo <Send aria-hidden="true" /></Button></li></ul></div></div><div className="border-t border-white/15"><div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-5 text-xs text-white/55 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8"><p>© 2026 EduTrack. Made in Bangladesh.</p><div className="flex flex-wrap gap-x-5 gap-y-2"><a data-testid="link-footer-privacy" className="hover:text-blue-200" href="/privacy">Privacy Policy</a><a data-testid="link-footer-terms" className="hover:text-blue-200" href="/terms">Terms of Service</a><a data-testid="link-footer-refund" className="hover:text-blue-200" href="/refund">Refund Policy</a><button data-testid="button-footer-login" className="hover:text-blue-200" onClick={() => openAuth("login", "footer_bottom")}>Login</button></div></div></div></footer>
     </div>
   );
 }

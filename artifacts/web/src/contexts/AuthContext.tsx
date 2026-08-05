@@ -171,7 +171,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [loadProfile]);
 
   const refreshProfile = useCallback(async () => {
-    if (user) await loadProfile(user);
+    // Auth can update Firebase's currentUser before React has committed the
+    // onAuthStateChanged state update. Read the SDK value as a fallback so
+    // freshly registered users do not briefly fall through to Setup.
+    const currentUser = user ?? auth.currentUser;
+    if (currentUser) await loadProfile(currentUser);
   }, [user, loadProfile]);
 
   const logout = useCallback(async () => {

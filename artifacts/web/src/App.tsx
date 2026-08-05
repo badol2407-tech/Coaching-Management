@@ -307,6 +307,22 @@ function AppRoutes() {
           <Route path="/join/:code/:role?">
             <Suspense fallback={<Spinner />}><JoinOrg /></Suspense>
           </Route>
+          {/* Public marketing sections — remain available even when a user is signed in. */}
+          <Route path="/features">
+            <Suspense fallback={<Spinner />}><LandingPage /></Suspense>
+          </Route>
+          <Route path="/solutions">
+            <Suspense fallback={<Spinner />}><LandingPage /></Suspense>
+          </Route>
+          <Route path="/pricing">
+            <Suspense fallback={<Spinner />}><LandingPage /></Suspense>
+          </Route>
+          <Route path="/resources">
+            <Suspense fallback={<Spinner />}><LandingPage /></Suspense>
+          </Route>
+          <Route path="/about">
+            <Suspense fallback={<Spinner />}><LandingPage /></Suspense>
+          </Route>
           {/* All other routes go through the auth-gated flow */}
           <Route>
             <AuthenticatedRoutes />
