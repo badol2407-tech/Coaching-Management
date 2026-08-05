@@ -842,6 +842,7 @@
   .hero-attendance-area {
     fill: url("#attendance-area-gradient");
     opacity: .92;
+    animation: hero-attendance-area-reveal 1.4s ease-out both;
   }
 
   .hero-attendance-line {
@@ -850,16 +851,195 @@
     stroke-linecap: round;
     stroke-linejoin: round;
     stroke-width: 2.8;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: hero-attendance-line-draw 3.4s cubic-bezier(.22,.68,0,1) .15s forwards;
+    transform-origin: center;
   }
 
   .hero-attendance-point-halo {
     fill: hsl(221 83% 62% / .14);
+    opacity: 0;
+    animation: hero-attendance-point-reveal .45s ease-out forwards;
   }
 
   .hero-attendance-point {
     fill: hsl(0 0% 100% / .95);
     stroke: hsl(253 74% 58%);
     stroke-width: 1.5;
+    opacity: 0;
+    animation: hero-attendance-point-reveal .45s ease-out forwards;
+  }
+
+  .hero-attendance-point-halo,
+  .hero-attendance-point {
+    animation-delay: 2.2s;
+  }
+
+  .hero-fee-chart {
+    position: relative;
+    margin-top: .25rem;
+    overflow: hidden;
+    border: 1px solid hsl(0 0% 100% / .78);
+    border-radius: 1.15rem;
+    background:
+      radial-gradient(circle at 30% 4%, hsl(0 0% 100% / .82), transparent 38%),
+      linear-gradient(145deg, hsl(0 0% 100% / .58), hsl(238 78% 96% / .3)),
+      hsl(0 0% 100% / .2);
+    padding: .2rem .1rem .05rem;
+    box-shadow:
+      0 16px 30px -23px hsl(224 56% 24% / .62),
+      0 1px 0 hsl(0 0% 100% / .92) inset,
+      0 0 0 1px hsl(267 75% 84% / .16);
+    backdrop-filter: blur(18px) saturate(145%);
+  }
+
+  .hero-fee-chart::before,
+  .hero-fee-chart::after {
+    position: absolute;
+    content: "";
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .hero-fee-chart::before {
+    top: -25%;
+    left: 18%;
+    width: 56%;
+    height: 52%;
+    background: hsl(0 0% 100% / .35);
+    filter: blur(18px);
+  }
+
+  .hero-fee-chart::after {
+    right: -22%;
+    bottom: -28%;
+    width: 65%;
+    height: 58%;
+    background: hsl(267 77% 77% / .18);
+    filter: blur(25px);
+  }
+
+  .hero-fee-chart svg {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .hero-fee-wheel {
+    transform-box: view-box;
+    transform-origin: 140px 112px;
+    animation: hero-fee-wheel-spin 24s linear infinite;
+  }
+
+  .hero-fee-wheel-shadow {
+    fill: hsl(224 56% 24% / .08);
+  }
+
+  .hero-fee-wheel-base {
+    fill: url("#fee-glass-highlight");
+    stroke: hsl(0 0% 100% / .8);
+    stroke-width: 1.2;
+  }
+
+  .hero-fee-slice {
+    opacity: .9;
+    stroke: hsl(0 0% 100% / .72);
+    stroke-linejoin: round;
+    stroke-width: 1;
+  }
+
+  .hero-fee-inner-glass {
+    fill: hsl(0 0% 100% / .32);
+    stroke: hsl(0 0% 100% / .82);
+    stroke-width: 1.1;
+  }
+
+  .hero-fee-inner-highlight {
+    fill: hsl(0 0% 100% / .15);
+    stroke: hsl(267 75% 72% / .18);
+    stroke-width: 1;
+  }
+
+  .hero-fee-reflection {
+    fill: none;
+    stroke: hsl(0 0% 100% / .86);
+    stroke-linecap: round;
+    stroke-width: 2.4;
+  }
+
+  .hero-fee-amount {
+    fill: hsl(231 35% 18% / .84);
+    font-family: "Hind Siliguri", sans-serif;
+    font-size: 8px;
+    font-weight: 800;
+    paint-order: stroke;
+    stroke: hsl(0 0% 100% / .35);
+    stroke-width: .7px;
+  }
+
+  .hero-fee-labels text {
+    fill: hsl(231 28% 32% / .86);
+    font-family: "Hind Siliguri", sans-serif;
+    font-size: 7px;
+    font-weight: 700;
+  }
+
+  .hero-fee-center-label,
+  .hero-fee-center-value {
+    fill: hsl(253 54% 47% / .72);
+    font-family: "Hind Siliguri", sans-serif;
+    font-weight: 700;
+    pointer-events: none;
+  }
+
+  .hero-fee-center-label {
+    font-size: 8px;
+  }
+
+  .hero-fee-center-value {
+    font-size: 9px;
+  }
+
+  @keyframes hero-attendance-line-draw {
+    from {
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @keyframes hero-attendance-area-reveal {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: .92;
+    }
+  }
+
+  @keyframes hero-attendance-point-reveal {
+    from {
+      opacity: 0;
+      transform: scale(.6);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes hero-fee-wheel-spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
   }
 
   .hero-avatar {
@@ -965,8 +1145,16 @@
     }
 
     .hero-speedometer-progress,
-    .hero-speedometer-needle {
+    .hero-speedometer-needle,
+    .hero-attendance-line,
+    .hero-attendance-area,
+    .hero-attendance-point-halo,
+    .hero-attendance-point,
+    .hero-fee-wheel {
       transition: none;
+      animation: none;
+      stroke-dashoffset: 0;
+      opacity: 1;
     }
   }
 

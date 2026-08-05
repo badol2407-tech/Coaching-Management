@@ -472,7 +472,6 @@ function TeamProgressWindow({ reduceMotion }: { reduceMotion: boolean | null }) 
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="text-[10px] font-semibold tracking-[0.08em] text-muted-foreground">স্কুলের স্বাস্থ্য</p>
-          <p className="mt-1 text-xs text-foreground/70">Weekly momentum</p>
         </div>
         <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
           <TrendingUp className="h-3.5 w-3.5" aria-hidden="true" />
@@ -496,13 +495,6 @@ function TeamProgressWindow({ reduceMotion }: { reduceMotion: boolean | null }) 
           <strong>{progress}%</strong>
           <span>Healthy</span>
         </div>
-      </div>
-      <div className="mt-1 flex items-center gap-1.5">
-        <span className="hero-avatar bg-primary text-primary-foreground">A</span>
-        <span className="hero-avatar bg-indigo-200 text-indigo-700">R</span>
-        <span className="hero-avatar bg-violet-200 text-violet-700">S</span>
-        <span className="hero-avatar bg-sky-200 text-sky-700">N</span>
-        <span className="ml-1 text-[10px] font-medium text-muted-foreground">+12 this week</span>
       </div>
     </div>
   );
@@ -559,7 +551,7 @@ function AttendanceChart() {
         <line className="hero-attendance-axis" x1={chart.left} x2={chart.left} y1={chart.top} y2={chart.top + chart.height} />
         <line className="hero-attendance-axis" x1={chart.left} x2={chart.left + chart.width} y1={chart.top + chart.height} y2={chart.top + chart.height} />
         <path className="hero-attendance-area" d={areaPath} />
-        <path className="hero-attendance-line" d={linePath} />
+        <path className="hero-attendance-line" pathLength="1" d={linePath} />
         {points.map(({ x, y }, index) => (
           <g key={grades[index]} filter="url(#attendance-point-glow)">
             <circle className="hero-attendance-point-halo" cx={x} cy={y} r="5.5" />
@@ -571,6 +563,117 @@ function AttendanceChart() {
         ))}
         <text className="hero-attendance-axis-label" x="99" y="145" textAnchor="middle">শ্রেণি</text>
         <text className="hero-attendance-axis-label" transform="translate(8 62) rotate(-90)" textAnchor="middle">উপস্থিতি</text>
+      </svg>
+    </div>
+  );
+}
+
+type FeeSlice = {
+  name: string;
+  amount: number;
+  amountLabel: string;
+  color: string;
+  labelX: number;
+  labelY: number;
+  labelAnchor: "start" | "middle" | "end";
+};
+
+const monthlyFees: FeeSlice[] = [
+  { name: "নীলা ষষ্ঠ শ্রেণি", amount: 1500, amountLabel: "১৫০০৳", color: "#5b8def", labelX: 140, labelY: 13, labelAnchor: "middle" },
+  { name: "রাহুল সপ্তম শ্রেণি", amount: 2000, amountLabel: "২০০০৳", color: "#8b72e8", labelX: 258, labelY: 63, labelAnchor: "start" },
+  { name: "মিথিলা অষ্টম শ্রেণি", amount: 2500, amountLabel: "২৫০০৳", color: "#67c7c1", labelX: 239, labelY: 169, labelAnchor: "start" },
+  { name: "রাফি নবম শ্রেণি", amount: 3000, amountLabel: "৩০০০৳", color: "#f2b866", labelX: 140, labelY: 218, labelAnchor: "middle" },
+  { name: "আদিবা দশম শ্রেণি", amount: 5000, amountLabel: "৫০০০৳", color: "#e78aaf", labelX: 41, labelY: 169, labelAnchor: "end" },
+];
+
+function polarPoint(cx: number, cy: number, radius: number, angle: number) {
+  const radians = ((angle - 90) * Math.PI) / 180;
+  return {
+    x: cx + radius * Math.cos(radians),
+    y: cy + radius * Math.sin(radians),
+  };
+}
+
+function donutSlicePath(
+  cx: number,
+  cy: number,
+  outerRadius: number,
+  innerRadius: number,
+  startAngle: number,
+  endAngle: number,
+) {
+  const outerStart = polarPoint(cx, cy, outerRadius, endAngle);
+  const outerEnd = polarPoint(cx, cy, outerRadius, startAngle);
+  const innerStart = polarPoint(cx, cy, innerRadius, startAngle);
+  const innerEnd = polarPoint(cx, cy, innerRadius, endAngle);
+  const largeArcFlag = endAngle - startAngle > 180 ? 1 : 0;
+
+  return [
+    `M ${outerStart.x} ${outerStart.y}`,
+    `A ${outerRadius} ${outerRadius} 0 ${largeArcFlag} 0 ${outerEnd.x} ${outerEnd.y}`,
+    `L ${innerStart.x} ${innerStart.y}`,
+    `A ${innerRadius} ${innerRadius} 0 ${largeArcFlag} 1 ${innerEnd.x} ${innerEnd.y}`,
+    "Z",
+  ].join(" ");
+}
+
+function MonthlyFeeChart() {
+  const total = monthlyFees.reduce((sum, slice) => sum + slice.amount, 0);
+  let startAngle = 0;
+
+  return (
+    <div className="hero-fee-chart" aria-label="শিক্ষার্থীদের মাসিক ফি চার্ট">
+      <svg viewBox="0 0 280 230" role="img" aria-labelledby="monthly-fee-title monthly-fee-description">
+        <title id="monthly-fee-title">মাসিক ফি</title>
+        <desc id="monthly-fee-description">নীলা, রাহুল, মিথিলা, রাফি এবং আদিবার মাসিক ফি।</desc>
+        <defs>
+          <linearGradient id="fee-glass-highlight" x1="0" x2="1" y1="0" y2="1">
+            <stop offset="0%" stopColor="hsl(0 0% 100% / .9)" />
+            <stop offset="44%" stopColor="hsl(0 0% 100% / .24)" />
+            <stop offset="100%" stopColor="hsl(224 70% 77% / .2)" />
+          </linearGradient>
+          <filter id="fee-wheel-shadow" x="-35%" y="-35%" width="170%" height="170%">
+            <feDropShadow dx="0" dy="8" stdDeviation="7" floodColor="hsl(224 56% 22% / .2)" />
+          </filter>
+        </defs>
+
+        <g className="hero-fee-labels">
+          {monthlyFees.map((slice) => (
+            <text key={slice.name} x={slice.labelX} y={slice.labelY} textAnchor={slice.labelAnchor}>
+              {slice.name}
+            </text>
+          ))}
+        </g>
+
+        <g className="hero-fee-wheel" filter="url(#fee-wheel-shadow)">
+          <circle className="hero-fee-wheel-shadow" cx="140" cy="112" r="75" />
+          <circle className="hero-fee-wheel-base" cx="140" cy="112" r="73" />
+          {monthlyFees.map((slice) => {
+            const sliceStart = startAngle;
+            const sliceEnd = startAngle + (slice.amount / total) * 360;
+            const textAngle = sliceStart + (sliceEnd - sliceStart) / 2;
+            const amountPoint = polarPoint(140, 112, 58, textAngle);
+            startAngle = sliceEnd;
+
+            return (
+              <g key={slice.name}>
+                <path
+                  className="hero-fee-slice"
+                  d={donutSlicePath(140, 112, 72, 43, sliceStart + 1, sliceEnd - 1)}
+                  fill={slice.color}
+                />
+                <text className="hero-fee-amount" x={amountPoint.x} y={amountPoint.y + 2} textAnchor="middle">
+                  {slice.amountLabel}
+                </text>
+              </g>
+            );
+          })}
+          <circle className="hero-fee-inner-glass" cx="140" cy="112" r="41" />
+          <circle className="hero-fee-inner-highlight" cx="140" cy="112" r="29" />
+          <path className="hero-fee-reflection" d="M 102 69 A 58 58 0 0 1 157 51" />
+        </g>
+        <text className="hero-fee-center-label" x="140" y="109" textAnchor="middle">মাসিক</text>
+        <text className="hero-fee-center-value" x="140" y="123" textAnchor="middle">ফি</text>
       </svg>
     </div>
   );
@@ -615,27 +718,11 @@ function HeroMiniWindows({ reduceMotion }: { reduceMotion: boolean | null }) {
         <div className="hero-mini-window hero-mini-plan glass-panel rounded-2xl border border-white/70 bg-white/85 p-4 shadow-xl backdrop-blur-xl">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Today's Plan</p>
-              <p className="mt-1 text-xs text-foreground/70">Keep the day moving</p>
+               <p className="text-xs font-semibold tracking-[0.08em] text-foreground/80">মাসিক ফি</p>
             </div>
-            <CalendarCheck className="h-4 w-4 text-primary" aria-hidden="true" />
+             <Wallet className="h-4 w-4 text-primary" aria-hidden="true" />
           </div>
-          <div className="mt-3 space-y-2.5">
-            {[
-              ["Design new dashboard", "10:00 AM"],
-              ["User research", "12:30 PM"],
-              ["Sprint planning", "02:00 PM"],
-            ].map(([task, time], index) => (
-              <div key={task} className="flex items-center gap-2.5">
-                <span className={`hero-plan-check ${index < 2 ? "is-done" : ""}`} aria-hidden="true">
-                  {index < 2 && <Check className="h-2.5 w-2.5" />}
-                </span>
-                <span className="min-w-0 flex-1 truncate text-[11px] font-medium text-foreground/80">{task}</span>
-                <span className="text-[9px] text-muted-foreground">{time}</span>
-              </div>
-            ))}
-          </div>
-          <p className="mt-3 text-[10px] font-semibold text-primary">View all tasks →</p>
+           <MonthlyFeeChart />
         </div>
       </motion.div>
 
@@ -648,7 +735,6 @@ function HeroMiniWindows({ reduceMotion }: { reduceMotion: boolean | null }) {
           <div className="flex items-center justify-between gap-3">
            <div>
              <p className="text-[10px] font-semibold tracking-[0.08em] text-muted-foreground">আজকের উপস্থিতি</p>
-             <p className="mt-1 text-xs text-foreground/70">শ্রেণিভিত্তিক উপস্থিতির চিত্র</p>
             </div>
             <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
               <TrendingUp className="h-3.5 w-3.5" aria-hidden="true" />
