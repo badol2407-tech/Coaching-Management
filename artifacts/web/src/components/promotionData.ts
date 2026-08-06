@@ -12,6 +12,7 @@ export interface PromoBanner {
   textColor: string;
   iconPath: string; // SVG path data
   imageUrl: string; // AI-generated photo
+  railImageUrl: string; // Wide composition for the desktop promotion rail
   overlayPosition: "top-left" | "top-right";
   railImagePosition: string;
   popupImagePosition: string;
@@ -34,6 +35,7 @@ export const promoBanners: PromoBanner[] = [
     textColor: "#ffffff",
     iconPath: "M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5",
     imageUrl: "/banners/slide-1.jpg",
+    railImageUrl: "/banners/slide-1-rail.jpg",
     overlayPosition: "top-left",
     railImagePosition: "50% 12%",
     popupImagePosition: "50% 28%",
@@ -51,6 +53,7 @@ export const promoBanners: PromoBanner[] = [
     iconPath:
       "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM20 8v6M23 11h-6",
     imageUrl: "/banners/slide-2.jpg",
+    railImageUrl: "/banners/slide-2-rail.jpg",
     overlayPosition: "top-left",
     railImagePosition: "52% 15%",
     popupImagePosition: "52% 22%",
@@ -68,6 +71,7 @@ export const promoBanners: PromoBanner[] = [
     iconPath:
       "M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11",
     imageUrl: "/banners/slide-3.jpg",
+    railImageUrl: "/banners/slide-3-rail.jpg",
     overlayPosition: "top-right",
     railImagePosition: "54% 12%",
     popupImagePosition: "54% 18%",
@@ -85,6 +89,7 @@ export const promoBanners: PromoBanner[] = [
     iconPath:
       "M21 12V7H5a2 2 0 0 1 0-4h14v4M3 5v14a2 2 0 0 0 2 2h16v-5M18 12a2 2 0 0 0 0 4h4v-4Z",
     imageUrl: "/banners/slide-4.jpg",
+    railImageUrl: "/banners/slide-4-rail.jpg",
     overlayPosition: "top-right",
     railImagePosition: "50% 14%",
     popupImagePosition: "50% 22%",
@@ -102,6 +107,7 @@ export const promoBanners: PromoBanner[] = [
     iconPath:
       "M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z",
     imageUrl: "/banners/slide-5.jpg",
+    railImageUrl: "/banners/slide-5-rail.jpg",
     overlayPosition: "top-right",
     railImagePosition: "50% 15%",
     popupImagePosition: "50% 20%",

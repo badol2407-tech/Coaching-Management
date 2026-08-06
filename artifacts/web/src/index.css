@@ -2461,16 +2461,25 @@
   .promo-banner-slide {
     min-height: 16.5rem;
     background: hsl(224 56% 14%) !important;
+    aspect-ratio: 12 / 5;
   }
 
-  .promo-banner-slide > .promo-banner-image {
+  .promo-banner-picture {
     position: absolute;
     inset: 0;
     z-index: 0;
+    display: block;
+    overflow: hidden;
+  }
+
+  .promo-banner-picture .promo-banner-image {
+    position: absolute;
+    inset: 0;
+    display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: var(--promo-rail-image-position, 50% 14%);
+    object-position: center;
     filter: saturate(.8) contrast(.95);
   }
 
@@ -2558,7 +2567,8 @@
     }
 
     .promo-banner-slide {
-      min-height: 15.5rem;
+      min-height: 0;
+      aspect-ratio: 1 / 1;
     }
 
     .promo-banner-slide--top-left .promo-banner-content,

@@ -18,13 +18,16 @@ export function BannerSlide({ banner, compact = false, onCtaClick }: BannerSlide
       className={`promo-banner-slide promo-banner-slide--${banner.overlayPosition} relative overflow-hidden select-none ${compact ? "is-compact" : ""}`}
       style={style}
     >
-      <img
-        src={banner.imageUrl}
-        alt=""
-        aria-hidden="true"
-        className="promo-banner-image"
-        loading="eager"
-      />
+      <picture className="promo-banner-picture">
+        <source media="(min-width: 768px)" srcSet={banner.railImageUrl} />
+        <img
+          src={banner.imageUrl}
+          alt=""
+          aria-hidden="true"
+          className="promo-banner-image"
+          loading="eager"
+        />
+      </picture>
       <div className="promo-banner-image-wash" aria-hidden="true" />
       <div className="promo-banner-glow" aria-hidden="true" />
       <div className="promo-banner-content relative z-10">
