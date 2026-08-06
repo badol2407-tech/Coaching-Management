@@ -1283,7 +1283,7 @@ function PricingCard({ tier, onSelect }: { tier: PlanTier; onSelect: (tier: Plan
   const featured = tier === "founder_launch";
   const cadence = plan.billingCycle === "trial" ? `${plan.trialDays} days` : plan.billingCycle === "monthly" ? "month" : "year";
   return (
-    <Card className={featured ? "relative flex h-full flex-col border-primary ring-2 ring-primary/20" : "flex h-full flex-col"} data-testid={`card-pricing-${tier}`}>
+    <Card className={featured ? "landing-glass-card relative flex h-full flex-col border-primary ring-2 ring-primary/20" : "landing-glass-card flex h-full flex-col"} data-testid={`card-pricing-${tier}`}>
       {plan.badge && <Badge variant={featured ? "default" : "secondary"} className={featured ? "premium-badge absolute right-4 top-4 px-4 py-1.5 text-sm font-semibold" : "absolute right-4 top-4"}>{plan.badge}</Badge>}
       <CardHeader className="space-y-3"><div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">{tier === "free_trial" ? <Clock3 className="h-5 w-5" aria-hidden="true" /> : tier === "founder_launch" ? <Sparkles className="h-5 w-5" aria-hidden="true" /> : <ShieldCheck className="h-5 w-5" aria-hidden="true" />}</div><div><CardTitle className="text-xl">{plan.name}</CardTitle><p className="mt-1 text-sm text-muted-foreground">{plan.tagline}</p></div></CardHeader>
       <CardContent className="flex flex-1 flex-col"><div className="mb-5"><div className="flex items-baseline gap-2"><span className="font-display text-4xl tracking-tight">{pricing.price}</span><span className="text-sm text-muted-foreground">/{cadence}</span></div>{pricing.regularPrice && pricing.savings && <p className="mt-2 text-xs text-muted-foreground"><span className="line-through">{pricing.regularPrice}</span>{" "}<span className="font-medium text-primary">{pricing.savings}</span></p>}{pricing.monthlyEquivalent && <p className="mt-2 text-xs font-medium text-primary">মাসে মাত্র {pricing.monthlyEquivalent}</p>}</div><ul className="mb-6 flex-1 space-y-3">{plan.displayHighlights.map((highlight) => <li key={highlight} className="flex items-start gap-2 text-sm text-muted-foreground"><CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" /><span>{highlight}</span></li>)}</ul><Button data-testid={`button-select-plan-${tier}`} className="w-full" variant={featured ? "default" : "outline"} onClick={() => onSelect(tier)}>{tier === "free_trial" ? "ফ্রি ট্রায়াল শুরু করুন" : tier === "founder_launch" ? "Founder Price নিন" : "Annual Plan নিন"}<ArrowRight aria-hidden="true" /></Button></CardContent>
@@ -1312,7 +1312,7 @@ function LandingContent({
 }) {
   if (section === "home") {
     return (
-      <section ref={heroRef} className="landing-hero relative overflow-hidden border-b px-4 py-24 text-foreground sm:px-6 sm:py-28 lg:px-8 lg:py-36" data-testid="section-hero">
+      <section ref={heroRef} className="landing-hero relative overflow-hidden px-4 py-24 text-foreground sm:px-6 sm:py-28 lg:px-8 lg:py-36" data-testid="section-hero">
         <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-primary/15 blur-3xl" aria-hidden="true" />
         <div className="pointer-events-none absolute bottom-0 left-1/3 h-72 w-72 rounded-full bg-chart-4/10 blur-3xl" aria-hidden="true" />
         <motion.div className="relative mx-auto max-w-4xl text-center" initial={reduceMotion ? false : { opacity: 0, y: 12 }} animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}>
@@ -1320,7 +1320,7 @@ function LandingContent({
           <p className="mx-auto mt-7 max-w-2xl text-base leading-relaxed text-foreground/70 sm:text-lg">EduTrack-এর মাধ্যমে attendance, fees, exams, results, notices এবং প্রতিদিনের school operations এক জায়গা থেকে সহজে পরিচালনা করুন।</p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Button data-testid="button-hero-start-free" size="lg" className="glow-primary" onClick={() => openAuth("signup", "hero_start_free")}>ফ্রি ট্রায়াল শুরু করুন <ArrowRight aria-hidden="true" /></Button>
-            <Button data-testid="button-hero-book-demo" size="lg" variant="outline" className="bg-background/80 text-foreground shadow-sm hover:bg-background" onClick={() => openDemo("hero_book_demo")}>ডেমো দেখুন <CalendarCheck aria-hidden="true" /></Button>
+            <Button data-testid="button-hero-book-demo" size="lg" variant="outline" className="landing-glass-button text-foreground shadow-sm" onClick={() => openDemo("hero_book_demo")}>ডেমো দেখুন <CalendarCheck aria-hidden="true" /></Button>
           </div>
         </motion.div>
          <HeroMiniWindows
@@ -1349,18 +1349,18 @@ function LandingContent({
 
   if (section === "features") {
     return (
-      <section className="landing-section border-b px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-features">
+      <section className="landing-section px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-features">
         <div className="mx-auto max-w-6xl">
           <SectionHeading eyebrow="Features" title="সব কাজ, একটি পরিষ্কার workspace-এ" description="Attendance থেকে analytics—EduTrack প্রতিদিনের school operations-কে কম manual এবং বেশি visible করে।" />
           <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {features.map(({ icon: Icon, title, desc, label }) => (
-              <Card key={title} className="group h-full border-border/80 transition-transform duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg" data-testid={`card-feature-${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}>
+              <Card key={title} className="landing-glass-card group h-full transition-transform duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg" data-testid={`card-feature-${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}>
                 <CardHeader><div className="mb-2 flex items-center justify-between gap-3"><div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground"><Icon className="h-5 w-5" aria-hidden="true" /></div><Badge variant="secondary">{label}</Badge></div><CardTitle className="text-xl">{title}</CardTitle></CardHeader>
                 <CardContent><p className="leading-relaxed text-muted-foreground">{desc}</p></CardContent>
               </Card>
             ))}
           </div>
-          <div className="mt-10 rounded-2xl border bg-muted/30 p-6 sm:p-8">
+           <div className="landing-glass-inset mt-10 rounded-2xl p-6 sm:p-8">
             <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center"><div><p className="text-sm font-semibold text-primary">Built for the full school day</p><h3 className="mt-1 text-2xl font-semibold tracking-tight">আপনার team যা ব্যবহার করে, সেটাই একসঙ্গে থাকে</h3><p className="mt-2 max-w-2xl text-muted-foreground">Role-based access, shared records এবং focused views দিয়ে duplication কমান, follow-up সহজ করুন।</p></div><Button onClick={() => openAuth("signup", "features_cta")}>Workspace শুরু করুন <ArrowRight aria-hidden="true" /></Button></div>
           </div>
         </div>
@@ -1370,18 +1370,18 @@ function LandingContent({
 
   if (section === "solutions") {
     return (
-      <section className="landing-section border-b px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-solutions">
+      <section className="landing-section px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-solutions">
         <div className="mx-auto max-w-6xl">
           <SectionHeading eyebrow="Solutions" title="Admin থেকে student—একটি connected workflow" description="যে role-ই ব্যবহার করুক, প্রত্যেকে নিজের কাজের জন্য প্রয়োজনীয় signal পায়।" />
           <div className="mt-10 grid gap-5 md:grid-cols-2">
             {workflow.map(({ num, role, icon: Icon, title, desc }) => (
-              <Card key={role} className="relative overflow-hidden border-border/80 p-6 transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg" data-testid={`card-solution-${role.toLowerCase()}`}>
+              <Card key={role} className="landing-glass-card relative overflow-hidden p-6 transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg" data-testid={`card-solution-${role.toLowerCase()}`}>
                 <span className="absolute right-5 top-4 text-4xl font-semibold text-primary/10">{num}</span>
                 <div className="flex gap-4"><div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary"><Icon className="h-5 w-5" aria-hidden="true" /></div><div><Badge variant="outline">{role}</Badge><h3 className="mt-3 text-xl font-semibold">{title}</h3><p className="mt-2 leading-relaxed text-muted-foreground">{desc}</p></div></div>
               </Card>
             ))}
           </div>
-          <div className="mt-10 grid gap-5 rounded-2xl bg-slate-950 p-6 text-white sm:grid-cols-3 sm:p-8">
+           <div className="landing-glass-dark mt-10 grid gap-5 rounded-2xl p-6 text-white sm:grid-cols-3 sm:p-8">
             {[["One source of truth", "একবার update করুন, team-এর সবাই relevant view-তে দেখুক।"], ["Less follow-up", "Pending কাজ এবং exceptions আলাদা করে চোখে পড়ে।"], ["Ready to grow", "ছোট coaching center থেকে multi-class school—workflow বদলাতে হয় না।"]].map(([title, desc]) => <div key={title} className="space-y-2"><CheckCircle className="h-5 w-5 text-blue-300" aria-hidden="true" /><h3 className="font-semibold">{title}</h3><p className="text-sm leading-relaxed text-white/65">{desc}</p></div>)}
           </div>
         </div>
@@ -1391,12 +1391,12 @@ function LandingContent({
 
   if (section === "pricing") {
     return (
-      <section className="landing-section border-b px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-pricing">
+      <section className="landing-section px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-pricing">
         <div className="mx-auto max-w-6xl">
           <SectionHeading eyebrow="Pricing" title="আপনার স্কুলের জন্য সঠিক প্ল্যান বেছে নিন" description="কোনো hidden charge নেই। Free Trial দিয়ে শুরু করুন, তারপর আপনার growth অনুযায়ী plan বেছে নিন।" />
-          <div className="mt-10 grid gap-5 lg:grid-cols-3">{(["free_trial", "founder_launch", "annual_premium"] as PlanTier[]).map((tier) => <PricingCard key={tier} tier={tier} onSelect={selectPlan} />)}</div>
+           <div className="mt-10 grid gap-5 lg:grid-cols-3">{(["free_trial", "founder_launch", "annual_premium"] as PlanTier[]).map((tier) => <PricingCard key={tier} tier={tier} onSelect={selectPlan} />)}</div>
           <div className="mt-10 grid gap-5 md:grid-cols-3">
-            {[["Free Trial", "৭ দিন", "সব premium features দিয়ে workspace দেখে নিন।"], ["Billing", "মাসিক / বার্ষিক", "Founder Launch মাসিক, Annual Premium বছরে billed হয়।"], ["No card required", "আজই শুরু করুন", "Trial শুরু করতে credit card বা upfront payment লাগে না।"]].map(([title, value, desc]) => <Card key={title} className="border-border/80 p-5"><p className="text-sm font-medium text-muted-foreground">{title}</p><p className="mt-2 text-xl font-semibold">{value}</p><p className="mt-2 text-sm leading-relaxed text-muted-foreground">{desc}</p></Card>)}
+             {[["Free Trial", "৭ দিন", "সব premium features দিয়ে workspace দেখে নিন।"], ["Billing", "মাসিক / বার্ষিক", "Founder Launch মাসিক, Annual Premium বছরে billed হয়।"], ["No card required", "আজই শুরু করুন", "Trial শুরু করতে credit card বা upfront payment লাগে না।"]].map(([title, value, desc]) => <Card key={title} className="landing-glass-card p-5"><p className="text-sm font-medium text-muted-foreground">{title}</p><p className="mt-2 text-xl font-semibold">{value}</p><p className="mt-2 text-sm leading-relaxed text-muted-foreground">{desc}</p></Card>)}
           </div>
         </div>
       </section>
@@ -1405,23 +1405,23 @@ function LandingContent({
 
   if (section === "resources") {
     return (
-      <section className="surface-lavender border-b px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-resources">
+      <section className="landing-section landing-resources px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-resources">
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-5">
           <div className="lg:col-span-2"><SectionHeading eyebrow="Resources" title="শুরু করার আগে যা জানা দরকার" description="FAQs, Help Center এবং সরাসরি support—সবকিছু এক জায়গায়।" align="left" /><div className="mt-6 flex flex-wrap gap-3"><Button variant="outline" asChild><a href="/help">Help Center <ArrowRight aria-hidden="true" /></a></Button><Button variant="outline" onClick={() => openDemo("resources_contact")}>ডেমো বুক করুন <MessageCircle aria-hidden="true" /></Button></div></div>
-          <Card className="rounded-2xl bg-background px-5 shadow-sm lg:col-span-3"><Accordion type="single" collapsible className="w-full">{faqs.map((faq, index) => <AccordionItem key={faq.question} value={`faq-${index}`}><AccordionTrigger data-testid={`button-faq-${index}`}>{faq.question}</AccordionTrigger><AccordionContent className="leading-relaxed text-muted-foreground">{faq.answer}</AccordionContent></AccordionItem>)}</Accordion></Card>
+           <Card className="landing-glass-card rounded-2xl px-5 shadow-sm lg:col-span-3"><Accordion type="single" collapsible className="w-full">{faqs.map((faq, index) => <AccordionItem key={faq.question} value={`faq-${index}`}><AccordionTrigger data-testid={`button-faq-${index}`}>{faq.question}</AccordionTrigger><AccordionContent className="leading-relaxed text-muted-foreground">{faq.answer}</AccordionContent></AccordionItem>)}</Accordion></Card>
         </div>
       </section>
     );
   }
 
   return (
-    <section className="landing-section border-b px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-about">
+    <section className="landing-section px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-about">
       <div className="mx-auto max-w-5xl">
         <SectionHeading eyebrow="About EduTrack" title="বাংলাদেশের শিক্ষা প্রতিষ্ঠানকে আরও organized করার জন্য" description="EduTrack এমন একটি dependable operating layer, যেখানে school-এর মানুষ, process এবং progress একই workspace-এ যুক্ত থাকে।" />
         <div className="mt-10 grid gap-5 md:grid-cols-3">
-          {[["Clarity", "প্রতিদিন কী হচ্ছে এবং কোথায় attention দরকার—এক নজরে বোঝা যায়।"], ["Connection", "Admin, teacher, parent এবং student একই তথ্যের চারটি focused view পায়।"], ["Confidence", "Role-based access এবং organization scope data-কে সঠিক জায়গায় রাখে।"]].map(([title, desc], index) => <Card key={title} className="p-6"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 font-semibold text-primary">0{index + 1}</div><h3 className="mt-5 text-xl font-semibold">{title}</h3><p className="mt-2 leading-relaxed text-muted-foreground">{desc}</p></Card>)}
+           {[["Clarity", "প্রতিদিন কী হচ্ছে এবং কোথায় attention দরকার—এক নজরে বোঝা যায়।"], ["Connection", "Admin, teacher, parent এবং student একই তথ্যের চারটি focused view পায়।"], ["Confidence", "Role-based access এবং organization scope data-কে সঠিক জায়গায় রাখে।"]].map(([title, desc], index) => <Card key={title} className="landing-glass-card p-6"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 font-semibold text-primary">0{index + 1}</div><h3 className="mt-5 text-xl font-semibold">{title}</h3><p className="mt-2 leading-relaxed text-muted-foreground">{desc}</p></Card>)}
         </div>
-        <div className="mt-10 rounded-2xl border bg-muted/30 p-6 text-center sm:p-8"><h3 className="text-2xl font-semibold">আপনার school-এর জন্য workspace তৈরি করুন</h3><p className="mx-auto mt-2 max-w-2xl text-muted-foreground">আজই শুরু করুন এবং প্রথম দিন থেকেই operations-এর উপর আরও পরিষ্কার control পান।</p><Button className="mt-5" onClick={() => openAuth("signup", "about_cta")}>Sign Up করুন <ArrowRight aria-hidden="true" /></Button></div>
+         <div className="landing-glass-inset mt-10 rounded-2xl p-6 text-center sm:p-8"><h3 className="text-2xl font-semibold">আপনার school-এর জন্য workspace তৈরি করুন</h3><p className="mx-auto mt-2 max-w-2xl text-muted-foreground">আজই শুরু করুন এবং প্রথম দিন থেকেই operations-এর উপর আরও পরিষ্কার control পান।</p><Button className="mt-5" onClick={() => openAuth("signup", "about_cta")}>Sign Up করুন <ArrowRight aria-hidden="true" /></Button></div>
       </div>
     </section>
   );
@@ -1513,7 +1513,7 @@ export default function LandingPage() {
   ];
 
   return (
-    <div className="landing-shell min-h-screen overflow-x-clip bg-background text-foreground" id="top">
+    <div className="landing-shell min-h-screen overflow-x-clip text-foreground" id="top">
        {showAuth && <AuthPanel defaultMode={authMode} defaultTier={signupTier} onClose={() => setShowAuth(false)} />}
       <PromotionPopup
         onDismiss={handlePromotionDismiss}
@@ -1531,7 +1531,7 @@ export default function LandingPage() {
         <a data-testid="link-whatsapp-floating" href={`https://wa.me/${whatsappNumber}?text=${whatsappMsg}`} target="_blank" rel="noopener noreferrer" onClick={() => trackFeatureUsed("whatsapp_contact_click")} aria-label="Contact EduTrack on WhatsApp"><MessageCircle aria-hidden="true" /><span>Demo নিন</span></a>
       </Button>
 
-      <header className="landing-nav glass-panel sticky top-4 z-30 mx-3 rounded-2xl border bg-background/75 backdrop-blur-xl sm:mx-5 lg:mx-auto lg:max-w-[calc(80rem-2rem)]" data-testid="navigation-header">
+       <header className="landing-nav glass-panel sticky top-4 z-30 mx-3 rounded-2xl border backdrop-blur-xl sm:mx-5 lg:mx-auto lg:max-w-[calc(80rem-2rem)]" data-testid="navigation-header">
         <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
            <a data-testid="link-logo" href="/" className="flex shrink-0 items-center gap-2 font-semibold tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" aria-label="EduTrack home"><span data-app-logo className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground"><GraduationCap className="h-5 w-5" aria-hidden="true" /></span><span className="text-lg">EduTrack</span><Badge variant="secondary" className="hidden lg:inline-flex">OS for schools</Badge></a>
             <nav className="hidden items-center gap-4 text-[13px] font-medium text-muted-foreground md:flex lg:gap-7" aria-label="Primary navigation">{navItems.map(({ label, href }) => <a key={label} data-testid={`link-nav-${label.toLowerCase()}`} className="landing-nav-link whitespace-nowrap transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" href={href}>{label}</a>)}</nav>
@@ -1543,7 +1543,7 @@ export default function LandingPage() {
               <Button data-testid="button-mobile-menu" variant="outline" size="icon" className="md:hidden" aria-label={mobileNavOpen ? "Close navigation menu" : "Open navigation menu"} aria-expanded={mobileNavOpen} onClick={() => setMobileNavOpen((open) => !open)}>{mobileNavOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}</Button>
             </div>
         </div>
-         {mobileNavOpen && <div className="border-t bg-background px-4 py-4 md:hidden"><nav className="mx-auto grid max-w-7xl gap-1" aria-label="Mobile navigation" data-testid="nav-mobile">{navItems.map(({ label, href }) => <a key={label} data-testid={`link-mobile-${label.toLowerCase()}`} className="rounded-md px-3 py-3 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" href={href} onClick={() => setMobileNavOpen(false)}>{label}</a>)}</nav><div className="mt-3 flex gap-2 border-t pt-3 sm:hidden"><Button data-testid="button-login-mobile" variant="ghost" className="flex-1" onClick={() => { setMobileNavOpen(false); openAuth("login", "header_mobile"); }}>Log in</Button><Button data-testid="button-signup-mobile" className="flex-1 rounded-full" onClick={() => { setMobileNavOpen(false); openAuth("signup", "header_mobile_signup"); }}>Sign Up</Button></div></div>}
+          {mobileNavOpen && <div className="landing-mobile-nav glass-panel border-t px-4 py-4 md:hidden"><nav className="mx-auto grid max-w-7xl gap-1" aria-label="Mobile navigation" data-testid="nav-mobile">{navItems.map(({ label, href }) => <a key={label} data-testid={`link-mobile-${label.toLowerCase()}`} className="rounded-md px-3 py-3 text-sm font-medium text-muted-foreground hover:bg-white/30 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" href={href} onClick={() => setMobileNavOpen(false)}>{label}</a>)}</nav><div className="mt-3 flex gap-2 border-t pt-3 sm:hidden"><Button data-testid="button-login-mobile" variant="ghost" className="flex-1" onClick={() => { setMobileNavOpen(false); openAuth("login", "header_mobile"); }}>Log in</Button><Button data-testid="button-signup-mobile" className="flex-1 rounded-full" onClick={() => { setMobileNavOpen(false); openAuth("signup", "header_mobile_signup"); }}>Sign Up</Button></div></div>}
       </header>
 
        <main>
