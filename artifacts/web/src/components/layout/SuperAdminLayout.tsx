@@ -5,7 +5,7 @@ import {
   Users, Activity, CreditCard, ChevronDown,
   TrendingUp, DollarSign, BarChart3, Tag,
   Share2, Megaphone, FileText, Gift, UserCheck,
-  School, BookOpen, Target, Globe, Zap, Menu, X, Eye,
+  School, BookOpen, Target, Globe, Zap, Menu, X, Eye, MessageSquare,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -60,6 +60,7 @@ const modules = [
       { title: "Referral Program", href: "/marketing/referrals", icon: Share2 },
       { title: "Analytics", href: "/marketing/analytics", icon: BarChart3 },
       { title: "Campaigns", href: "/marketing/campaigns", icon: Megaphone },
+      { title: "Demo Leads", href: "/marketing/demo-leads", icon: MessageSquare },
     ],
   },
 ];

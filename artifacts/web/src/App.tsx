@@ -57,6 +57,7 @@ const FreeTrial = lazy(() => import("@/pages/super-admin/FreeTrial"));
 const Revenue = lazy(() => import("@/pages/super-admin/Revenue"));
 // Super Admin pages — Marketing
 const LandingPageMgmt = lazy(() => import("@/pages/super-admin/LandingPageMgmt"));
+const DemoLeads = lazy(() => import("@/pages/super-admin/DemoLeads"));
 const PopupOffers = lazy(() => import("@/pages/super-admin/PopupOffers"));
 const Testimonials = lazy(() => import("@/pages/super-admin/Testimonials"));
 const CouponCodes = lazy(() => import("@/pages/super-admin/CouponCodes"));
@@ -203,6 +204,7 @@ function AuthenticatedRoutes() {
             <Route path="/billing/history" component={PaymentHistory} />
             {/* Marketing */}
             <Route path="/marketing/landing" component={LandingPageMgmt} />
+            <Route path="/marketing/demo-leads" component={DemoLeads} />
             <Route path="/marketing/popups" component={PopupOffers} />
             <Route path="/marketing/testimonials" component={Testimonials} />
             <Route path="/marketing/coupons" component={CouponCodes} />

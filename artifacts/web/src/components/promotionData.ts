@@ -16,6 +16,7 @@ export interface PromoBanner {
   overlayPosition: "top-left" | "top-right";
   railImagePosition: string;
   popupImagePosition: string;
+  ctaAction: "signup" | "demo";
 }
 
 // Founder Launch price is pulled live from PLAN_CONFIG so this banner can
@@ -39,6 +40,7 @@ export const promoBanners: PromoBanner[] = [
     overlayPosition: "top-left",
     railImagePosition: "50% 12%",
     popupImagePosition: "50% 28%",
+    ctaAction: "signup",
   },
   {
     tag: "ভর্তি ও student setup",
@@ -57,6 +59,7 @@ export const promoBanners: PromoBanner[] = [
     overlayPosition: "top-left",
     railImagePosition: "52% 15%",
     popupImagePosition: "52% 22%",
+    ctaAction: "demo",
   },
   {
     tag: "Teacher-এর daily view",
@@ -75,6 +78,7 @@ export const promoBanners: PromoBanner[] = [
     overlayPosition: "top-right",
     railImagePosition: "54% 12%",
     popupImagePosition: "54% 18%",
+    ctaAction: "demo",
   },
   {
     tag: "Admin-এর পরিষ্কার control",
@@ -93,6 +97,7 @@ export const promoBanners: PromoBanner[] = [
     overlayPosition: "top-right",
     railImagePosition: "50% 14%",
     popupImagePosition: "50% 22%",
+    ctaAction: "demo",
   },
   {
     tag: "Connected school workspace",
@@ -111,5 +116,6 @@ export const promoBanners: PromoBanner[] = [
     overlayPosition: "top-right",
     railImagePosition: "50% 15%",
     popupImagePosition: "50% 20%",
+    ctaAction: "signup",
   },
 ];

@@ -21,7 +21,7 @@ import {
 } from "./landing-layout";
 
 function ts(val: unknown): string {
-  if (!val) return new Date().toISOString();
+  if (!val) return "";
   if (val instanceof Timestamp) return val.toDate().toISOString();
   return String(val);
 }
@@ -473,6 +473,36 @@ export function useDeleteTestimonial() {
     },
     onSuccess: () =>
       qc.invalidateQueries({ queryKey: ["super_admin", "testimonials"] }),
+  });
+}
+
+// ── Demo Leads ────────────────────────────────────────────────────────────────
+
+export function useListDemoLeads() {
+  return useQuery({
+    queryKey: ["super_admin", "demo_leads"],
+    queryFn: async () => {
+      const snap = await getDocs(
+        query(collection(db, "demo_leads"), orderBy("createdAt", "desc")),
+      );
+      return snap.docs.map(mapDoc) as any[];
+    },
+  });
+}
+
+export function useUpdateDemoLead() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, status }: {
+      id: string;
+      status: "new" | "contacted" | "qualified" | "closed";
+    }) => {
+      await updateDoc(doc(db, "demo_leads", id), {
+        status,
+        updatedAt: serverTimestamp(),
+      });
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["super_admin", "demo_leads"] }),
   });
 }
 

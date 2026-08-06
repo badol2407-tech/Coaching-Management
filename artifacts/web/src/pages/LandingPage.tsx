@@ -91,6 +91,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { trackFeatureUsed, trackLogin, trackLoginFailed, trackRegistered } from "@/lib/analytics";
 import { PromotionPopup } from "@/components/PromotionPopup";
 import { HeroCarousel } from "@/components/HeroCarousel";
+import { DemoBookingDialog } from "@/components/DemoBookingDialog";
+import { promoBanners } from "@/components/promotionData";
 import {
   DEFAULT_LANDING_LAYOUT,
   type LandingPageLayout,
@@ -136,6 +138,19 @@ const workflow = [
   { num: "02", role: "Teacher", icon: GraduationCap, title: "Updates the work", desc: "Classroom activity flows into the same record without duplicate entry." },
   { num: "03", role: "Parent", icon: Users, title: "Sees the signal", desc: "Families receive timely, relevant updates about the learner they support." },
   { num: "04", role: "Student", icon: BookOpen, title: "Moves forward", desc: "The next class, assignment, result, or goal is always close at hand." },
+];
+
+const howItWorksSteps = [
+  { number: "01", icon: School, title: "Create account", description: "আপনার school বা coaching center-এর workspace কয়েকটি তথ্য দিয়ে তৈরি করুন।" },
+  { number: "02", icon: Users, title: "Add students", description: "Students, teachers এবং class setup এক জায়গায় গুছিয়ে নিন।" },
+  { number: "03", icon: LayoutDashboard, title: "Start managing", description: "Attendance, fees, exams এবং notices একই daily view থেকে চালান।" },
+];
+
+const comparisonRows = [
+  ["Manual attendance", "এক click-এ attendance record"],
+  ["Notebook fees", "Fee status এক dashboard-এ"],
+  ["Paper result", "Digital result ও progress view"],
+  ["Parent calls", "Notice ও homework update"],
 ];
 
 const faqs = [
@@ -431,6 +446,98 @@ function SectionHeading({ eyebrow, title, description, align = "center" }: { eye
       <h2 className="font-display text-3xl leading-tight tracking-tight sm:text-4xl" data-testid={`heading-${eyebrow.toLowerCase().replace(/\s+/g, "-")}`}>{title}</h2>
       <p className="mt-3 text-base leading-relaxed text-muted-foreground">{description}</p>
     </div>
+  );
+}
+
+function TrustBar() {
+  const trustItems = [
+    { icon: ShieldCheck, label: "Secure Cloud Platform" },
+    { icon: Phone, label: "Mobile Friendly" },
+    { icon: Clock3, label: "Setup in Minutes" },
+    { icon: School, label: "Built for Bangladesh" },
+  ];
+
+  return (
+    <section className="relative z-10 mx-auto mt-10 max-w-6xl rounded-2xl border border-primary/15 bg-background/75 px-4 py-5 shadow-sm backdrop-blur sm:px-6" data-testid="section-trust-bar">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {trustItems.map(({ icon: Icon, label }) => (
+          <div key={label} className="flex items-center justify-center gap-2 text-sm font-medium text-foreground/75">
+            <Icon className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+            <span>{label}</span>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function HowItWorksSection({ onStart, onDemo }: { onStart: () => void; onDemo: () => void }) {
+  return (
+    <section className="relative z-10 mx-auto mt-16 max-w-6xl rounded-3xl border border-border/80 bg-card/85 px-5 py-10 shadow-sm sm:px-8 lg:mt-20 lg:py-14" data-testid="section-how-it-works">
+      <SectionHeading
+        eyebrow="How EduTrack Works"
+        title="শুরু করা যতটা সহজ, ব্যবহার করাও ততটাই সহজ"
+        description="আপনার institute-এর daily operation গুছিয়ে নিতে তিনটি simple step যথেষ্ট।"
+      />
+      <div className="mt-10 grid gap-5 md:grid-cols-3">
+        {howItWorksSteps.map(({ number, icon: Icon, title, description }, index) => (
+          <div key={number} className="relative rounded-2xl border border-border/80 bg-background p-5" data-testid={`card-how-it-works-${index + 1}`}>
+            <div className="flex items-center justify-between">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <Icon className="h-5 w-5" aria-hidden="true" />
+              </div>
+              <span className="font-display text-4xl font-semibold text-primary/15">{number}</span>
+            </div>
+            <h3 className="mt-5 text-lg font-semibold">{title}</h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{description}</p>
+          </div>
+        ))}
+      </div>
+      <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+        <Button onClick={onStart} className="gap-2">
+          ফ্রি workspace তৈরি করুন <ArrowRight className="h-4 w-4" aria-hidden="true" />
+        </Button>
+        <Button onClick={onDemo} variant="outline" className="gap-2">
+          আগে demo দেখুন <CalendarCheck className="h-4 w-4" aria-hidden="true" />
+        </Button>
+      </div>
+    </section>
+  );
+}
+
+function ComparisonSection({ onDemo }: { onDemo: () => void }) {
+  return (
+    <section className="relative z-10 mx-auto mt-8 max-w-6xl rounded-3xl bg-slate-950 px-5 py-10 text-white shadow-xl sm:px-8 lg:py-14" data-testid="section-comparison">
+      <div className="grid gap-10 lg:grid-cols-[.8fr_1.2fr] lg:items-center">
+        <div>
+          <Badge className="mb-4 border-white/15 bg-white/10 text-white hover:bg-white/10">Why choose EduTrack?</Badge>
+          <h2 className="font-display text-3xl leading-tight sm:text-4xl">খাতা, আলাদা spreadsheet আর endless phone call থেকে বেরিয়ে আসুন</h2>
+          <p className="mt-4 max-w-lg leading-relaxed text-white/65">
+            আপনার existing process-কে একদিনে বদলাতে হবে না। EduTrack একই কাজকে আরও visible, searchable এবং team-এর জন্য সহজ করে।
+          </p>
+          <Button onClick={onDemo} variant="outline" className="mt-6 gap-2 border-white/25 bg-white/5 text-white hover:bg-white/10 hover:text-white">
+            আপনার workflow-এর demo নিন <MessageCircle className="h-4 w-4" aria-hidden="true" />
+          </Button>
+        </div>
+        <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[.04]">
+          <div className="grid grid-cols-[1fr_1fr] border-b border-white/10 px-4 py-3 text-xs font-semibold uppercase tracking-[.14em] text-white/45 sm:px-5">
+            <span>Traditional</span>
+            <span className="text-primary-foreground/80">EduTrack</span>
+          </div>
+          <div className="divide-y divide-white/10">
+            {comparisonRows.map(([traditional, edutrack]) => (
+              <div key={traditional} className="grid grid-cols-[1fr_1fr] gap-4 px-4 py-4 text-sm sm:px-5">
+                <span className="text-white/55">{traditional}</span>
+                <span className="flex items-start gap-2 font-medium text-white">
+                  <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" aria-hidden="true" />
+                  {edutrack}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -1183,6 +1290,7 @@ function LandingContent({
   heroRef,
   reduceMotion,
   openAuth,
+  openDemo,
   selectPlan,
   heroWindowsEnter,
   landingLayout,
@@ -1191,6 +1299,7 @@ function LandingContent({
   heroRef: React.RefObject<HTMLElement | null>;
   reduceMotion: boolean | null;
   openAuth: (mode: AuthMode, source: string, tier?: PlanTier) => void;
+  openDemo: (source: string) => void;
   selectPlan: (tier: PlanTier) => void;
   heroWindowsEnter: boolean;
   landingLayout: LandingPageLayout;
@@ -1205,7 +1314,7 @@ function LandingContent({
           <p className="mx-auto mt-7 max-w-2xl text-base leading-relaxed text-foreground/70 sm:text-lg">EduTrack-এর মাধ্যমে attendance, fees, exams, results, notices এবং প্রতিদিনের school operations এক জায়গা থেকে সহজে পরিচালনা করুন।</p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Button data-testid="button-hero-start-free" size="lg" className="glow-primary" onClick={() => openAuth("signup", "hero_start_free")}>ফ্রি ট্রায়াল শুরু করুন <ArrowRight aria-hidden="true" /></Button>
-            <Button data-testid="button-hero-book-demo" size="lg" variant="outline" className="bg-background/80 text-foreground shadow-sm hover:bg-background" onClick={() => openAuth("login", "hero_book_demo")}>ডেমো দেখুন <CalendarCheck aria-hidden="true" /></Button>
+            <Button data-testid="button-hero-book-demo" size="lg" variant="outline" className="bg-background/80 text-foreground shadow-sm hover:bg-background" onClick={() => openDemo("hero_book_demo")}>ডেমো দেখুন <CalendarCheck aria-hidden="true" /></Button>
           </div>
         </motion.div>
          <HeroMiniWindows
@@ -1217,10 +1326,17 @@ function LandingContent({
             <HeroCarousel
               onCtaClick={(cta, index) => {
                 trackFeatureUsed("promo_rail_cta_click", { cta, index });
-                openAuth("login", `promo_rail_${index}`);
+                if (promoBanners[index]?.ctaAction === "signup") {
+                  openAuth("signup", `promo_rail_${index}`);
+                } else {
+                  openDemo(`promo_rail_${index}`);
+                }
               }}
             />
           </div>
+          <TrustBar />
+          <HowItWorksSection onStart={() => openAuth("signup", "how_it_works")} onDemo={() => openDemo("how_it_works")} />
+          <ComparisonSection onDemo={() => openDemo("comparison")} />
       </section>
     );
   }
@@ -1285,7 +1401,7 @@ function LandingContent({
     return (
       <section className="surface-lavender border-b px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-resources">
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-5">
-          <div className="lg:col-span-2"><SectionHeading eyebrow="Resources" title="শুরু করার আগে যা জানা দরকার" description="FAQs, Help Center এবং সরাসরি support—সবকিছু এক জায়গায়।" align="left" /><div className="mt-6 flex flex-wrap gap-3"><Button variant="outline" asChild><a href="/help">Help Center <ArrowRight aria-hidden="true" /></a></Button><Button variant="outline" onClick={() => openAuth("login", "resources_contact")}>যোগাযোগ করুন <MessageCircle aria-hidden="true" /></Button></div></div>
+          <div className="lg:col-span-2"><SectionHeading eyebrow="Resources" title="শুরু করার আগে যা জানা দরকার" description="FAQs, Help Center এবং সরাসরি support—সবকিছু এক জায়গায়।" align="left" /><div className="mt-6 flex flex-wrap gap-3"><Button variant="outline" asChild><a href="/help">Help Center <ArrowRight aria-hidden="true" /></a></Button><Button variant="outline" onClick={() => openDemo("resources_contact")}>ডেমো বুক করুন <MessageCircle aria-hidden="true" /></Button></div></div>
           <Card className="rounded-2xl bg-background px-5 shadow-sm lg:col-span-3"><Accordion type="single" collapsible className="w-full">{faqs.map((faq, index) => <AccordionItem key={faq.question} value={`faq-${index}`}><AccordionTrigger data-testid={`button-faq-${index}`}>{faq.question}</AccordionTrigger><AccordionContent className="leading-relaxed text-muted-foreground">{faq.answer}</AccordionContent></AccordionItem>)}</Accordion></Card>
         </div>
       </section>
@@ -1307,6 +1423,8 @@ function LandingContent({
 
 export default function LandingPage() {
   const [showAuth, setShowAuth] = useState(false);
+  const [showDemoBooking, setShowDemoBooking] = useState(false);
+  const [demoSource, setDemoSource] = useState("landing");
   const [authMode, setAuthMode] = useState<AuthMode>("login");
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [heroWindowsEnter, setHeroWindowsEnter] = useState(
@@ -1362,6 +1480,12 @@ export default function LandingPage() {
     setShowAuth(true);
   }
 
+  function openDemo(source: string) {
+    trackFeatureUsed("demo_booking_opened", { source });
+    setDemoSource(source);
+    setShowDemoBooking(true);
+  }
+
   const handlePromotionDismiss = useCallback(() => {
     sessionStorage.setItem(HERO_WINDOWS_ENTRANCE_KEY, "1");
     setHeroWindowsEnter(true);
@@ -1387,8 +1511,16 @@ export default function LandingPage() {
        {showAuth && <AuthPanel defaultMode={authMode} defaultTier={signupTier} onClose={() => setShowAuth(false)} />}
       <PromotionPopup
         onDismiss={handlePromotionDismiss}
-        onCtaClick={(cta, index) => { trackFeatureUsed("promo_popup_cta_click", { cta, index }); openAuth("login", `promo_popup_${index}`); }}
+        onCtaClick={(cta, index) => {
+          trackFeatureUsed("promo_popup_cta_click", { cta, index });
+          if (promoBanners[index]?.ctaAction === "signup") {
+            openAuth("signup", `promo_popup_${index}`);
+          } else {
+            openDemo(`promo_popup_${index}`);
+          }
+        }}
       />
+      <DemoBookingDialog open={showDemoBooking} source={demoSource} onOpenChange={setShowDemoBooking} />
       <Button asChild variant="secondary" className="fixed bottom-4 right-4 z-40 rounded-full sm:bottom-6 sm:right-6">
         <a data-testid="link-whatsapp-floating" href={`https://wa.me/${whatsappNumber}?text=${whatsappMsg}`} target="_blank" rel="noopener noreferrer" onClick={() => trackFeatureUsed("whatsapp_contact_click")} aria-label="Contact EduTrack on WhatsApp"><MessageCircle aria-hidden="true" /><span>Demo নিন</span></a>
       </Button>
@@ -1414,13 +1546,14 @@ export default function LandingPage() {
            heroRef={heroRef}
            reduceMotion={reduceMotion}
            openAuth={openAuth}
+           openDemo={openDemo}
            selectPlan={selectPlan}
            heroWindowsEnter={heroWindowsEnter}
             landingLayout={landingLayout}
          />
        </main>
 
-        <footer id="contact" className="landing-footer text-white" data-testid="footer-site"><div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:grid-cols-2 sm:px-6 lg:grid-cols-12 lg:px-8"><div className="space-y-4 lg:col-span-4"><a data-testid="link-footer-logo" href="/" className="flex items-center gap-2 font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground"><GraduationCap className="h-5 w-5" aria-hidden="true" /></span><span className="text-lg">EduTrack</span></a><p className="max-w-xs text-sm leading-relaxed text-white/70">বাংলাদেশের school এবং coaching center-এর জন্য সহজ, নির্ভরযোগ্য management platform।</p><div className="flex items-center gap-2"><a data-testid="link-footer-facebook" href="https://facebook.com/edutrack" target="_blank" rel="noopener noreferrer" onClick={() => trackFeatureUsed("footer_social_click", { channel: "facebook" })} className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/20 text-white/75 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="EduTrack on Facebook"><span aria-hidden="true" className="font-semibold">f</span></a><a data-testid="link-footer-whatsapp" href={`https://wa.me/${whatsappNumber}?text=${whatsappMsg}`} target="_blank" rel="noopener noreferrer" onClick={() => trackFeatureUsed("footer_social_click", { channel: "whatsapp" })} className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/20 text-white/75 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="EduTrack on WhatsApp"><MessageCircle className="h-4 w-4" aria-hidden="true" /></a></div></div><FooterColumn title="Product" links={[{ label: "Features", href: "/features" }, { label: "Solutions", href: "/solutions" }, { label: "Pricing", href: "/pricing" }, { label: "ফ্রি ট্রায়াল", onClick: () => openAuth("signup", "footer_product") }]} /><FooterColumn title="Support us" links={[{ label: "প্রশ্নোত্তর", href: "/resources" }, { label: "Help Center", href: "/help" }, { label: "WhatsApp Support", href: `https://wa.me/${whatsappNumber}?text=${whatsappMsg}`, external: true }]} /><div className="space-y-4 lg:col-span-3"><h3 className="text-sm font-semibold">Address & contact</h3><ul className="space-y-3 text-sm text-white/70"><li className="flex items-start gap-2"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-blue-300" aria-hidden="true" /><span>Dhaka, Bangladesh<br />শিক্ষা প্রতিষ্ঠান পরিচালনার জন্য</span></li><li><a data-testid="link-contact-email" href="mailto:support@edutrack.com.bd" className="flex items-center gap-2 transition-colors hover:text-blue-200"><Mail className="h-4 w-4 shrink-0 text-blue-300" aria-hidden="true" />support@edutrack.com.bd</a></li><li><a data-testid="link-contact-phone" href={`tel:+${whatsappNumber}`} className="flex items-center gap-2 transition-colors hover:text-blue-200"><Phone className="h-4 w-4 shrink-0 text-blue-300" aria-hidden="true" />+880 1632-905056</a></li><li><Button data-testid="button-contact-demo" variant="outline" size="sm" className="border-white/25 text-white hover:bg-white/10" onClick={() => openAuth("login", "footer_contact")}>Book a demo <Send aria-hidden="true" /></Button></li></ul></div></div><div className="border-t border-white/15"><div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-5 text-xs text-white/55 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8"><p>© 2026 EduTrack. Made in Bangladesh.</p><div className="flex flex-wrap gap-x-5 gap-y-2"><a data-testid="link-footer-privacy" className="hover:text-blue-200" href="/privacy">Privacy Policy</a><a data-testid="link-footer-terms" className="hover:text-blue-200" href="/terms">Terms of Service</a><a data-testid="link-footer-refund" className="hover:text-blue-200" href="/refund">Refund Policy</a><button data-testid="button-footer-login" className="hover:text-blue-200" onClick={() => openAuth("login", "footer_bottom")}>Login</button></div></div></div></footer>
+         <footer id="contact" className="landing-footer text-white" data-testid="footer-site"><div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:grid-cols-2 sm:px-6 lg:grid-cols-12 lg:px-8"><div className="space-y-4 lg:col-span-4"><a data-testid="link-footer-logo" href="/" className="flex items-center gap-2 font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground"><GraduationCap className="h-5 w-5" aria-hidden="true" /></span><span className="text-lg">EduTrack</span></a><p className="max-w-xs text-sm leading-relaxed text-white/70">বাংলাদেশের school এবং coaching center-এর জন্য সহজ, নির্ভরযোগ্য management platform।</p><div className="flex items-center gap-2"><a data-testid="link-footer-facebook" href="https://facebook.com/edutrack" target="_blank" rel="noopener noreferrer" onClick={() => trackFeatureUsed("footer_social_click", { channel: "facebook" })} className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/20 text-white/75 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="EduTrack on Facebook"><span aria-hidden="true" className="font-semibold">f</span></a><a data-testid="link-footer-whatsapp" href={`https://wa.me/${whatsappNumber}?text=${whatsappMsg}`} target="_blank" rel="noopener noreferrer" onClick={() => trackFeatureUsed("footer_social_click", { channel: "whatsapp" })} className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/20 text-white/75 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="EduTrack on WhatsApp"><MessageCircle className="h-4 w-4" aria-hidden="true" /></a></div></div><FooterColumn title="Product" links={[{ label: "Features", href: "/features" }, { label: "Solutions", href: "/solutions" }, { label: "Pricing", href: "/pricing" }, { label: "ফ্রি ট্রায়াল", onClick: () => openAuth("signup", "footer_product") }]} /><FooterColumn title="Support us" links={[{ label: "প্রশ্নোত্তর", href: "/resources" }, { label: "Help Center", href: "/help" }, { label: "ডেমো বুক করুন", onClick: () => openDemo("footer_demo") }, { label: "WhatsApp Support", href: `https://wa.me/${whatsappNumber}?text=${whatsappMsg}`, external: true }]} /><div className="space-y-4 lg:col-span-3"><h3 className="text-sm font-semibold">Address & contact</h3><ul className="space-y-3 text-sm text-white/70"><li className="flex items-start gap-2"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-blue-300" aria-hidden="true" /><span>Dhaka, Bangladesh<br />শিক্ষা প্রতিষ্ঠান পরিচালনার জন্য</span></li><li><a data-testid="link-contact-email" href="mailto:support@edutrack.com.bd" className="flex items-center gap-2 transition-colors hover:text-blue-200"><Mail className="h-4 w-4 shrink-0 text-blue-300" aria-hidden="true" />support@edutrack.com.bd</a></li><li><a data-testid="link-contact-phone" href={`tel:+${whatsappNumber}`} className="flex items-center gap-2 transition-colors hover:text-blue-200"><Phone className="h-4 w-4 shrink-0 text-blue-300" aria-hidden="true" />+880 1632-905056</a></li><li><Button data-testid="button-contact-demo" variant="outline" size="sm" className="border-white/25 text-white hover:bg-white/10" onClick={() => openDemo("footer_contact")}>Book a demo <Send aria-hidden="true" /></Button></li></ul></div></div><div className="border-t border-white/15"><div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-5 text-xs text-white/55 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8"><p>© 2026 EduTrack. Made in Bangladesh.</p><div className="flex flex-wrap gap-x-5 gap-y-2"><a data-testid="link-footer-privacy" className="hover:text-blue-200" href="/privacy">Privacy Policy</a><a data-testid="link-footer-terms" className="hover:text-blue-200" href="/terms">Terms of Service</a><a data-testid="link-footer-refund" className="hover:text-blue-200" href="/refund">Refund Policy</a><button data-testid="button-footer-login" className="hover:text-blue-200" onClick={() => openAuth("login", "footer_bottom")}>Login</button></div></div></div></footer>
     </div>
   );
 }

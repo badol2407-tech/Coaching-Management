@@ -4,7 +4,8 @@ import { ArrowRight, X } from "lucide-react";
 import { promoBanners } from "./promotionData";
 
 const SESSION_KEY = "et_promo_shown";
-const POPUP_DISPLAY_MS = 9000;
+const POPUP_DISPLAY_MS = 15000;
+const POPUP_SCROLL_RATIO = 0.45;
 
 interface PromotionPopupProps {
   onCtaClick: (cta: string, index: number) => void;
@@ -18,8 +19,21 @@ export function PromotionPopup({ onCtaClick, onDismiss }: PromotionPopupProps) {
 
   useEffect(() => {
     if (sessionStorage.getItem(SESSION_KEY)) return;
-    const timer = window.setTimeout(() => setVisible(true), 600);
-    return () => window.clearTimeout(timer);
+    const showPopup = () => {
+      if (!dismissedRef.current) setVisible(true);
+    };
+    const timer = window.setTimeout(showPopup, POPUP_DISPLAY_MS);
+    const handleScroll = () => {
+      const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (scrollableHeight > 0 && window.scrollY / scrollableHeight >= POPUP_SCROLL_RATIO) {
+        showPopup();
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
 
   const dismiss = useCallback(() => {

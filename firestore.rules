@@ -263,6 +263,38 @@ service cloud.firestore {
       allow write: if isSignedIn() && isSuperAdmin();
     }
 
+    // ── demo_leads ──────────────────────────────────────────────────────────
+    // Public visitors may submit only a new, fixed-shape demo request. Lead
+    // details are private and can only be viewed or managed by Super Admin.
+    match /demo_leads/{leadId} {
+      allow create: if
+        request.resource.data.keys().hasOnly([
+          'fullName', 'phone', 'institute', 'studentCount',
+          'source', 'status', 'createdAt'
+        ]) &&
+        request.resource.data.fullName is string &&
+        request.resource.data.fullName.size() >= 2 &&
+        request.resource.data.fullName.size() <= 120 &&
+        request.resource.data.phone is string &&
+        request.resource.data.phone.size() >= 7 &&
+        request.resource.data.phone.size() <= 30 &&
+        request.resource.data.institute is string &&
+        request.resource.data.institute.size() >= 2 &&
+        request.resource.data.institute.size() <= 160 &&
+        request.resource.data.studentCount in ['1-100', '101-300', '301-1000', '1000+'] &&
+        request.resource.data.source is string &&
+        request.resource.data.source.size() <= 80 &&
+        request.resource.data.status == 'new' &&
+        request.resource.data.createdAt == request.time;
+
+      allow read: if isSignedIn() && isSuperAdmin();
+      allow update: if isSignedIn() && isSuperAdmin() &&
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['status', 'updatedAt']) &&
+        request.resource.data.status in ['new', 'contacted', 'qualified', 'closed'];
+      allow delete: if isSignedIn() && isSuperAdmin();
+    }
+
     match /super_admin_impersonation/{sessionId} {
       allow read, write: if isSignedIn() && isSuperAdmin();
     }
