@@ -17,6 +17,7 @@ export function PromotionPopup({ onCtaClick, onDismiss }: PromotionPopupProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "center" });
   const [selectedIndex, setSelectedIndex] = useState(0);
   const autoplayRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const autoplayStepsRef = useRef(0);
   const interactingRef = useRef(false);
   const dismissedRef = useRef(false);
 
@@ -40,9 +41,18 @@ export function PromotionPopup({ onCtaClick, onDismiss }: PromotionPopupProps) {
   const startAutoplay = useCallback(() => {
     if (autoplayRef.current) clearInterval(autoplayRef.current);
     autoplayRef.current = setInterval(() => {
-      if (!interactingRef.current) emblaApi?.scrollNext();
+      if (interactingRef.current || dismissedRef.current) return;
+
+      // Show each banner once, then close after the final banner's turn.
+      if (promoBanners.length <= 1 || autoplayStepsRef.current >= promoBanners.length - 1) {
+        dismiss();
+        return;
+      }
+
+      autoplayStepsRef.current += 1;
+      emblaApi?.scrollNext();
     }, 4000);
-  }, [emblaApi]);
+  }, [dismiss, emblaApi]);
 
   const stopAutoplay = useCallback(() => {
     if (autoplayRef.current) {
@@ -53,6 +63,7 @@ export function PromotionPopup({ onCtaClick, onDismiss }: PromotionPopupProps) {
 
   useEffect(() => {
     if (!emblaApi || !visible) return;
+    autoplayStepsRef.current = 0;
     startAutoplay();
     const onSelect = () => setSelectedIndex(emblaApi.selectedScrollSnap());
     const onPointerDown = () => { interactingRef.current = true; };
@@ -106,13 +117,17 @@ export function PromotionPopup({ onCtaClick, onDismiss }: PromotionPopupProps) {
             <div
               className="pointer-events-auto relative w-full max-w-[30rem]"
               onClick={(e) => e.stopPropagation()}
-              onMouseEnter={stopAutoplay}
-              onMouseLeave={startAutoplay}
             >
               <div className="promo-popup-shell">
 
                 {/* Close button */}
                 <button
+                  type="button"
+                  onPointerDown={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    dismiss();
+                  }}
                   onClick={dismiss}
                   className="promo-popup-close"
                   aria-label="বন্ধ করুন"
