@@ -105,6 +105,16 @@ function triggerHeroHaptic() {
   }
 }
 
+function StrobeLights() {
+  return (
+    <div className="hero-mini-strobe" aria-hidden="true">
+      <span className="hero-mini-strobe-light hero-mini-strobe-light--one" />
+      <span className="hero-mini-strobe-light hero-mini-strobe-light--two" />
+      <span className="hero-mini-strobe-light hero-mini-strobe-light--three" />
+    </div>
+  );
+}
+
 const features = [
   { icon: CalendarCheck, title: "Attendance & Fees", desc: "Record attendance, track collections, and keep follow-ups in one daily view.", label: "Daily operations" },
   { icon: ClipboardCheck, title: "Exams & Results", desc: "Plan assessments, publish results, and give every learner clear progress.", label: "Academic clarity" },
@@ -479,6 +489,7 @@ function TeamProgressWindow({ reduceMotion }: { reduceMotion: boolean | null }) 
       aria-label={`স্কুলের স্বাস্থ্য ${progress}% Healthy`}
       onTouchStart={triggerHeroHaptic}
     >
+      <StrobeLights />
       <div className="hero-mini-header">
         <p className="text-[10px] font-semibold tracking-[0.08em] text-muted-foreground">স্কুলের স্বাস্থ্য</p>
         <span className="hero-mini-header-icon flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -870,7 +881,7 @@ function HeroMiniWindows({
     }
 
     setEntrancePhase("entering");
-    const timer = window.setTimeout(() => setEntrancePhase("settled"), 5200);
+    const timer = window.setTimeout(() => setEntrancePhase("settled"), 2000);
     return () => window.clearTimeout(timer);
   }, [enter, entrancePhase, reduceMotion]);
 
@@ -914,6 +925,7 @@ function HeroMiniWindows({
              className="hero-mini-window hero-mini-plan glass-panel rounded-2xl border border-white/70 bg-white/85 p-4 shadow-xl backdrop-blur-xl"
              onTouchStart={triggerHeroHaptic}
            >
+              <StrobeLights />
              <div className="hero-mini-header">
                <p className="text-xs font-semibold tracking-[0.08em] text-foreground/80">মাসিক ফি</p>
                <Wallet className="hero-mini-header-icon h-4 w-4 text-primary" aria-hidden="true" />
@@ -932,6 +944,7 @@ function HeroMiniWindows({
              data-testid="hero-window-active-projects"
              onTouchStart={triggerHeroHaptic}
            >
+              <StrobeLights />
              <div className="hero-mini-header">
                <p className="text-[10px] font-semibold tracking-[0.08em] text-muted-foreground">আজকের উপস্থিতি</p>
                <span className="hero-mini-header-icon flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -953,6 +966,7 @@ function HeroMiniWindows({
             aria-label="পরীক্ষার ফলাফল রাফি"
             onTouchStart={triggerHeroHaptic}
           >
+             <StrobeLights />
             <div className="hero-mini-header">
               <div className="text-center">
                 <p className="text-[10px] font-semibold tracking-[0.08em] text-foreground/80">পরীক্ষার ফলাফল</p>

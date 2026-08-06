@@ -672,6 +672,107 @@
       0 0 0 1px hsl(267 75% 84% / .16);
   }
 
+  .hero-mini-strobe {
+    position: absolute;
+    inset: .65rem;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  .hero-mini-strobe-light {
+    position: absolute;
+    display: block;
+    width: 4px;
+    height: 4px;
+    border-radius: 999px;
+    background: hsl(0 0% 100% / .42);
+    box-shadow: 0 0 0 hsl(0 0% 100% / 0);
+    opacity: .22;
+    animation: hero-mini-strobe-blink var(--hero-strobe-duration, 3.8s) ease-in-out infinite var(--hero-strobe-delay, 0s);
+  }
+
+  .hero-mini-strobe-light--one {
+    top: 4%;
+    right: 17%;
+    --hero-strobe-delay: .25s;
+  }
+
+  .hero-mini-strobe-light--two {
+    right: 5%;
+    bottom: 22%;
+    --hero-strobe-delay: 1.35s;
+  }
+
+  .hero-mini-strobe-light--three {
+    bottom: 8%;
+    left: 19%;
+    --hero-strobe-delay: 2.2s;
+  }
+
+  .hero-mini-team {
+    --hero-strobe-duration: 3.7s;
+  }
+
+  .hero-mini-team .hero-mini-strobe-light--one {
+    --hero-strobe-delay: .18s;
+  }
+
+  .hero-mini-team .hero-mini-strobe-light--two {
+    --hero-strobe-delay: 1.48s;
+  }
+
+  .hero-mini-team .hero-mini-strobe-light--three {
+    --hero-strobe-delay: 2.72s;
+  }
+
+  .hero-mini-plan {
+    --hero-strobe-duration: 4.25s;
+  }
+
+  .hero-mini-plan .hero-mini-strobe-light--one {
+    --hero-strobe-delay: .74s;
+  }
+
+  .hero-mini-plan .hero-mini-strobe-light--two {
+    --hero-strobe-delay: 2.16s;
+  }
+
+  .hero-mini-plan .hero-mini-strobe-light--three {
+    --hero-strobe-delay: 3.34s;
+  }
+
+  .hero-mini-projects {
+    --hero-strobe-duration: 3.35s;
+  }
+
+  .hero-mini-projects .hero-mini-strobe-light--one {
+    --hero-strobe-delay: 1.04s;
+  }
+
+  .hero-mini-projects .hero-mini-strobe-light--two {
+    --hero-strobe-delay: 2.48s;
+  }
+
+  .hero-mini-projects .hero-mini-strobe-light--three {
+    --hero-strobe-delay: .38s;
+  }
+
+  .hero-mini-due {
+    --hero-strobe-duration: 4.7s;
+  }
+
+  .hero-mini-due .hero-mini-strobe-light--one {
+    --hero-strobe-delay: 1.62s;
+  }
+
+  .hero-mini-due .hero-mini-strobe-light--two {
+    --hero-strobe-delay: .46s;
+  }
+
+  .hero-mini-due .hero-mini-strobe-light--three {
+    --hero-strobe-delay: 3.08s;
+  }
+
   .hero-mini-window::before {
     position: absolute;
     top: -28%;
@@ -714,20 +815,18 @@
     position: absolute;
     inset: 0;
     z-index: 10;
-    transform-origin: 50% 54%;
-    will-change: transform, opacity;
+    will-change: opacity;
   }
 
   .hero-mini-stage--waiting .hero-mini-entrance-group {
     opacity: 0;
     visibility: hidden;
-    transform: translate3d(0, 132%, 0) scale(.68);
   }
 
   .hero-mini-stage--entering .hero-mini-entrance-group {
-    opacity: 0;
+    opacity: 1;
     visibility: visible;
-    animation: hero-mini-ferris-rise 5s cubic-bezier(.16,.84,.22,1) both;
+    animation: hero-mini-windows-fade-in 2s ease-out both;
   }
 
   .hero-mini-stage--settled .hero-mini-entrance-group {
@@ -739,7 +838,7 @@
   .hero-mini-stage--entering .hero-mini-float {
     opacity: 1;
     visibility: visible;
-    animation: hero-mini-ferris-cabin 5s cubic-bezier(.16,.84,.22,1) both;
+    animation: hero-mini-window-rise 2s cubic-bezier(.22,.78,.2,1) both;
     will-change: transform;
   }
 
@@ -750,103 +849,67 @@
   }
 
   .hero-mini-stage--entering .hero-mini-window {
-    animation: hero-mini-ferris-cabin-level 5s cubic-bezier(.16,.84,.22,1) both;
-    will-change: transform;
+    will-change: auto;
   }
 
-  .hero-mini-team-float {
-    --hero-window-start-transform: translate3d(180%, 100%, 0) scale(.76);
-  }
-
-  .hero-mini-plan-float {
-    --hero-window-start-transform: translate3d(0, -145%, 0) scale(.76);
-  }
-
-  .hero-mini-projects-float {
-    --hero-window-start-transform: translate3d(-180%, 100%, 0) scale(.76);
-  }
-
-  .hero-mini-due-float {
-    --hero-window-start-transform: translate3d(150%, -145%, 0) scale(.76);
-  }
-
-  @keyframes hero-mini-ferris-rise {
+  @keyframes hero-mini-windows-fade-in {
     0% {
       opacity: 0;
-      transform: translate3d(0, 132%, 0) rotate(0deg) scale(.68);
     }
-    14% {
-      opacity: .72;
-      transform: translate3d(0, 74%, 0) rotate(0deg) scale(.76);
-    }
-    30% {
-      opacity: 1;
-      transform: translate3d(0, 18%, 0) rotate(-14deg) scale(.88);
-    }
-    43% {
-      opacity: 1;
-      transform: translate3d(0, 0, 0) rotate(-96deg) scale(.96);
-    }
-    68%,
-    82% {
-      opacity: 1;
-      transform: translate3d(0, 0, 0) rotate(-360deg) scale(1);
-    }
+    18%,
     100% {
       opacity: 1;
-      transform: translate3d(0, 0, 0) rotate(-360deg) scale(1);
     }
   }
 
-  @keyframes hero-mini-ferris-cabin {
-    0%,
-    82% {
-      opacity: 1;
-      transform: var(--hero-window-start-transform);
-    }
-    100% {
-      opacity: 1;
-      transform: none;
-    }
-  }
-
-  @keyframes hero-mini-ferris-cabin-level {
+  @keyframes hero-mini-window-rise {
     0% {
-      transform: rotate(0deg);
+      opacity: 0;
+      transform: translate3d(0, 118%, 0) scale(.84);
     }
-    30% {
-      transform: rotate(14deg);
+    18% {
+      opacity: .82;
+      transform: translate3d(0, 56%, 0) scale(.91);
     }
-    43% {
-      transform: rotate(96deg);
-    }
-    68%,
-    82% {
-      transform: rotate(360deg);
+    72% {
+      opacity: 1;
+      transform: translate3d(0, -3%, 0) scale(1.01);
     }
     100% {
-      transform: rotate(calc(360deg + var(--hero-window-rest-rotation, 0deg)));
+      opacity: 1;
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+  }
+
+  @keyframes hero-mini-strobe-blink {
+    0%,
+    7%,
+    100% {
+      opacity: .18;
+      box-shadow: 0 0 0 hsl(0 0% 100% / 0);
+    }
+    2.5% {
+      opacity: 1;
+      box-shadow:
+        0 0 5px 1px hsl(0 0% 100% / .84),
+        0 0 10px 2px hsl(221 83% 66% / .42);
     }
   }
 
   .hero-mini-team {
     width: 164px;
-    --hero-window-rest-rotation: -10deg;
   }
 
   .hero-mini-plan {
     width: 212px;
-    --hero-window-rest-rotation: 4.5deg;
   }
 
   .hero-mini-projects {
     width: 182px;
-    --hero-window-rest-rotation: 7deg;
   }
 
   .hero-mini-due {
-    width: 174px;
-    --hero-window-rest-rotation: 0deg;
+    width: 212px;
   }
 
   .hero-mini-team-float {
@@ -861,7 +924,7 @@
 
   .hero-mini-projects-float {
     top: 2%;
-    right: 22%;
+    right: 27%;
   }
 
   .hero-mini-due-float {
@@ -1558,11 +1621,13 @@
     .hero-radar-sparkle-burst,
     .hero-radar-data-area,
     .hero-radar-data-line,
-    .hero-radar-point {
+    .hero-radar-point,
+    .hero-mini-strobe-light {
       transition: none;
       animation: none;
       stroke-dashoffset: 0;
-      opacity: 1;
+      opacity: .22;
+      box-shadow: none;
     }
 
     .hero-mini-stage--entering .hero-mini-entrance-group {
@@ -1603,7 +1668,7 @@
     }
 
     .hero-mini-due {
-      width: 176px;
+      width: 220px;
     }
 
     .hero-mini-team-float {
@@ -1625,7 +1690,7 @@
       right: 4%;
       bottom: 10%;
       left: auto;
-      width: 176px;
+      width: 220px;
     }
   }
 
@@ -1653,10 +1718,6 @@
       margin-top: 2.75rem;
     }
 
-    .hero-mini-entrance-group {
-      transform-origin: 50% 33%;
-    }
-
     .hero-mini-horizon {
       inset: 3% 0 1%;
       border-radius: 2rem;
@@ -1680,22 +1741,6 @@
       margin-inline: auto;
     }
 
-    .hero-mini-team-float {
-      --hero-window-start-transform: translate3d(100%, 80%, 0) scale(.72);
-    }
-
-    .hero-mini-plan-float {
-      --hero-window-start-transform: translate3d(0, -110%, 0) scale(.72);
-    }
-
-    .hero-mini-projects-float {
-      --hero-window-start-transform: translate3d(-100%, 80%, 0) scale(.72);
-    }
-
-    .hero-mini-due-float {
-      --hero-window-start-transform: translate3d(100%, -110%, 0) scale(.72);
-    }
-
     .hero-mini-projects-float {
       top: 225px;
       right: 0;
@@ -1710,12 +1755,13 @@
       right: 0;
       bottom: auto;
       left: 0;
-      width: 174px;
+      width: min(212px, calc(100% - 1rem));
       margin-inline: auto;
     }
 
     .hero-mini-plan-float .hero-mini-plan,
-    .hero-mini-projects-float .hero-mini-projects {
+    .hero-mini-projects-float .hero-mini-projects,
+    .hero-mini-due-float .hero-mini-due {
       width: 100%;
     }
   }
