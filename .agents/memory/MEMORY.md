@@ -17,3 +17,4 @@
 - [Hero chart motion](hero-chart-motion.md) — animate attendance paths progressively while keeping fee-wheel labels readable and honoring reduced-motion preferences
 - [Public signup architecture](public-signup-architecture.md) — registration creates a tenant plus its first org-admin profile with cleanup on partial failure
 - [Production Firestore rules source](firestore-rules-source.md) — retrieve and preserve live authorization rules before deploying a narrow onboarding change
+- [Landing glass surfaces](landing-glass-surfaces.md) — keep Flowora-inspired glass treatments scoped to public landing sections, not authenticated product UI
