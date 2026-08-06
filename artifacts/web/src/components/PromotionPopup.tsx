@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, X } from "lucide-react";
 import { promoBanners } from "./promotionData";
@@ -38,6 +38,10 @@ export function PromotionPopup({ onCtaClick, onDismiss }: PromotionPopupProps) {
 
   if (!featuredBanner) return null;
 
+  const cardStyle = {
+    "--promo-popup-image-position": featuredBanner.popupImagePosition,
+  } as CSSProperties;
+
   return (
     <AnimatePresence>
       {visible && (
@@ -62,7 +66,8 @@ export function PromotionPopup({ onCtaClick, onDismiss }: PromotionPopupProps) {
             transition={{ type: "spring", stiffness: 380, damping: 30, mass: 0.8 }}
           >
             <div
-              className="promo-popup-card relative w-full max-w-[27rem]"
+              className={`promo-popup-card promo-popup-card--${featuredBanner.overlayPosition} relative w-full max-w-[27rem]`}
+              style={cardStyle}
               onClick={(event) => event.stopPropagation()}
             >
               <button
@@ -79,20 +84,18 @@ export function PromotionPopup({ onCtaClick, onDismiss }: PromotionPopupProps) {
                 <X className="h-6 w-6" strokeWidth={2.5} aria-hidden="true" />
               </button>
 
-              <div className="promo-popup-visual">
-                <img
-                  src={featuredBanner.imageUrl}
-                  alt="EduTrack ব্যবহার করা একটি classroom"
-                  className="promo-popup-image"
-                />
-                <div className="promo-popup-visual-wash" aria-hidden="true" />
-                <div className="promo-popup-visual-badge">
-                  <span className="promo-popup-badge-dot" />
-                  নতুন workspace
-                </div>
+              <img
+                src={featuredBanner.imageUrl}
+                alt="EduTrack ব্যবহার করা একটি classroom"
+                className="promo-popup-image"
+              />
+              <div className="promo-popup-image-wash" aria-hidden="true" />
+              <div className="promo-popup-visual-badge">
+                <span className="promo-popup-badge-dot" />
+                নতুন workspace
               </div>
 
-              <div className="promo-popup-copy">
+              <div className="promo-popup-copy relative z-10">
                 <p className="promo-popup-kicker">{featuredBanner.tag}</p>
                 <h2>{featuredBanner.headline}</h2>
                 <p className="promo-popup-description">{featuredBanner.subtext}</p>
