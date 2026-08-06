@@ -6,9 +6,14 @@
  * fallback here if the read fails or is empty — the caller must render an
  * honest empty state instead of fake/demo data.
  */
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, doc, getDocs, onSnapshot, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import {
+  normalizeLandingLayout,
+  type LandingPageLayout,
+} from "@/lib/landing-layout";
 
 export interface PublicTestimonial {
   id: string;
@@ -36,4 +41,19 @@ export function usePublicTestimonials() {
     },
     staleTime: 5 * 60 * 1000,
   });
+}
+
+export function usePublicLandingLayout() {
+  const [data, setData] = useState<LandingPageLayout | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(
+      doc(db, "landing_page_layouts", "public"),
+      (snap) => setData(snap.exists() ? normalizeLandingLayout(snap.data()) : null),
+      () => setData(null),
+    );
+    return unsubscribe;
+  }, []);
+
+  return data;
 }

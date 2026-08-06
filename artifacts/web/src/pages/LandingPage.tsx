@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type FormEvent } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useLocation } from "wouter";
 import {
@@ -90,6 +90,12 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { trackFeatureUsed, trackLogin, trackLoginFailed, trackRegistered } from "@/lib/analytics";
 import { PromotionPopup } from "@/components/PromotionPopup";
+import {
+  DEFAULT_LANDING_LAYOUT,
+  type LandingPageLayout,
+  type LandingWindowId,
+} from "@/lib/landing-layout";
+import { usePublicLandingLayout } from "@/lib/public-hooks";
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -865,9 +871,11 @@ type HeroWindowEntrancePhase = "waiting" | "entering" | "settled";
 function HeroMiniWindows({
   reduceMotion,
   enter,
+  layout,
 }: {
   reduceMotion: boolean | null;
   enter: boolean;
+  layout: LandingPageLayout;
 }) {
   const [entrancePhase, setEntrancePhase] = useState<HeroWindowEntrancePhase>(
     () => (enter ? "settled" : "waiting"),
@@ -892,9 +900,24 @@ function HeroMiniWindows({
     delay,
   });
 
+  const windowStyle = (id: LandingWindowId): CSSProperties => {
+    const desktop = layout.desktop[id];
+    const mobile = layout.mobile[id];
+    return {
+      "--hero-window-desktop-x": `${desktop.x}%`,
+      "--hero-window-desktop-y": `${desktop.y}%`,
+      "--hero-window-desktop-width": `${desktop.width}%`,
+      "--hero-window-desktop-height": `${desktop.height}%`,
+      "--hero-window-mobile-x": `${mobile.x}%`,
+      "--hero-window-mobile-y": `${mobile.y}%`,
+      "--hero-window-mobile-width": `${mobile.width}%`,
+      "--hero-window-mobile-height": `${mobile.height}%`,
+    } as CSSProperties;
+  };
+
   return (
     <motion.div
-      className={`hero-mini-stage hero-mini-stage--${entrancePhase} relative mx-auto mt-14 max-w-6xl`}
+      className={`hero-mini-stage hero-mini-stage--${entrancePhase} hero-mini-stage--custom-layout relative mx-auto mt-14 max-w-6xl`}
       initial={reduceMotion ? false : { opacity: 0, y: 18 }}
       animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
       transition={{ duration: 0.7, delay: 0.15, ease: "easeOut" }}
@@ -911,6 +934,7 @@ function HeroMiniWindows({
           animate={reduceMotion || entrancePhase !== "settled" ? undefined : { y: [0, -7, 0] }}
           transition={floatTransition(5.4)}
           className="hero-mini-float hero-mini-team-float"
+          style={windowStyle("health")}
         >
           <TeamProgressWindow reduceMotion={reduceMotion} />
         </motion.div>
@@ -919,6 +943,7 @@ function HeroMiniWindows({
           animate={reduceMotion || entrancePhase !== "settled" ? undefined : { y: [0, 7, 0] }}
           transition={floatTransition(5.8, 0.3)}
           className="hero-mini-float hero-mini-plan-float"
+          style={windowStyle("fee")}
           data-testid="hero-window-todays-plan"
         >
            <div
@@ -938,6 +963,7 @@ function HeroMiniWindows({
           animate={reduceMotion || entrancePhase !== "settled" ? undefined : { y: [0, -6, 0] }}
           transition={floatTransition(5.2, 0.55)}
           className="hero-mini-float hero-mini-projects-float"
+          style={windowStyle("attendance")}
         >
            <div
              className="hero-mini-window hero-mini-projects glass-panel rounded-2xl border border-white/70 bg-white/85 p-4 shadow-xl backdrop-blur-xl"
@@ -959,6 +985,7 @@ function HeroMiniWindows({
           animate={reduceMotion || entrancePhase !== "settled" ? undefined : { y: [0, 5, 0] }}
           transition={floatTransition(5.1, 0.2)}
           className="hero-mini-float hero-mini-due-float"
+          style={windowStyle("results")}
         >
           <div
             className="hero-mini-window hero-mini-due glass-panel rounded-2xl border border-white/70 bg-white/90 p-3 shadow-xl backdrop-blur-xl"
@@ -1157,6 +1184,7 @@ function LandingContent({
   openAuth,
   selectPlan,
   heroWindowsEnter,
+  landingLayout,
 }: {
   section: LandingSection;
   heroRef: React.RefObject<HTMLElement | null>;
@@ -1164,6 +1192,7 @@ function LandingContent({
   openAuth: (mode: AuthMode, source: string, tier?: PlanTier) => void;
   selectPlan: (tier: PlanTier) => void;
   heroWindowsEnter: boolean;
+  landingLayout: LandingPageLayout;
 }) {
   if (section === "home") {
     return (
@@ -1178,7 +1207,11 @@ function LandingContent({
             <Button data-testid="button-hero-book-demo" size="lg" variant="outline" className="bg-background/80 text-foreground shadow-sm hover:bg-background" onClick={() => openAuth("login", "hero_book_demo")}>ডেমো দেখুন <CalendarCheck aria-hidden="true" /></Button>
           </div>
         </motion.div>
-         <HeroMiniWindows reduceMotion={reduceMotion} enter={heroWindowsEnter} />
+         <HeroMiniWindows
+           reduceMotion={reduceMotion}
+           enter={heroWindowsEnter}
+           layout={landingLayout}
+         />
       </section>
     );
   }
@@ -1273,6 +1306,7 @@ export default function LandingPage() {
       sessionStorage.getItem(PROMOTION_SESSION_KEY) === "1",
   );
   const reduceMotion = useReducedMotion();
+  const landingLayout = usePublicLandingLayout() ?? DEFAULT_LANDING_LAYOUT;
   const heroRef = useRef<HTMLElement>(null);
   const [location] = useLocation();
   const section: LandingSection = location === "/features"
@@ -1373,6 +1407,7 @@ export default function LandingPage() {
            openAuth={openAuth}
            selectPlan={selectPlan}
            heroWindowsEnter={heroWindowsEnter}
+            landingLayout={landingLayout}
          />
        </main>
 

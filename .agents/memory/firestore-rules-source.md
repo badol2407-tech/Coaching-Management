@@ -7,4 +7,4 @@ The deployed Firestore rules are the source of truth for production authorizatio
 
 **Why:** Replacing the live rules with a simplified local version can silently remove teacher, student, super-admin, join-request, or public marketing access even when the new rules compile.
 
-**How to apply:** Validate the complete ruleset first, publish it only after compilation succeeds, then run a disposable authenticated negative/positive probe and clean up all test records.
+**How to apply:** Validate the complete ruleset first, publish it only after compilation succeeds, then run a disposable authenticated negative/positive probe and clean up all test records. When using the Firebase Rules REST API, update a release with the `release` wrapper and `updateMask: ruleset_name`; a direct `rulesetName` payload is rejected.

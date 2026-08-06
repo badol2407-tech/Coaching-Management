@@ -7,13 +7,18 @@
  * that use these hooks.
  */
 
+import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   collection, getDocs, getDoc, setDoc, updateDoc, deleteDoc,
   doc, addDoc, query, orderBy, limit, serverTimestamp,
-  where, Timestamp, writeBatch,
+  where, Timestamp, writeBatch, onSnapshot,
 } from "firebase/firestore";
 import { db } from "./firebase";
+import {
+  normalizeLandingLayout,
+  type LandingPageLayout,
+} from "./landing-layout";
 
 function ts(val: unknown): string {
   if (!val) return new Date().toISOString();
@@ -305,6 +310,43 @@ export function useUpdatePlatformSettings() {
     },
     onSuccess: () =>
       qc.invalidateQueries({ queryKey: ["super_admin", "platform_settings"] }),
+  });
+}
+
+export function useLandingPageLayout() {
+  const [data, setData] = useState<LandingPageLayout | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(
+      doc(db, "landing_page_layouts", "public"),
+      (snap) => {
+        setData(snap.exists() ? normalizeLandingLayout(snap.data()) : null);
+        setIsLoading(false);
+        setError(null);
+      },
+      (snapshotError) => {
+        setError(snapshotError);
+        setIsLoading(false);
+      },
+    );
+    return unsubscribe;
+  }, []);
+
+  return { data, isLoading, error };
+}
+
+export function useSaveLandingPageLayout() {
+  return useMutation({
+    mutationFn: async (layout: LandingPageLayout) => {
+      await setDoc(doc(db, "landing_page_layouts", "public"), {
+        version: 1,
+        desktop: layout.desktop,
+        mobile: layout.mobile,
+        updatedAt: serverTimestamp(),
+      });
+    },
   });
 }
 

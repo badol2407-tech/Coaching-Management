@@ -258,6 +258,11 @@ service cloud.firestore {
       allow write: if isSignedIn() && isSuperAdmin();
     }
 
+    match /landing_page_layouts/{docId} {
+      allow read: if true;
+      allow write: if isSignedIn() && isSuperAdmin();
+    }
+
     match /super_admin_impersonation/{sessionId} {
       allow read, write: if isSignedIn() && isSuperAdmin();
     }
