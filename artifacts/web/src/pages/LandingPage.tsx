@@ -458,11 +458,13 @@ function TrustBar() {
   ];
 
   return (
-    <section className="relative z-10 mx-auto mt-10 max-w-6xl rounded-2xl border border-primary/15 bg-background/75 px-4 py-5 shadow-sm backdrop-blur sm:px-6" data-testid="section-trust-bar">
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <section className="landing-trust-bar glass-panel relative z-10 mx-auto mt-10 max-w-6xl rounded-2xl px-4 py-5 sm:px-6" data-testid="section-trust-bar">
+      <div className="landing-trust-grid grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
         {trustItems.map(({ icon: Icon, label }) => (
-          <div key={label} className="flex items-center justify-center gap-2 text-sm font-medium text-foreground/75">
-            <Icon className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+          <div key={label} className="landing-trust-item flex items-center justify-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-foreground/75">
+            <span className="landing-trust-icon flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-primary" aria-hidden="true">
+              <Icon className="h-4 w-4" />
+            </span>
             <span>{label}</span>
           </div>
         ))}
@@ -473,7 +475,9 @@ function TrustBar() {
 
 function HowItWorksSection({ onStart, onDemo }: { onStart: () => void; onDemo: () => void }) {
   return (
-    <section className="relative z-10 mx-auto mt-16 max-w-6xl rounded-3xl border border-border/80 bg-card/85 px-5 py-10 shadow-sm sm:px-8 lg:mt-20 lg:py-14" data-testid="section-how-it-works">
+    <section className="landing-how glass-panel relative z-10 mx-auto mt-16 max-w-6xl rounded-3xl px-5 py-10 sm:px-8 lg:mt-20 lg:py-14" data-testid="section-how-it-works">
+      <div className="landing-how-orb landing-how-orb--one" aria-hidden="true" />
+      <div className="landing-how-orb landing-how-orb--two" aria-hidden="true" />
       <SectionHeading
         eyebrow="How EduTrack Works"
         title="শুরু করা যতটা সহজ, ব্যবহার করাও ততটাই সহজ"
@@ -481,9 +485,9 @@ function HowItWorksSection({ onStart, onDemo }: { onStart: () => void; onDemo: (
       />
       <div className="mt-10 grid gap-5 md:grid-cols-3">
         {howItWorksSteps.map(({ number, icon: Icon, title, description }, index) => (
-          <div key={number} className="relative rounded-2xl border border-border/80 bg-background p-5" data-testid={`card-how-it-works-${index + 1}`}>
+          <div key={number} className="landing-how-step glass-panel relative rounded-2xl p-5" data-testid={`card-how-it-works-${index + 1}`}>
             <div className="flex items-center justify-between">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <div className="landing-how-step-icon flex h-11 w-11 items-center justify-center rounded-xl text-primary">
                 <Icon className="h-5 w-5" aria-hidden="true" />
               </div>
               <span className="font-display text-4xl font-semibold text-primary/15">{number}</span>
@@ -507,7 +511,9 @@ function HowItWorksSection({ onStart, onDemo }: { onStart: () => void; onDemo: (
 
 function ComparisonSection({ onDemo }: { onDemo: () => void }) {
   return (
-    <section className="relative z-10 mx-auto mt-8 max-w-6xl rounded-3xl bg-slate-950 px-5 py-10 text-white shadow-xl sm:px-8 lg:py-14" data-testid="section-comparison">
+    <section className="landing-comparison glass-panel-dark relative z-10 mx-auto mt-8 max-w-6xl rounded-3xl px-5 py-10 text-white sm:px-8 lg:py-14" data-testid="section-comparison">
+      <div className="landing-comparison-orb landing-comparison-orb--one" aria-hidden="true" />
+      <div className="landing-comparison-orb landing-comparison-orb--two" aria-hidden="true" />
       <div className="grid gap-10 lg:grid-cols-[.8fr_1.2fr] lg:items-center">
         <div>
           <Badge className="mb-4 border-white/15 bg-white/10 text-white hover:bg-white/10">Why choose EduTrack?</Badge>
@@ -519,14 +525,14 @@ function ComparisonSection({ onDemo }: { onDemo: () => void }) {
             আপনার workflow-এর demo নিন <MessageCircle className="h-4 w-4" aria-hidden="true" />
           </Button>
         </div>
-        <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[.04]">
-          <div className="grid grid-cols-[1fr_1fr] border-b border-white/10 px-4 py-3 text-xs font-semibold uppercase tracking-[.14em] text-white/45 sm:px-5">
+        <div className="landing-comparison-table glass-panel-dark overflow-hidden rounded-2xl">
+          <div className="landing-comparison-header grid grid-cols-[1fr_1fr] px-4 py-3 text-xs font-semibold uppercase tracking-[.14em] text-white/45 sm:px-5">
             <span>Traditional</span>
             <span className="text-primary-foreground/80">EduTrack</span>
           </div>
-          <div className="divide-y divide-white/10">
+          <div className="landing-comparison-rows">
             {comparisonRows.map(([traditional, edutrack]) => (
-              <div key={traditional} className="grid grid-cols-[1fr_1fr] gap-4 px-4 py-4 text-sm sm:px-5">
+              <div key={traditional} className="landing-comparison-row grid grid-cols-[1fr_1fr] gap-4 px-4 py-4 text-sm sm:px-5">
                 <span className="text-white/55">{traditional}</span>
                 <span className="flex items-start gap-2 font-medium text-white">
                   <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" aria-hidden="true" />
