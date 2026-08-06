@@ -90,6 +90,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { trackFeatureUsed, trackLogin, trackLoginFailed, trackRegistered } from "@/lib/analytics";
 import { PromotionPopup } from "@/components/PromotionPopup";
+import { HeroCarousel } from "@/components/HeroCarousel";
 import {
   DEFAULT_LANDING_LAYOUT,
   type LandingPageLayout,
@@ -1212,6 +1213,14 @@ function LandingContent({
            enter={heroWindowsEnter}
            layout={landingLayout}
          />
+          <div className="relative mx-auto mt-10 max-w-6xl">
+            <HeroCarousel
+              onCtaClick={(cta, index) => {
+                trackFeatureUsed("promo_rail_cta_click", { cta, index });
+                openAuth("login", `promo_rail_${index}`);
+              }}
+            />
+          </div>
       </section>
     );
   }

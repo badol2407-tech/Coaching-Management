@@ -5,6 +5,8 @@ export interface PromoBanner {
   headline: string;
   subtext: string;
   cta: string;
+  feature: string;
+  proof: string;
   gradient: string;
   accentColor: string;
   textColor: string;
@@ -18,10 +20,12 @@ const founderPrice = formatBnTaka(PLAN_CONFIG.founder_launch.price);
 
 export const promoBanners: PromoBanner[] = [
   {
-    tag: "",
-    headline: "আজই আপনার Coaching Center ডিজিটাল করুন",
-    subtext: "৩০ দিন সম্পূর্ণ ফ্রি — কোনো credit card দরকার নেই",
+    tag: "EduTrack শুরু করুন",
+    headline: "স্কুলের পুরো দিনটা হোক আরও গোছানো",
+    subtext: "৭ দিন সম্পূর্ণ ফ্রি — কোনো credit card দরকার নেই।",
     cta: "ফ্রি শুরু করুন",
+    feature: "সব core workflow একসঙ্গে",
+    proof: "Attendance · Fees · Results",
     gradient: "linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #4338ca 100%)",
     accentColor: "#818cf8",
     textColor: "#ffffff",
@@ -29,10 +33,12 @@ export const promoBanners: PromoBanner[] = [
     imageUrl: "/banners/slide-1.jpg",
   },
   {
-    tag: "",
-    headline: "Online Admission Form",
-    subtext: "Student নিজেরাই Registration করবে — আপনার সময় বাঁচুক",
-    cta: "বিস্তারিত দেখুন",
+    tag: "ভর্তি ও student setup",
+    headline: "ভর্তি থেকে profile—সব record থাকুক এক জায়গায়",
+    subtext: "Student, teacher এবং class setup দ্রুত গুছিয়ে নিন।",
+    cta: "কীভাবে কাজ করে",
+    feature: "Student management",
+    proof: "কম manual entry · বেশি clarity",
     gradient: "linear-gradient(135deg, #7c2d12 0%, #c2410c 45%, #ea580c 100%)",
     accentColor: "#fdba74",
     textColor: "#ffffff",
@@ -41,10 +47,12 @@ export const promoBanners: PromoBanner[] = [
     imageUrl: "/banners/slide-2.jpg",
   },
   {
-    tag: "",
-    headline: "Attendance ১ মিনিটে",
-    subtext: "Teacher-এর মূল্যবান সময় বাঁচান — digital attendance এখন আরও সহজ",
-    cta: "Explore",
+    tag: "Teacher-এর daily view",
+    headline: "Attendance নিন, follow-up ধরুন",
+    subtext: "আজকের উপস্থিতি class অনুযায়ী এক নজরে দেখুন।",
+    cta: "Attendance দেখুন",
+    feature: "Attendance & routine",
+    proof: "Class-wise signal · দ্রুত action",
     gradient: "linear-gradient(135deg, #064e3b 0%, #065f46 40%, #059669 100%)",
     accentColor: "#6ee7b7",
     textColor: "#ffffff",
@@ -53,10 +61,12 @@ export const promoBanners: PromoBanner[] = [
     imageUrl: "/banners/slide-3.jpg",
   },
   {
-    tag: "",
-    headline: `Founder Launch মাত্র ${founderPrice}/মাস`,
-    subtext: "ছোট Coaching Center-এর জন্য সেরা — আজই subscribe করুন",
-    cta: "Subscribe",
+    tag: "Admin-এর পরিষ্কার control",
+    headline: "Fees, exams আর reports—decision নিন data দেখে",
+    subtext: "Pending fee, result এবং daily operations এক dashboard-এ।",
+    cta: "ডেমো দেখুন",
+    feature: "Fees & analytics",
+    proof: `Founder Launch ${founderPrice}/মাস থেকে`,
     gradient: "linear-gradient(135deg, #4c1d95 0%, #6d28d9 45%, #7c3aed 100%)",
     accentColor: "#c4b5fd",
     textColor: "#ffffff",
@@ -65,10 +75,12 @@ export const promoBanners: PromoBanner[] = [
     imageUrl: "/banners/slide-4.jpg",
   },
   {
-    tag: "🚀 Smart Coaching",
-    headline: "Results, Fees, Attendance — সব এক জায়গায়",
-    subtext: "একটি platform-এই সব কিছু manage করুন। আজই live demo দেখুন।",
-    cta: "Live Demo",
+    tag: "Connected school workspace",
+    headline: "Admin, teacher, parent আর student—সবাই একই signal-এ",
+    subtext: "Notices, homework, routine এবং results শেয়ার করুন সহজে।",
+    cta: "Workspace শুরু করুন",
+    feature: "চারটি focused portal",
+    proof: "একটি source of truth",
     gradient: "linear-gradient(135deg, #0c4a6e 0%, #0369a1 45%, #0ea5e9 100%)",
     accentColor: "#7dd3fc",
     textColor: "#ffffff",

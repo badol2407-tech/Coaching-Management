@@ -18,7 +18,7 @@ export function HeroCarousel({ onCtaClick }: HeroCarouselProps) {
     if (autoplayRef.current) clearInterval(autoplayRef.current);
     autoplayRef.current = setInterval(() => {
       if (!interactingRef.current) emblaApi?.scrollNext();
-    }, 5000);
+    }, 5600);
   }, [emblaApi]);
 
   const stopAutoplay = useCallback(() => {
@@ -50,13 +50,16 @@ export function HeroCarousel({ onCtaClick }: HeroCarouselProps) {
   }, [emblaApi, startAutoplay, stopAutoplay]);
 
   return (
-    <div
-      className="relative w-full group"
-      onMouseEnter={stopAutoplay}
-      onMouseLeave={startAutoplay}
-    >
-      {/* Carousel viewport — soft premium glow frame around promotional content */}
-      <div className="overflow-hidden rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.35),0_0_60px_-18px_rgba(99,102,241,0.35)]" ref={emblaRef}>
+    <div className="hero-promotion-rail relative w-full">
+      <div className="hero-promotion-rail-heading">
+        <div>
+          <p className="hero-promotion-eyebrow">EduTrack-এর নতুন update</p>
+          <h2>আপনার school day-এর জন্য তৈরি</h2>
+        </div>
+        <p className="hero-promotion-hint">Swipe করে সব feature দেখুন</p>
+      </div>
+
+      <div className="hero-promotion-viewport" ref={emblaRef}>
         <div className="flex">
           {promoBanners.map((banner, i) => (
             <div key={i} className="flex-[0_0_100%] min-w-0">
@@ -70,35 +73,28 @@ export function HeroCarousel({ onCtaClick }: HeroCarouselProps) {
         </div>
       </div>
 
-      {/* Prev arrow */}
       <button
         onClick={scrollPrev}
-        className="absolute left-3 top-1/2 -translate-y-1/2 z-10 h-9 w-9 rounded-full bg-black/30 backdrop-blur-sm text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/50 focus-visible:opacity-100"
+        className="hero-promotion-control hero-promotion-control--prev"
         aria-label="Previous slide"
       >
         <ChevronLeft className="h-5 w-5" />
       </button>
 
-      {/* Next arrow */}
       <button
         onClick={scrollNext}
-        className="absolute right-3 top-1/2 -translate-y-1/2 z-10 h-9 w-9 rounded-full bg-black/30 backdrop-blur-sm text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/50 focus-visible:opacity-100"
+        className="hero-promotion-control hero-promotion-control--next"
         aria-label="Next slide"
       >
         <ChevronRight className="h-5 w-5" />
       </button>
 
-      {/* Dot indicators */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+      <div className="hero-promotion-dots" aria-label="Promotion slides">
         {promoBanners.map((_, i) => (
           <button
             key={i}
             onClick={() => emblaApi?.scrollTo(i)}
-            className={`h-2 rounded-full transition-all duration-300 ${
-              i === selectedIndex
-                ? "w-6 bg-white"
-                : "w-2 bg-white/40 hover:bg-white/60"
-            }`}
+            className={`hero-promotion-dot ${i === selectedIndex ? "is-active" : ""}`}
             aria-label={`Go to slide ${i + 1}`}
           />
         ))}
