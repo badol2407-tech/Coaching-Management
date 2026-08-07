@@ -75,6 +75,7 @@ const StudentIdCard = lazy(() => import("@/pages/StudentIdCard"));
 const Reports = lazy(() => import("@/pages/Reports"));
 const StudentPortal = lazy(() => import("@/pages/student/StudentPortal"));
 const JoinOrg = lazy(() => import("@/pages/JoinOrg"));
+const DemoWorkspace = lazy(() => import("@/pages/DemoWorkspace"));
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: false, refetchOnWindowFocus: false } },
@@ -306,8 +307,14 @@ function AppRoutes() {
           <Route path="/faq">
             <Suspense fallback={<Spinner />}><FAQ /></Suspense>
           </Route>
+          <Route path="/help">
+            <Suspense fallback={<Spinner />}><HelpCenter /></Suspense>
+          </Route>
           <Route path="/join/:code/:role?">
             <Suspense fallback={<Spinner />}><JoinOrg /></Suspense>
+          </Route>
+          <Route path="/demo">
+            <Suspense fallback={<Spinner />}><DemoWorkspace /></Suspense>
           </Route>
           {/* Public marketing sections — remain available even when a user is signed in. */}
           <Route path="/features">

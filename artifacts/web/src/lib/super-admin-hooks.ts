@@ -341,9 +341,10 @@ export function useSaveLandingPageLayout() {
   return useMutation({
     mutationFn: async (layout: LandingPageLayout) => {
       await setDoc(doc(db, "landing_page_layouts", "public"), {
-        version: 1,
+        version: 2,
         desktop: layout.desktop,
         mobile: layout.mobile,
+        blocks: layout.blocks,
         updatedAt: serverTimestamp(),
       });
     },

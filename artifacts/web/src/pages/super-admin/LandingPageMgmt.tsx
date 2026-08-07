@@ -8,7 +8,9 @@ import {
 import {
   cloneLandingLayout,
   DEFAULT_LANDING_LAYOUT,
+  LANDING_BLOCK_IDS,
   LANDING_WINDOW_IDS,
+  type LandingBlockId,
   type LandingPageLayout,
   type LandingViewport,
   type LandingWindowId,
@@ -24,6 +26,10 @@ import {
   Check,
   Cloud,
   Globe,
+  Plus,
+  Trash2,
+  Eye,
+  EyeOff,
   Maximize2,
   Monitor,
   MousePointer2,
@@ -285,6 +291,8 @@ export default function LandingPageMgmt() {
   const [form, setForm] = useState<ContentForm>(EMPTY_FORM);
   const [previewViewport, setPreviewViewport] = useState<LandingViewport>("desktop");
   const [selectedWindow, setSelectedWindow] = useState<LandingWindowId>("attendance");
+  const [selectedBlock, setSelectedBlock] = useState<LandingBlockId>("home");
+  const [newText, setNewText] = useState("");
   const [layout, setLayout] = useState<LandingPageLayout>(() => cloneLandingLayout(DEFAULT_LANDING_LAYOUT));
   const [layoutDirty, setLayoutDirty] = useState(false);
   const dirtyRef = useRef(false);
@@ -340,6 +348,7 @@ export default function LandingPageMgmt() {
   };
 
   const selectedLayout = layout[previewViewport][selectedWindow];
+  const selectedBlockData = layout.blocks[selectedBlock];
   const updateSelectedNumber = (key: keyof LandingWindowLayout, value: string) => {
     const numericValue = Number(value);
     if (!Number.isFinite(numericValue)) return;
@@ -353,6 +362,32 @@ export default function LandingPageMgmt() {
         },
       },
     });
+  };
+
+  const updateBlock = (patch: Partial<typeof selectedBlockData>) => {
+    changeLayout({
+      ...layout,
+      blocks: {
+        ...layout.blocks,
+        [selectedBlock]: { ...selectedBlockData, ...patch },
+      },
+    });
+  };
+
+  const updateBlockNumber = (
+    key: "sensitivity" | "x" | "y" | "width" | "height",
+    value: string,
+  ) => {
+    const numericValue = Number(value);
+    if (!Number.isFinite(numericValue)) return;
+    updateBlock({ [key]: Math.min(100, Math.max(0, numericValue)) });
+  };
+
+  const addCustomText = () => {
+    const value = newText.trim();
+    if (!value) return;
+    updateBlock({ customText: [...selectedBlockData.customText, value].slice(0, 12) });
+    setNewText("");
   };
 
   const field = (key: keyof ContentForm, label: string, multiline = false) => (
@@ -507,6 +542,120 @@ export default function LandingPageMgmt() {
                 <p className="mt-1 leading-relaxed">
                   Saving here updates the public landing page without changing authentication or dashboard routes.
                 </p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="overflow-hidden border-indigo-500/20">
+        <CardHeader className="border-b border-border/60 bg-indigo-500/[0.04] pb-4">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Globe className="h-4 w-4 text-indigo-400" /> Full landing page builder
+          </CardTitle>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Select any section to edit its text, visibility, position, size, custom copy, and visual sensitivity.
+          </p>
+        </CardHeader>
+        <CardContent className="grid gap-5 p-4 sm:p-6 xl:grid-cols-[260px_1fr]">
+          <div className="space-y-2">
+            <Label className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Page sections</Label>
+            <div className="grid gap-1.5">
+              {LANDING_BLOCK_IDS.map((id) => {
+                const item = layout.blocks[id];
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => setSelectedBlock(id)}
+                    className={`flex items-center gap-2 rounded-xl border px-3 py-3 text-left text-sm transition ${selectedBlock === id ? "border-primary bg-primary/10 text-primary" : "border-border hover:bg-muted/50"}`}
+                  >
+                    {item.visible ? <Eye className="h-4 w-4 shrink-0" /> : <EyeOff className="h-4 w-4 shrink-0 text-muted-foreground" />}
+                    <span className="min-w-0 flex-1 truncate">{item.label}</span>
+                    <span className="text-[10px] text-muted-foreground">{item.sensitivity}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="space-y-5 rounded-2xl border bg-muted/10 p-4 sm:p-5">
+            <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
+              <div>
+                <p className="text-lg font-semibold">{selectedBlockData.label}</p>
+                <p className="mt-1 text-xs text-muted-foreground">Public section controls</p>
+              </div>
+              <Button type="button" variant={selectedBlockData.visible ? "outline" : "default"} size="sm" className="gap-2" onClick={() => updateBlock({ visible: !selectedBlockData.visible })}>
+                {selectedBlockData.visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {selectedBlockData.visible ? "Hide section" : "Show section"}
+              </Button>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-1.5 md:col-span-2">
+                <Label>Section title</Label>
+                <Input value={selectedBlockData.title} onChange={(event) => updateBlock({ title: event.target.value })} />
+              </div>
+              <div className="space-y-1.5 md:col-span-2">
+                <Label>Description</Label>
+                <Textarea rows={3} className="resize-none" value={selectedBlockData.description} onChange={(event) => updateBlock({ description: event.target.value })} />
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-primary/15 bg-primary/[0.04] p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <Label htmlFor="landing-sensitivity">Visual sensitivity</Label>
+                  <p className="mt-1 text-xs text-muted-foreground">0 = restrained · 100 = vivid glass, contrast, and saturation</p>
+                </div>
+                <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">{selectedBlockData.sensitivity}</span>
+              </div>
+              <input id="landing-sensitivity" type="range" min={0} max={100} step={1} value={selectedBlockData.sensitivity} onChange={(event) => updateBlockNumber("sensitivity", event.target.value)} className="mt-4 w-full accent-[hsl(var(--primary))]" />
+              <div className="mt-1 flex justify-between text-[10px] text-muted-foreground"><span>Subtle</span><span>Balanced</span><span>Hyper realistic</span></div>
+            </div>
+
+            <div>
+              <Label>Section position & size (%)</Label>
+              <div className="mt-3 grid gap-3 sm:grid-cols-5">
+                {([
+                  ["x", "Move X"],
+                  ["y", "Move Y"],
+                  ["width", "Width"],
+                  ["height", "Height"],
+                ] as const).map(([key, label]) => (
+                  <div key={key} className="space-y-1">
+                    <Label className="text-[11px] text-muted-foreground">{label}</Label>
+                    <Input type="number" min={0} max={100} step={1} value={selectedBlockData[key]} onChange={(event) => updateBlockNumber(key, event.target.value)} className="h-9" />
+                  </div>
+                ))}
+                <div className="flex items-end">
+                  <Button type="button" variant="outline" size="sm" className="w-full gap-1.5" onClick={() => updateBlock({ x: 0, y: 0, width: 100, height: 100 })}>
+                    <RefreshCw className="h-3.5 w-3.5" /> Fit
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <Label>Additional text blocks</Label>
+                <p className="mt-1 text-xs text-muted-foreground">Add supporting copy anywhere in this section. Delete individual lines before publishing.</p>
+              </div>
+              {selectedBlockData.customText.length > 0 && (
+                <div className="space-y-2">
+                  {selectedBlockData.customText.map((text, index) => (
+                    <div key={`${text}-${index}`} className="flex items-start gap-2 rounded-lg border bg-background/60 p-2">
+                      <p className="flex-1 px-1 py-1 text-sm">{text}</p>
+                      <Button type="button" size="icon" variant="ghost" className="h-8 w-8 shrink-0 text-destructive" onClick={() => updateBlock({ customText: selectedBlockData.customText.filter((_, itemIndex) => itemIndex !== index) })} aria-label={`Delete text block ${index + 1}`}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="flex gap-2">
+                <Input value={newText} onChange={(event) => setNewText(event.target.value)} placeholder="Write a new text block…" onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); addCustomText(); } }} />
+                <Button type="button" variant="outline" className="shrink-0 gap-1.5" onClick={addCustomText}><Plus className="h-4 w-4" /> Add</Button>
               </div>
             </div>
           </div>

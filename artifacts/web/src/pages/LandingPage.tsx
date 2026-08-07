@@ -91,7 +91,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { trackFeatureUsed, trackLogin, trackLoginFailed, trackRegistered } from "@/lib/analytics";
 import { PromotionPopup } from "@/components/PromotionPopup";
 import { HeroCarousel } from "@/components/HeroCarousel";
-import { DemoBookingDialog } from "@/components/DemoBookingDialog";
 import { promoBanners } from "@/components/promotionData";
 import {
   DEFAULT_LANDING_LAYOUT,
@@ -1310,14 +1309,27 @@ function LandingContent({
   heroWindowsEnter: boolean;
   landingLayout: LandingPageLayout;
 }) {
+  const block = landingLayout.blocks[section];
+  const blockStyle = {
+    opacity: 0.82 + block.sensitivity / 555,
+    transform: `translate(${block.x / 100}%, ${block.y / 100}px)`,
+    width: `${Math.min(100, Math.max(60, block.width))}%`,
+    marginInline: "auto",
+    filter: `saturate(${0.82 + block.sensitivity / 220})`,
+  } as CSSProperties;
+
+  if (!block.visible) return null;
+  const customText = block.customText?.filter(Boolean) ?? [];
+
   if (section === "home") {
     return (
-      <section ref={heroRef} className="landing-hero relative overflow-hidden px-4 py-24 text-foreground sm:px-6 sm:py-28 lg:px-8 lg:py-36" data-testid="section-hero">
+      <section ref={heroRef} style={blockStyle} className="landing-hero relative overflow-hidden px-4 py-24 text-foreground sm:px-6 sm:py-28 lg:px-8 lg:py-36" data-testid="section-hero">
         <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-primary/15 blur-3xl" aria-hidden="true" />
         <div className="pointer-events-none absolute bottom-0 left-1/3 h-72 w-72 rounded-full bg-chart-4/10 blur-3xl" aria-hidden="true" />
         <motion.div className="relative mx-auto max-w-4xl text-center" initial={reduceMotion ? false : { opacity: 0, y: 12 }} animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}>
-          <h1 data-testid="text-hero-headline" className="font-display text-[42px] leading-[1.08] tracking-tight sm:text-[58px] lg:text-[76px]">এক প্ল্যাটফর্মে <span className="block text-primary">পুরো স্কুল পরিচালনা করুন</span></h1>
-          <p className="mx-auto mt-7 max-w-2xl text-base leading-relaxed text-foreground/70 sm:text-lg">EduTrack-এর মাধ্যমে attendance, fees, exams, results, notices এবং প্রতিদিনের school operations এক জায়গা থেকে সহজে পরিচালনা করুন।</p>
+           <h1 data-testid="text-hero-headline" className="font-display text-[42px] leading-[1.08] tracking-tight sm:text-[58px] lg:text-[76px]">{block.title}</h1>
+           <p className="mx-auto mt-7 max-w-2xl text-base leading-relaxed text-foreground/70 sm:text-lg">{block.description}</p>
+           {customText.length > 0 && <div className="mx-auto mt-4 max-w-xl space-y-1 text-sm text-foreground/60">{customText.map((text) => <p key={text}>{text}</p>)}</div>}
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Button data-testid="button-hero-start-free" size="lg" className="glow-primary" onClick={() => openAuth("signup", "hero_start_free")}>ফ্রি ট্রায়াল শুরু করুন <ArrowRight aria-hidden="true" /></Button>
             <Button data-testid="button-hero-book-demo" size="lg" variant="outline" className="landing-glass-button text-foreground shadow-sm" onClick={() => openDemo("hero_book_demo")}>ডেমো দেখুন <CalendarCheck aria-hidden="true" /></Button>
@@ -1349,9 +1361,10 @@ function LandingContent({
 
   if (section === "features") {
     return (
-      <section className="landing-section px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-features">
+      <section style={blockStyle} className="landing-section px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-features">
         <div className="mx-auto max-w-6xl">
-          <SectionHeading eyebrow="Features" title="সব কাজ, একটি পরিষ্কার workspace-এ" description="Attendance থেকে analytics—EduTrack প্রতিদিনের school operations-কে কম manual এবং বেশি visible করে।" />
+           <SectionHeading eyebrow="Features" title={block.title} description={block.description} />
+           {customText.length > 0 && <div className="mx-auto mt-4 max-w-2xl space-y-1 text-center text-sm text-muted-foreground">{customText.map((text) => <p key={text}>{text}</p>)}</div>}
           <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {features.map(({ icon: Icon, title, desc, label }) => (
               <Card key={title} className="landing-glass-card group h-full transition-transform duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg" data-testid={`card-feature-${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}>
@@ -1370,9 +1383,10 @@ function LandingContent({
 
   if (section === "solutions") {
     return (
-      <section className="landing-section px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-solutions">
+      <section style={blockStyle} className="landing-section px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-solutions">
         <div className="mx-auto max-w-6xl">
-          <SectionHeading eyebrow="Solutions" title="Admin থেকে student—একটি connected workflow" description="যে role-ই ব্যবহার করুক, প্রত্যেকে নিজের কাজের জন্য প্রয়োজনীয় signal পায়।" />
+           <SectionHeading eyebrow="Solutions" title={block.title} description={block.description} />
+           {customText.length > 0 && <div className="mx-auto mt-4 max-w-2xl space-y-1 text-center text-sm text-muted-foreground">{customText.map((text) => <p key={text}>{text}</p>)}</div>}
           <div className="mt-10 grid gap-5 md:grid-cols-2">
             {workflow.map(({ num, role, icon: Icon, title, desc }) => (
               <Card key={role} className="landing-glass-card relative overflow-hidden p-6 transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg" data-testid={`card-solution-${role.toLowerCase()}`}>
@@ -1391,9 +1405,10 @@ function LandingContent({
 
   if (section === "pricing") {
     return (
-      <section className="landing-section px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-pricing">
+      <section style={blockStyle} className="landing-section px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-pricing">
         <div className="mx-auto max-w-6xl">
-          <SectionHeading eyebrow="Pricing" title="আপনার স্কুলের জন্য সঠিক প্ল্যান বেছে নিন" description="কোনো hidden charge নেই। Free Trial দিয়ে শুরু করুন, তারপর আপনার growth অনুযায়ী plan বেছে নিন।" />
+            <SectionHeading eyebrow="Pricing" title={block.title} description={block.description} />
+            {customText.length > 0 && <div className="mx-auto mt-4 max-w-2xl space-y-1 text-center text-sm text-muted-foreground">{customText.map((text) => <p key={text}>{text}</p>)}</div>}
            <div className="mt-10 grid gap-5 lg:grid-cols-3">{(["free_trial", "founder_launch", "annual_premium"] as PlanTier[]).map((tier) => <PricingCard key={tier} tier={tier} onSelect={selectPlan} />)}</div>
           <div className="mt-10 grid gap-5 md:grid-cols-3">
              {[["Free Trial", "৭ দিন", "সব premium features দিয়ে workspace দেখে নিন।"], ["Billing", "মাসিক / বার্ষিক", "Founder Launch মাসিক, Annual Premium বছরে billed হয়।"], ["No card required", "আজই শুরু করুন", "Trial শুরু করতে credit card বা upfront payment লাগে না।"]].map(([title, value, desc]) => <Card key={title} className="landing-glass-card p-5"><p className="text-sm font-medium text-muted-foreground">{title}</p><p className="mt-2 text-xl font-semibold">{value}</p><p className="mt-2 text-sm leading-relaxed text-muted-foreground">{desc}</p></Card>)}
@@ -1405,9 +1420,9 @@ function LandingContent({
 
   if (section === "resources") {
     return (
-      <section className="landing-section landing-resources px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-resources">
+      <section style={blockStyle} className="landing-section landing-resources px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-resources">
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-5">
-          <div className="lg:col-span-2"><SectionHeading eyebrow="Resources" title="শুরু করার আগে যা জানা দরকার" description="FAQs, Help Center এবং সরাসরি support—সবকিছু এক জায়গায়।" align="left" /><div className="mt-6 flex flex-wrap gap-3"><Button variant="outline" asChild><a href="/help">Help Center <ArrowRight aria-hidden="true" /></a></Button><Button variant="outline" onClick={() => openDemo("resources_contact")}>ডেমো বুক করুন <MessageCircle aria-hidden="true" /></Button></div></div>
+           <div className="lg:col-span-2"><SectionHeading eyebrow="Resources" title={block.title} description={block.description} align="left" />{customText.length > 0 && <div className="mt-4 space-y-1 text-sm text-muted-foreground">{customText.map((text) => <p key={text}>{text}</p>)}</div>}<div className="mt-6 flex flex-wrap gap-3"><Button variant="outline" asChild><a href="/help">Help Center <ArrowRight aria-hidden="true" /></a></Button><Button variant="outline" onClick={() => openDemo("resources_contact")}>ডেমো দেখুন <MessageCircle aria-hidden="true" /></Button></div></div>
            <Card className="landing-glass-card rounded-2xl px-5 shadow-sm lg:col-span-3"><Accordion type="single" collapsible className="w-full">{faqs.map((faq, index) => <AccordionItem key={faq.question} value={`faq-${index}`}><AccordionTrigger data-testid={`button-faq-${index}`}>{faq.question}</AccordionTrigger><AccordionContent className="leading-relaxed text-muted-foreground">{faq.answer}</AccordionContent></AccordionItem>)}</Accordion></Card>
         </div>
       </section>
@@ -1415,9 +1430,10 @@ function LandingContent({
   }
 
   return (
-    <section className="landing-section px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-about">
+    <section style={blockStyle} className="landing-section px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-testid="section-about">
       <div className="mx-auto max-w-5xl">
-        <SectionHeading eyebrow="About EduTrack" title="বাংলাদেশের শিক্ষা প্রতিষ্ঠানকে আরও organized করার জন্য" description="EduTrack এমন একটি dependable operating layer, যেখানে school-এর মানুষ, process এবং progress একই workspace-এ যুক্ত থাকে।" />
+         <SectionHeading eyebrow="About EduTrack" title={block.title} description={block.description} />
+         {customText.length > 0 && <div className="mx-auto mt-4 max-w-2xl space-y-1 text-center text-sm text-muted-foreground">{customText.map((text) => <p key={text}>{text}</p>)}</div>}
         <div className="mt-10 grid gap-5 md:grid-cols-3">
            {[["Clarity", "প্রতিদিন কী হচ্ছে এবং কোথায় attention দরকার—এক নজরে বোঝা যায়।"], ["Connection", "Admin, teacher, parent এবং student একই তথ্যের চারটি focused view পায়।"], ["Confidence", "Role-based access এবং organization scope data-কে সঠিক জায়গায় রাখে।"]].map(([title, desc], index) => <Card key={title} className="landing-glass-card p-6"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 font-semibold text-primary">0{index + 1}</div><h3 className="mt-5 text-xl font-semibold">{title}</h3><p className="mt-2 leading-relaxed text-muted-foreground">{desc}</p></Card>)}
         </div>
@@ -1429,8 +1445,6 @@ function LandingContent({
 
 export default function LandingPage() {
   const [showAuth, setShowAuth] = useState(false);
-  const [showDemoBooking, setShowDemoBooking] = useState(false);
-  const [demoSource, setDemoSource] = useState("landing");
   const [authMode, setAuthMode] = useState<AuthMode>("login");
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [heroWindowsEnter, setHeroWindowsEnter] = useState(
@@ -1441,7 +1455,7 @@ export default function LandingPage() {
   const reduceMotion = useReducedMotion();
   const landingLayout = usePublicLandingLayout() ?? DEFAULT_LANDING_LAYOUT;
   const heroRef = useRef<HTMLElement>(null);
-  const [location] = useLocation();
+  const [location, navigate] = useLocation();
   const section: LandingSection = location === "/features"
     ? "features"
     : location === "/solutions"
@@ -1488,8 +1502,7 @@ export default function LandingPage() {
 
   function openDemo(source: string) {
     trackFeatureUsed("demo_booking_opened", { source });
-    setDemoSource(source);
-    setShowDemoBooking(true);
+    navigate("/demo");
   }
 
   const handlePromotionDismiss = useCallback(() => {
@@ -1526,7 +1539,6 @@ export default function LandingPage() {
           }
         }}
       />
-      <DemoBookingDialog open={showDemoBooking} source={demoSource} onOpenChange={setShowDemoBooking} />
       <Button asChild variant="secondary" className="fixed bottom-4 right-4 z-40 rounded-full sm:bottom-6 sm:right-6">
         <a data-testid="link-whatsapp-floating" href={`https://wa.me/${whatsappNumber}?text=${whatsappMsg}`} target="_blank" rel="noopener noreferrer" onClick={() => trackFeatureUsed("whatsapp_contact_click")} aria-label="Contact EduTrack on WhatsApp"><MessageCircle aria-hidden="true" /><span>Demo নিন</span></a>
       </Button>
