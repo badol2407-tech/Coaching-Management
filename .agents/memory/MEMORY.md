@@ -18,3 +18,4 @@
 - [Public signup architecture](public-signup-architecture.md) — registration creates a tenant plus its first org-admin profile with cleanup on partial failure
 - [Production Firestore rules source](firestore-rules-source.md) — retrieve and preserve live authorization rules before deploying a narrow onboarding change
 - [Landing glass surfaces](landing-glass-surfaces.md) — keep Flowora-inspired glass treatments scoped to public landing sections, not authenticated product UI
+- [Realtime portal synchronization](realtime-portal-sync.md) — Firestore listeners plus cache invalidation keep all role portals current across sessions
