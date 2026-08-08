@@ -40,6 +40,7 @@ import {
   X,
 } from "lucide-react";
 import {
+  addDoc,
   collection,
   doc,
   runTransaction,
@@ -432,6 +433,204 @@ function AuthPanel({
           <Button data-testid="button-toggle-auth-mode" type="button" variant="link" className="mx-auto" onClick={() => setMode(mode === "login" ? "signup" : "login")}>
             {mode === "login" ? "New to EduTrack? Sign Up" : "Already have an account? Log in"}
           </Button>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+type PremiumWaitlistFormState = {
+  fullName: string;
+  phone: string;
+  institute: string;
+  studentCount: string;
+};
+
+const INITIAL_PREMIUM_WAITLIST_FORM: PremiumWaitlistFormState = {
+  fullName: "",
+  phone: "",
+  institute: "",
+  studentCount: "",
+};
+
+function PremiumLaunchDialog({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const [form, setForm] = useState<PremiumWaitlistFormState>(INITIAL_PREMIUM_WAITLIST_FORM);
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+  const whatsappNumber = "8801632905056";
+  const whatsappMessage = encodeURIComponent(
+    `আমি EduTrack Premium Monthly সম্পর্কে আগ্রহী। নাম: ${form.fullName || "—"} | প্রতিষ্ঠান: ${form.institute || "—"} | ফোন: ${form.phone || "—"}`,
+  );
+
+  function closeDialog(nextOpen: boolean) {
+    if (!nextOpen) {
+      setForm(INITIAL_PREMIUM_WAITLIST_FORM);
+      setSubmitted(false);
+      setLoading(false);
+    }
+    onOpenChange(nextOpen);
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setLoading(true);
+
+    try {
+      await addDoc(collection(db, "demo_leads"), {
+        fullName: form.fullName.trim(),
+        phone: form.phone.trim(),
+        institute: form.institute.trim(),
+        studentCount: form.studentCount,
+        source: "premium_waitlist",
+        status: "new",
+        createdAt: serverTimestamp(),
+      });
+      trackFeatureUsed("premium_waitlist_submitted", { source: "pricing_premium_monthly" });
+      setSubmitted(true);
+      toast({
+        title: "You’re on the list",
+        description: "Premium launch-এর আগে আমরা আপনার সঙ্গে যোগাযোগ করব।",
+      });
+    } catch {
+      trackFeatureUsed("premium_waitlist_failed", { source: "pricing_premium_monthly" });
+      toast({
+        title: "Notify Me request পাঠানো যায়নি",
+        description: "একটু পরে আবার চেষ্টা করুন, অথবা WhatsApp-এ সরাসরি লিখুন।",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={closeDialog}>
+      <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-lg" data-testid="dialog-premium-launch">
+        {submitted ? (
+          <div className="py-5 text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600">
+              <CheckCircle className="h-7 w-7" aria-hidden="true" />
+            </div>
+            <DialogHeader className="mt-5">
+              <DialogTitle>Premium Launch Coming Soon</DialogTitle>
+              <DialogDescription className="mt-2 leading-relaxed">
+                আপনার আগ্রহটি সংরক্ষণ করেছি। Premium Monthly launch হলে আমরা আপনার সঙ্গে যোগাযোগ করব।
+              </DialogDescription>
+            </DialogHeader>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+              <Button asChild className="gap-2">
+                <a
+                  href={`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => trackFeatureUsed("premium_waitlist_whatsapp_handoff")}
+                >
+                  <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                  WhatsApp
+                </a>
+              </Button>
+              <Button variant="outline" onClick={() => closeDialog(false)}>
+                Close
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <DialogHeader className="pr-8">
+              <DialogTitle>Premium Launch Coming Soon</DialogTitle>
+              <DialogDescription className="mt-2 leading-relaxed">
+                This package will be available after launch. Interested?
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="rounded-2xl border border-primary/15 bg-primary/5 p-4">
+              <p className="text-sm font-medium">Premium Monthly — ৳2,998/month</p>
+              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                আপনার প্রতিষ্ঠানটি launch update-এর তালিকায় রাখতে নিচের তথ্য দিন।
+              </p>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="premium-waitlist-name">আপনার নাম</Label>
+                  <Input
+                    id="premium-waitlist-name"
+                    data-testid="input-premium-waitlist-name"
+                    value={form.fullName}
+                    onChange={(event) => setForm((current) => ({ ...current, fullName: event.target.value }))}
+                    placeholder="আপনার নাম"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="premium-waitlist-phone">Phone / WhatsApp</Label>
+                  <Input
+                    id="premium-waitlist-phone"
+                    data-testid="input-premium-waitlist-phone"
+                    type="tel"
+                    value={form.phone}
+                    onChange={(event) => setForm((current) => ({ ...current, phone: event.target.value }))}
+                    placeholder="01XXXXXXXXX"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="premium-waitlist-institute">School / coaching center</Label>
+                <Input
+                  id="premium-waitlist-institute"
+                  data-testid="input-premium-waitlist-institute"
+                  value={form.institute}
+                  onChange={(event) => setForm((current) => ({ ...current, institute: event.target.value }))}
+                  placeholder="আপনার প্রতিষ্ঠানের নাম"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="premium-waitlist-student-count">প্রায় কতজন শিক্ষার্থী?</Label>
+                <select
+                  id="premium-waitlist-student-count"
+                  data-testid="select-premium-waitlist-student-count"
+                  value={form.studentCount}
+                  onChange={(event) => setForm((current) => ({ ...current, studentCount: event.target.value }))}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none focus:ring-2 focus:ring-ring"
+                  required
+                >
+                  <option value="" disabled>একটি option বেছে নিন</option>
+                  <option value="1-100">১–১০০ জন</option>
+                  <option value="101-300">১০১–৩০০ জন</option>
+                  <option value="301-1000">৩০১–১,০০০ জন</option>
+                  <option value="1000+">১,০০০+ জন</option>
+                </select>
+              </div>
+
+              <DialogFooter className="gap-2 sm:gap-3">
+                <Button type="button" variant="outline" asChild className="gap-2" onClick={() => trackFeatureUsed("premium_waitlist_whatsapp_handoff")}>
+                  <a href={`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`} target="_blank" rel="noopener noreferrer">
+                    <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                    WhatsApp
+                  </a>
+                </Button>
+                <Button type="submit" disabled={loading} className="gap-2">
+                  {loading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Bell className="h-4 w-4" aria-hidden="true" />}
+                  Notify Me
+                </Button>
+                <Button type="button" variant="ghost" onClick={() => closeDialog(false)}>
+                  Close
+                </Button>
+              </DialogFooter>
+            </form>
+          </>
         )}
       </DialogContent>
     </Dialog>
@@ -1276,16 +1475,85 @@ function DashboardShowcase({ variant = "main" }: { variant?: string }) {
   );
 }
 
-function PricingCard({ tier, onSelect }: { tier: PlanTier; onSelect: (tier: PlanTier) => void }) {
-  const plan = PLAN_CONFIG[tier];
-  const pricing = getPricingDisplay(tier);
-  const featured = tier === "founder_launch";
-  const cadence = plan.billingCycle === "trial" ? `${plan.trialDays} days` : plan.billingCycle === "monthly" ? "month" : "year";
+type PricingCardVariant = "free" | "premium" | "enterprise";
+
+function PricingCard({
+  variant,
+  onFreeSelect,
+  onPremiumSelect,
+  onEnterpriseSelect,
+}: {
+  variant: PricingCardVariant;
+  onFreeSelect: () => void;
+  onPremiumSelect: () => void;
+  onEnterpriseSelect: () => void;
+}) {
+  const isPremium = variant === "premium";
+  const isFree = variant === "free";
+  const card = isFree
+    ? {
+        name: "Free Forever",
+        subtitle: "Perfect for Schools & Coaching Centers",
+        price: "৳0",
+        cadence: "",
+        features: ["Attendance", "Fees", "Exams", "Results", "Routine", "Notices", "Students", "Teachers", "Parents", "Dashboard"],
+        action: "Start Free",
+      }
+    : isPremium
+      ? {
+          name: "Premium Monthly",
+          subtitle: "Everything in Free +",
+          price: "৳2,998",
+          cadence: "/month",
+          features: ["Payment Gateway", "SMS Notifications", "WhatsApp Notifications", "White Label Branding", "Custom Domain", "Android App", "Website Design", "Data Migration", "AI Features", "Advanced Analytics"],
+          action: "Coming Soon",
+        }
+      : {
+          name: "Enterprise",
+          subtitle: "For growing school networks",
+          price: "Custom",
+          cadence: "",
+          features: ["Everything in Premium", "Multiple branches", "Dedicated onboarding", "Priority support", "Custom reporting"],
+          action: "Talk to Us",
+        };
+
+  function handleSelect() {
+    if (isFree) onFreeSelect();
+    else if (isPremium) onPremiumSelect();
+    else onEnterpriseSelect();
+  }
+
   return (
-    <Card className={featured ? "landing-glass-card relative flex h-full flex-col border-primary ring-2 ring-primary/20" : "landing-glass-card flex h-full flex-col"} data-testid={`card-pricing-${tier}`}>
-      {plan.badge && <Badge variant={featured ? "default" : "secondary"} className={featured ? "premium-badge absolute right-4 top-4 px-4 py-1.5 text-sm font-semibold" : "absolute right-4 top-4"}>{plan.badge}</Badge>}
-      <CardHeader className="space-y-3"><div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">{tier === "free_trial" ? <Clock3 className="h-5 w-5" aria-hidden="true" /> : tier === "founder_launch" ? <Sparkles className="h-5 w-5" aria-hidden="true" /> : <ShieldCheck className="h-5 w-5" aria-hidden="true" />}</div><div><CardTitle className="text-xl">{plan.name}</CardTitle><p className="mt-1 text-sm text-muted-foreground">{plan.tagline}</p></div></CardHeader>
-      <CardContent className="flex flex-1 flex-col"><div className="mb-5"><div className="flex items-baseline gap-2"><span className="font-display text-4xl tracking-tight">{pricing.price}</span><span className="text-sm text-muted-foreground">/{cadence}</span></div>{pricing.regularPrice && pricing.savings && <p className="mt-2 text-xs text-muted-foreground"><span className="line-through">{pricing.regularPrice}</span>{" "}<span className="font-medium text-primary">{pricing.savings}</span></p>}{pricing.monthlyEquivalent && <p className="mt-2 text-xs font-medium text-primary">মাসে মাত্র {pricing.monthlyEquivalent}</p>}</div><ul className="mb-6 flex-1 space-y-3">{plan.displayHighlights.map((highlight) => <li key={highlight} className="flex items-start gap-2 text-sm text-muted-foreground"><CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" /><span>{highlight}</span></li>)}</ul><Button data-testid={`button-select-plan-${tier}`} className="w-full" variant={featured ? "default" : "outline"} onClick={() => onSelect(tier)}>{tier === "free_trial" ? "ফ্রি ট্রায়াল শুরু করুন" : tier === "founder_launch" ? "Founder Price নিন" : "Annual Plan নিন"}<ArrowRight aria-hidden="true" /></Button></CardContent>
+    <Card className={isPremium ? "landing-glass-card relative flex h-full flex-col border-primary ring-2 ring-primary/20" : "landing-glass-card flex h-full flex-col"} data-testid={`card-pricing-${variant}`}>
+      {isPremium && <Badge variant="default" className="premium-badge absolute right-4 top-4 px-4 py-1.5 text-sm font-semibold">Most Popular</Badge>}
+      <CardHeader className="space-y-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          {isFree ? <Clock3 className="h-5 w-5" aria-hidden="true" /> : isPremium ? <Sparkles className="h-5 w-5" aria-hidden="true" /> : <ShieldCheck className="h-5 w-5" aria-hidden="true" />}
+        </div>
+        <div>
+          <CardTitle className="text-xl">{card.name}</CardTitle>
+          <p className="mt-1 text-sm text-muted-foreground">{card.subtitle}</p>
+        </div>
+      </CardHeader>
+      <CardContent className="flex flex-1 flex-col">
+        <div className="mb-5 flex items-baseline gap-2">
+          <span className="font-display text-4xl tracking-tight">{card.price}</span>
+          {card.cadence && <span className="text-sm text-muted-foreground">{card.cadence}</span>}
+        </div>
+        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Includes</p>
+        <ul className="mb-6 flex-1 space-y-3">
+          {card.features.map((feature) => (
+            <li key={feature} className="flex items-start gap-2 text-sm text-muted-foreground">
+              <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+              <span>{feature}</span>
+            </li>
+          ))}
+        </ul>
+        <Button data-testid={`button-select-plan-${variant}`} className="w-full" variant={isPremium ? "default" : "outline"} onClick={handleSelect}>
+          {card.action}
+          <ArrowRight aria-hidden="true" />
+        </Button>
+      </CardContent>
     </Card>
   );
 }
@@ -1297,6 +1565,7 @@ function LandingContent({
   openAuth,
   openDemo,
   selectPlan,
+  onPremiumLaunch,
   heroWindowsEnter,
   landingLayout,
 }: {
@@ -1306,6 +1575,7 @@ function LandingContent({
   openAuth: (mode: AuthMode, source: string, tier?: PlanTier) => void;
   openDemo: (source: string) => void;
   selectPlan: (tier: PlanTier) => void;
+  onPremiumLaunch: () => void;
   heroWindowsEnter: boolean;
   landingLayout: LandingPageLayout;
 }) {
@@ -1409,9 +1679,32 @@ function LandingContent({
         <div className="mx-auto max-w-6xl">
             <SectionHeading eyebrow="Pricing" title={block.title} description={block.description} />
             {customText.length > 0 && <div className="mx-auto mt-4 max-w-2xl space-y-1 text-center text-sm text-muted-foreground">{customText.map((text) => <p key={text}>{text}</p>)}</div>}
-           <div className="mt-10 grid gap-5 lg:grid-cols-3">{(["free_trial", "founder_launch", "annual_premium"] as PlanTier[]).map((tier) => <PricingCard key={tier} tier={tier} onSelect={selectPlan} />)}</div>
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
-             {[["Free Trial", "৭ দিন", "সব premium features দিয়ে workspace দেখে নিন।"], ["Billing", "মাসিক / বার্ষিক", "Founder Launch মাসিক, Annual Premium বছরে billed হয়।"], ["No card required", "আজই শুরু করুন", "Trial শুরু করতে credit card বা upfront payment লাগে না।"]].map(([title, value, desc]) => <Card key={title} className="landing-glass-card p-5"><p className="text-sm font-medium text-muted-foreground">{title}</p><p className="mt-2 text-xl font-semibold">{value}</p><p className="mt-2 text-sm leading-relaxed text-muted-foreground">{desc}</p></Card>)}
+           <div className="mt-10 grid gap-5 lg:grid-cols-3">
+             <PricingCard
+               variant="free"
+               onFreeSelect={() => selectPlan("free_trial")}
+               onPremiumSelect={onPremiumLaunch}
+               onEnterpriseSelect={() => openDemo("pricing_enterprise")}
+             />
+             <PricingCard
+               variant="premium"
+               onFreeSelect={() => selectPlan("free_trial")}
+               onPremiumSelect={onPremiumLaunch}
+               onEnterpriseSelect={() => openDemo("pricing_enterprise")}
+             />
+             <PricingCard
+               variant="enterprise"
+               onFreeSelect={() => selectPlan("free_trial")}
+               onPremiumSelect={onPremiumLaunch}
+               onEnterpriseSelect={() => openDemo("pricing_enterprise")}
+             />
+           </div>
+           <div className="mt-10 grid gap-5 md:grid-cols-3">
+              {[
+                ["Start today", "৳0 forever", "Free Forever শুরু করতে কোনো payment বা credit card লাগবে না।"],
+                ["Premium launch", "৳2,998 / month", "Premium Monthly এখন Coming Soon — launch update পেতে Notify Me করুন।"],
+                ["Growing teams", "Custom plan", "একাধিক branch বা tailored workflow-এর জন্য আমাদের সঙ্গে কথা বলুন।"],
+              ].map(([title, value, desc]) => <Card key={title} className="landing-glass-card p-5"><p className="text-sm font-medium text-muted-foreground">{title}</p><p className="mt-2 text-xl font-semibold">{value}</p><p className="mt-2 text-sm leading-relaxed text-muted-foreground">{desc}</p></Card>)}
           </div>
         </div>
       </section>
@@ -1445,6 +1738,7 @@ function LandingContent({
 
 export default function LandingPage() {
   const [showAuth, setShowAuth] = useState(false);
+  const [showPremiumLaunch, setShowPremiumLaunch] = useState(false);
   const [authMode, setAuthMode] = useState<AuthMode>("login");
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [heroWindowsEnter, setHeroWindowsEnter] = useState(
@@ -1517,6 +1811,11 @@ export default function LandingPage() {
     trackFeatureUsed("pricing_cta_click", { plan: tier });
     openAuth("signup", `pricing_${tier}`, tier);
   }
+
+  function openPremiumLaunch() {
+    trackFeatureUsed("pricing_cta_click", { plan: "premium_monthly" });
+    setShowPremiumLaunch(true);
+  }
   const navItems = [
     { label: "Features", href: "/features" },
     { label: "Solutions", href: "/solutions" },
@@ -1528,6 +1827,7 @@ export default function LandingPage() {
   return (
     <div className="landing-shell min-h-screen overflow-x-clip text-foreground" id="top">
        {showAuth && <AuthPanel defaultMode={authMode} defaultTier={signupTier} onClose={() => setShowAuth(false)} />}
+       <PremiumLaunchDialog open={showPremiumLaunch} onOpenChange={setShowPremiumLaunch} />
       <PromotionPopup
         onDismiss={handlePromotionDismiss}
         onCtaClick={(cta, index) => {
@@ -1566,6 +1866,7 @@ export default function LandingPage() {
            openAuth={openAuth}
            openDemo={openDemo}
            selectPlan={selectPlan}
+            onPremiumLaunch={openPremiumLaunch}
            heroWindowsEnter={heroWindowsEnter}
             landingLayout={landingLayout}
          />
