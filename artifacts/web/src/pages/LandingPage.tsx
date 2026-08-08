@@ -62,9 +62,7 @@ import {
 import { auth } from "@/lib/firebase";
 import { db } from "@/lib/firebase";
 import {
-  PLAN_CONFIG,
   computeExpiryDate,
-  getPricingDisplay,
   type PlanTier,
 } from "@/lib/plan-config";
 import { Button } from "@/components/ui/button";
@@ -227,8 +225,6 @@ function AuthPanel({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [name, setName] = useState("");
-  const [organizationName, setOrganizationName] = useState("");
   const [signupTier, setSignupTier] = useState<PlanTier>(defaultTier);
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
@@ -249,7 +245,7 @@ function AuthPanel({
             uid: result.user.uid,
             email: result.user.email ?? email,
             name: googleName,
-            organizationName: organizationName.trim() || `${googleName}'s School`,
+            organizationName: `${googleName}'s School`,
             tier: signupTier,
           });
         } catch (error) {
@@ -282,10 +278,6 @@ function AuthPanel({
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     if (!email) return;
-    if (mode === "signup" && (!name.trim() || !organizationName.trim())) {
-      toast({ title: "Name and organization are required", variant: "destructive" });
-      return;
-    }
     if (mode === "signup" && password !== confirmPassword) {
       toast({ title: "Passwords do not match", description: "Please enter the same password twice.", variant: "destructive" });
       return;
@@ -303,13 +295,14 @@ function AuthPanel({
       } else if (mode === "signup") {
         await setPersistence(auth, browserLocalPersistence);
         const credential = await createUserWithEmailAndPassword(auth, email.trim(), password);
-        await updateProfile(credential.user, { displayName: name.trim() });
+        const signupName = email.trim().split("@")[0] || "School Admin";
+        await updateProfile(credential.user, { displayName: signupName });
         try {
           await createPublicOrgAccount({
             uid: credential.user.uid,
             email: email.trim(),
-            name: name.trim(),
-            organizationName: organizationName.trim(),
+            name: signupName,
+            organizationName: `${signupName}'s School`,
             tier: signupTier,
           });
         } catch (error) {
@@ -351,26 +344,6 @@ function AuthPanel({
           </div>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          {mode === "signup" && (
-            <>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="signup-name">Your name</Label>
-                  <Input data-testid="input-signup-name" id="signup-name" placeholder="Your full name" value={name} onChange={(event) => setName(event.target.value)} required autoFocus />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-organization">School / coaching name</Label>
-                  <Input data-testid="input-signup-organization" id="signup-organization" placeholder="Your organization" value={organizationName} onChange={(event) => setOrganizationName(event.target.value)} required />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="signup-plan">Start with a plan</Label>
-                <select data-testid="select-signup-plan" id="signup-plan" value={signupTier} onChange={(event) => setSignupTier(event.target.value as PlanTier)} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-                  {(Object.keys(PLAN_CONFIG) as PlanTier[]).map((tier) => <option key={tier} value={tier}>{PLAN_CONFIG[tier].name} — {getPricingDisplay(tier).price}</option>)}
-                </select>
-              </div>
-            </>
-          )}
           <div className="space-y-2">
             <Label htmlFor="auth-email">Email</Label>
             <Input data-testid="input-auth-email" id="auth-email" type="email" placeholder="you@example.com" value={email} onChange={(event) => setEmail(event.target.value)} required autoFocus />
