@@ -31,7 +31,7 @@ function MetricCard({
   dataTestId?: string;
 }) {
   return (
-    <Card data-testid={dataTestId} className="shadow-sm">
+    <Card data-testid={dataTestId} className="dashboard-metric transition-transform duration-300">
       <CardContent className="p-4 sm:p-5">
         <div className="flex items-center gap-2 text-muted-foreground mb-3">
           <Icon className="h-4 w-4" aria-hidden="true" />
@@ -80,13 +80,17 @@ export default function Dashboard() {
 
   return (
     <div
-      className="max-w-7xl mx-auto space-y-8 pb-12"
+      className="app-command-surface max-w-7xl mx-auto space-y-8 pb-12"
       aria-busy={statsLoading || summaryLoading || feesLoading}
     >
       {/* Header & Quick Actions */}
       <header className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground" id="dashboard-heading">Overview</h1>
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[.16em] text-primary">
+            <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
+            Live workspace
+          </div>
+          <h1 className="mt-2 font-display text-3xl tracking-tight text-foreground sm:text-4xl" id="dashboard-heading">Overview</h1>
           <p className="text-muted-foreground mt-1 text-sm">Today's operational and financial status.</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
@@ -176,7 +180,7 @@ export default function Dashboard() {
           </section>
 
           <section aria-labelledby="attendance-chart-heading">
-            <Card className="shadow-sm" data-testid="card-attendance-trends">
+            <Card className="dashboard-panel shadow-none" data-testid="card-attendance-trends">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-base" id="attendance-chart-heading">Attendance Trends</CardTitle>
                 <p className="text-xs text-muted-foreground">Last 7 Days</p>
@@ -242,7 +246,7 @@ export default function Dashboard() {
         {/* Right Column: Financial & Exceptions */}
         <div className="space-y-6">
           <section aria-labelledby="finance-heading">
-            <Card className="shadow-sm" data-testid="card-financial-position">
+            <Card className="dashboard-panel shadow-none" data-testid="card-financial-position">
               <CardHeader className="pb-4">
                 <CardTitle className="text-base flex items-center gap-2" id="finance-heading">
                   <Banknote className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
@@ -336,7 +340,7 @@ export default function Dashboard() {
           )}
 
           <section aria-labelledby="recent-fees-heading">
-            <Card className="shadow-sm" data-testid="card-recent-fees">
+              <Card className="dashboard-panel shadow-none" data-testid="card-recent-fees">
               <CardHeader className="flex flex-row items-center justify-between pb-4 border-b">
                 <CardTitle id="recent-fees-heading" className="text-base flex items-center gap-2">
                   <FileText className="h-4 w-4 text-muted-foreground" aria-hidden="true" />

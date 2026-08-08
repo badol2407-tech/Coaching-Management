@@ -90,10 +90,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     return location === href || location.startsWith(href + "/");
   }
 
-  const sidebarGradient = "linear-gradient(180deg, #0f172a 0%, #1e1b4b 55%, #0f172a 100%)";
+  const sidebarGradient = "linear-gradient(180deg, #25233f 0%, #19182d 58%, #131321 100%)";
 
   return (
-    <div className="min-h-screen flex bg-background overflow-x-hidden">
+    <div className="min-h-screen flex bg-background overflow-x-hidden app-command-surface">
 
       {/* Backdrop — mobile only */}
       <div
@@ -111,15 +111,15 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         aria-modal={isMobile ? true : undefined}
         aria-hidden={isMobile ? !mobileOpen : undefined}
         inert={isMobile && !mobileOpen ? true : undefined}
-        className={`fixed md:sticky top-0 h-screen z-50 shrink-0 flex flex-col border-r border-white/10 transition-all duration-300 ease-in-out
+          className={`fixed md:sticky top-0 h-screen z-50 shrink-0 flex flex-col border-r border-white/10 transition-all duration-300 ease-in-out
           w-64 md:w-14 ${expanded ? "md:w-56" : "md:w-14"}
           ${mobileOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
         style={{ background: sidebarGradient, boxShadow: "4px 0 24px rgba(0,0,0,0.35)" }}
         aria-label="Sidebar navigation"
       >
         {/* Logo */}
-        <div className={`flex items-center h-14 border-b border-white/10 shrink-0 overflow-hidden transition-all duration-300 px-4 gap-2 ${expanded ? "md:px-4 md:gap-2" : "md:px-0 md:justify-center"}`}>
-          <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center shadow-md shadow-indigo-500/40 shrink-0">
+          <div className={`flex items-center h-16 border-b border-white/10 shrink-0 overflow-hidden transition-all duration-300 px-4 gap-2 ${expanded ? "md:px-4 md:gap-2" : "md:px-0 md:justify-center"}`}>
+          <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-violet-300 to-fuchsia-500 flex items-center justify-center shadow-md shadow-violet-500/30 shrink-0">
             <GraduationCap className="h-4 w-4 text-white" />
           </div>
           <div className={`min-w-0 overflow-hidden transition-all duration-200 max-w-[140px] opacity-100 ${expanded ? "md:max-w-[140px] md:opacity-100" : "md:max-w-0 md:opacity-0"}`}>
@@ -239,12 +239,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Main column */}
       <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
         {/* Mobile top bar */}
-        <header className="md:hidden sticky top-0 z-30 h-14 flex items-center gap-3 px-4 border-b border-border/60 bg-background">
+        <header className="md:hidden sticky top-0 z-30 h-14 flex items-center gap-3 px-4 border-b border-border/60 bg-background/80 backdrop-blur-xl">
           <button ref={triggerRef} onClick={openDrawer} className="flex min-h-11 min-w-11 items-center justify-center text-foreground rounded-md hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="Open navigation" aria-expanded={mobileOpen} data-testid="button-open-navigation">
             <Menu className="h-5 w-5" />
           </button>
           <div className="flex items-center gap-2">
-            <div className="h-6 w-6 rounded-md bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center">
+            <div className="h-6 w-6 rounded-md bg-gradient-to-br from-violet-300 to-fuchsia-500 flex items-center justify-center">
               <GraduationCap className="h-3.5 w-3.5 text-white" />
             </div>
             <span className="font-bold text-sm">EduTrack</span>
