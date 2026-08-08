@@ -7,8 +7,8 @@
  * honest empty state instead of fake/demo data.
  */
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { collection, doc, getDocs, onSnapshot, query, where } from "firebase/firestore";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { collection, doc, onSnapshot, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import {
   normalizeLandingLayout,
@@ -26,20 +26,37 @@ export interface PublicTestimonial {
 
 /** Active, admin-approved testimonials only — same collection the Super Admin manages. */
 export function usePublicTestimonials() {
+  const queryClient = useQueryClient();
+  const [data, setData] = useState<PublicTestimonial[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(
+      query(collection(db, "testimonials"), where("active", "==", true)),
+      (snap) => {
+        const docs = snap.docs.map((d) => ({ id: d.id, ...d.data() })) as (PublicTestimonial & {
+          createdAt?: { seconds?: number };
+        })[];
+        const next = docs.sort((a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0));
+        setData(next);
+        queryClient.setQueryData(["public", "testimonials"], next);
+        setIsLoading(false);
+      },
+      () => {
+        setData([]);
+        queryClient.setQueryData(["public", "testimonials"], []);
+        setIsLoading(false);
+      },
+    );
+    return unsubscribe;
+  }, [queryClient]);
+
   return useQuery({
     queryKey: ["public", "testimonials"],
-    queryFn: async () => {
-      // Equality-only filter (no orderBy) so this never needs a manually
-      // created Firestore composite index; sort client-side instead.
-      const snap = await getDocs(
-        query(collection(db, "testimonials"), where("active", "==", true)),
-      );
-      const docs = snap.docs.map((d) => ({ id: d.id, ...d.data() })) as (PublicTestimonial & {
-        createdAt?: { seconds?: number };
-      })[];
-      return docs.sort((a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0));
-    },
-    staleTime: 5 * 60 * 1000,
+    queryFn: async () => data,
+    initialData: [],
+    staleTime: Infinity,
+    enabled: !isLoading,
   });
 }
 

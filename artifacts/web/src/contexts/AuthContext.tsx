@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { User, onAuthStateChanged, signOut } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { identifyUser, resetUser, trackLogout } from "@/lib/analytics";
 import { mapLegacyPlanToTier, type PlanTier } from "@/lib/plan-config";
@@ -169,6 +169,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
     return unsub;
   }, [loadProfile]);
+
+  // Keep role, organization membership, and subscription gates current in
+  // every open portal when an administrator changes the user's profile.
+  useEffect(() => {
+    if (!user) return;
+    return onSnapshot(
+      doc(db, "users", user.uid),
+      () => {
+        void loadProfile(user);
+      },
+      () => {
+        // The existing auth state remains usable while Firestore reconnects.
+      },
+    );
+  }, [user, loadProfile]);
+
+  // Organization status and subscription changes are platform-controlled
+  // documents, so refresh the effective profile as soon as they change.
+  useEffect(() => {
+    if (!user || !realProfile?.orgId) return;
+    return onSnapshot(
+      doc(db, "organizations", realProfile.orgId),
+      () => {
+        void loadProfile(user);
+      },
+      () => {
+        // The existing subscription snapshot remains usable while offline.
+      },
+    );
+  }, [user, realProfile?.orgId, loadProfile]);
 
   const refreshProfile = useCallback(async () => {
     // Auth can update Firebase's currentUser before React has committed the
