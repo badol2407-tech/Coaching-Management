@@ -50,6 +50,16 @@ const ORG_COLLECTIONS_BY_ROLE = {
     "homework",
     "notices",
   ],
+  guardian: [
+    "students",
+    "attendance",
+    "fees",
+    "exams",
+    "results",
+    "routine",
+    "homework",
+    "notices",
+  ],
 } as const;
 
 const PLATFORM_COLLECTIONS = [
