@@ -182,7 +182,7 @@ function ManualAdd() {
       }
 
       // Step 2 — write the student record linked to the new Firebase Auth UID
-      await addDoc(collection(db, "organizations", userProfile.orgId, "students"), {
+      const studentDocRef = await addDoc(collection(db, "organizations", userProfile.orgId, "students"), {
         uid,
         name: form.name.trim(),
         phone: form.phone.trim() || null,
@@ -209,6 +209,7 @@ function ManualAdd() {
       await setDoc(doc(db, "users", uid), {
         role: "student",
         orgId: userProfile.orgId,
+        studentId: studentDocRef.id,
         name: form.name.trim(),
         email: form.email.trim(),
         mustChangePassword: false,
@@ -789,7 +790,7 @@ function AdmissionLinkTab() {
     if (!orgId) return;
     setProcessingId(req.id);
     try {
-      await addDoc(collection(db, "organizations", orgId, "students"), {
+      const studentDocRef = await addDoc(collection(db, "organizations", orgId, "students"), {
         uid: req.uid ?? null,
         name: req.name,
         phone: req.phone ?? null,
@@ -816,6 +817,7 @@ function AdmissionLinkTab() {
         await setDoc(doc(db, "users", req.uid), {
           role: "student",
           orgId,
+          studentId: studentDocRef.id,
           name: req.name,
           email: req.email ?? null,
           mustChangePassword: false,
