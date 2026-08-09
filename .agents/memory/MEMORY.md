@@ -1,0 +1,21 @@
+- [Documentation architecture](documentation-architecture.md) — keep permanent product principles in the constitution and implementation standards in focused `/docs` handbooks
+- [Coaching App Architecture](coaching-app-architecture.md) — main app is artifacts/web (React+Vite+Firebase); api-server is separate and not used by the main app
+- [GitHub push quirk](github-push-quirk.md) — remote was not configured; must set origin to https://github.com/badol2407-tech/Coaching-Management.git before gitPush
+- [Vercel deployment](vercel-deployment.md) — deploy via scripts/deploy-vercel.mjs (builds first, then uploads dist/public); production alias coaching-management-three.vercel.app
+- [Fee Management implementation](fee-management.md) — installments stored as array on fee doc; status: pending/partial/paid; hooks: useAddInstallment, useBulkCreateFees, useGetIncomeSummary added to lib/hooks.ts
+- [White screen fix](white-screen-fix.md) — Vercel deploy script uses handle:filesystem + SPA fallback route order to serve assets correctly
+- [OpenAPI/Zod quirks](openapi-zod-quirks.md) — coaching-app and api-server use OpenAPI codegen; artifacts/web uses Firebase directly (no codegen)
+- [Edutrack architecture](edutrack-architecture.md) — multi-role app: super_admin, org_admin, teacher, student; orgId scopes all Firestore collections
+- [Student ID Card feature](student-id-card.md) — /id-cards route in AppLayout (admin) and TeacherLayout; page is artifacts/web/src/pages/StudentIdCard.tsx; uses window.open+print for both Print and Download PDF; QR and barcode are visual placeholders (no external lib needed)
+- [UX preview validation](ux-preview-validation.md) — authenticated UI screenshots require valid Firebase client configuration; preserve Firebase initialization during UI-only audits
+- [UI master rules](ui-master-rules.md) — UI_MASTER_RULES.md is the sole practical UI/UX authority; specialized handbooks remain implementation and evidence owners
+- [Imported web preview](imported-web-preview.md) — imported web artifacts may run through a scoped workflow while remaining absent from live artifact/screenshot registries
+- [Premium sensory cues](premium-sensory-cues.md) — splash audio must use Web Audio with gesture fallback so browser autoplay restrictions never block the app
+- [Landing promotion experience](promotion-experience.md) — use one focused popup plus a swipeable feature rail beneath the four hero windows
+- [Responsive landing header](responsive-landing-header.md) — keep the Flowora-style landing navigation visible from tablet/medium widths, not only large desktop
+- [Hero mini-window layout](hero-mini-window-layout.md) — separate motion wrappers from card transforms so desktop positioning and tilt remain predictable without changing mobile stacking
+- [Hero chart motion](hero-chart-motion.md) — animate attendance paths progressively while keeping fee-wheel labels readable and honoring reduced-motion preferences
+- [Public signup architecture](public-signup-architecture.md) — registration creates a tenant plus its first org-admin profile with cleanup on partial failure
+- [Production Firestore rules source](firestore-rules-source.md) — retrieve and preserve live authorization rules before deploying a narrow onboarding change
+- [Landing glass surfaces](landing-glass-surfaces.md) — keep Flowora-inspired glass treatments scoped to public landing sections, not authenticated product UI
+- [Realtime portal synchronization](realtime-portal-sync.md) — Firestore listeners plus cache invalidation keep all role portals current across sessions
