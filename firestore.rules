@@ -56,6 +56,17 @@ service cloud.firestore {
       return myRole() == 'administrative_staff' && myOrgId() == orgId;
     }
 
+    function isValidUserRole(role) {
+      return role in [
+        'super_admin',
+        'org_admin',
+        'teacher',
+        'student',
+        'guardian',
+        'administrative_staff'
+      ];
+    }
+
     function linkedStudentIds() {
       return myProfile().linkedStudentIds is list
         ? myProfile().linkedStudentIds
@@ -112,9 +123,13 @@ service cloud.firestore {
         request.resource.data.role == 'super_admin' &&
         request.resource.data.orgId == null
       ) || (
-        isSignedIn() && isSuperAdmin()
+        isSignedIn() &&
+        isSuperAdmin() &&
+        isValidUserRole(request.resource.data.role)
       ) || (
-        isSignedIn() && isOrgAdmin(request.resource.data.orgId)
+        isSignedIn() &&
+        isOrgAdmin(request.resource.data.orgId) &&
+        isValidUserRole(request.resource.data.role)
       ) || (
         isSignedIn() &&
         request.auth.uid == uid &&
@@ -139,8 +154,14 @@ service cloud.firestore {
           request.resource.data.diff(resource.data).affectedKeys()
             .hasOnly(['mustChangePassword', 'updatedAt'])
         ) ||
-        isSuperAdmin() ||
-        isOrgAdmin(resource.data.orgId)
+        (
+          isSuperAdmin() &&
+          isValidUserRole(request.resource.data.role)
+        ) ||
+        (
+          isOrgAdmin(resource.data.orgId) &&
+          isValidUserRole(request.resource.data.role)
+        )
       );
       allow delete: if isSignedIn() && (isSuperAdmin() || isOrgAdmin(resource.data.orgId));
     }

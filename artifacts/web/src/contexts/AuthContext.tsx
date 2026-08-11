@@ -4,14 +4,10 @@ import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { identifyUser, resetUser, trackLogout } from "@/lib/analytics";
 import { mapLegacyPlanToTier, type PlanTier } from "@/lib/plan-config";
+import { parseFirestoreUserProfile } from "@/lib/user-schema";
+import { USER_ROLES, type UserRole } from "@/lib/roles";
 
-export type UserRole =
-  | "super_admin"
-  | "org_admin"
-  | "teacher"
-  | "student"
-  | "guardian"
-  | "administrative_staff";
+export type { UserRole } from "@/lib/roles";
 
 /**
  * Subscription snapshot stored on the profile so layouts can gate access
@@ -108,7 +104,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const snap = await getDoc(ref);
 
       if (snap.exists()) {
-        const data = snap.data() as Omit<UserProfile, "uid">;
+        const data = parseFirestoreUserProfile(snap.data());
+        if (!data) {
+          setRealProfile(null);
+          return;
+        }
 
         // ── Super Admin gate ─────────────────────────────────────────────
         // Whitelist is the single source of truth:
@@ -116,12 +116,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         //     whatever role is stored in Firestore, e.g. org_admin)
         //   • If email is NOT whitelisted but Firestore role === "super_admin"
         //     → block (security — prevents rogue Firestore edits from elevating)
-        if (data.role === "super_admin" && !isSuperAdminEmail(u.email)) {
+        if (data.role === USER_ROLES.SUPER_ADMIN && !isSuperAdminEmail(u.email)) {
           setRealProfile(null);
           return;
         }
         if (isSuperAdminEmail(u.email)) {
-          data.role = "super_admin";
+          data.role = USER_ROLES.SUPER_ADMIN;
         }
         // ────────────────────────────────────────────────────────────────
 

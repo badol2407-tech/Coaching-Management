@@ -1,22 +1,13 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import {
-  Award,
-  Bell,
-  CalendarRange,
+  GraduationCap,
   ChevronLeft,
   ChevronRight,
-  FileBarChart2,
-  GraduationCap,
-  IdCard,
   LayoutDashboard,
   LogOut,
   Menu,
-  Settings,
-  Users,
-  Wallet,
   X,
-  ClipboardList,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMobileDrawer } from "@/hooks/use-mobile-drawer";
@@ -28,15 +19,6 @@ import { PortalNavLink } from "@/components/layout/PortalNavLink";
 
 const navItems = [
   { title: "Dashboard", href: "/", icon: LayoutDashboard },
-  { title: "Student Records", href: "/student-records", icon: Users },
-  { title: "Admission Management", href: "/admissions", icon: ClipboardList },
-  { title: "Fee Collection", href: "/fees", icon: Wallet },
-  { title: "ID Card Management", href: "/id-cards", icon: IdCard },
-  { title: "Certificate Management", href: "/certificates", icon: Award },
-  { title: "Routine Management", href: "/routine", icon: CalendarRange },
-  { title: "Notices", href: "/notices", icon: Bell },
-  { title: "Reports", href: "/reports", icon: FileBarChart2 },
-  { title: "Notifications", href: "/notifications", icon: Bell },
 ];
 
 function initExpanded() {
@@ -179,21 +161,6 @@ export function AdministrativeStaffLayout({ children }: { children: React.ReactN
         </nav>
 
         <div className="border-t border-white/10 shrink-0">
-          <div className={`py-2 transition-all duration-300 px-2 ${expanded ? "md:px-2" : "md:px-1"}`}>
-            <PortalNavLink
-              href="/settings"
-              label="Profile & Settings"
-              icon={Settings}
-              active={location === "/settings"}
-              collapsed={!expanded}
-              onClick={closeDrawer}
-              activeClassName="text-indigo-300 border border-indigo-400/20 bg-indigo-500/10"
-              inactiveClassName="border border-transparent text-slate-400 hover:bg-white/5 hover:text-white"
-              indicatorClassName="bg-indigo-400"
-              testId="link-profile-settings"
-            />
-          </div>
-
           <div
             className={`border-t border-white/10 flex items-center gap-2.5 px-3 py-3 transition-all duration-300 ${
               expanded

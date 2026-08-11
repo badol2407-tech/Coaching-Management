@@ -10,7 +10,9 @@ import { TeacherLayout } from "@/components/layout/TeacherLayout";
 import { StudentLayout } from "@/components/layout/StudentLayout";
 import { GuardianLayout } from "@/components/layout/GuardianLayout";
 import { AdministrativeStaffLayout } from "@/components/layout/AdministrativeStaffLayout";
+import { RoleGuard } from "@/components/auth/RoleGuard";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { USER_ROLES } from "@/lib/roles";
 import { ImpersonationProvider, useImpersonation } from "@/contexts/ImpersonationContext";
 import { ImpersonationBanner } from "@/components/ImpersonationBanner";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -80,16 +82,6 @@ const StudentPortal = lazy(() => import("@/pages/student/StudentPortal"));
 const GuardianPortal = lazy(() => import("@/pages/guardian/GuardianPortal"));
 const GuardianCommunications = lazy(() => import("@/pages/GuardianCommunications"));
 const AdministrativeStaffDashboard = lazy(() => import("@/pages/administrative-staff/Dashboard"));
-const AdministrativeStaffStudentRecords = lazy(() => import("@/pages/administrative-staff/StudentRecords"));
-const AdministrativeStaffAdmissionManagement = lazy(() => import("@/pages/administrative-staff/AdmissionManagement"));
-const AdministrativeStaffFeeCollection = lazy(() => import("@/pages/administrative-staff/FeeCollection"));
-const AdministrativeStaffIdCardManagement = lazy(() => import("@/pages/administrative-staff/IdCardManagement"));
-const AdministrativeStaffCertificateManagement = lazy(() => import("@/pages/administrative-staff/CertificateManagement"));
-const AdministrativeStaffRoutineManagement = lazy(() => import("@/pages/administrative-staff/RoutineManagement"));
-const AdministrativeStaffNotices = lazy(() => import("@/pages/administrative-staff/Notices"));
-const AdministrativeStaffReports = lazy(() => import("@/pages/administrative-staff/Reports"));
-const AdministrativeStaffNotifications = lazy(() => import("@/pages/administrative-staff/Notifications"));
-const AdministrativeStaffProfileSettings = lazy(() => import("@/pages/administrative-staff/ProfileSettings"));
 const JoinOrg = lazy(() => import("@/pages/JoinOrg"));
 const DemoWorkspace = lazy(() => import("@/pages/DemoWorkspace"));
 
@@ -172,22 +164,14 @@ function ImpersonatedView() {
           </StudentLayout>
         )}
         {impersonation.role === "administrative_staff" && (
-          <AdministrativeStaffLayout>
-            <Switch>
-              <Route path="/" component={AdministrativeStaffDashboard} />
-              <Route path="/student-records" component={AdministrativeStaffStudentRecords} />
-              <Route path="/admissions" component={AdministrativeStaffAdmissionManagement} />
-              <Route path="/fees" component={AdministrativeStaffFeeCollection} />
-              <Route path="/id-cards" component={AdministrativeStaffIdCardManagement} />
-              <Route path="/certificates" component={AdministrativeStaffCertificateManagement} />
-              <Route path="/routine" component={AdministrativeStaffRoutineManagement} />
-              <Route path="/notices" component={AdministrativeStaffNotices} />
-              <Route path="/reports" component={AdministrativeStaffReports} />
-              <Route path="/notifications" component={AdministrativeStaffNotifications} />
-              <Route path="/settings" component={AdministrativeStaffProfileSettings} />
-              <Route><Redirect to="/" /></Route>
-            </Switch>
-          </AdministrativeStaffLayout>
+          <RoleGuard allowedRoles={[USER_ROLES.ADMINISTRATIVE_STAFF]}>
+            <AdministrativeStaffLayout>
+              <Switch>
+                <Route path="/" component={AdministrativeStaffDashboard} />
+                <Route><Redirect to="/" /></Route>
+              </Switch>
+            </AdministrativeStaffLayout>
+          </RoleGuard>
         )}
       </Suspense>
     </>
@@ -302,24 +286,16 @@ function AuthenticatedRoutes() {
 
   if (userProfile.role === "administrative_staff") {
     return (
-      <AdministrativeStaffLayout>
-        <Suspense fallback={<Spinner />}>
-          <Switch>
-            <Route path="/" component={AdministrativeStaffDashboard} />
-            <Route path="/student-records" component={AdministrativeStaffStudentRecords} />
-            <Route path="/admissions" component={AdministrativeStaffAdmissionManagement} />
-            <Route path="/fees" component={AdministrativeStaffFeeCollection} />
-            <Route path="/id-cards" component={AdministrativeStaffIdCardManagement} />
-            <Route path="/certificates" component={AdministrativeStaffCertificateManagement} />
-            <Route path="/routine" component={AdministrativeStaffRoutineManagement} />
-            <Route path="/notices" component={AdministrativeStaffNotices} />
-            <Route path="/reports" component={AdministrativeStaffReports} />
-            <Route path="/notifications" component={AdministrativeStaffNotifications} />
-            <Route path="/settings" component={AdministrativeStaffProfileSettings} />
-            <Route><Redirect to="/" /></Route>
-          </Switch>
-        </Suspense>
-      </AdministrativeStaffLayout>
+      <RoleGuard allowedRoles={[USER_ROLES.ADMINISTRATIVE_STAFF]}>
+        <AdministrativeStaffLayout>
+          <Suspense fallback={<Spinner />}>
+            <Switch>
+              <Route path="/" component={AdministrativeStaffDashboard} />
+              <Route><Redirect to="/" /></Route>
+            </Switch>
+          </Suspense>
+        </AdministrativeStaffLayout>
+      </RoleGuard>
     );
   }
 
