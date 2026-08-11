@@ -152,8 +152,12 @@ service cloud.firestore {
         (
           request.auth.uid == uid &&
           request.resource.data.diff(resource.data).affectedKeys()
-            .hasOnly(['mustChangePassword', 'updatedAt'])
-        ) ||
+            .hasOnly(['name', 'mustChangePassword', 'updatedAt'])
+        ) &&
+        request.resource.data.name is string &&
+        request.resource.data.name.size() >= 2 &&
+        request.resource.data.name.size() <= 80
+        ||
         (
           isSuperAdmin() &&
           isValidUserRole(request.resource.data.role)

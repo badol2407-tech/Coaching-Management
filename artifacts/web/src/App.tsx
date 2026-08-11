@@ -13,7 +13,10 @@ import { AdministrativeStaffLayout } from "@/components/layout/AdministrativeSta
 import { RoleGuard } from "@/components/auth/RoleGuard";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { USER_ROLES } from "@/lib/roles";
-import { ImpersonationProvider, useImpersonation } from "@/contexts/ImpersonationContext";
+import {
+  ImpersonationProvider,
+  useImpersonation,
+} from "@/contexts/ImpersonationContext";
 import { ImpersonationBanner } from "@/components/ImpersonationBanner";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { RealtimeSync } from "@/components/RealtimeSync";
@@ -45,8 +48,12 @@ const PaymentSuccess = lazy(() => import("@/pages/PaymentSuccess"));
 const PaymentFail = lazy(() => import("@/pages/PaymentFail"));
 
 // Super Admin pages — Operations
-const SuperAdminDashboard = lazy(() => import("@/pages/super-admin/SuperAdminDashboard"));
-const ManageOrganizations = lazy(() => import("@/pages/super-admin/ManageOrganizations"));
+const SuperAdminDashboard = lazy(
+  () => import("@/pages/super-admin/SuperAdminDashboard"),
+);
+const ManageOrganizations = lazy(
+  () => import("@/pages/super-admin/ManageOrganizations"),
+);
 const ManageUsers = lazy(() => import("@/pages/super-admin/ManageUsers"));
 const PaymentHistory = lazy(() => import("@/pages/super-admin/PaymentHistory"));
 const ActivityLogs = lazy(() => import("@/pages/super-admin/ActivityLogs"));
@@ -56,22 +63,32 @@ const StudentsList = lazy(() => import("@/pages/super-admin/StudentsList"));
 const AccessPortal = lazy(() => import("@/pages/super-admin/AccessPortal"));
 // Super Admin pages — Billing
 const PricingPlans = lazy(() => import("@/pages/super-admin/PricingPlans"));
-const ActiveSubscriptions = lazy(() => import("@/pages/super-admin/ActiveSubscriptions"));
+const ActiveSubscriptions = lazy(
+  () => import("@/pages/super-admin/ActiveSubscriptions"),
+);
 const PaidUnpaid = lazy(() => import("@/pages/super-admin/PaidUnpaid"));
 const FreeTrial = lazy(() => import("@/pages/super-admin/FreeTrial"));
 const Revenue = lazy(() => import("@/pages/super-admin/Revenue"));
 // Super Admin pages — Marketing
-const LandingPageMgmt = lazy(() => import("@/pages/super-admin/LandingPageMgmt"));
+const LandingPageMgmt = lazy(
+  () => import("@/pages/super-admin/LandingPageMgmt"),
+);
 const DemoLeads = lazy(() => import("@/pages/super-admin/DemoLeads"));
 const PopupOffers = lazy(() => import("@/pages/super-admin/PopupOffers"));
 const Testimonials = lazy(() => import("@/pages/super-admin/Testimonials"));
 const CouponCodes = lazy(() => import("@/pages/super-admin/CouponCodes"));
-const ReferralProgram = lazy(() => import("@/pages/super-admin/ReferralProgram"));
-const GrowthAnalytics = lazy(() => import("@/pages/super-admin/GrowthAnalytics"));
+const ReferralProgram = lazy(
+  () => import("@/pages/super-admin/ReferralProgram"),
+);
+const GrowthAnalytics = lazy(
+  () => import("@/pages/super-admin/GrowthAnalytics"),
+);
 const Campaigns = lazy(() => import("@/pages/super-admin/Campaigns"));
 
 const TeacherDashboard = lazy(() => import("@/pages/teacher/TeacherDashboard"));
-const TeacherAttendance = lazy(() => import("@/pages/teacher/TeacherAttendance"));
+const TeacherAttendance = lazy(
+  () => import("@/pages/teacher/TeacherAttendance"),
+);
 const TeacherStudents = lazy(() => import("@/pages/teacher/TeacherStudents"));
 const TeacherExams = lazy(() => import("@/pages/teacher/TeacherExams"));
 const TeacherRoutine = lazy(() => import("@/pages/teacher/TeacherRoutine"));
@@ -80,18 +97,45 @@ const StudentIdCard = lazy(() => import("@/pages/StudentIdCard"));
 const Reports = lazy(() => import("@/pages/Reports"));
 const StudentPortal = lazy(() => import("@/pages/student/StudentPortal"));
 const GuardianPortal = lazy(() => import("@/pages/guardian/GuardianPortal"));
-const GuardianCommunications = lazy(() => import("@/pages/GuardianCommunications"));
-const AdministrativeStaffDashboard = lazy(() => import("@/pages/administrative-staff/Dashboard"));
-const AdministrativeStaffStudentRecords = lazy(() => import("@/pages/administrative-staff/StudentRecords"));
-const AdministrativeStaffAdmissionManagement = lazy(() => import("@/pages/administrative-staff/AdmissionManagement"));
-const AdministrativeStaffFeeCollection = lazy(() => import("@/pages/administrative-staff/FeeCollection"));
-const AdministrativeStaffPaymentHistory = lazy(() => import("@/pages/administrative-staff/PaymentHistory"));
-const AdministrativeStaffRoutineManagement = lazy(() => import("@/pages/administrative-staff/RoutineManagement"));
-const AdministrativeStaffNotices = lazy(() => import("@/pages/administrative-staff/Notices"));
-const AdministrativeStaffReports = lazy(() => import("@/pages/administrative-staff/Reports"));
-const AdministrativeStaffNotifications = lazy(() => import("@/pages/administrative-staff/Notifications"));
-const AdministrativeStaffIdCardManagement = lazy(() => import("@/pages/administrative-staff/IdCardManagement"));
-const AdministrativeStaffCertificateManagement = lazy(() => import("@/pages/administrative-staff/CertificateManagement"));
+const GuardianCommunications = lazy(
+  () => import("@/pages/GuardianCommunications"),
+);
+const AdministrativeStaffDashboard = lazy(
+  () => import("@/pages/administrative-staff/Dashboard"),
+);
+const AdministrativeStaffStudentRecords = lazy(
+  () => import("@/pages/administrative-staff/StudentRecords"),
+);
+const AdministrativeStaffAdmissionManagement = lazy(
+  () => import("@/pages/administrative-staff/AdmissionManagement"),
+);
+const AdministrativeStaffFeeCollection = lazy(
+  () => import("@/pages/administrative-staff/FeeCollection"),
+);
+const AdministrativeStaffPaymentHistory = lazy(
+  () => import("@/pages/administrative-staff/PaymentHistory"),
+);
+const AdministrativeStaffRoutineManagement = lazy(
+  () => import("@/pages/administrative-staff/RoutineManagement"),
+);
+const AdministrativeStaffNotices = lazy(
+  () => import("@/pages/administrative-staff/Notices"),
+);
+const AdministrativeStaffReports = lazy(
+  () => import("@/pages/administrative-staff/Reports"),
+);
+const AdministrativeStaffNotifications = lazy(
+  () => import("@/pages/administrative-staff/Notifications"),
+);
+const AdministrativeStaffIdCardManagement = lazy(
+  () => import("@/pages/administrative-staff/IdCardManagement"),
+);
+const AdministrativeStaffCertificateManagement = lazy(
+  () => import("@/pages/administrative-staff/CertificateManagement"),
+);
+const AdministrativeStaffProfileSettings = lazy(
+  () => import("@/pages/administrative-staff/ProfileSettings"),
+);
 const JoinOrg = lazy(() => import("@/pages/JoinOrg"));
 const DemoWorkspace = lazy(() => import("@/pages/DemoWorkspace"));
 
@@ -141,10 +185,15 @@ function ImpersonatedView() {
               <Route path="/settings" component={Settings} />
               <Route path="/subscription" component={Subscription} />
               <Route path="/help" component={HelpCenter} />
-              <Route path="/guardian-communications" component={GuardianCommunications} />
+              <Route
+                path="/guardian-communications"
+                component={GuardianCommunications}
+              />
               <Route path="/id-cards" component={StudentIdCard} />
               <Route path="/reports" component={Reports} />
-              <Route><Redirect to="/" /></Route>
+              <Route>
+                <Redirect to="/" />
+              </Route>
             </Switch>
           </AppLayout>
         )}
@@ -159,9 +208,14 @@ function ImpersonatedView() {
               <Route path="/notices" component={Notices} />
               <Route path="/homework" component={Homework} />
               <Route path="/settings" component={TeacherSettings} />
-              <Route path="/guardian-communications" component={GuardianCommunications} />
+              <Route
+                path="/guardian-communications"
+                component={GuardianCommunications}
+              />
               <Route path="/id-cards" component={StudentIdCard} />
-              <Route><Redirect to="/" /></Route>
+              <Route>
+                <Redirect to="/" />
+              </Route>
             </Switch>
           </TeacherLayout>
         )}
@@ -169,7 +223,9 @@ function ImpersonatedView() {
           <StudentLayout>
             <Switch>
               <Route path="/" component={StudentPortal} />
-              <Route><Redirect to="/" /></Route>
+              <Route>
+                <Redirect to="/" />
+              </Route>
             </Switch>
           </StudentLayout>
         )}
@@ -178,13 +234,37 @@ function ImpersonatedView() {
             <AdministrativeStaffLayout>
               <Switch>
                 <Route path="/" component={AdministrativeStaffDashboard} />
-                <Route path="/staff/students" component={AdministrativeStaffStudentRecords} />
-                <Route path="/staff/admissions" component={AdministrativeStaffAdmissionManagement} />
-                <Route path="/staff/fees" component={AdministrativeStaffFeeCollection} />
-                <Route path="/staff/payments" component={AdministrativeStaffPaymentHistory} />
-                <Route path="/staff/id-cards" component={AdministrativeStaffIdCardManagement} />
-                <Route path="/staff/certificates" component={AdministrativeStaffCertificateManagement} />
-                <Route><Redirect to="/" /></Route>
+                <Route
+                  path="/staff/students"
+                  component={AdministrativeStaffStudentRecords}
+                />
+                <Route
+                  path="/staff/admissions"
+                  component={AdministrativeStaffAdmissionManagement}
+                />
+                <Route
+                  path="/staff/fees"
+                  component={AdministrativeStaffFeeCollection}
+                />
+                <Route
+                  path="/staff/payments"
+                  component={AdministrativeStaffPaymentHistory}
+                />
+                <Route
+                  path="/staff/id-cards"
+                  component={AdministrativeStaffIdCardManagement}
+                />
+                <Route
+                  path="/staff/certificates"
+                  component={AdministrativeStaffCertificateManagement}
+                />
+                <Route
+                  path="/staff/settings"
+                  component={AdministrativeStaffProfileSettings}
+                />
+                <Route>
+                  <Redirect to="/" />
+                </Route>
               </Switch>
             </AdministrativeStaffLayout>
           </RoleGuard>
@@ -199,14 +279,24 @@ function AuthenticatedRoutes() {
   const { impersonation } = useImpersonation();
 
   if (loading) return <Spinner />;
-  if (!user) return <Suspense fallback={<Spinner />}><LandingPage /></Suspense>;
+  if (!user)
+    return (
+      <Suspense fallback={<Spinner />}>
+        <LandingPage />
+      </Suspense>
+    );
 
   // If there's an active impersonation, render the impersonated view.
   if (impersonation) {
     return <ImpersonatedView />;
   }
 
-  if (!userProfile) return <Suspense fallback={<Spinner />}><Setup /></Suspense>;
+  if (!userProfile)
+    return (
+      <Suspense fallback={<Spinner />}>
+        <Setup />
+      </Suspense>
+    );
 
   // Force password change gate — must be cleared before accessing any dashboard
   if (userProfile.mustChangePassword) {
@@ -225,7 +315,10 @@ function AuthenticatedRoutes() {
             {/* Dashboard */}
             <Route path="/" component={SuperAdminDashboard} />
             {/* Operations */}
-            <Route path="/operations/organizations" component={ManageOrganizations} />
+            <Route
+              path="/operations/organizations"
+              component={ManageOrganizations}
+            />
             <Route path="/operations/users" component={ManageUsers} />
             <Route path="/operations/org-admins" component={OrgAdmins} />
             <Route path="/operations/teachers" component={TeachersList} />
@@ -234,7 +327,10 @@ function AuthenticatedRoutes() {
             <Route path="/operations/access-portal" component={AccessPortal} />
             {/* Billing & Finance */}
             <Route path="/billing/pricing" component={PricingPlans} />
-            <Route path="/billing/subscriptions" component={ActiveSubscriptions} />
+            <Route
+              path="/billing/subscriptions"
+              component={ActiveSubscriptions}
+            />
             <Route path="/billing/paid-unpaid" component={PaidUnpaid} />
             <Route path="/billing/free-trial" component={FreeTrial} />
             <Route path="/billing/revenue" component={Revenue} />
@@ -248,7 +344,9 @@ function AuthenticatedRoutes() {
             <Route path="/marketing/referrals" component={ReferralProgram} />
             <Route path="/marketing/analytics" component={GrowthAnalytics} />
             <Route path="/marketing/campaigns" component={Campaigns} />
-            <Route><Redirect to="/" /></Route>
+            <Route>
+              <Redirect to="/" />
+            </Route>
           </Switch>
         </Suspense>
       </SuperAdminLayout>
@@ -268,9 +366,14 @@ function AuthenticatedRoutes() {
             <Route path="/notices" component={Notices} />
             <Route path="/homework" component={Homework} />
             <Route path="/settings" component={TeacherSettings} />
-             <Route path="/guardian-communications" component={GuardianCommunications} />
+            <Route
+              path="/guardian-communications"
+              component={GuardianCommunications}
+            />
             <Route path="/id-cards" component={StudentIdCard} />
-            <Route><Redirect to="/" /></Route>
+            <Route>
+              <Redirect to="/" />
+            </Route>
           </Switch>
         </Suspense>
       </TeacherLayout>
@@ -283,7 +386,9 @@ function AuthenticatedRoutes() {
         <Suspense fallback={<Spinner />}>
           <Switch>
             <Route path="/" component={StudentPortal} />
-            <Route><Redirect to="/" /></Route>
+            <Route>
+              <Redirect to="/" />
+            </Route>
           </Switch>
         </Suspense>
       </StudentLayout>
@@ -307,17 +412,53 @@ function AuthenticatedRoutes() {
           <Suspense fallback={<Spinner />}>
             <Switch>
               <Route path="/" component={AdministrativeStaffDashboard} />
-              <Route path="/staff/students" component={AdministrativeStaffStudentRecords} />
-              <Route path="/staff/admissions" component={AdministrativeStaffAdmissionManagement} />
-              <Route path="/staff/fees" component={AdministrativeStaffFeeCollection} />
-              <Route path="/staff/payments" component={AdministrativeStaffPaymentHistory} />
-              <Route path="/staff/routine" component={AdministrativeStaffRoutineManagement} />
-              <Route path="/staff/notices" component={AdministrativeStaffNotices} />
-                <Route path="/staff/reports" component={AdministrativeStaffReports} />
-                <Route path="/staff/notifications" component={AdministrativeStaffNotifications} />
-              <Route path="/staff/id-cards" component={AdministrativeStaffIdCardManagement} />
-              <Route path="/staff/certificates" component={AdministrativeStaffCertificateManagement} />
-              <Route><Redirect to="/" /></Route>
+              <Route
+                path="/staff/students"
+                component={AdministrativeStaffStudentRecords}
+              />
+              <Route
+                path="/staff/admissions"
+                component={AdministrativeStaffAdmissionManagement}
+              />
+              <Route
+                path="/staff/fees"
+                component={AdministrativeStaffFeeCollection}
+              />
+              <Route
+                path="/staff/payments"
+                component={AdministrativeStaffPaymentHistory}
+              />
+              <Route
+                path="/staff/routine"
+                component={AdministrativeStaffRoutineManagement}
+              />
+              <Route
+                path="/staff/notices"
+                component={AdministrativeStaffNotices}
+              />
+              <Route
+                path="/staff/reports"
+                component={AdministrativeStaffReports}
+              />
+              <Route
+                path="/staff/notifications"
+                component={AdministrativeStaffNotifications}
+              />
+              <Route
+                path="/staff/id-cards"
+                component={AdministrativeStaffIdCardManagement}
+              />
+              <Route
+                path="/staff/certificates"
+                component={AdministrativeStaffCertificateManagement}
+              />
+              <Route
+                path="/staff/settings"
+                component={AdministrativeStaffProfileSettings}
+              />
+              <Route>
+                <Redirect to="/" />
+              </Route>
             </Switch>
           </Suspense>
         </AdministrativeStaffLayout>
@@ -346,10 +487,15 @@ function AuthenticatedRoutes() {
           <Route path="/settings" component={Settings} />
           <Route path="/subscription" component={Subscription} />
           <Route path="/help" component={HelpCenter} />
-          <Route path="/guardian-communications" component={GuardianCommunications} />
+          <Route
+            path="/guardian-communications"
+            component={GuardianCommunications}
+          />
           <Route path="/id-cards" component={StudentIdCard} />
           <Route path="/reports" component={Reports} />
-          <Route><Redirect to="/" /></Route>
+          <Route>
+            <Redirect to="/" />
+          </Route>
         </Switch>
       </Suspense>
     </AppLayout>
@@ -364,47 +510,75 @@ function AppRoutes() {
         <Switch>
           {/* Public routes — available regardless of auth state */}
           <Route path="/payment/success">
-            <Suspense fallback={<Spinner />}><PaymentSuccess /></Suspense>
+            <Suspense fallback={<Spinner />}>
+              <PaymentSuccess />
+            </Suspense>
           </Route>
           <Route path="/payment/fail">
-            <Suspense fallback={<Spinner />}><PaymentFail /></Suspense>
+            <Suspense fallback={<Spinner />}>
+              <PaymentFail />
+            </Suspense>
           </Route>
           <Route path="/privacy">
-            <Suspense fallback={<Spinner />}><PrivacyPolicy /></Suspense>
+            <Suspense fallback={<Spinner />}>
+              <PrivacyPolicy />
+            </Suspense>
           </Route>
           <Route path="/terms">
-            <Suspense fallback={<Spinner />}><TermsOfService /></Suspense>
+            <Suspense fallback={<Spinner />}>
+              <TermsOfService />
+            </Suspense>
           </Route>
           <Route path="/refund">
-            <Suspense fallback={<Spinner />}><RefundPolicy /></Suspense>
+            <Suspense fallback={<Spinner />}>
+              <RefundPolicy />
+            </Suspense>
           </Route>
           <Route path="/faq">
-            <Suspense fallback={<Spinner />}><FAQ /></Suspense>
+            <Suspense fallback={<Spinner />}>
+              <FAQ />
+            </Suspense>
           </Route>
           <Route path="/help">
-            <Suspense fallback={<Spinner />}><HelpCenter /></Suspense>
+            <Suspense fallback={<Spinner />}>
+              <HelpCenter />
+            </Suspense>
           </Route>
           <Route path="/join/:code/:role?">
-            <Suspense fallback={<Spinner />}><JoinOrg /></Suspense>
+            <Suspense fallback={<Spinner />}>
+              <JoinOrg />
+            </Suspense>
           </Route>
           <Route path="/demo">
-            <Suspense fallback={<Spinner />}><DemoWorkspace /></Suspense>
+            <Suspense fallback={<Spinner />}>
+              <DemoWorkspace />
+            </Suspense>
           </Route>
           {/* Public marketing sections — remain available even when a user is signed in. */}
           <Route path="/features">
-            <Suspense fallback={<Spinner />}><LandingPage /></Suspense>
+            <Suspense fallback={<Spinner />}>
+              <LandingPage />
+            </Suspense>
           </Route>
           <Route path="/solutions">
-            <Suspense fallback={<Spinner />}><LandingPage /></Suspense>
+            <Suspense fallback={<Spinner />}>
+              <LandingPage />
+            </Suspense>
           </Route>
           <Route path="/pricing">
-            <Suspense fallback={<Spinner />}><LandingPage /></Suspense>
+            <Suspense fallback={<Spinner />}>
+              <LandingPage />
+            </Suspense>
           </Route>
           <Route path="/resources">
-            <Suspense fallback={<Spinner />}><LandingPage /></Suspense>
+            <Suspense fallback={<Spinner />}>
+              <LandingPage />
+            </Suspense>
           </Route>
           <Route path="/about">
-            <Suspense fallback={<Spinner />}><LandingPage /></Suspense>
+            <Suspense fallback={<Spinner />}>
+              <LandingPage />
+            </Suspense>
           </Route>
           {/* All other routes go through the auth-gated flow */}
           <Route>
@@ -434,7 +608,9 @@ function App() {
       {!splashDone && <SplashScreen onDone={handleSplashDone} />}
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
-          <WouterRouter base={(import.meta.env.BASE_URL ?? "/").replace(/\/$/, "")}>
+          <WouterRouter
+            base={(import.meta.env.BASE_URL ?? "/").replace(/\/$/, "")}
+          >
             <AppRoutes />
           </WouterRouter>
           <Toaster />

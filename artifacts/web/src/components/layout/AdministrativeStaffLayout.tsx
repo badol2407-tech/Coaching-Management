@@ -16,6 +16,7 @@ import {
   Menu,
   X,
   UsersRound,
+  Settings,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMobileDrawer } from "@/hooks/use-mobile-drawer";
@@ -28,7 +29,11 @@ import { PortalNavLink } from "@/components/layout/PortalNavLink";
 const navItems = [
   { title: "Dashboard", href: "/", icon: LayoutDashboard },
   { title: "Student Records", href: "/staff/students", icon: UsersRound },
-  { title: "Admission Management", href: "/staff/admissions", icon: ClipboardCheck },
+  {
+    title: "Admission Management",
+    href: "/staff/admissions",
+    icon: ClipboardCheck,
+  },
   { title: "Fee Collection", href: "/staff/fees", icon: CreditCard },
   { title: "Payment History", href: "/staff/payments", icon: CreditCard },
   { title: "Routine Management", href: "/staff/routine", icon: CalendarRange },
@@ -36,18 +41,29 @@ const navItems = [
   { title: "Reports", href: "/staff/reports", icon: FileBarChart2 },
   { title: "Notifications", href: "/staff/notifications", icon: Bell },
   { title: "ID Card Management", href: "/staff/id-cards", icon: IdCard },
-  { title: "Certificate Management", href: "/staff/certificates", icon: FileBadge },
+  {
+    title: "Certificate Management",
+    href: "/staff/certificates",
+    icon: FileBadge,
+  },
+  { title: "Profile & Settings", href: "/staff/settings", icon: Settings },
 ];
 
 function initExpanded() {
   try {
-    return localStorage.getItem("sidebar-administrative-staff-expanded") === "true";
+    return (
+      localStorage.getItem("sidebar-administrative-staff-expanded") === "true"
+    );
   } catch {
     return false;
   }
 }
 
-export function AdministrativeStaffLayout({ children }: { children: React.ReactNode }) {
+export function AdministrativeStaffLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [location] = useLocation();
   const { user, userProfile, logout } = useAuth();
   const { impersonation } = useImpersonation();
@@ -68,7 +84,9 @@ export function AdministrativeStaffLayout({ children }: { children: React.ReactN
         <SubscriptionExpiredScreen
           status={accessStatus}
           tier={getEffectiveTier(userProfile.orgSubscription)}
-          subscriptionExpiryDate={userProfile.orgSubscription.subscriptionExpiryDate}
+          subscriptionExpiryDate={
+            userProfile.orgSubscription.subscriptionExpiryDate
+          }
         />
       );
     }
@@ -78,7 +96,10 @@ export function AdministrativeStaffLayout({ children }: { children: React.ReactN
     const next = !expanded;
     setExpanded(next);
     try {
-      localStorage.setItem("sidebar-administrative-staff-expanded", String(next));
+      localStorage.setItem(
+        "sidebar-administrative-staff-expanded",
+        String(next),
+      );
     } catch {}
   }
 
@@ -91,7 +112,9 @@ export function AdministrativeStaffLayout({ children }: { children: React.ReactN
     <div className="min-h-screen flex bg-background overflow-x-hidden">
       <div
         className={`fixed inset-0 z-40 md:hidden transition-opacity duration-300 ${
-          mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          mobileOpen
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
         }`}
         style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }}
         onClick={closeDrawer}
@@ -109,7 +132,8 @@ export function AdministrativeStaffLayout({ children }: { children: React.ReactN
           w-64 md:w-14 ${expanded ? "md:w-56" : "md:w-14"}
           ${mobileOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
         style={{
-          background: "linear-gradient(180deg, #25233f 0%, #19182d 58%, #131321 100%)",
+          background:
+            "linear-gradient(180deg, #25233f 0%, #19182d 58%, #131321 100%)",
           boxShadow: "4px 0 24px rgba(0,0,0,0.35)",
         }}
         aria-label="Administrative staff navigation"
@@ -124,10 +148,14 @@ export function AdministrativeStaffLayout({ children }: { children: React.ReactN
           </div>
           <div
             className={`min-w-0 overflow-hidden transition-all duration-200 max-w-[140px] opacity-100 ${
-              expanded ? "md:max-w-[140px] md:opacity-100" : "md:max-w-0 md:opacity-0"
+              expanded
+                ? "md:max-w-[140px] md:opacity-100"
+                : "md:max-w-0 md:opacity-0"
             }`}
           >
-            <p className="text-white font-bold text-sm leading-none">EduTrack</p>
+            <p className="text-white font-bold text-sm leading-none">
+              EduTrack
+            </p>
             {userProfile?.orgName && (
               <p className="text-indigo-300/70 text-[10px] leading-none mt-0.5 truncate">
                 {userProfile.orgName}
@@ -187,20 +215,26 @@ export function AdministrativeStaffLayout({ children }: { children: React.ReactN
             }`}
           >
             <div
-              title={!expanded ? userProfile?.name || user?.email || "" : undefined}
+              title={
+                !expanded ? userProfile?.name || user?.email || "" : undefined
+              }
               className="h-8 w-8 rounded-full bg-gradient-to-br from-indigo-400 to-blue-500 flex items-center justify-center text-white text-xs font-bold shadow-md shrink-0"
             >
               {(userProfile?.name || user?.email || "A")[0].toUpperCase()}
             </div>
             <div
               className={`min-w-0 flex-1 overflow-hidden transition-all duration-200 max-w-[120px] opacity-100 ${
-                expanded ? "md:max-w-[120px] md:opacity-100" : "md:max-w-0 md:opacity-0 md:flex-none"
+                expanded
+                  ? "md:max-w-[120px] md:opacity-100"
+                  : "md:max-w-0 md:opacity-0 md:flex-none"
               }`}
             >
               <p className="text-white text-xs font-semibold truncate leading-tight">
                 {userProfile?.name || user?.displayName}
               </p>
-              <p className="text-slate-400 text-[10px] truncate leading-tight">{user?.email}</p>
+              <p className="text-slate-400 text-[10px] truncate leading-tight">
+                {user?.email}
+              </p>
             </div>
             <button
               onClick={logout}
@@ -221,7 +255,11 @@ export function AdministrativeStaffLayout({ children }: { children: React.ReactN
             aria-expanded={expanded}
             data-testid="button-toggle-sidebar"
           >
-            {expanded ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+            {expanded ? (
+              <ChevronLeft className="h-4 w-4" />
+            ) : (
+              <ChevronRight className="h-4 w-4" />
+            )}
           </button>
         </div>
       </aside>
@@ -245,7 +283,9 @@ export function AdministrativeStaffLayout({ children }: { children: React.ReactN
             <span className="font-bold text-sm">EduTrack</span>
           </div>
         </header>
-        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-x-hidden">{children}</main>
+        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-x-hidden">
+          {children}
+        </main>
       </div>
     </div>
   );
