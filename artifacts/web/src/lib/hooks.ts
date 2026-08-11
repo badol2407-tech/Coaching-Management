@@ -1625,3 +1625,37 @@ export function useGuardianNotifications(studentId?: string | null) {
     sortNewest(snapshot.docs.map(mapDoc) as any[]),
   );
 }
+
+export function useStaffNotifications() {
+  const { userProfile } = useAuth();
+  const orgId = userProfile?.orgId;
+  const collectionQuery = useMemo(
+    () =>
+      orgId &&
+      ["org_admin", "teacher", "administrative_staff"].includes(userProfile?.role ?? "")
+        ? query(collection(db, "organizations", orgId, "notifications"))
+        : null,
+    [orgId, userProfile?.role],
+  );
+  return liveCollection(collectionQuery, (snapshot) =>
+    sortNewest(snapshot.docs.map(mapDoc) as any[]),
+  );
+}
+
+export function useMarkNotificationRead() {
+  const { userProfile } = useAuth();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ notificationId }: { notificationId: string }) => {
+      const orgId = userProfile?.orgId;
+      if (!orgId) throw new Error("No organization");
+      await updateDoc(orgDocRef(orgId, "notifications", notificationId), {
+        read: true,
+        updatedAt: serverTimestamp(),
+      });
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: [userProfile?.orgId, "notifications"] });
+    },
+  });
+}

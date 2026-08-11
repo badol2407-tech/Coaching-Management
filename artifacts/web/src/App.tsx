@@ -88,6 +88,8 @@ const AdministrativeStaffFeeCollection = lazy(() => import("@/pages/administrati
 const AdministrativeStaffPaymentHistory = lazy(() => import("@/pages/administrative-staff/PaymentHistory"));
 const AdministrativeStaffRoutineManagement = lazy(() => import("@/pages/administrative-staff/RoutineManagement"));
 const AdministrativeStaffNotices = lazy(() => import("@/pages/administrative-staff/Notices"));
+const AdministrativeStaffReports = lazy(() => import("@/pages/administrative-staff/Reports"));
+const AdministrativeStaffNotifications = lazy(() => import("@/pages/administrative-staff/Notifications"));
 const AdministrativeStaffIdCardManagement = lazy(() => import("@/pages/administrative-staff/IdCardManagement"));
 const AdministrativeStaffCertificateManagement = lazy(() => import("@/pages/administrative-staff/CertificateManagement"));
 const JoinOrg = lazy(() => import("@/pages/JoinOrg"));
@@ -311,6 +313,8 @@ function AuthenticatedRoutes() {
               <Route path="/staff/payments" component={AdministrativeStaffPaymentHistory} />
               <Route path="/staff/routine" component={AdministrativeStaffRoutineManagement} />
               <Route path="/staff/notices" component={AdministrativeStaffNotices} />
+                <Route path="/staff/reports" component={AdministrativeStaffReports} />
+                <Route path="/staff/notifications" component={AdministrativeStaffNotifications} />
               <Route path="/staff/id-cards" component={AdministrativeStaffIdCardManagement} />
               <Route path="/staff/certificates" component={AdministrativeStaffCertificateManagement} />
               <Route><Redirect to="/" /></Route>

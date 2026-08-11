@@ -8,6 +8,7 @@ import {
   CreditCard,
   Bell,
   CalendarRange,
+  FileBarChart2,
   FileBadge,
   IdCard,
   LayoutDashboard,
@@ -32,6 +33,8 @@ const navItems = [
   { title: "Payment History", href: "/staff/payments", icon: CreditCard },
   { title: "Routine Management", href: "/staff/routine", icon: CalendarRange },
   { title: "Notice Management", href: "/staff/notices", icon: Bell },
+  { title: "Reports", href: "/staff/reports", icon: FileBarChart2 },
+  { title: "Notifications", href: "/staff/notifications", icon: Bell },
   { title: "ID Card Management", href: "/staff/id-cards", icon: IdCard },
   { title: "Certificate Management", href: "/staff/certificates", icon: FileBadge },
 ];

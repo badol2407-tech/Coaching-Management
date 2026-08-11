@@ -104,6 +104,9 @@ function invalidateOrgCollection(
   if (collectionName === "results") {
     void queryClient.invalidateQueries({ queryKey: [orgId, "my_results"] });
   }
+  if (collectionName === "admission_requests") {
+    void queryClient.invalidateQueries({ queryKey: [orgId, "administrative_staff", "admission_requests"] });
+  }
 }
 
 function invalidatePlatformCollection(
