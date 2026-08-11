@@ -6,6 +6,8 @@ import {
   ChevronRight,
   ClipboardCheck,
   CreditCard,
+  Bell,
+  CalendarRange,
   FileBadge,
   IdCard,
   LayoutDashboard,
@@ -28,6 +30,8 @@ const navItems = [
   { title: "Admission Management", href: "/staff/admissions", icon: ClipboardCheck },
   { title: "Fee Collection", href: "/staff/fees", icon: CreditCard },
   { title: "Payment History", href: "/staff/payments", icon: CreditCard },
+  { title: "Routine Management", href: "/staff/routine", icon: CalendarRange },
+  { title: "Notice Management", href: "/staff/notices", icon: Bell },
   { title: "ID Card Management", href: "/staff/id-cards", icon: IdCard },
   { title: "Certificate Management", href: "/staff/certificates", icon: FileBadge },
 ];

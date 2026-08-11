@@ -797,6 +797,20 @@ export function useCreateNotice() {
   });
 }
 
+export function useUpdateNotice() {
+  const qc = useQueryClient();
+  const { userProfile } = useAuth();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Record<string, unknown> }) => {
+      const orgId = userProfile?.orgId;
+      if (!orgId) throw new Error("No org");
+      const studentIds = await studentIdsForClassBatch(orgId, data.className, data.batch);
+      await updateDoc(orgDocRef(orgId, "notices", id), { ...data, studentIds, updatedAt: serverTimestamp() });
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: [userProfile?.orgId, "notices"] }),
+  });
+}
+
 export function useDeleteNotice() {
   const qc = useQueryClient();
   const { userProfile } = useAuth();
@@ -969,6 +983,20 @@ export function useCreateRoutineSlot() {
       const studentIds = await studentIdsForClassBatch(orgId, data.className, data.batch);
       const ref = await addDoc(orgCol(orgId, "routine"), { ...data, studentIds, createdAt: serverTimestamp() });
       return { id: ref.id };
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: [userProfile?.orgId, "routine"] }),
+  });
+}
+
+export function useUpdateRoutineSlot() {
+  const qc = useQueryClient();
+  const { userProfile } = useAuth();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Record<string, unknown> }) => {
+      const orgId = userProfile?.orgId;
+      if (!orgId) throw new Error("No org");
+      const studentIds = await studentIdsForClassBatch(orgId, data.className, data.batch);
+      await updateDoc(orgDocRef(orgId, "routine", id), { ...data, studentIds, updatedAt: serverTimestamp() });
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: [userProfile?.orgId, "routine"] }),
   });
