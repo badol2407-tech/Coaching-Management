@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Plus, ShieldCheck, UsersRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,15 +8,13 @@ import { FilterBar } from "@/components/management/FilterBar";
 import { LoadingSkeleton } from "@/components/management/LoadingSkeleton";
 import { Pagination } from "@/components/management/Pagination";
 import { SearchBar } from "@/components/management/SearchBar";
+import { useGuardiansCollection } from "@/features/directory";
 
 export default function GuardianManagement() {
   const [search, setSearch] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const loadingTimer = window.setTimeout(() => setIsLoading(false), 700);
-    return () => window.clearTimeout(loadingTimer);
-  }, []);
+  const { data: guardians = [], isLoading } = useGuardiansCollection({
+    search,
+  });
 
   return (
     <div className="app-command-surface mx-auto max-w-[1320px] space-y-6 pb-12">
@@ -112,11 +110,19 @@ export default function GuardianManagement() {
               <EmptyState
                 colSpan={5}
                 icon={UsersRound}
-                title={search ? "No guardians found" : "No guardians yet"}
+                title={
+                  guardians.length > 0
+                    ? "Guardian directory ready"
+                    : search
+                      ? "No guardians found"
+                      : "No guardians yet"
+                }
                 description={
-                  search
-                    ? "Try a different search term or clear the search to see all guardians."
-                    : "When guardians are added, their family connections and contact details will appear here."
+                  guardians.length > 0
+                    ? `${guardians.length} guardian${guardians.length === 1 ? "" : "s"} available when the directory is connected.`
+                    : search
+                      ? "Try a different search term or clear the search to see all guardians."
+                      : "When guardians are added, their family connections and contact details will appear here."
                 }
                 badgeLabel="Directory is ready"
                 showBadge={!search}
@@ -126,7 +132,7 @@ export default function GuardianManagement() {
           <Pagination
             isLoading={isLoading}
             loadingText="Loading guardians..."
-            summaryText="Showing 0 of 0 guardians"
+            summaryText={`Showing ${guardians.length} of ${guardians.length} guardians`}
             ariaLabel="Guardian pagination"
             testIdPrefix="button-guardian-pagination"
           />

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { BriefcaseBusiness, Plus, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,15 +8,13 @@ import { FilterBar } from "@/components/management/FilterBar";
 import { LoadingSkeleton } from "@/components/management/LoadingSkeleton";
 import { Pagination } from "@/components/management/Pagination";
 import { SearchBar } from "@/components/management/SearchBar";
+import { useAdministrativeStaffCollection } from "@/features/directory";
 
 export default function AdministrativeStaffManagement() {
   const [search, setSearch] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const loadingTimer = window.setTimeout(() => setIsLoading(false), 700);
-    return () => window.clearTimeout(loadingTimer);
-  }, []);
+  const { data: staff = [], isLoading } = useAdministrativeStaffCollection({
+    search,
+  });
 
   return (
     <div className="app-command-surface mx-auto max-w-[1320px] space-y-6 pb-12">
@@ -112,11 +110,19 @@ export default function AdministrativeStaffManagement() {
               <EmptyState
                 colSpan={5}
                 icon={BriefcaseBusiness}
-                title={search ? "No staff found" : "No staff yet"}
+                title={
+                  staff.length > 0
+                    ? "Staff directory ready"
+                    : search
+                      ? "No staff found"
+                      : "No staff yet"
+                }
                 description={
-                  search
-                    ? "Try a different search term or clear the search to see all staff."
-                    : "When staff members are added, their roles and contact details will appear here."
+                  staff.length > 0
+                    ? `${staff.length} staff member${staff.length === 1 ? "" : "s"} available when the directory is connected.`
+                    : search
+                      ? "Try a different search term or clear the search to see all staff."
+                      : "When staff members are added, their roles and contact details will appear here."
                 }
                 badgeLabel="Directory is ready"
                 showBadge={!search}
@@ -126,7 +132,7 @@ export default function AdministrativeStaffManagement() {
           <Pagination
             isLoading={isLoading}
             loadingText="Loading staff..."
-            summaryText="Showing 0 of 0 staff"
+            summaryText={`Showing ${staff.length} of ${staff.length} staff`}
             ariaLabel="Administrative staff pagination"
             testIdPrefix="button-staff-pagination"
           />
