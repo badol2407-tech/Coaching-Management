@@ -13,6 +13,22 @@ export interface DirectoryCollectionParams {
   search?: string;
 }
 
+export type DirectoryRecordKind = "guardian" | "administrative_staff";
+
+export interface DirectoryCreateInput {
+  organizationId: string;
+  kind: DirectoryRecordKind;
+  name: string;
+  email: string;
+  phone: string;
+  role?: AdministrativeStaffRole;
+}
+
+export interface DirectoryCreateResult {
+  id: string;
+  temporaryPassword: string;
+}
+
 export interface DirectoryRecord {
   id: string;
   organizationId: string;

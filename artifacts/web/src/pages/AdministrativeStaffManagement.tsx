@@ -1,21 +1,16 @@
 import { useState } from "react";
-import { BriefcaseBusiness, Plus, ShieldCheck } from "lucide-react";
+import { BriefcaseBusiness, Phone, Plus, ShieldCheck } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { TableCell, TableRow } from "@/components/ui/table";
 import { DataTable } from "@/components/management/DataTable";
 import { EmptyState } from "@/components/management/EmptyState";
 import { FilterBar } from "@/components/management/FilterBar";
 import { LoadingSkeleton } from "@/components/management/LoadingSkeleton";
 import { Pagination } from "@/components/management/Pagination";
 import { SearchBar } from "@/components/management/SearchBar";
+import { DirectoryAddDialog } from "@/features/directory/components/DirectoryAddDialog";
 import { useAdministrativeStaffCollection } from "@/features/directory";
 
 export default function AdministrativeStaffManagement() {
@@ -116,23 +111,50 @@ export default function AdministrativeStaffManagement() {
                 rowKeyPrefix="staff-loading"
                 thirdColumnWidth="w-20"
               />
+            ) : staff.length > 0 ? (
+              staff.map((member) => (
+                <TableRow key={member.id} className="border-primary/10">
+                  <TableCell className="px-4 sm:px-6">
+                    <div className="font-medium text-foreground">
+                      {member.name}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {member.email}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Phone className="h-3.5 w-3.5" aria-hidden="true" />
+                      {member.phone || "—"}
+                    </div>
+                  </TableCell>
+                  <TableCell className="capitalize">
+                    {member.role.replace("_", " ")}
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant="outline"
+                      className="border-emerald-200 bg-emerald-50 text-emerald-700"
+                    >
+                      {member.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="pr-4 text-right text-xs text-muted-foreground sm:pr-6">
+                    {member.lastActiveAt
+                      ? new Date(member.lastActiveAt).toLocaleDateString()
+                      : "Not active yet"}
+                  </TableCell>
+                </TableRow>
+              ))
             ) : (
               <EmptyState
                 colSpan={5}
                 icon={BriefcaseBusiness}
-                title={
-                  staff.length > 0
-                    ? "Staff directory ready"
-                    : search
-                      ? "No staff found"
-                      : "No staff yet"
-                }
+                title={search ? "No staff found" : "No staff yet"}
                 description={
-                  staff.length > 0
-                    ? `${staff.length} staff member${staff.length === 1 ? "" : "s"} available when the directory is connected.`
-                    : search
-                      ? "Try a different search term or clear the search to see all staff."
-                      : "When staff members are added, their roles and contact details will appear here."
+                  search
+                    ? "Try a different search term or clear the search to see all staff."
+                    : "When staff members are added, their roles and contact details will appear here."
                 }
                 badgeLabel="Directory is ready"
                 showBadge={!search}
@@ -149,21 +171,11 @@ export default function AdministrativeStaffManagement() {
         </CardContent>
       </Card>
 
-      <Dialog open={addOpen} onOpenChange={setAddOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add Staff</DialogTitle>
-            <DialogDescription>
-              Staff creation will be connected when the organization directory is backed by Firestore.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button type="button" onClick={() => setAddOpen(false)}>
-              Close
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <DirectoryAddDialog
+        kind="administrative_staff"
+        open={addOpen}
+        onOpenChange={setAddOpen}
+      />
     </div>
   );
 }

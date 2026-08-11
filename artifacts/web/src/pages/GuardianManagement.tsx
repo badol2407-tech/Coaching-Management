@@ -1,21 +1,16 @@
 import { useState } from "react";
-import { Plus, ShieldCheck, UsersRound } from "lucide-react";
+import { Phone, Plus, ShieldCheck, UsersRound } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { TableCell, TableRow } from "@/components/ui/table";
 import { DataTable } from "@/components/management/DataTable";
 import { EmptyState } from "@/components/management/EmptyState";
 import { FilterBar } from "@/components/management/FilterBar";
 import { LoadingSkeleton } from "@/components/management/LoadingSkeleton";
 import { Pagination } from "@/components/management/Pagination";
 import { SearchBar } from "@/components/management/SearchBar";
+import { DirectoryAddDialog } from "@/features/directory/components/DirectoryAddDialog";
 import { useGuardiansCollection } from "@/features/directory";
 
 export default function GuardianManagement() {
@@ -116,23 +111,48 @@ export default function GuardianManagement() {
                 rowKeyPrefix="guardian-loading"
                 thirdColumnWidth="w-12"
               />
+            ) : guardians.length > 0 ? (
+              guardians.map((guardian) => (
+                <TableRow key={guardian.id} className="border-primary/10">
+                  <TableCell className="px-4 sm:px-6">
+                    <div className="font-medium text-foreground">
+                      {guardian.name}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {guardian.email}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Phone className="h-3.5 w-3.5" aria-hidden="true" />
+                      {guardian.phone || "—"}
+                    </div>
+                  </TableCell>
+                  <TableCell>{guardian.linkedStudentIds.length}</TableCell>
+                  <TableCell>
+                    <Badge
+                      variant="outline"
+                      className="border-emerald-200 bg-emerald-50 text-emerald-700"
+                    >
+                      {guardian.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="pr-4 text-right text-xs text-muted-foreground sm:pr-6">
+                    {guardian.lastActiveAt
+                      ? new Date(guardian.lastActiveAt).toLocaleDateString()
+                      : "Not active yet"}
+                  </TableCell>
+                </TableRow>
+              ))
             ) : (
               <EmptyState
                 colSpan={5}
                 icon={UsersRound}
-                title={
-                  guardians.length > 0
-                    ? "Guardian directory ready"
-                    : search
-                      ? "No guardians found"
-                      : "No guardians yet"
-                }
+                title={search ? "No guardians found" : "No guardians yet"}
                 description={
-                  guardians.length > 0
-                    ? `${guardians.length} guardian${guardians.length === 1 ? "" : "s"} available when the directory is connected.`
-                    : search
-                      ? "Try a different search term or clear the search to see all guardians."
-                      : "When guardians are added, their family connections and contact details will appear here."
+                  search
+                    ? "Try a different search term or clear the search to see all guardians."
+                    : "When guardians are added, their family connections and contact details will appear here."
                 }
                 badgeLabel="Directory is ready"
                 showBadge={!search}
@@ -149,21 +169,11 @@ export default function GuardianManagement() {
         </CardContent>
       </Card>
 
-      <Dialog open={addOpen} onOpenChange={setAddOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add Guardian</DialogTitle>
-            <DialogDescription>
-              Guardian creation will be connected when the organization directory is backed by Firestore.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button type="button" onClick={() => setAddOpen(false)}>
-              Close
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <DirectoryAddDialog
+        kind="guardian"
+        open={addOpen}
+        onOpenChange={setAddOpen}
+      />
     </div>
   );
 }

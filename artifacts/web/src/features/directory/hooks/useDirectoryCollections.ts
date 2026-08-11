@@ -1,8 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { directoryService } from "@/features/directory/services/directory-service";
 import type {
   AdministrativeStaffRecord,
+  DirectoryCreateInput,
   GuardianRecord,
 } from "@/features/directory/types";
 
@@ -54,5 +55,27 @@ export function useAdministrativeStaffCollection(
         search,
       }),
     enabled: Boolean(organizationId) && options.enabled !== false,
+  });
+}
+
+export function useCreateDirectoryRecord() {
+  const queryClient = useQueryClient();
+  const { userProfile } = useAuth();
+
+  return useMutation({
+    mutationFn: (input: Omit<DirectoryCreateInput, "organizationId">) => {
+      const organizationId = userProfile?.orgId;
+      if (!organizationId) throw new Error("No organization is selected.");
+      return directoryService.createRecord({ ...input, organizationId });
+    },
+    onSuccess: (_, input) => {
+      const organizationId = userProfile?.orgId;
+      if (!organizationId) return;
+      const queryKey =
+        input.kind === "guardian"
+          ? getGuardiansCollectionQueryKey(organizationId)
+          : getAdministrativeStaffCollectionQueryKey(organizationId);
+      void queryClient.invalidateQueries({ queryKey: queryKey.slice(0, 3) });
+    },
   });
 }

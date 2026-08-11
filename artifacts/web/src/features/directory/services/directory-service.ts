@@ -5,6 +5,8 @@ import {
 import type {
   AdministrativeStaffRecord,
   DirectoryCollectionParams,
+  DirectoryCreateInput,
+  DirectoryCreateResult,
   GuardianRecord,
 } from "@/features/directory/types";
 
@@ -20,6 +22,7 @@ export interface DirectoryService {
   listAdministrativeStaff(
     params: DirectoryCollectionParams,
   ): Promise<AdministrativeStaffRecord[]>;
+  createRecord(input: DirectoryCreateInput): Promise<DirectoryCreateResult>;
 }
 
 export function createDirectoryService(
@@ -29,6 +32,7 @@ export function createDirectoryService(
     listGuardians: (params) => repository.listGuardians(params),
     listAdministrativeStaff: (params) =>
       repository.listAdministrativeStaff(params),
+    createRecord: (input) => repository.createRecord(input),
   };
 }
 

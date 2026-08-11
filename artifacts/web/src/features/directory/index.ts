@@ -1,6 +1,7 @@
 export {
   getAdministrativeStaffCollectionQueryKey,
   getGuardiansCollectionQueryKey,
+  useCreateDirectoryRecord,
   useAdministrativeStaffCollection,
   useGuardiansCollection,
 } from "@/features/directory/hooks/useDirectoryCollections";
@@ -21,6 +22,9 @@ export type {
   AdministrativeStaffRecord,
   AdministrativeStaffRole,
   DirectoryCollectionParams,
+  DirectoryCreateInput,
+  DirectoryCreateResult,
+  DirectoryRecordKind,
   DirectoryRecord,
   DirectoryStatus,
   GuardianRecord,
