@@ -4,22 +4,21 @@ description: Stack, key file locations, and route structure for the Coaching Man
 ---
 
 ## Stack
-Express 5 + PostgreSQL (Drizzle ORM) + React/Vite + TanStack Query. All API contracts in `lib/api-spec/openapi.yaml`.
+The main product is a React/Vite + Firebase Firestore application in `artifacts/web`. The separate Express/PostgreSQL API server is not used by the main app.
 
 ## Key files
-- Schema: `lib/db/src/schema/students.ts`, `lib/db/src/schema/attendance.ts`
-- Routes: `artifacts/api-server/src/routes/{students,attendance,dashboard}.ts`
-- Frontend entry: `artifacts/coaching-app/src/App.tsx`
-- API hooks: `lib/api-client-react/src/generated/api.ts`
-- Zod schemas: `lib/api-zod/src/generated/api.ts`
+- Frontend entry: `artifacts/web/src/App.tsx`
+- Firestore client: `artifacts/web/src/lib/firebase.ts`
+- Firestore hooks: `artifacts/web/src/lib/hooks.ts`
+- Realtime synchronization: `artifacts/web/src/components/RealtimeSync.tsx`
+- Rules: `firestore.rules`
 
-## DB design
-- `students` table: unique `student_id` text column; `status` is `active`|`inactive`
-- `attendance` table: unique constraint on `(student_id, date)` → upsert with `ON CONFLICT`
+## Data design
+- Organization-scoped Firestore collections live under `organizations/{orgId}`.
+- Shared product entities such as students, routine, notices, fees, and attendance are accessed directly through Firebase hooks.
 
 ## Routes
-- `GET/POST /students`, `GET/PATCH/DELETE /students/:id`
-- `GET/POST /attendance`, `PATCH /attendance/:id`, `GET /attendance/student-summary`
-- `GET /dashboard/stats`, `/dashboard/daily-attendance`, `/dashboard/monthly-attendance`, `/dashboard/batches`
+- App routes are defined in `artifacts/web/src/App.tsx` and rendered by role-specific layouts.
+- Administrative staff routes use the `/staff/...` prefix.
 
-**Why:** OpenAPI-first contract ensures frontend hooks and server validators stay in sync via codegen.
+**Why:** The repository evolved from the starter full-stack template to a Firebase-first product; keeping this architecture note current prevents future work from adding unused API-server or PostgreSQL dependencies.
