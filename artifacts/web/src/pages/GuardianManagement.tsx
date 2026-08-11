@@ -1,26 +1,13 @@
 import { useEffect, useState } from "react";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Filter,
-  Loader2,
-  Plus,
-  Search,
-  ShieldCheck,
-  UsersRound,
-} from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Plus, ShieldCheck, UsersRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { DataTable } from "@/components/management/DataTable";
+import { EmptyState } from "@/components/management/EmptyState";
+import { FilterBar } from "@/components/management/FilterBar";
+import { LoadingSkeleton } from "@/components/management/LoadingSkeleton";
+import { Pagination } from "@/components/management/Pagination";
+import { SearchBar } from "@/components/management/SearchBar";
 
 export default function GuardianManagement() {
   const [search, setSearch] = useState("");
@@ -96,178 +83,53 @@ export default function GuardianManagement() {
                 </div>
               </div>
             </div>
-            <div className="flex w-full flex-col gap-2 sm:flex-row lg:w-auto">
-              <div className="relative min-w-0 flex-1 sm:min-w-[250px]">
-                <Search
-                  className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-                  aria-hidden="true"
-                />
-                <Input
-                  value={search}
-                  onChange={(event) => setSearch(event.target.value)}
-                  placeholder="Search guardians..."
-                  aria-label="Search guardians"
-                  className="h-11 rounded-xl border-white/80 bg-white/65 pl-9 shadow-sm placeholder:text-muted-foreground/70 focus-visible:ring-primary/30"
-                  data-testid="input-search-guardians"
-                />
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                className="h-11 rounded-xl border-white/80 bg-white/55 px-4 shadow-sm hover:bg-white/85"
-                data-testid="button-filter-guardians"
-              >
-                <Filter
-                  className="mr-2 h-4 w-4 text-primary"
-                  aria-hidden="true"
-                />
-                Filter
-              </Button>
-            </div>
+            <FilterBar testId="button-filter-guardians">
+              <SearchBar
+                value={search}
+                onChange={setSearch}
+                placeholder="Search guardians..."
+                ariaLabel="Search guardians"
+                testId="input-search-guardians"
+              />
+            </FilterBar>
           </div>
 
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-primary/10 hover:bg-transparent">
-                  <TableHead className="h-12 whitespace-nowrap px-4 text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground sm:px-6">
-                    Guardian
-                  </TableHead>
-                  <TableHead className="h-12 whitespace-nowrap text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
-                    Contact
-                  </TableHead>
-                  <TableHead className="h-12 whitespace-nowrap text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
-                    Linked students
-                  </TableHead>
-                  <TableHead className="h-12 whitespace-nowrap text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
-                    Status
-                  </TableHead>
-                  <TableHead className="h-12 whitespace-nowrap pr-4 text-right text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground sm:pr-6">
-                    Last active
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoading ? (
-                  Array.from({ length: 4 }).map((_, index) => (
-                    <TableRow
-                      key={`guardian-loading-${index}`}
-                      className="border-primary/5"
-                    >
-                      <TableCell className="px-4 sm:px-6">
-                        <div className="flex items-center gap-3">
-                          <div className="h-9 w-9 animate-pulse rounded-full bg-primary/10" />
-                          <div className="space-y-2">
-                            <div className="h-3 w-28 animate-pulse rounded-full bg-primary/10" />
-                            <div className="h-2.5 w-20 animate-pulse rounded-full bg-primary/5" />
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="h-3 w-32 animate-pulse rounded-full bg-primary/10" />
-                      </TableCell>
-                      <TableCell>
-                        <div className="h-3 w-12 animate-pulse rounded-full bg-primary/10" />
-                      </TableCell>
-                      <TableCell>
-                        <div className="h-6 w-16 animate-pulse rounded-full bg-primary/10" />
-                      </TableCell>
-                      <TableCell className="pr-4 sm:pr-6">
-                        <div className="ml-auto h-3 w-16 animate-pulse rounded-full bg-primary/10" />
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell
-                      colSpan={5}
-                      className="h-[330px] px-6 text-center"
-                    >
-                      <div className="mx-auto flex max-w-sm flex-col items-center justify-center">
-                        <div className="relative flex h-20 w-20 items-center justify-center rounded-[1.75rem] border border-primary/15 bg-gradient-to-br from-[#ebe7ff] to-[#f8f1ff] text-primary shadow-[0_16px_35px_-18px_rgba(99,82,186,.55)]">
-                          <div className="absolute inset-2 rounded-2xl border border-white/80" />
-                          <UsersRound
-                            className="relative h-8 w-8"
-                            strokeWidth={1.5}
-                            aria-hidden="true"
-                          />
-                        </div>
-                        <h3 className="mt-5 text-base font-semibold tracking-tight text-foreground">
-                          {search ? "No guardians found" : "No guardians yet"}
-                        </h3>
-                        <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                          {search
-                            ? "Try a different search term or clear the search to see all guardians."
-                            : "When guardians are added, their family connections and contact details will appear here."}
-                        </p>
-                        {!search && (
-                          <Badge
-                            variant="outline"
-                            className="mt-4 border-primary/15 bg-primary/5 text-primary"
-                          >
-                            Directory is ready
-                          </Badge>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-
-          <div className="flex flex-col gap-3 border-t border-primary/10 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-            <p className="text-xs text-muted-foreground">
-              {isLoading ? (
-                <span className="inline-flex items-center gap-2">
-                  <Loader2
-                    className="h-3.5 w-3.5 animate-spin text-primary"
-                    aria-hidden="true"
-                  />
-                  Loading guardians...
-                </span>
-              ) : (
-                "Showing 0 of 0 guardians"
-              )}
-            </p>
-            <nav
-              className="flex items-center gap-1"
-              aria-label="Guardian pagination"
-            >
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                disabled
-                className="h-9 w-9 rounded-lg border-white/80 bg-white/50"
-                aria-label="Previous page"
-                data-testid="button-guardian-pagination-previous"
-              >
-                <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="h-9 min-w-9 rounded-lg border-primary/20 bg-primary/10 px-3 text-primary"
-                aria-current="page"
-                data-testid="button-guardian-pagination-current"
-              >
-                1
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                disabled
-                className="h-9 w-9 rounded-lg border-white/80 bg-white/50"
-                aria-label="Next page"
-                data-testid="button-guardian-pagination-next"
-              >
-                <ChevronRight className="h-4 w-4" aria-hidden="true" />
-              </Button>
-            </nav>
-          </div>
+          <DataTable
+            columns={[
+              { label: "Guardian", className: "px-4 sm:px-6" },
+              { label: "Contact" },
+              { label: "Linked students" },
+              { label: "Status" },
+              { label: "Last active", className: "pr-4 text-right sm:pr-6" },
+            ]}
+          >
+            {isLoading ? (
+              <LoadingSkeleton
+                rowKeyPrefix="guardian-loading"
+                thirdColumnWidth="w-12"
+              />
+            ) : (
+              <EmptyState
+                colSpan={5}
+                icon={UsersRound}
+                title={search ? "No guardians found" : "No guardians yet"}
+                description={
+                  search
+                    ? "Try a different search term or clear the search to see all guardians."
+                    : "When guardians are added, their family connections and contact details will appear here."
+                }
+                badgeLabel="Directory is ready"
+                showBadge={!search}
+              />
+            )}
+          </DataTable>
+          <Pagination
+            isLoading={isLoading}
+            loadingText="Loading guardians..."
+            summaryText="Showing 0 of 0 guardians"
+            ariaLabel="Guardian pagination"
+            testIdPrefix="button-guardian-pagination"
+          />
         </CardContent>
       </Card>
     </div>
