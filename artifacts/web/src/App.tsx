@@ -13,6 +13,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ImpersonationProvider, useImpersonation } from "@/contexts/ImpersonationContext";
 import { ImpersonationBanner } from "@/components/ImpersonationBanner";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { RealtimeSync } from "@/components/RealtimeSync";
 
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
 const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
@@ -76,6 +77,7 @@ const StudentIdCard = lazy(() => import("@/pages/StudentIdCard"));
 const Reports = lazy(() => import("@/pages/Reports"));
 const StudentPortal = lazy(() => import("@/pages/student/StudentPortal"));
 const GuardianPortal = lazy(() => import("@/pages/guardian/GuardianPortal"));
+const GuardianCommunications = lazy(() => import("@/pages/GuardianCommunications"));
 const JoinOrg = lazy(() => import("@/pages/JoinOrg"));
 const DemoWorkspace = lazy(() => import("@/pages/DemoWorkspace"));
 
@@ -125,6 +127,7 @@ function ImpersonatedView() {
               <Route path="/settings" component={Settings} />
               <Route path="/subscription" component={Subscription} />
               <Route path="/help" component={HelpCenter} />
+              <Route path="/guardian-communications" component={GuardianCommunications} />
               <Route path="/id-cards" component={StudentIdCard} />
               <Route path="/reports" component={Reports} />
               <Route><Redirect to="/" /></Route>
@@ -142,6 +145,7 @@ function ImpersonatedView() {
               <Route path="/notices" component={Notices} />
               <Route path="/homework" component={Homework} />
               <Route path="/settings" component={TeacherSettings} />
+              <Route path="/guardian-communications" component={GuardianCommunications} />
               <Route path="/id-cards" component={StudentIdCard} />
               <Route><Redirect to="/" /></Route>
             </Switch>
@@ -234,6 +238,7 @@ function AuthenticatedRoutes() {
             <Route path="/notices" component={Notices} />
             <Route path="/homework" component={Homework} />
             <Route path="/settings" component={TeacherSettings} />
+             <Route path="/guardian-communications" component={GuardianCommunications} />
             <Route path="/id-cards" component={StudentIdCard} />
             <Route><Redirect to="/" /></Route>
           </Switch>
@@ -286,6 +291,7 @@ function AuthenticatedRoutes() {
           <Route path="/settings" component={Settings} />
           <Route path="/subscription" component={Subscription} />
           <Route path="/help" component={HelpCenter} />
+          <Route path="/guardian-communications" component={GuardianCommunications} />
           <Route path="/id-cards" component={StudentIdCard} />
           <Route path="/reports" component={Reports} />
           <Route><Redirect to="/" /></Route>
@@ -299,6 +305,7 @@ function AppRoutes() {
   return (
     <AuthProvider>
       <ImpersonationProvider>
+        <RealtimeSync />
         <Switch>
           {/* Public routes — available regardless of auth state */}
           <Route path="/payment/success">

@@ -28,6 +28,9 @@ const ORG_COLLECTIONS_BY_ROLE = {
     "expenses",
     "admission_requests",
     "teacher_requests",
+    "guardian_conversations",
+    "leave_requests",
+    "notifications",
   ],
   teacher: [
     "students",
@@ -40,6 +43,9 @@ const ORG_COLLECTIONS_BY_ROLE = {
     "routine",
     "homework",
     "notices",
+    "guardian_conversations",
+    "leave_requests",
+    "notifications",
   ],
   student: [
     "attendance",
@@ -50,16 +56,10 @@ const ORG_COLLECTIONS_BY_ROLE = {
     "homework",
     "notices",
   ],
-  guardian: [
-    "students",
-    "attendance",
-    "fees",
-    "exams",
-    "results",
-    "routine",
-    "homework",
-    "notices",
-  ],
+  // Guardian-specific collections use child/ownership-constrained listeners
+  // in hooks.ts. An unfiltered org listener would correctly be rejected by
+  // Firestore rules, so do not create one here.
+  guardian: [],
 } as const;
 
 const PLATFORM_COLLECTIONS = [

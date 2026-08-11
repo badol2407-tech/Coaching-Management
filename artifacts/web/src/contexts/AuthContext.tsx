@@ -28,6 +28,9 @@ export interface UserProfile {
   email: string;
   photoUrl?: string | null;
   studentId?: string;
+  linkedStudentIds?: string[];
+  studentIds?: string[];
+  childrenIds?: string[];
   /** Set to true when the account was created by an admin with a temp password */
   mustChangePassword?: boolean;
   /** Present for org_admin / teacher / student — undefined for super_admin */

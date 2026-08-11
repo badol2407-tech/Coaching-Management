@@ -5,6 +5,7 @@ import {
   LayoutDashboard, LogOut, Menu, MessageCircle, Settings, UserRound, Wallet, X,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { GuardianProvider, useGuardianContext } from "@/contexts/GuardianContext";
 
 const items = [
   ["dashboard", "Today", LayoutDashboard],
@@ -16,12 +17,14 @@ const items = [
   ["homework", "Homework", ClipboardList],
   ["messages", "Teacher messages", MessageCircle],
   ["leave", "Leave requests", FileText],
+  ["notifications", "Notifications", Bell],
   ["profile", "Profile", UserRound],
   ["settings", "Settings", Settings],
 ] as const;
 
-export function GuardianLayout({ children }: { children: React.ReactNode }) {
+function GuardianNavigation({ children }: { children: React.ReactNode }) {
   const { user, userProfile, logout } = useAuth();
+  const { children: linkedChildren, selectedChild, selectedChildId, setSelectedChildId, loading } = useGuardianContext();
   const search = useSearch();
   const active = new URLSearchParams(search).get("tab") || "dashboard";
   const [open, setOpen] = useState(false);
@@ -37,8 +40,25 @@ export function GuardianLayout({ children }: { children: React.ReactNode }) {
           <button className="guardian-close md:hidden" onClick={() => setOpen(false)} aria-label="Close navigation"><X /></button>
         </div>
         <div className="guardian-child-chip">
-          <span className="guardian-avatar">{name.slice(0, 1).toUpperCase()}</span>
-          <span><b>{name}</b><small>Family account</small></span>
+          <span className="guardian-avatar">{(selectedChild?.name || name).slice(0, 1).toUpperCase()}</span>
+          <span className="min-w-0 flex-1">
+            {linkedChildren.length > 1 ? (
+              <select
+                value={selectedChildId ?? ""}
+                onChange={(event) => setSelectedChildId(event.target.value)}
+                className="guardian-child-select"
+                aria-label="Select child"
+                data-testid="select-guardian-child"
+              >
+                {linkedChildren.map((child) => (
+                  <option key={child.id} value={child.id}>{child.name}</option>
+                ))}
+              </select>
+            ) : (
+              <b>{loading ? "Loading child…" : selectedChild?.name || name}</b>
+            )}
+            <small>{linkedChildren.length > 1 ? `${linkedChildren.length} linked children` : "Family account"}</small>
+          </span>
         </div>
         <nav className="guardian-nav" aria-label="Guardian navigation">
           {items.map(([tab, label, Icon]) => (
@@ -64,5 +84,13 @@ export function GuardianLayout({ children }: { children: React.ReactNode }) {
         <main>{children}</main>
       </div>
     </div>
+  );
+}
+
+export function GuardianLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <GuardianProvider>
+      <GuardianNavigation>{children}</GuardianNavigation>
+    </GuardianProvider>
   );
 }

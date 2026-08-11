@@ -4,6 +4,7 @@ import {
   LayoutDashboard, CalendarCheck, Users, ClipboardList, Bell,
   GraduationCap, LogOut, CalendarDays, Settings, NotebookPen,
   Menu, X, ChevronRight, ChevronLeft, IdCard,
+  MessageSquareText,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMobileDrawer } from "@/hooks/use-mobile-drawer";
@@ -22,6 +23,7 @@ const navItems = [
   { title: "Notices",    href: "/notices",    icon: Bell },
   { title: "Homework",   href: "/homework",   icon: NotebookPen },
   { title: "ID Cards",   href: "/id-cards",   icon: IdCard },
+  { title: "Guardian inbox", href: "/guardian-communications", icon: MessageSquareText },
 ];
 
 function initExpanded() {

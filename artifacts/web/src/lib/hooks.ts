@@ -1,7 +1,9 @@
+import { useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   collection, getDocs, getDoc, addDoc, updateDoc, deleteDoc,
-  doc, setDoc, query, where, serverTimestamp, Timestamp,
+  doc, setDoc, query, where, serverTimestamp, Timestamp, onSnapshot,
+  writeBatch,
 } from "firebase/firestore";
 import { db } from "./firebase";
 import { useAuth } from "@/contexts/AuthContext";
@@ -23,6 +25,22 @@ function orgCol(orgId: string, col: string) {
 
 function orgDocRef(orgId: string, col: string, id: string) {
   return doc(db, "organizations", orgId, col, id);
+}
+
+async function studentIdsForClassBatch(
+  orgId: string,
+  className: unknown,
+  batch: unknown,
+) {
+  if (typeof className !== "string" || typeof batch !== "string") return [];
+  const snapshot = await getDocs(
+    query(
+      orgCol(orgId, "students"),
+      where("className", "==", className),
+      where("batch", "==", batch),
+    ),
+  );
+  return snapshot.docs.map((student) => student.id);
 }
 
 // ── Students ──────────────────────────────────────────────────────────────────
@@ -101,10 +119,10 @@ export function useDeleteStudent() {
  * Fetches the current student's own record from `organizations/{orgId}/students/{studentId}`
  * so we can read their `batch` and restrict what routine/homework/exam/notice items they see.
  */
-export function useMyStudentRecord() {
+export function useMyStudentRecord(studentIdOverride?: string | null) {
   const { userProfile } = useAuth();
   const orgId = userProfile?.orgId;
-  const studentId = userProfile?.studentId;
+  const studentId = studentIdOverride === undefined ? userProfile?.studentId : studentIdOverride;
   return useQuery({
     queryKey: [orgId, "my_student_record", studentId ?? ""],
     queryFn: async () => {
@@ -633,17 +651,26 @@ export function useGetIncomeSummary() {
 
 export const getListExamsQueryKey = (orgId?: string | null) => [orgId, "exams"];
 
-export function useListExams() {
+export function useListExams(params?: { studentId?: string | null }) {
   const { userProfile } = useAuth();
   const orgId = userProfile?.orgId;
   return useQuery({
-    queryKey: [orgId, "exams"],
+    queryKey: [orgId, "exams", params?.studentId ?? ""],
     queryFn: async () => {
       if (!orgId) return [];
+      const studentId = params?.studentId;
+      if (studentId === null) return [];
+      if (studentId) {
+        const snap = await getDocs(query(
+          orgCol(orgId, "exams"),
+          where("studentIds", "array-contains", studentId),
+        ));
+        return snap.docs.map(mapDoc).map((r: any) => ({ ...r, totalMarks: Number(r.totalMarks) })) as any[];
+      }
       const snap = await getDocs(orgCol(orgId, "exams"));
       return snap.docs.map(mapDoc).map((r: any) => ({ ...r, totalMarks: Number(r.totalMarks) })) as any[];
     },
-    enabled: !!orgId,
+    enabled: !!orgId && (params?.studentId === undefined || !!params.studentId),
   });
 }
 
@@ -654,7 +681,8 @@ export function useCreateExam() {
     mutationFn: async ({ data }: { data: Record<string, unknown> }) => {
       const orgId = userProfile?.orgId;
       if (!orgId) throw new Error("No org");
-      const ref = await addDoc(orgCol(orgId, "exams"), { ...data, createdAt: serverTimestamp() });
+      const studentIds = await studentIdsForClassBatch(orgId, data.className, data.batch);
+      const ref = await addDoc(orgCol(orgId, "exams"), { ...data, studentIds, createdAt: serverTimestamp() });
       return { id: ref.id };
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: [userProfile?.orgId, "exams"] }),
@@ -732,17 +760,26 @@ export function useCreateResult() {
 
 export const getListNoticesQueryKey = (orgId?: string | null) => [orgId, "notices"];
 
-export function useListNotices() {
+export function useListNotices(params?: { studentId?: string | null }) {
   const { userProfile } = useAuth();
   const orgId = userProfile?.orgId;
   return useQuery({
-    queryKey: [orgId, "notices"],
+    queryKey: [orgId, "notices", params?.studentId ?? ""],
     queryFn: async () => {
       if (!orgId) return [];
+      const studentId = params?.studentId;
+      if (studentId === null) return [];
+      if (studentId) {
+        const snap = await getDocs(query(
+          orgCol(orgId, "notices"),
+          where("studentIds", "array-contains", studentId),
+        ));
+        return snap.docs.map(mapDoc).sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) as any[];
+      }
       const snap = await getDocs(orgCol(orgId, "notices"));
       return snap.docs.map(mapDoc).sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) as any[];
     },
-    enabled: !!orgId,
+    enabled: !!orgId && (params?.studentId === undefined || !!params.studentId),
   });
 }
 
@@ -753,7 +790,8 @@ export function useCreateNotice() {
     mutationFn: async ({ data }: { data: Record<string, unknown> }) => {
       const orgId = userProfile?.orgId;
       if (!orgId) throw new Error("No org");
-      await addDoc(orgCol(orgId, "notices"), { ...data, createdAt: serverTimestamp() });
+      const studentIds = await studentIdsForClassBatch(orgId, data.className, data.batch);
+      await addDoc(orgCol(orgId, "notices"), { ...data, studentIds, createdAt: serverTimestamp() });
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: [userProfile?.orgId, "notices"] }),
   });
@@ -810,17 +848,26 @@ export function useNoticeSeen(noticeId: string | null) {
 
 export const getListHomeworkQueryKey = (orgId?: string | null) => [orgId, "homework"];
 
-export function useListHomework() {
+export function useListHomework(params?: { studentId?: string | null }) {
   const { userProfile } = useAuth();
   const orgId = userProfile?.orgId;
   return useQuery({
-    queryKey: [orgId, "homework"],
+    queryKey: [orgId, "homework", params?.studentId ?? ""],
     queryFn: async () => {
       if (!orgId) return [];
+      const studentId = params?.studentId;
+      if (studentId === null) return [];
+      if (studentId) {
+        const snap = await getDocs(query(
+          orgCol(orgId, "homework"),
+          where("studentIds", "array-contains", studentId),
+        ));
+        return snap.docs.map(mapDoc).sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) as any[];
+      }
       const snap = await getDocs(orgCol(orgId, "homework"));
       return snap.docs.map(mapDoc).sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) as any[];
     },
-    enabled: !!orgId,
+    enabled: !!orgId && (params?.studentId === undefined || !!params.studentId),
   });
 }
 
@@ -831,7 +878,8 @@ export function useCreateHomework() {
     mutationFn: async ({ data }: { data: Record<string, unknown> }) => {
       const orgId = userProfile?.orgId;
       if (!orgId) throw new Error("No org");
-      await addDoc(orgCol(orgId, "homework"), { ...data, createdAt: serverTimestamp() });
+      const studentIds = await studentIdsForClassBatch(orgId, data.className, data.batch);
+      await addDoc(orgCol(orgId, "homework"), { ...data, studentIds, createdAt: serverTimestamp() });
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: [userProfile?.orgId, "homework"] }),
   });
@@ -888,17 +936,26 @@ export function useHomeworkSeen(homeworkId: string | null) {
 
 export const getListRoutineQueryKey = (orgId?: string | null) => [orgId, "routine"];
 
-export function useListRoutine() {
+export function useListRoutine(params?: { studentId?: string | null }) {
   const { userProfile } = useAuth();
   const orgId = userProfile?.orgId;
   return useQuery({
-    queryKey: [orgId, "routine"],
+    queryKey: [orgId, "routine", params?.studentId ?? ""],
     queryFn: async () => {
       if (!orgId) return [];
+      const studentId = params?.studentId;
+      if (studentId === null) return [];
+      if (studentId) {
+        const snap = await getDocs(query(
+          orgCol(orgId, "routine"),
+          where("studentIds", "array-contains", studentId),
+        ));
+        return snap.docs.map(mapDoc).sort((a: any, b: any) => a.startTime?.localeCompare(b.startTime ?? "") ?? 0) as any[];
+      }
       const snap = await getDocs(orgCol(orgId, "routine"));
       return snap.docs.map(mapDoc).sort((a: any, b: any) => a.startTime?.localeCompare(b.startTime ?? "") ?? 0) as any[];
     },
-    enabled: !!orgId,
+    enabled: !!orgId && (params?.studentId === undefined || !!params.studentId),
   });
 }
 
@@ -909,7 +966,8 @@ export function useCreateRoutineSlot() {
     mutationFn: async ({ data }: { data: Record<string, unknown> }) => {
       const orgId = userProfile?.orgId;
       if (!orgId) throw new Error("No org");
-      const ref = await addDoc(orgCol(orgId, "routine"), { ...data, createdAt: serverTimestamp() });
+      const studentIds = await studentIdsForClassBatch(orgId, data.className, data.batch);
+      const ref = await addDoc(orgCol(orgId, "routine"), { ...data, studentIds, createdAt: serverTimestamp() });
       return { id: ref.id };
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: [userProfile?.orgId, "routine"] }),
@@ -1132,16 +1190,20 @@ export function useSuperAdminStats() {
 
 // ── Student-specific: My Data ──────────────────────────────────────────────────
 
-export function useMyFees() {
+export function useMyFees(studentIdOverride?: string | null) {
   const { userProfile } = useAuth();
   const orgId = userProfile?.orgId;
-  const studentId = userProfile?.studentId;
+  const studentId = studentIdOverride === undefined ? userProfile?.studentId : studentIdOverride;
   const email = userProfile?.email;
   return useQuery({
     queryKey: [orgId, "my_fees", studentId ?? email],
     queryFn: async () => {
-      if (!orgId) return [];
-      const snap = await getDocs(orgCol(orgId, "fees"));
+      if (!orgId || studentId === null) return [];
+      const snap = await getDocs(
+        studentId
+          ? query(orgCol(orgId, "fees"), where("studentId", "==", studentId))
+          : orgCol(orgId, "fees"),
+      );
       let rows = snap.docs.map(mapDoc).map((r: any) => ({
         ...r,
         amount: Number(r.amount),
@@ -1149,30 +1211,28 @@ export function useMyFees() {
       })) as any[];
       if (studentId) {
         rows = rows.filter((r) => r.studentId === studentId);
-      } else if (email) {
+      } else if (!studentId && email) {
         rows = rows.filter((r) => r.studentEmail === email);
       }
       return rows.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     },
-    enabled: !!orgId,
+    enabled: !!orgId && studentId !== null,
   });
 }
 
-export function useMyAttendance() {
+export function useMyAttendance(studentIdOverride?: string | null) {
   const { userProfile } = useAuth();
   const orgId = userProfile?.orgId;
-  const studentId = userProfile?.studentId;
+  const studentId = studentIdOverride === undefined ? userProfile?.studentId : studentIdOverride;
   const email = userProfile?.email;
   return useQuery({
     queryKey: [orgId, "my_attendance", studentId ?? email],
     queryFn: async () => {
-      if (!orgId) return [];
+      if (!orgId || studentId === null) return [];
       let q: any;
       if (studentId) {
         q = query(orgCol(orgId, "attendance"), where("studentId", "==", studentId));
-      } else {
-        q = orgCol(orgId, "attendance");
-      }
+      } else q = orgCol(orgId, "attendance");
       const snap = await getDocs(q);
       let rows = snap.docs.map(mapDoc) as any[];
       if (!studentId && email) {
@@ -1180,25 +1240,23 @@ export function useMyAttendance() {
       }
       return rows.sort((a: any, b: any) => (b.date ?? "").localeCompare(a.date ?? ""));
     },
-    enabled: !!orgId,
+    enabled: !!orgId && studentId !== null,
   });
 }
 
-export function useMyResults() {
+export function useMyResults(studentIdOverride?: string | null) {
   const { userProfile } = useAuth();
   const orgId = userProfile?.orgId;
-  const studentId = userProfile?.studentId;
+  const studentId = studentIdOverride === undefined ? userProfile?.studentId : studentIdOverride;
   const email = userProfile?.email;
   return useQuery({
     queryKey: [orgId, "my_results", studentId ?? email],
     queryFn: async () => {
-      if (!orgId) return [];
+      if (!orgId || studentId === null) return [];
       let q: any;
       if (studentId) {
         q = query(orgCol(orgId, "results"), where("studentId", "==", studentId));
-      } else {
-        q = orgCol(orgId, "results");
-      }
+      } else q = orgCol(orgId, "results");
       const snap = await getDocs(q);
       let rows = snap.docs.map(mapDoc).map((r: any) => ({ ...r, marksObtained: Number(r.marksObtained) })) as any[];
       if (!studentId && email) {
@@ -1206,6 +1264,336 @@ export function useMyResults() {
       }
       return rows;
     },
-    enabled: !!orgId,
+    enabled: !!orgId && studentId !== null,
   });
+}
+
+// ── Guardian communication / leave / notification realtime hooks ──────────────
+
+function liveCollection<T>(
+  collectionQuery: ReturnType<typeof query> | null,
+  map: (snapshot: any) => T[],
+) {
+  const [data, setData] = useState<T[]>([]);
+  const [isLoading, setIsLoading] = useState(Boolean(collectionQuery));
+
+  useEffect(() => {
+    if (!collectionQuery) {
+      setData([]);
+      setIsLoading(false);
+      return;
+    }
+    setIsLoading(true);
+    return onSnapshot(
+      collectionQuery,
+      (snapshot) => {
+        setData(map(snapshot));
+        setIsLoading(false);
+      },
+      () => {
+        setData([]);
+        setIsLoading(false);
+      },
+    );
+  }, [collectionQuery]);
+
+  return { data, isLoading };
+}
+
+function sortNewest<T extends { createdAt?: string }>(rows: T[]) {
+  return [...rows].sort((a, b) =>
+    (b.createdAt ?? "").localeCompare(a.createdAt ?? ""),
+  );
+}
+
+export function useGuardianConversations(studentId?: string | null) {
+  const { userProfile } = useAuth();
+  const orgId = userProfile?.orgId;
+  const uid = userProfile?.uid;
+  const collectionQuery = useMemo(() => orgId && uid && studentId
+    ? query(
+        collection(db, "organizations", orgId, "guardian_conversations"),
+        where("guardianUid", "==", uid),
+        where("studentId", "==", studentId),
+      )
+    : null, [orgId, uid, studentId]);
+  return liveCollection(collectionQuery, (snapshot) =>
+    sortNewest(snapshot.docs.map(mapDoc) as any[]),
+  );
+}
+
+export function useGuardianConversationMessages(conversationId?: string | null) {
+  const { userProfile } = useAuth();
+  const orgId = userProfile?.orgId;
+  const collectionQuery = useMemo(() => orgId && conversationId
+    ? query(
+        collection(
+          db,
+          "organizations",
+          orgId,
+          "guardian_conversations",
+          conversationId,
+          "messages",
+        ),
+      )
+    : null, [orgId, conversationId]);
+  return liveCollection(collectionQuery, (snapshot) =>
+    sortNewest(snapshot.docs.map(mapDoc) as any[]).reverse(),
+  );
+}
+
+export function useStaffGuardianConversations() {
+  const { userProfile } = useAuth();
+  const orgId = userProfile?.orgId;
+  const collectionQuery = useMemo(() => orgId && (userProfile.role === "teacher" || userProfile.role === "org_admin")
+    ? query(collection(db, "organizations", orgId, "guardian_conversations"))
+    : null, [orgId, userProfile?.role]);
+  return liveCollection(collectionQuery, (snapshot) =>
+    sortNewest(snapshot.docs.map(mapDoc) as any[]),
+  );
+}
+
+export function useSendGuardianMessage() {
+  const { userProfile } = useAuth();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      studentId,
+      childName,
+      body,
+      conversationId,
+      subject,
+    }: {
+      studentId: string;
+      childName?: string;
+      body: string;
+      conversationId?: string;
+      subject?: string;
+    }) => {
+      const orgId = userProfile?.orgId;
+      const guardianUid = userProfile?.uid;
+      if (!orgId || !guardianUid || !body.trim()) throw new Error("Message is incomplete");
+      const conversationRef = conversationId
+        ? doc(db, "organizations", orgId, "guardian_conversations", conversationId)
+        : doc(collection(db, "organizations", orgId, "guardian_conversations"));
+      const messageRef = doc(collection(conversationRef, "messages"));
+      const batch = writeBatch(db);
+      const message = {
+        senderUid: guardianUid,
+        senderRole: "guardian",
+        senderName: userProfile.name || userProfile.email,
+        body: body.trim(),
+        createdAt: serverTimestamp(),
+      };
+      batch.set(
+        conversationRef,
+        {
+          guardianUid,
+          guardianName: userProfile.name || userProfile.email,
+          studentId,
+          childName: childName ?? "",
+          subject: subject?.trim() || "Guardian message",
+          lastMessage: body.trim(),
+          lastMessageAt: serverTimestamp(),
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true },
+      );
+      batch.set(messageRef, message);
+      await batch.commit();
+      return conversationRef.id;
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: [userProfile?.orgId, "guardian_conversations"] });
+    },
+  });
+}
+
+export function useReplyToGuardianConversation() {
+  const { userProfile } = useAuth();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      conversationId,
+      body,
+    }: {
+      conversationId: string;
+      body: string;
+    }) => {
+      const orgId = userProfile?.orgId;
+      if (!orgId || !body.trim()) throw new Error("Reply is incomplete");
+      const conversationRef = doc(
+        db,
+        "organizations",
+        orgId,
+        "guardian_conversations",
+        conversationId,
+      );
+      const conversation = await getDoc(conversationRef);
+      if (!conversation.exists()) throw new Error("Conversation not found");
+      const data = conversation.data() as any;
+      const messageRef = doc(collection(conversationRef, "messages"));
+      const notificationRef = doc(collection(db, "organizations", orgId, "notifications"));
+      const batch = writeBatch(db);
+      batch.set(messageRef, {
+        senderUid: userProfile?.uid,
+        senderRole: userProfile?.role,
+        senderName: userProfile?.name || userProfile?.email,
+        body: body.trim(),
+        createdAt: serverTimestamp(),
+      });
+      batch.set(conversationRef, {
+        lastMessage: body.trim(),
+        lastMessageAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      }, { merge: true });
+      batch.set(notificationRef, {
+        recipientUid: data.guardianUid,
+        studentId: data.studentId,
+        kind: "message",
+        title: "New reply from school",
+        body: body.trim(),
+        read: false,
+        createdAt: serverTimestamp(),
+      });
+      await batch.commit();
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: [userProfile?.orgId, "guardian_conversations"] });
+    },
+  });
+}
+
+export function useGuardianLeaveRequests(studentId?: string | null) {
+  const { userProfile } = useAuth();
+  const orgId = userProfile?.orgId;
+  const uid = userProfile?.uid;
+  const collectionQuery = useMemo(() => orgId && uid && studentId
+    ? query(
+        collection(db, "organizations", orgId, "leave_requests"),
+        where("guardianUid", "==", uid),
+        where("studentId", "==", studentId),
+      )
+    : null, [orgId, uid, studentId]);
+  return liveCollection(collectionQuery, (snapshot) =>
+    sortNewest(snapshot.docs.map(mapDoc) as any[]),
+  );
+}
+
+export function useStaffLeaveRequests() {
+  const { userProfile } = useAuth();
+  const orgId = userProfile?.orgId;
+  const collectionQuery = useMemo(() => orgId && (userProfile.role === "teacher" || userProfile.role === "org_admin")
+    ? query(collection(db, "organizations", orgId, "leave_requests"))
+    : null, [orgId, userProfile?.role]);
+  return liveCollection(collectionQuery, (snapshot) =>
+    sortNewest(snapshot.docs.map(mapDoc) as any[]),
+  );
+}
+
+export function useSubmitGuardianLeaveRequest() {
+  const { userProfile } = useAuth();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      studentId,
+      childName,
+      startDate,
+      endDate,
+      reason,
+    }: {
+      studentId: string;
+      childName?: string;
+      startDate: string;
+      endDate: string;
+      reason: string;
+    }) => {
+      const orgId = userProfile?.orgId;
+      const guardianUid = userProfile?.uid;
+      if (!orgId || !guardianUid || !startDate || !endDate || !reason.trim()) {
+        throw new Error("Leave request is incomplete");
+      }
+      const ref = await addDoc(collection(db, "organizations", orgId, "leave_requests"), {
+        guardianUid,
+        guardianName: userProfile.name || userProfile.email,
+        studentId,
+        childName: childName ?? "",
+        startDate,
+        endDate,
+        reason: reason.trim(),
+        status: "pending",
+        response: "",
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+      return ref.id;
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: [userProfile?.orgId, "leave_requests"] });
+    },
+  });
+}
+
+export function useReviewGuardianLeaveRequest() {
+  const { userProfile } = useAuth();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      requestId,
+      status,
+      response,
+      guardianUid,
+      studentId,
+    }: {
+      requestId: string;
+      status: "approved" | "rejected";
+      response: string;
+      guardianUid: string;
+      studentId: string;
+    }) => {
+      const orgId = userProfile?.orgId;
+      if (!orgId || (userProfile.role !== "teacher" && userProfile.role !== "org_admin")) {
+        throw new Error("Only school staff can review leave");
+      }
+      const requestRef = doc(db, "organizations", orgId, "leave_requests", requestId);
+      const notificationRef = doc(collection(db, "organizations", orgId, "notifications"));
+      const batch = writeBatch(db);
+      batch.update(requestRef, {
+        status,
+        response: response.trim(),
+        respondedBy: userProfile.name || userProfile.email,
+        updatedAt: serverTimestamp(),
+      });
+      batch.set(notificationRef, {
+        recipientUid: guardianUid,
+        studentId,
+        kind: "leave",
+        title: `Leave request ${status}`,
+        body: response.trim() || `The leave request was ${status}.`,
+        read: false,
+        createdAt: serverTimestamp(),
+      });
+      await batch.commit();
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: [userProfile?.orgId, "leave_requests"] });
+    },
+  });
+}
+
+export function useGuardianNotifications(studentId?: string | null) {
+  const { userProfile } = useAuth();
+  const orgId = userProfile?.orgId;
+  const uid = userProfile?.uid;
+  const collectionQuery = useMemo(() => orgId && uid && studentId
+    ? query(
+        collection(db, "organizations", orgId, "notifications"),
+        where("recipientUid", "==", uid),
+        where("studentId", "==", studentId),
+      )
+    : null, [orgId, uid, studentId]);
+  return liveCollection(collectionQuery, (snapshot) =>
+    sortNewest(snapshot.docs.map(mapDoc) as any[]),
+  );
 }

@@ -52,6 +52,35 @@ service cloud.firestore {
       return myRole() == 'guardian' && myOrgId() == orgId;
     }
 
+    function linkedStudentIds() {
+      return myProfile().linkedStudentIds is list
+        ? myProfile().linkedStudentIds
+        : myProfile().studentIds is list
+          ? myProfile().studentIds
+          : myProfile().childrenIds is list
+            ? myProfile().childrenIds
+            : myProfile().studentId is string
+              ? [myProfile().studentId]
+              : [];
+    }
+
+    function isLinkedStudent(studentId) {
+      return studentId is string && studentId in linkedStudentIds();
+    }
+
+    function isLinkedResource(orgId) {
+      return isGuardian(orgId) &&
+        (
+          (resource.data.studentId is string && isLinkedStudent(resource.data.studentId)) ||
+          (resource.data.studentIds is list && resource.data.studentIds.hasAny(linkedStudentIds()))
+        );
+    }
+
+    function isLinkedCreate(orgId) {
+      return isGuardian(orgId) &&
+        (request.resource.data.studentId is string && isLinkedStudent(request.resource.data.studentId));
+    }
+
     function isOrgStaff(orgId) {
       return isOrgAdmin(orgId) || isTeacher(orgId);
     }
@@ -160,7 +189,7 @@ service cloud.firestore {
 
       match /students/{studentId} {
         allow read: if isOrgStaff(orgId) || isSuperAdmin() ||
-          ((isStudent(orgId) || isGuardian(orgId)) && myProfile().studentId == studentId);
+          ((isStudent(orgId) || isGuardian(orgId)) && isLinkedStudent(studentId));
         allow write: if isOrgStaff(orgId) || isSuperAdmin();
       }
 
@@ -170,12 +199,12 @@ service cloud.firestore {
       }
 
       match /attendance/{docId} {
-        allow read: if isOrgMember(orgId) || isSuperAdmin();
+        allow read: if isOrgStaff(orgId) || isSuperAdmin() || isStudent(orgId) || isLinkedResource(orgId);
         allow write: if isOrgStaff(orgId) || isSuperAdmin();
       }
 
       match /fees/{feeId} {
-        allow read: if isOrgMember(orgId) || isSuperAdmin();
+        allow read: if isOrgStaff(orgId) || isSuperAdmin() || isStudent(orgId) || isLinkedResource(orgId);
         allow write: if isOrgStaff(orgId) || isSuperAdmin();
 
         match /seen/{uid} {
@@ -185,12 +214,12 @@ service cloud.firestore {
       }
 
       match /results/{resultId} {
-        allow read: if isOrgMember(orgId) || isSuperAdmin();
+        allow read: if isOrgStaff(orgId) || isSuperAdmin() || isStudent(orgId) || isLinkedResource(orgId);
         allow write: if isOrgStaff(orgId) || isSuperAdmin();
       }
 
       match /routine/{slotId} {
-        allow read: if isOrgMember(orgId) || isSuperAdmin();
+        allow read: if isOrgStaff(orgId) || isSuperAdmin() || isStudent(orgId) || isLinkedResource(orgId);
         allow write: if isOrgStaff(orgId) || isSuperAdmin();
 
         match /seen/{uid} {
@@ -200,7 +229,7 @@ service cloud.firestore {
       }
 
       match /homework/{hwId} {
-        allow read: if isOrgMember(orgId) || isSuperAdmin();
+        allow read: if isOrgStaff(orgId) || isSuperAdmin() || isStudent(orgId) || isLinkedResource(orgId);
         allow write: if isOrgStaff(orgId) || isSuperAdmin();
 
         match /seen/{uid} {
@@ -210,7 +239,7 @@ service cloud.firestore {
       }
 
       match /notices/{noticeId} {
-        allow read: if isOrgMember(orgId) || isSuperAdmin();
+        allow read: if isOrgStaff(orgId) || isSuperAdmin() || isStudent(orgId) || isLinkedResource(orgId);
         allow write: if isOrgStaff(orgId) || isSuperAdmin();
 
         match /seen/{uid} {
@@ -220,7 +249,7 @@ service cloud.firestore {
       }
 
       match /exams/{examId} {
-        allow read: if isOrgMember(orgId) || isSuperAdmin();
+        allow read: if isOrgStaff(orgId) || isSuperAdmin() || isStudent(orgId) || isLinkedResource(orgId);
         allow write: if isOrgStaff(orgId) || isSuperAdmin();
 
         match /seen/{uid} {
@@ -231,6 +260,56 @@ service cloud.firestore {
 
       match /expenses/{expId} {
         allow read, write: if isOrgAdmin(orgId) || isSuperAdmin();
+      }
+
+      match /guardian_conversations/{conversationId} {
+        allow read: if isOrgStaff(orgId) || isSuperAdmin() ||
+          (isGuardian(orgId) && resource.data.guardianUid == request.auth.uid &&
+            isLinkedStudent(resource.data.studentId));
+        allow create: if isGuardian(orgId) &&
+          request.resource.data.guardianUid == request.auth.uid &&
+          isLinkedStudent(request.resource.data.studentId);
+        allow update: if isOrgStaff(orgId) ||
+          (isGuardian(orgId) && resource.data.guardianUid == request.auth.uid &&
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+              'lastMessage', 'lastMessageAt', 'updatedAt'
+            ]));
+        allow delete: if isOrgStaff(orgId) || isSuperAdmin();
+
+        match /messages/{messageId} {
+          allow read: if isOrgStaff(orgId) || isSuperAdmin() ||
+            (isGuardian(orgId) &&
+              get(/databases/$(database)/documents/organizations/$(orgId)/guardian_conversations/$(conversationId)).data.guardianUid == request.auth.uid);
+          allow create: if isOrgStaff(orgId) || isSuperAdmin() ||
+            (isGuardian(orgId) &&
+              getAfter(/databases/$(database)/documents/organizations/$(orgId)/guardian_conversations/$(conversationId)).data.guardianUid == request.auth.uid &&
+              request.resource.data.senderUid == request.auth.uid &&
+              request.resource.data.senderRole == 'guardian');
+          allow update, delete: if false;
+        }
+      }
+
+      match /leave_requests/{requestId} {
+        allow read: if isOrgStaff(orgId) || isSuperAdmin() ||
+          (isGuardian(orgId) && resource.data.guardianUid == request.auth.uid &&
+            isLinkedStudent(resource.data.studentId));
+        allow create: if isGuardian(orgId) &&
+          request.resource.data.guardianUid == request.auth.uid &&
+          isLinkedStudent(request.resource.data.studentId) &&
+          request.resource.data.status == 'pending';
+        allow update: if isOrgStaff(orgId) || isSuperAdmin();
+        allow delete: if isOrgStaff(orgId) || isSuperAdmin();
+      }
+
+      match /notifications/{notificationId} {
+        allow read: if isOrgStaff(orgId) || isSuperAdmin() ||
+          (isGuardian(orgId) && resource.data.recipientUid == request.auth.uid &&
+            isLinkedStudent(resource.data.studentId));
+        allow create: if isOrgStaff(orgId) || isSuperAdmin();
+        allow update: if isOrgStaff(orgId) || isSuperAdmin() ||
+          (isGuardian(orgId) && resource.data.recipientUid == request.auth.uid &&
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read', 'updatedAt']));
+        allow delete: if isOrgStaff(orgId) || isSuperAdmin();
       }
     }
 

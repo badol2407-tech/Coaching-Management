@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useRoute, useLocation } from "wouter";
-import { doc, getDoc, updateDoc, setDoc } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query, updateDoc, setDoc, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { uploadStudentPhoto, uploadErrorMessage, deleteCloudinaryImage, MAX_FILE_MB } from "@/lib/image-upload";
 import { useAuth } from "@/contexts/AuthContext";
@@ -38,6 +38,7 @@ type StudentDoc = {
   batch?: string | null;
   guardianName?: string | null;
   guardianPhone?: string | null;
+  guardianEmail?: string | null;
   enrolledAt?: string | null;
   hasFirebaseAuth?: boolean;
   uid?: string | null;
@@ -89,7 +90,7 @@ export default function StudentProfile() {
   const photoFileRef = useRef<HTMLInputElement>(null);
   const [editForm, setEditForm] = useState({
     name: "", phone: "", address: "", className: "", section: "", batch: "",
-    guardianName: "", guardianPhone: "", enrolledAt: "",
+    guardianName: "", guardianPhone: "", guardianEmail: "", enrolledAt: "",
     rollNumber: "", emergencyContact: "", emergencyPhone: "",
     photoUrl: "", cloudinaryPublicId: "", status: "active" as "active" | "inactive",
   });
@@ -150,6 +151,7 @@ export default function StudentProfile() {
       batch: student.batch ?? "",
       guardianName: student.guardianName ?? "",
       guardianPhone: student.guardianPhone ?? "",
+      guardianEmail: student.guardianEmail ?? "",
       enrolledAt: student.enrolledAt ?? "",
       rollNumber: student.rollNumber ?? "",
       emergencyContact: student.emergencyContact ?? "",
@@ -182,6 +184,7 @@ export default function StudentProfile() {
         batch: editForm.batch || null,
         guardianName: editForm.guardianName || null,
         guardianPhone: editForm.guardianPhone || null,
+        guardianEmail: editForm.guardianEmail.trim().toLowerCase() || null,
         enrolledAt: editForm.enrolledAt || null,
         rollNumber: editForm.rollNumber || null,
         emergencyContact: editForm.emergencyContact || null,
@@ -191,6 +194,25 @@ export default function StudentProfile() {
         status: editForm.status,
       };
       await updateDoc(doc(db, "organizations", orgId, "students", studentId), data);
+
+      if (editForm.guardianEmail.trim()) {
+        const guardianUsers = await getDocs(query(
+          collection(db, "users"),
+          where("orgId", "==", orgId),
+          where("email", "==", editForm.guardianEmail.trim().toLowerCase()),
+        ));
+        await Promise.all(guardianUsers.docs.map(async (guardianUser) => {
+          const guardianData = guardianUser.data() as any;
+          const linkedStudentIds = [...new Set([
+            ...(Array.isArray(guardianData.linkedStudentIds) ? guardianData.linkedStudentIds : []),
+            ...(Array.isArray(guardianData.studentIds) ? guardianData.studentIds : []),
+            ...(Array.isArray(guardianData.childrenIds) ? guardianData.childrenIds : []),
+            ...(typeof guardianData.studentId === "string" ? [guardianData.studentId] : []),
+            studentId,
+          ])];
+          await setDoc(guardianUser.ref, { linkedStudentIds }, { merge: true });
+        }));
+      }
 
       // Sync photoUrl to the student's auth user doc so the portal sidebar picks it up
       if (student?.uid && finalPhotoUrl !== undefined) {
@@ -390,6 +412,11 @@ export default function StudentProfile() {
               label="Guardian Phone"
               value={student.guardianPhone}
             />
+            <Field
+              icon={<Mail className="h-4 w-4 text-blue-500" />}
+              label="Guardian Account Email"
+              value={student.guardianEmail}
+            />
           </CardContent>
         </Card>
 
@@ -572,6 +599,11 @@ export default function StudentProfile() {
             <div className="space-y-1">
               <Label>Guardian Phone</Label>
               <Input value={editForm.guardianPhone} onChange={(e) => setEditForm((f) => ({ ...f, guardianPhone: e.target.value }))} placeholder="01XXXXXXXXX" />
+            </div>
+            <div className="space-y-1">
+              <Label>Guardian Account Email</Label>
+              <Input type="email" value={editForm.guardianEmail} onChange={(e) => setEditForm((f) => ({ ...f, guardianEmail: e.target.value }))} placeholder="guardian@example.com" />
+              <p className="text-xs text-muted-foreground">If the guardian account already exists, saving links this child to it.</p>
             </div>
 
             {/* Admission Date */}

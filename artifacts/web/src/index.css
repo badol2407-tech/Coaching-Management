@@ -310,6 +310,17 @@
   font-family: "DM Sans", sans-serif;
 }
 .guardian-shell button, .guardian-shell a { -webkit-tap-highlight-color: transparent; }
+.guardian-child-select { width: 100%; max-width: 165px; border: 1px solid rgba(145,189,183,.45); border-radius: 8px; background: rgba(255,255,255,.08); color: #eaf7f2; padding: 5px 7px; font: inherit; font-weight: 700; outline: none; }
+.guardian-child-select option { color: #173b43; background: #f5f7f3; }
+.guardian-compose { display: grid; gap: 8px; margin-top: 20px; }
+.guardian-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.guardian-message { max-width: 88%; margin: 0 0 10px; padding: 11px 13px; border-radius: 14px 14px 14px 3px; background: #eef4f0; }
+.guardian-message-own { margin-left: auto; border-radius: 14px 14px 3px 14px; background: var(--guardian-teal-soft); }
+.guardian-message p, .guardian-staff-message p { margin: 4px 0; white-space: pre-wrap; }
+.guardian-message small, .guardian-staff-message small { color: var(--guardian-muted); font-size: 11px; }
+.guardian-staff-thread { min-height: 240px; max-height: 460px; overflow-y: auto; padding: 4px 0; }
+.guardian-staff-message { max-width: 82%; margin: 0 0 12px; padding: 11px 13px; border-radius: 12px 12px 12px 3px; background: hsl(var(--muted)); }
+.guardian-staff-message-own { margin-left: auto; border-radius: 12px 12px 3px 12px; background: hsl(var(--primary) / .12); }
 .guardian-backdrop { display: none; }
 .guardian-sidebar { position: fixed; inset: 0 auto 0 0; z-index: 30; width: 256px; display: flex; flex-direction: column; padding: 22px 15px 16px; background: rgba(23,59,67,.97); color: #eaf7f2; box-shadow: 18px 0 50px rgba(23,59,67,.12); }
 .guardian-brand { display: flex; align-items: center; gap: 10px; padding: 2px 10px 26px; font-size: 15px; letter-spacing: -.03em; }

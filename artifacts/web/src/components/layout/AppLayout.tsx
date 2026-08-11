@@ -6,6 +6,7 @@ import {
   BookOpen, Settings, CalendarRange, CreditCard, HelpCircle,
   UserPlus, NotebookPen, Menu, X, ChevronRight, ChevronLeft,
   IdCard, FileBarChart2,
+  MessageSquareText,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -31,6 +32,7 @@ const navItems = [
   { title: "Expenses",    href: "/expenses",    icon: Receipt },
   { title: "ID Cards",    href: "/id-cards",    icon: IdCard },
   { title: "Reports",     href: "/reports",     icon: FileBarChart2 },
+  { title: "Guardian inbox", href: "/guardian-communications", icon: MessageSquareText },
 ];
 
 const bottomItems = [
