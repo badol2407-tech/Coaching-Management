@@ -2,6 +2,14 @@ import { useState } from "react";
 import { Plus, ShieldCheck, UsersRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { DataTable } from "@/components/management/DataTable";
 import { EmptyState } from "@/components/management/EmptyState";
 import { FilterBar } from "@/components/management/FilterBar";
@@ -12,6 +20,7 @@ import { useGuardiansCollection } from "@/features/directory";
 
 export default function GuardianManagement() {
   const [search, setSearch] = useState("");
+  const [addOpen, setAddOpen] = useState(false);
   const { data: guardians = [], isLoading } = useGuardiansCollection({
     search,
   });
@@ -54,6 +63,7 @@ export default function GuardianManagement() {
             <Button
               type="button"
               className="rounded-xl bg-primary shadow-[0_10px_20px_-12px_rgba(99,82,186,.9)]"
+              onClick={() => setAddOpen(true)}
               data-testid="button-add-guardian"
             >
               <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
@@ -138,6 +148,22 @@ export default function GuardianManagement() {
           />
         </CardContent>
       </Card>
+
+      <Dialog open={addOpen} onOpenChange={setAddOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Guardian</DialogTitle>
+            <DialogDescription>
+              Guardian creation will be connected when the organization directory is backed by Firestore.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button type="button" onClick={() => setAddOpen(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
