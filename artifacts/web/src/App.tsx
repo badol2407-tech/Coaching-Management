@@ -84,6 +84,10 @@ const GuardianCommunications = lazy(() => import("@/pages/GuardianCommunications
 const AdministrativeStaffDashboard = lazy(() => import("@/pages/administrative-staff/Dashboard"));
 const AdministrativeStaffStudentRecords = lazy(() => import("@/pages/administrative-staff/StudentRecords"));
 const AdministrativeStaffAdmissionManagement = lazy(() => import("@/pages/administrative-staff/AdmissionManagement"));
+const AdministrativeStaffFeeCollection = lazy(() => import("@/pages/administrative-staff/FeeCollection"));
+const AdministrativeStaffPaymentHistory = lazy(() => import("@/pages/administrative-staff/PaymentHistory"));
+const AdministrativeStaffIdCardManagement = lazy(() => import("@/pages/administrative-staff/IdCardManagement"));
+const AdministrativeStaffCertificateManagement = lazy(() => import("@/pages/administrative-staff/CertificateManagement"));
 const JoinOrg = lazy(() => import("@/pages/JoinOrg"));
 const DemoWorkspace = lazy(() => import("@/pages/DemoWorkspace"));
 
@@ -172,6 +176,10 @@ function ImpersonatedView() {
                 <Route path="/" component={AdministrativeStaffDashboard} />
                 <Route path="/staff/students" component={AdministrativeStaffStudentRecords} />
                 <Route path="/staff/admissions" component={AdministrativeStaffAdmissionManagement} />
+                <Route path="/staff/fees" component={AdministrativeStaffFeeCollection} />
+                <Route path="/staff/payments" component={AdministrativeStaffPaymentHistory} />
+                <Route path="/staff/id-cards" component={AdministrativeStaffIdCardManagement} />
+                <Route path="/staff/certificates" component={AdministrativeStaffCertificateManagement} />
                 <Route><Redirect to="/" /></Route>
               </Switch>
             </AdministrativeStaffLayout>
@@ -297,6 +305,10 @@ function AuthenticatedRoutes() {
               <Route path="/" component={AdministrativeStaffDashboard} />
               <Route path="/staff/students" component={AdministrativeStaffStudentRecords} />
               <Route path="/staff/admissions" component={AdministrativeStaffAdmissionManagement} />
+              <Route path="/staff/fees" component={AdministrativeStaffFeeCollection} />
+              <Route path="/staff/payments" component={AdministrativeStaffPaymentHistory} />
+              <Route path="/staff/id-cards" component={AdministrativeStaffIdCardManagement} />
+              <Route path="/staff/certificates" component={AdministrativeStaffCertificateManagement} />
               <Route><Redirect to="/" /></Route>
             </Switch>
           </Suspense>

@@ -240,6 +240,14 @@ service cloud.firestore {
         }
       }
 
+      match /id_cards/{cardId} {
+        allow read, write: if isOrgStaff(orgId) || isSuperAdmin();
+      }
+
+      match /certificates/{certificateId} {
+        allow read, write: if isOrgStaff(orgId) || isSuperAdmin();
+      }
+
       match /results/{resultId} {
         allow read: if isOrgStaff(orgId) || isSuperAdmin() || isStudent(orgId) || isLinkedResource(orgId);
         allow write: if isOrgStaff(orgId) || isSuperAdmin();

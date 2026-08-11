@@ -5,6 +5,9 @@ import {
   ChevronLeft,
   ChevronRight,
   ClipboardCheck,
+  CreditCard,
+  FileBadge,
+  IdCard,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -23,6 +26,10 @@ const navItems = [
   { title: "Dashboard", href: "/", icon: LayoutDashboard },
   { title: "Student Records", href: "/staff/students", icon: UsersRound },
   { title: "Admission Management", href: "/staff/admissions", icon: ClipboardCheck },
+  { title: "Fee Collection", href: "/staff/fees", icon: CreditCard },
+  { title: "Payment History", href: "/staff/payments", icon: CreditCard },
+  { title: "ID Card Management", href: "/staff/id-cards", icon: IdCard },
+  { title: "Certificate Management", href: "/staff/certificates", icon: FileBadge },
 ];
 
 function initExpanded() {

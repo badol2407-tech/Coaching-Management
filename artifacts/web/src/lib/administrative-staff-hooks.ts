@@ -4,6 +4,7 @@ import {
   doc,
   getDocs,
   serverTimestamp,
+  setDoc,
   writeBatch,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -160,6 +161,196 @@ export function useDecideAdmission() {
       queryClient.invalidateQueries({
         queryKey: [userProfile?.orgId, "students"],
       });
+    },
+  });
+}
+
+export interface StaffIdCard {
+  id: string;
+  studentId: string;
+  studentName: string;
+  className?: string | null;
+  section?: string | null;
+  batch?: string | null;
+  cardNumber: string;
+  status: "active" | "inactive";
+  issuedAt: string;
+  updatedAt?: string | null;
+}
+
+export interface CertificateRecord {
+  id: string;
+  studentId: string;
+  studentName: string;
+  className?: string | null;
+  certificateNumber: string;
+  title: string;
+  issueDate: string;
+  description?: string | null;
+  status: "issued" | "revoked";
+  createdAt: string;
+}
+
+function organizationCollection(orgId: string, collectionName: string) {
+  return collection(db, "organizations", orgId, collectionName);
+}
+
+export const getStaffIdCardsQueryKey = (orgId?: string | null) => [
+  orgId,
+  "administrative_staff",
+  "id_cards",
+];
+
+export function useStaffIdCards() {
+  const { userProfile } = useAuth();
+  const orgId = userProfile?.orgId;
+
+  return useQuery({
+    queryKey: getStaffIdCardsQueryKey(orgId),
+    queryFn: async () => {
+      if (!orgId) return [] as StaffIdCard[];
+      const snapshot = await getDocs(organizationCollection(orgId, "id_cards"));
+      return snapshot.docs
+        .map((card) => {
+          const data = card.data();
+          return {
+            id: card.id,
+            studentId: String(data.studentId ?? card.id),
+            studentName: String(data.studentName ?? "Unnamed student"),
+            className: (data.className as string | null | undefined) ?? null,
+            section: (data.section as string | null | undefined) ?? null,
+            batch: (data.batch as string | null | undefined) ?? null,
+            cardNumber: String(data.cardNumber ?? "Not assigned"),
+            status: (data.status as StaffIdCard["status"] | undefined) ?? "active",
+            issuedAt: toIsoString(data.issuedAt),
+            updatedAt: data.updatedAt ? toIsoString(data.updatedAt) : null,
+          } satisfies StaffIdCard;
+        })
+        .sort((a, b) => a.studentName.localeCompare(b.studentName));
+    },
+    enabled: Boolean(orgId),
+    staleTime: 30_000,
+  });
+}
+
+export function useIssueIdCard() {
+  const { userProfile } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      student,
+      status = "active",
+    }: {
+      student: {
+        id: string;
+        name?: string | null;
+        className?: string | null;
+        section?: string | null;
+        batch?: string | null;
+      };
+      status?: StaffIdCard["status"];
+    }) => {
+      const orgId = userProfile?.orgId;
+      if (!orgId) throw new Error("No organization is associated with this account.");
+
+      const cardRef = doc(db, "organizations", orgId, "id_cards", student.id);
+      const cardNumber = `EDU-${student.id.slice(0, 6).toUpperCase()}-${new Date().getFullYear()}`;
+      await setDoc(
+        cardRef,
+        {
+          studentId: student.id,
+          studentName: student.name ?? "Unnamed student",
+          className: student.className ?? null,
+          section: student.section ?? null,
+          batch: student.batch ?? null,
+          cardNumber,
+          status,
+          issuedAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+          issuedBy: userProfile?.name ?? userProfile?.email ?? "Administrative staff",
+        },
+        { merge: true },
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: getStaffIdCardsQueryKey(userProfile?.orgId) });
+    },
+  });
+}
+
+export const getStaffCertificatesQueryKey = (orgId?: string | null) => [
+  orgId,
+  "administrative_staff",
+  "certificates",
+];
+
+export function useStaffCertificates() {
+  const { userProfile } = useAuth();
+  const orgId = userProfile?.orgId;
+
+  return useQuery({
+    queryKey: getStaffCertificatesQueryKey(orgId),
+    queryFn: async () => {
+      if (!orgId) return [] as CertificateRecord[];
+      const snapshot = await getDocs(organizationCollection(orgId, "certificates"));
+      return snapshot.docs
+        .map((certificate) => {
+          const data = certificate.data();
+          return {
+            id: certificate.id,
+            studentId: String(data.studentId ?? ""),
+            studentName: String(data.studentName ?? "Unnamed student"),
+            className: (data.className as string | null | undefined) ?? null,
+            certificateNumber: String(data.certificateNumber ?? "Not assigned"),
+            title: String(data.title ?? "Certificate"),
+            issueDate: String(data.issueDate ?? ""),
+            description: (data.description as string | null | undefined) ?? null,
+            status: (data.status as CertificateRecord["status"] | undefined) ?? "issued",
+            createdAt: toIsoString(data.createdAt),
+          } satisfies CertificateRecord;
+        })
+        .sort((a, b) => new Date(b.issueDate || b.createdAt).getTime() - new Date(a.issueDate || a.createdAt).getTime());
+    },
+    enabled: Boolean(orgId),
+    staleTime: 30_000,
+  });
+}
+
+export function useCreateCertificate() {
+  const { userProfile } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      student,
+      title,
+      issueDate,
+      description,
+    }: {
+      student: { id: string; name?: string | null; className?: string | null };
+      title: string;
+      issueDate: string;
+      description?: string;
+    }) => {
+      const orgId = userProfile?.orgId;
+      if (!orgId) throw new Error("No organization is associated with this account.");
+      const certificateRef = doc(organizationCollection(orgId, "certificates"));
+      await setDoc(certificateRef, {
+        studentId: student.id,
+        studentName: student.name ?? "Unnamed student",
+        className: student.className ?? null,
+        certificateNumber: `CERT-${certificateRef.id.slice(0, 8).toUpperCase()}`,
+        title,
+        issueDate,
+        description: description?.trim() || null,
+        status: "issued",
+        createdAt: serverTimestamp(),
+        issuedBy: userProfile?.name ?? userProfile?.email ?? "Administrative staff",
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: getStaffCertificatesQueryKey(userProfile?.orgId) });
     },
   });
 }
