@@ -97,6 +97,10 @@ const StudentIdCard = lazy(() => import("@/pages/StudentIdCard"));
 const Reports = lazy(() => import("@/pages/Reports"));
 const StudentPortal = lazy(() => import("@/pages/student/StudentPortal"));
 const GuardianPortal = lazy(() => import("@/pages/guardian/GuardianPortal"));
+const GuardianManagement = lazy(() => import("@/pages/GuardianManagement"));
+const AdministrativeStaffManagement = lazy(
+  () => import("@/pages/AdministrativeStaffManagement"),
+);
 const GuardianCommunications = lazy(
   () => import("@/pages/GuardianCommunications"),
 );
@@ -191,6 +195,11 @@ function ImpersonatedView() {
               />
               <Route path="/id-cards" component={StudentIdCard} />
               <Route path="/reports" component={Reports} />
+              <Route path="/guardians" component={GuardianManagement} />
+              <Route
+                path="/administrative-staff"
+                component={AdministrativeStaffManagement}
+              />
               <Route>
                 <Redirect to="/" />
               </Route>
@@ -493,6 +502,11 @@ function AuthenticatedRoutes() {
           />
           <Route path="/id-cards" component={StudentIdCard} />
           <Route path="/reports" component={Reports} />
+          <Route path="/guardians" component={GuardianManagement} />
+          <Route
+            path="/administrative-staff"
+            component={AdministrativeStaffManagement}
+          />
           <Route>
             <Redirect to="/" />
           </Route>
