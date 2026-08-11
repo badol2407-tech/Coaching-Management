@@ -82,6 +82,8 @@ const StudentPortal = lazy(() => import("@/pages/student/StudentPortal"));
 const GuardianPortal = lazy(() => import("@/pages/guardian/GuardianPortal"));
 const GuardianCommunications = lazy(() => import("@/pages/GuardianCommunications"));
 const AdministrativeStaffDashboard = lazy(() => import("@/pages/administrative-staff/Dashboard"));
+const AdministrativeStaffStudentRecords = lazy(() => import("@/pages/administrative-staff/StudentRecords"));
+const AdministrativeStaffAdmissionManagement = lazy(() => import("@/pages/administrative-staff/AdmissionManagement"));
 const JoinOrg = lazy(() => import("@/pages/JoinOrg"));
 const DemoWorkspace = lazy(() => import("@/pages/DemoWorkspace"));
 
@@ -168,6 +170,8 @@ function ImpersonatedView() {
             <AdministrativeStaffLayout>
               <Switch>
                 <Route path="/" component={AdministrativeStaffDashboard} />
+                <Route path="/staff/students" component={AdministrativeStaffStudentRecords} />
+                <Route path="/staff/admissions" component={AdministrativeStaffAdmissionManagement} />
                 <Route><Redirect to="/" /></Route>
               </Switch>
             </AdministrativeStaffLayout>
@@ -291,6 +295,8 @@ function AuthenticatedRoutes() {
           <Suspense fallback={<Spinner />}>
             <Switch>
               <Route path="/" component={AdministrativeStaffDashboard} />
+              <Route path="/staff/students" component={AdministrativeStaffStudentRecords} />
+              <Route path="/staff/admissions" component={AdministrativeStaffAdmissionManagement} />
               <Route><Redirect to="/" /></Route>
             </Switch>
           </Suspense>

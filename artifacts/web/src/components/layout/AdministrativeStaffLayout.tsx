@@ -4,10 +4,12 @@ import {
   GraduationCap,
   ChevronLeft,
   ChevronRight,
+  ClipboardCheck,
   LayoutDashboard,
   LogOut,
   Menu,
   X,
+  UsersRound,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMobileDrawer } from "@/hooks/use-mobile-drawer";
@@ -19,6 +21,8 @@ import { PortalNavLink } from "@/components/layout/PortalNavLink";
 
 const navItems = [
   { title: "Dashboard", href: "/", icon: LayoutDashboard },
+  { title: "Student Records", href: "/staff/students", icon: UsersRound },
+  { title: "Admission Management", href: "/staff/admissions", icon: ClipboardCheck },
 ];
 
 function initExpanded() {
