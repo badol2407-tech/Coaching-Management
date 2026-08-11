@@ -3,9 +3,12 @@
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import https from "node:https";
 
-const DIST_DIR = new URL("../artifacts/web/dist/public", import.meta.url).pathname;
+const ROOT_DIR = fileURLToPath(new URL("..", import.meta.url));
+const DIST_DIR = join(ROOT_DIR, "artifacts/web/dist/public");
 const PROJECT_ID = "prj_wS8nOI5dtrAgTygcqEmWbJFwYvCO";
 const TOKEN = process.env.VERCEL_TOKEN;
 if (!TOKEN) { console.error("VERCEL_TOKEN not set"); process.exit(1); }
@@ -22,6 +25,12 @@ function req(method, path, headers, body) {
     r.end();
   });
 }
+
+console.log("Building web app before upload...");
+execFileSync("pnpm", ["--filter", "@workspace/web", "run", "build"], {
+  cwd: ROOT_DIR,
+  stdio: "inherit",
+});
 
 function walk(dir) {
   const files = [];
