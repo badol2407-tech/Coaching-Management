@@ -60,6 +60,16 @@ const ORG_COLLECTIONS_BY_ROLE = {
   // in hooks.ts. An unfiltered org listener would correctly be rejected by
   // Firestore rules, so do not create one here.
   guardian: [],
+  administrative_staff: [
+    "students",
+    "classes",
+    "attendance",
+    "fees",
+    "routine",
+    "notices",
+    "admission_requests",
+    "notifications",
+  ],
 } as const;
 
 const PLATFORM_COLLECTIONS = [

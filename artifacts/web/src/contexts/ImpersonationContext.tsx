@@ -1,6 +1,7 @@
 /**
  * ImpersonationContext — lets an authenticated Super Admin "view" an
- * organisation's portal as a specific role (org_admin / teacher / student)
+ * organisation's portal as a specific role (org_admin / teacher / student /
+ * administrative_staff)
  * WITHOUT changing their own auth session.
  *
  * Security properties:
@@ -21,7 +22,11 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth, type UserProfile } from "@/contexts/AuthContext";
 
-export type ImpersonatedRole = "org_admin" | "teacher" | "student";
+export type ImpersonatedRole =
+  | "org_admin"
+  | "teacher"
+  | "student"
+  | "administrative_staff";
 
 export interface ImpersonationTarget {
   sessionId: string;         // Firestore doc id of the audit entry

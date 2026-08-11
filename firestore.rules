@@ -52,6 +52,10 @@ service cloud.firestore {
       return myRole() == 'guardian' && myOrgId() == orgId;
     }
 
+    function isAdministrativeStaff(orgId) {
+      return myRole() == 'administrative_staff' && myOrgId() == orgId;
+    }
+
     function linkedStudentIds() {
       return myProfile().linkedStudentIds is list
         ? myProfile().linkedStudentIds
@@ -82,11 +86,12 @@ service cloud.firestore {
     }
 
     function isOrgStaff(orgId) {
-      return isOrgAdmin(orgId) || isTeacher(orgId);
+      return isOrgAdmin(orgId) || isTeacher(orgId) || isAdministrativeStaff(orgId);
     }
 
     function isOrgMember(orgId) {
-      return isOrgAdmin(orgId) || isTeacher(orgId) || isStudent(orgId) || isGuardian(orgId);
+      return isOrgAdmin(orgId) || isTeacher(orgId) || isStudent(orgId) ||
+        isGuardian(orgId) || isAdministrativeStaff(orgId);
     }
 
     // ── users/{uid} ──────────────────────────────────────────────────────────
@@ -94,7 +99,8 @@ service cloud.firestore {
       allow read: if isSignedIn() && (
         request.auth.uid == uid ||
         isSuperAdmin() ||
-        isOrgAdmin(resource.data.orgId)
+        isOrgAdmin(resource.data.orgId) ||
+        isAdministrativeStaff(resource.data.orgId)
       );
 
       // Existing bootstrap/admin creation paths plus the public signup path.
@@ -141,7 +147,7 @@ service cloud.firestore {
 
     // ── organizations/{orgId} ────────────────────────────────────────────────
     match /organizations/{orgId} {
-      allow read: if isSignedIn();
+      allow read: if isSuperAdmin() || isOrgMember(orgId);
 
       // Keep super-admin management, and add only the matching atomic public
       // onboarding write. getAfter() ensures the profile and organization are

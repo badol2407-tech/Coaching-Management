@@ -28,6 +28,7 @@ const ROLES: { value: ImpersonatedRole; label: string; description: string }[] =
   { value: "org_admin", label: "Org Admin", description: "View the admin dashboard for this organisation" },
   { value: "teacher", label: "Teacher", description: "View the teacher portal — select a specific teacher" },
   { value: "student", label: "Student", description: "View the student portal — select a specific student" },
+  { value: "administrative_staff", label: "Administrative Staff", description: "View the administrative staff portal — select a staff member" },
 ];
 
 function useOrgUsers(orgId: string | null, role: ImpersonatedRole | null) {
@@ -193,7 +194,7 @@ export default function AccessPortal() {
           {selectedOrgId && (
             <div className="space-y-1.5">
               <Label>2. Select Role</Label>
-              <div className="grid gap-2 sm:grid-cols-3">
+                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                 {ROLES.map((r) => (
                   <button
                     key={r.value}
@@ -216,15 +217,15 @@ export default function AccessPortal() {
           {/* Step 3: Select User */}
           {selectedOrgId && selectedRole && (
             <div className="space-y-1.5">
-              <Label>
-                3. Select {selectedRole === "org_admin" ? "Org Admin" : selectedRole === "teacher" ? "Teacher" : "Student"}
+                <Label>
+                3. Select {selectedRole === "org_admin" ? "Org Admin" : selectedRole === "teacher" ? "Teacher" : selectedRole === "student" ? "Student" : "Administrative Staff"}
               </Label>
               {(usersLoading || adminsLoading) ? (
                 <div className="h-10 animate-pulse rounded-md bg-muted" />
               ) : targetUsers.length === 0 ? (
                 <div className="flex items-center gap-2 rounded-lg border border-dashed p-3 text-sm text-muted-foreground">
                   <Users className="h-4 w-4 shrink-0" />
-                  No {selectedRole === "org_admin" ? "org admins" : selectedRole === "teacher" ? "teachers" : "students"} found in this organisation.
+                  No {selectedRole === "org_admin" ? "org admins" : selectedRole === "teacher" ? "teachers" : selectedRole === "student" ? "students" : "administrative staff"} found in this organisation.
                 </div>
               ) : (
                 <Select value={selectedUserId} onValueChange={setSelectedUserId}>

@@ -1,5 +1,6 @@
 /**
- * Firebase Auth utilities for admin-created teachers & students.
+ * Firebase Auth utilities for admin-created teachers, students, and
+ * administrative staff.
  *
  * Key trick for user creation: we spin up a *secondary* Firebase app instance
  * so that `createUserWithEmailAndPassword` doesn't replace the admin's current
@@ -70,7 +71,7 @@ export async function createFirebaseAuthUser(
 export interface CredentialMessageParams {
   orgName: string;
   name: string;
-  role: "Teacher" | "Student";
+  role: "Teacher" | "Student" | "Administrative Staff";
   email: string;
   password: string;
   loginUrl: string;

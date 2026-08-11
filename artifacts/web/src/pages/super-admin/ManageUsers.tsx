@@ -22,6 +22,7 @@ const ROLE_COLORS: Record<string, string> = {
   org_admin: "bg-purple-100 text-purple-700 border-purple-200",
   teacher: "bg-blue-100 text-blue-700 border-blue-200",
   student: "bg-green-100 text-green-700 border-green-200",
+  administrative_staff: "bg-amber-100 text-amber-700 border-amber-200",
 };
 
 // ── Edit User Sheet ────────────────────────────────────────────────────────────
@@ -91,6 +92,7 @@ function EditUserSheet({
                 <SelectItem value="student">Student</SelectItem>
                 <SelectItem value="teacher">Teacher</SelectItem>
                 <SelectItem value="org_admin">Org Admin</SelectItem>
+                <SelectItem value="administrative_staff">Administrative Staff</SelectItem>
                 <SelectItem value="super_admin" disabled>Super Admin (restricted)</SelectItem>
               </SelectContent>
             </Select>
@@ -225,7 +227,7 @@ function UserRow({
 
 // ── Main page ──────────────────────────────────────────────────────────────────
 
-const ROLE_FILTERS = ["all", "super_admin", "org_admin", "teacher", "student"];
+const ROLE_FILTERS = ["all", "super_admin", "org_admin", "teacher", "student", "administrative_staff"];
 
 export default function ManageUsers() {
   const { user: adminUser } = useAuth();

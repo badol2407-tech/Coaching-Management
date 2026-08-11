@@ -5,7 +5,13 @@
 
 import posthog from "posthog-js";
 
-type Role = "super_admin" | "org_admin" | "teacher" | "student" | "guardian";
+type Role =
+  | "super_admin"
+  | "org_admin"
+  | "teacher"
+  | "student"
+  | "guardian"
+  | "administrative_staff";
 
 /* ─── Identity ─────────────────────────────────────────────── */
 

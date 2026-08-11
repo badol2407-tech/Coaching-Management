@@ -5,7 +5,13 @@ import { auth, db } from "@/lib/firebase";
 import { identifyUser, resetUser, trackLogout } from "@/lib/analytics";
 import { mapLegacyPlanToTier, type PlanTier } from "@/lib/plan-config";
 
-export type UserRole = "super_admin" | "org_admin" | "teacher" | "student" | "guardian";
+export type UserRole =
+  | "super_admin"
+  | "org_admin"
+  | "teacher"
+  | "student"
+  | "guardian"
+  | "administrative_staff";
 
 /**
  * Subscription snapshot stored on the profile so layouts can gate access
@@ -33,7 +39,7 @@ export interface UserProfile {
   childrenIds?: string[];
   /** Set to true when the account was created by an admin with a temp password */
   mustChangePassword?: boolean;
-  /** Present for org_admin / teacher / student — undefined for super_admin */
+  /** Present for organization-scoped roles — undefined for super_admin */
   orgSubscription?: OrgSubscription;
 }
 
