@@ -106,6 +106,15 @@ const toBanglaDigits = (value: number) => String(value).replace(/\d/g, (digit) =
 const PROMOTION_SESSION_KEY = "et_promo_shown";
 const HERO_WINDOWS_ENTRANCE_KEY = "edutrack_hero_windows_entered";
 
+function inferAccountNames(displayName?: string | null, email?: string | null) {
+  const source = displayName?.trim() || email?.split("@")[0]?.replace(/[._-]+/g, " ").trim() || "";
+  const parts = source.split(/\s+/).filter(Boolean);
+  const firstName = parts.shift() || "School";
+  const lastName = parts.join(" ");
+
+  return { firstName, lastName };
+}
+
 function triggerHeroHaptic() {
   if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
     navigator.vibrate(12);
@@ -162,16 +171,19 @@ const faqs = [
 async function createPublicOrgAccount({
   uid,
   email,
-  name,
+  firstName,
+  lastName,
   organizationName,
   tier,
 }: {
   uid: string;
   email: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   organizationName: string;
   tier: PlanTier;
 }) {
+  const name = [firstName.trim(), lastName.trim()].filter(Boolean).join(" ") || "School Admin";
   const startDate = new Date();
   const expiryDate = computeExpiryDate(tier, startDate);
   const legacyPlan = tier === "annual_premium" ? "pro" : tier === "founder_launch" ? "basic" : "free";
@@ -203,9 +215,13 @@ async function createPublicOrgAccount({
       orgId: organizationRef.id,
       name,
       email,
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
       mustChangePassword: false,
       createdAt: serverTimestamp(),
       createdByPublicSignup: true,
+      profileSetupStep: "name",
+      onboardingCompleted: false,
     });
   });
 
@@ -239,12 +255,14 @@ function AuthPanel({
       await setPersistence(auth, browserLocalPersistence);
       const result = await signInWithPopup(auth, googleProvider);
       if (mode === "signup") {
-        const googleName = result.user.displayName?.trim() || result.user.email?.split("@")[0] || "School Admin";
+        const { firstName, lastName } = inferAccountNames(result.user.displayName, result.user.email);
+        const googleName = [firstName, lastName].filter(Boolean).join(" ") || "School Admin";
         try {
           await createPublicOrgAccount({
             uid: result.user.uid,
             email: result.user.email ?? email,
-            name: googleName,
+            firstName,
+            lastName,
             organizationName: `${googleName}'s School`,
             tier: signupTier,
           });
@@ -259,7 +277,7 @@ function AuthPanel({
         }
         await refreshProfile();
         trackRegistered("google");
-        navigate("/");
+        navigate("/setup/profile");
       } else {
         trackLogin("google");
         navigate("/");
@@ -295,13 +313,15 @@ function AuthPanel({
       } else if (mode === "signup") {
         await setPersistence(auth, browserLocalPersistence);
         const credential = await createUserWithEmailAndPassword(auth, email.trim(), password);
-        const signupName = email.trim().split("@")[0] || "School Admin";
+        const { firstName, lastName } = inferAccountNames(undefined, email.trim());
+        const signupName = [firstName, lastName].filter(Boolean).join(" ") || "School Admin";
         await updateProfile(credential.user, { displayName: signupName });
         try {
           await createPublicOrgAccount({
             uid: credential.user.uid,
             email: email.trim(),
-            name: signupName,
+            firstName,
+            lastName,
             organizationName: `${signupName}'s School`,
             tier: signupTier,
           });
@@ -312,7 +332,7 @@ function AuthPanel({
         await refreshProfile();
         trackRegistered("email");
         toast({ title: "Account created!", description: "Your EduTrack workspace is ready." });
-        navigate("/");
+        navigate("/setup/profile");
         onClose();
       } else {
         await setPersistence(auth, rememberMe ? browserLocalPersistence : browserSessionPersistence);

@@ -27,12 +27,19 @@ export interface UserProfile {
   orgId: string | null;
   orgName?: string;
   name: string;
+  firstName?: string;
+  lastName?: string;
+  username?: string;
   email: string;
   photoUrl?: string | null;
   studentId?: string;
   linkedStudentIds?: string[];
   studentIds?: string[];
   childrenIds?: string[];
+  createdByPublicSignup?: boolean;
+  profileSetupStep?: "name" | "username" | "questions" | "complete";
+  onboardingCompleted?: boolean;
+  onboardingAnswers?: Record<string, string>;
   /** Set to true when the account was created by an admin with a temp password */
   mustChangePassword?: boolean;
   /** Present for organization-scoped roles — undefined for super_admin */

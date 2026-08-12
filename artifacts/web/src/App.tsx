@@ -1,6 +1,6 @@
 import { lazy, Suspense, useState, useCallback } from "react";
 import { SplashScreen } from "@/components/SplashScreen";
-import { Switch, Route, Redirect, Router as WouterRouter } from "wouter";
+import { Switch, Route, Redirect, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -28,6 +28,8 @@ const RefundPolicy = lazy(() => import("@/pages/RefundPolicy"));
 const FAQ = lazy(() => import("@/pages/FAQ"));
 const HelpCenter = lazy(() => import("@/pages/HelpCenter"));
 const Setup = lazy(() => import("@/pages/Setup"));
+const ProfileSetup = lazy(() => import("@/pages/ProfileSetup"));
+const OnboardingQuestions = lazy(() => import("@/pages/OnboardingQuestions"));
 const ForceChangePassword = lazy(() => import("@/pages/ForceChangePassword"));
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const Students = lazy(() => import("@/pages/Students"));
@@ -286,6 +288,7 @@ function ImpersonatedView() {
 function AuthenticatedRoutes() {
   const { user, userProfile, loading } = useAuth();
   const { impersonation } = useImpersonation();
+  const [location] = useLocation();
 
   if (loading) return <Spinner />;
   if (!user)
@@ -306,6 +309,24 @@ function AuthenticatedRoutes() {
         <Setup />
       </Suspense>
     );
+
+  // Publicly created org admins complete their identity before entering the
+  // workspace. Existing staff/admin-created profiles are not interrupted.
+  if (
+    userProfile.role === "org_admin" &&
+    userProfile.createdByPublicSignup === true &&
+    userProfile.onboardingCompleted !== true
+  ) {
+    return (
+      <Suspense fallback={<Spinner />}>
+        {location === "/onboarding-questions" || userProfile.profileSetupStep === "questions" ? (
+          <OnboardingQuestions />
+        ) : (
+          <ProfileSetup />
+        )}
+      </Suspense>
+    );
+  }
 
   // Force password change gate — must be cleared before accessing any dashboard
   if (userProfile.mustChangePassword) {

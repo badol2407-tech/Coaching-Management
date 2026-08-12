@@ -160,8 +160,9 @@ service cloud.firestore {
         request.resource.data.orgId is string &&
         request.resource.data.createdByPublicSignup == true &&
         request.resource.data.keys().hasOnly([
-          'role', 'orgId', 'name', 'email', 'mustChangePassword',
-          'createdAt', 'createdByPublicSignup'
+          'role', 'orgId', 'name', 'firstName', 'lastName', 'email',
+          'mustChangePassword', 'createdAt', 'createdByPublicSignup',
+          'profileSetupStep', 'onboardingCompleted'
         ]) &&
         getAfter(/databases/$(database)/documents/organizations/$(request.resource.data.orgId)).data.adminUid == uid &&
         getAfter(/databases/$(database)/documents/organizations/$(request.resource.data.orgId)).data.adminEmail == request.auth.token.email &&
@@ -169,8 +170,39 @@ service cloud.firestore {
       );
 
       // Self-updates remain restricted to non-privileged fields. Admins retain
-      // the existing management permissions.
+      // the existing management permissions. Public signup onboarding may
+      // progressively add identity fields, reserve a username, and save
+      // non-sensitive onboarding answers.
       allow update: if isSignedIn() && (
+        (
+          request.auth.uid == uid &&
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly([
+              'name', 'firstName', 'lastName', 'username',
+              'profileSetupStep', 'onboardingAnswers',
+              'onboardingCompleted', 'mustChangePassword', 'updatedAt'
+            ]) &&
+          request.resource.data.name is string &&
+          request.resource.data.name.size() >= 2 &&
+          request.resource.data.name.size() <= 140 &&
+          request.resource.data.firstName is string &&
+          request.resource.data.firstName.size() >= 1 &&
+          request.resource.data.firstName.size() <= 60 &&
+          request.resource.data.lastName is string &&
+          request.resource.data.lastName.size() <= 80 &&
+          (!('username' in request.resource.data) ||
+            (
+              request.resource.data.username is string &&
+              request.resource.data.username.size() >= 3 &&
+              request.resource.data.username.size() <= 30
+            )) &&
+          (!('profileSetupStep' in request.resource.data) ||
+            request.resource.data.profileSetupStep in ['name', 'username', 'questions', 'complete']) &&
+          (!('onboardingCompleted' in request.resource.data) ||
+            request.resource.data.onboardingCompleted is bool) &&
+          (!('onboardingAnswers' in request.resource.data) ||
+            request.resource.data.onboardingAnswers is map)
+        ) ||
         (
           request.auth.uid == uid &&
           request.resource.data.diff(resource.data).affectedKeys()
@@ -214,6 +246,22 @@ service cloud.firestore {
         )
       );
       allow delete: if isSignedIn() && (isSuperAdmin() || isOrgAdmin(resource.data.orgId));
+    }
+
+    // A username reservation makes availability checks race-safe. The profile
+    // document remains the source of display data; this collection is only the
+    // globally unique index.
+    match /usernames/{username} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() &&
+        request.resource.data.uid == request.auth.uid &&
+        request.resource.data.username == username &&
+        request.resource.data.keys().hasOnly(['uid', 'username', 'createdAt', 'updatedAt']);
+      allow update: if isSignedIn() &&
+        resource.data.uid == request.auth.uid &&
+        request.resource.data.uid == request.auth.uid &&
+        request.resource.data.username == username;
+      allow delete: if isSignedIn() && resource.data.uid == request.auth.uid;
     }
 
     // ── organizations/{orgId} ────────────────────────────────────────────────
