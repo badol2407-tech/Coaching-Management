@@ -47,3 +47,7 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+
+# Uploaded visual references used during responsive review
+/attached_assets/Screenshot_20260806-051923_1785972050569.jpg
+/attached_assets/Screenshot_20260806-051938_1785972050498.jpg

@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/edutrack/"
+title = "EduTrack Guardian Portal"
+description = "A premium Firebase-connected school management platform with a dedicated Guardian Portal for attendance, results, routine, notices, fees, homework, teacher communication, leave requests, and family settings."
+version = "1.0.0"
+id = "artifacts/edutrack"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/edutrack/" ]
+localPort = 20369
+
+[services.development]
+run = "pnpm --filter @workspace/edutrack run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/edutrack", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/edutrack/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "20369"
+BASE_PATH = "/edutrack/"

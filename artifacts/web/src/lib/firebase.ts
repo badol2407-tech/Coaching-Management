@@ -1,0 +1,10 @@
+import { initializeApp, getApps } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+import { firebaseConfig } from "./firebase-config";
+// Note: Firebase Storage has been removed — all image uploads now go through Cloudinary.
+
+// Avoid re-initialising on hot-module reload
+const app = getApps().length ? getApps()[0]! : initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
