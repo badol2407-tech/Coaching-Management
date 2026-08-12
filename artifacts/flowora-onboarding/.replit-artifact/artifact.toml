@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Flowora Onboarding"
+description = "A role-aware onboarding experience for Flowora that validates organization membership, handles join requests, saves premium plan selection, and routes users into the right dashboard."
+version = "1.0.0"
+id = "artifacts/flowora-onboarding"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24395
+
+[services.development]
+run = "pnpm --filter @workspace/flowora-onboarding run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/flowora-onboarding", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/flowora-onboarding/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24395"
+BASE_PATH = "/"
