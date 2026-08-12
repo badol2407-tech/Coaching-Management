@@ -1,8 +1,23 @@
 import { useState } from "react";
-import { Phone, Plus, ShieldCheck, UsersRound } from "lucide-react";
+import {
+  CalendarDays,
+  Eye,
+  Mail,
+  Phone,
+  Plus,
+  ShieldCheck,
+  UsersRound,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { DataTable } from "@/components/management/DataTable";
 import { EmptyState } from "@/components/management/EmptyState";
@@ -11,11 +26,29 @@ import { LoadingSkeleton } from "@/components/management/LoadingSkeleton";
 import { Pagination } from "@/components/management/Pagination";
 import { SearchBar } from "@/components/management/SearchBar";
 import { DirectoryAddDialog } from "@/features/directory/components/DirectoryAddDialog";
-import { useGuardiansCollection } from "@/features/directory";
+import {
+  useGuardiansCollection,
+  type GuardianRecord,
+} from "@/features/directory";
+
+function formatDate(value?: string | null) {
+  if (!value) return "Not available";
+
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? "Not available"
+    : date.toLocaleDateString(undefined, {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      });
+}
 
 export default function GuardianManagement() {
   const [search, setSearch] = useState("");
   const [addOpen, setAddOpen] = useState(false);
+  const [selectedGuardian, setSelectedGuardian] =
+    useState<GuardianRecord | null>(null);
   const { data: guardians = [], isLoading } = useGuardiansCollection({
     search,
   });
@@ -103,7 +136,8 @@ export default function GuardianManagement() {
               { label: "Contact" },
               { label: "Linked students" },
               { label: "Status" },
-              { label: "Last active", className: "pr-4 text-right sm:pr-6" },
+              { label: "Last active" },
+              { label: "Actions", className: "pr-4 text-right sm:pr-6" },
             ]}
           >
             {isLoading ? (
@@ -137,16 +171,30 @@ export default function GuardianManagement() {
                       {guardian.status}
                     </Badge>
                   </TableCell>
-                  <TableCell className="pr-4 text-right text-xs text-muted-foreground sm:pr-6">
+                  <TableCell className="text-xs text-muted-foreground">
                     {guardian.lastActiveAt
-                      ? new Date(guardian.lastActiveAt).toLocaleDateString()
+                      ? formatDate(guardian.lastActiveAt)
                       : "Not active yet"}
+                  </TableCell>
+                  <TableCell className="pr-4 text-right sm:pr-6">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="gap-2 text-muted-foreground hover:text-foreground"
+                      onClick={() => setSelectedGuardian(guardian)}
+                      aria-label={`View details for ${guardian.name}`}
+                      data-testid={`button-view-guardian-${guardian.id}`}
+                    >
+                      <Eye className="h-4 w-4" aria-hidden="true" />
+                      <span className="hidden sm:inline">View details</span>
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <EmptyState
-                colSpan={5}
+                colSpan={6}
                 icon={UsersRound}
                 title={search ? "No guardians found" : "No guardians yet"}
                 description={
@@ -168,6 +216,87 @@ export default function GuardianManagement() {
           />
         </CardContent>
       </Card>
+
+      <Dialog
+        open={Boolean(selectedGuardian)}
+        onOpenChange={(open) => {
+          if (!open) setSelectedGuardian(null);
+        }}
+      >
+        <DialogContent className="max-w-lg border-white/80 bg-background/95 shadow-[0_24px_80px_rgba(45,55,120,.2)] backdrop-blur-xl">
+          {selectedGuardian && (
+            <>
+              <DialogHeader>
+                <div className="flex items-start gap-3 pr-8">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#ebe7ff] text-lg font-semibold text-primary">
+                    {selectedGuardian.name.slice(0, 1).toUpperCase()}
+                  </div>
+                  <div className="min-w-0">
+                    <DialogTitle className="truncate text-xl">
+                      {selectedGuardian.name}
+                    </DialogTitle>
+                    <DialogDescription className="mt-1">
+                      Guardian account details
+                    </DialogDescription>
+                  </div>
+                </div>
+              </DialogHeader>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-2xl border border-border/70 bg-muted/30 p-4">
+                  <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                    <Mail className="h-3.5 w-3.5" aria-hidden="true" />
+                    Email
+                  </div>
+                  <p className="mt-2 break-words text-sm font-medium">
+                    {selectedGuardian.email || "Not available"}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-border/70 bg-muted/30 p-4">
+                  <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                    <Phone className="h-3.5 w-3.5" aria-hidden="true" />
+                    Phone
+                  </div>
+                  <p className="mt-2 text-sm font-medium">
+                    {selectedGuardian.phone || "Not available"}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-border/70 bg-muted/30 p-4">
+                  <div className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                    Status
+                  </div>
+                  <Badge
+                    variant="outline"
+                    className="mt-2 border-emerald-200 bg-emerald-50 text-emerald-700"
+                  >
+                    {selectedGuardian.status}
+                  </Badge>
+                </div>
+                <div className="rounded-2xl border border-border/70 bg-muted/30 p-4">
+                  <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                    <UsersRound className="h-3.5 w-3.5" aria-hidden="true" />
+                    Linked students
+                  </div>
+                  <p className="mt-2 text-sm font-medium">
+                    {selectedGuardian.linkedStudentIds.length}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-border/70 bg-muted/30 p-4 sm:col-span-2">
+                  <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                    <CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />
+                    Last active
+                  </div>
+                  <p className="mt-2 text-sm font-medium">
+                    {selectedGuardian.lastActiveAt
+                      ? formatDate(selectedGuardian.lastActiveAt)
+                      : "Not active yet"}
+                  </p>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <DirectoryAddDialog
         kind="guardian"
