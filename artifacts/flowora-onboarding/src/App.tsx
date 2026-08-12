@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { completeUser, getFirebaseError, readUser, saveMembership, saveOwner, signInDemo, updatePlan, type Plan, type Role, type UserRecord } from '@/lib/firebase';
+import { completeOnboarding, getFirebaseError, readUser, saveMembership, saveOwner, signInDemo, type Plan, type Role, type UserRecord } from '@/lib/firebase';
 import { ArrowRight, BadgeCheck, BookOpen, Building2, Check, ChevronLeft, CircleUserRound, GraduationCap, KeyRound, LoaderCircle, LockKeyhole, Menu, RotateCcw, School, ShieldCheck, Sparkles, UsersRound, WalletCards, X } from 'lucide-react';
 import { Route, Switch, Router as WouterRouter, useLocation } from 'wouter';
 import NotFound from '@/pages/not-found';
@@ -179,7 +179,7 @@ function PlanStep({ selected, onSelect, onBack, onNext, saving }: { selected: Pl
         {plans.map((plan) => {
           const active = selected === plan.id;
           return (
-            <button type="button" key={plan.id} onClick={() => onSelect(plan.id)} data-testid={`button-plan-${plan.id}`} aria-pressed={active} className={`focus-ring relative flex min-h-[260px] flex-col rounded-[23px] border p-5 text-left transition duration-300 hover:-translate-y-1.5 ${active ? 'border-[#ed6849] bg-[#f7d8cb]/70 shadow-[0_22px_35px_-24px_#bc4c36]' : 'border-[#d9d1c0] bg-[#f8f3e7]/60 hover:border-[#b8ad98] hover:bg-[#f8f3e7]'}`}>
+            <button type="button" key={plan.id} onClick={() => onSelect(plan.id)} disabled={saving} data-testid={`button-plan-${plan.id}`} aria-pressed={active} className={`focus-ring relative flex min-h-[260px] flex-col rounded-[23px] border p-5 text-left transition duration-300 hover:-translate-y-1.5 disabled:cursor-wait disabled:opacity-60 ${active ? 'border-[#ed6849] bg-[#f7d8cb]/70 shadow-[0_22px_35px_-24px_#bc4c36]' : 'border-[#d9d1c0] bg-[#f8f3e7]/60 hover:border-[#b8ad98] hover:bg-[#f8f3e7]'}`}>
               {plan.featured && <span className="absolute right-4 top-4 rounded-full bg-[#f5cf51] px-2.5 py-1 font-mono text-[9px] font-bold uppercase tracking-[.1em] text-[#232b48]">Most chosen</span>}
               <span className={`mb-7 flex size-10 items-center justify-center rounded-[14px] ${active ? 'bg-[#ed6849] text-[#f8f3e7]' : 'bg-[#e2dacb] text-[#59617a]'}`}><WalletCards className="size-[18px]" /></span>
               <span className="text-[15px] font-semibold text-[#232b48]">{plan.name}</span>
@@ -252,21 +252,8 @@ function Onboarding() {
 
   useEffect(() => { void bootstrap(); }, []);
 
-  const finish = async () => {
-    if (!uid || !role) return;
-    setSaving(true);
-    setError('');
-    try {
-      await completeUser(uid);
-      setTimeout(() => setLocation(`/dashboard/${role}`), 1700);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Your workspace could not be completed.');
-      setSaving(false);
-    }
-  };
-
   const submitOrganization = async () => {
-    if (!uid || !role) return;
+    if (saving || !uid || !role) return;
     setSaving(true);
     setError('');
     try {
@@ -281,24 +268,25 @@ function Onboarding() {
   };
 
   const submitPlan = async () => {
-    if (!uid) return;
+    if (saving || !uid || !role) return;
     setSaving(true);
     setError('');
     try {
-      await updatePlan(uid, selectedPlan);
+      await completeOnboarding(uid, selectedPlan, {
+        role,
+        ...(role === 'owner' ? { studentCount: Number(count) } : { organizationCode: code.trim().toUpperCase() }),
+      });
       setStep(3);
-      await finish();
+      window.setTimeout(() => setLocation(`/dashboard/${role}`), 1700);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'We could not save your plan.');
+      setError(err instanceof Error ? err.message : 'Your onboarding could not be saved.');
       setSaving(false);
     }
   };
 
-  const selectPlan = async (plan: Plan) => {
+  const selectPlan = (plan: Plan) => {
     setSelectedPlan(plan);
-    if (!uid) return;
-    try { await updatePlan(uid, plan); }
-    catch (err) { setError(err instanceof Error ? err.message : 'We could not save your plan.'); }
+    setError('');
   };
 
   if (booting) return <AppLoader />;
@@ -318,7 +306,7 @@ function Onboarding() {
             {error && <div className="mb-6 flex items-center justify-between gap-3 rounded-[15px] border border-[#ebc5b9] bg-[#f7d8cb]/55 px-4 py-3 text-sm text-[#9b4433]" data-testid="status-save-error"><span>{error}</span><button type="button" onClick={() => setError('')} data-testid="button-dismiss-error" aria-label="Dismiss error"><X className="size-4" /></button></div>}
             {step === 0 && <RoleStep role={role} setRole={setRole} onNext={() => setStep(1)} />}
             {step === 1 && role && <OrganizationStep role={role} count={count} setCount={setCount} code={code} setCode={setCode} onBack={() => setStep(0)} onNext={() => void submitOrganization()} saving={saving} error="" />}
-            {step === 2 && <PlanStep selected={selectedPlan} onSelect={(plan) => void selectPlan(plan)} onBack={() => setStep(1)} onNext={() => void submitPlan()} saving={saving} />}
+            {step === 2 && <PlanStep selected={selectedPlan} onSelect={selectPlan} onBack={() => setStep(1)} onNext={() => void submitPlan()} saving={saving} />}
             {step === 3 && <PreparingStep />}
           </div>
         </div>

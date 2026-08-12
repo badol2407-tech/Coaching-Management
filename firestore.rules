@@ -81,6 +81,18 @@ service cloud.firestore {
       ];
     }
 
+    function isFloworaRole(role) {
+      return role in ['owner', 'teacher', 'student', 'guardian', 'staff'];
+    }
+
+    function isFloworaPlan(plan) {
+      return plan in ['free', 'monthly', 'yearly'];
+    }
+
+    function isFloworaBillingCycle(cycle) {
+      return cycle in ['monthly', 'yearly'];
+    }
+
     function linkedStudentIds() {
       return myProfile().linkedStudentIds is list
         ? myProfile().linkedStudentIds
@@ -167,6 +179,32 @@ service cloud.firestore {
         getAfter(/databases/$(database)/documents/organizations/$(request.resource.data.orgId)).data.adminUid == uid &&
         getAfter(/databases/$(database)/documents/organizations/$(request.resource.data.orgId)).data.adminEmail == request.auth.token.email &&
         getAfter(/databases/$(database)/documents/organizations/$(request.resource.data.orgId)).data.status == 'active'
+      ) || (
+        isSignedIn() &&
+        request.auth.uid == uid &&
+        request.resource.data.keys().hasOnly([
+          'role', 'organizationCode', 'organizationId', 'studentCount',
+          'organizationStatus', 'selectedPlan', 'billingCycle',
+          'completedOnboarding'
+        ]) &&
+        isFloworaRole(request.resource.data.role) &&
+        request.resource.data.organizationStatus in ['owner', 'member', 'pending'] &&
+        isFloworaPlan(request.resource.data.selectedPlan) &&
+        isFloworaBillingCycle(request.resource.data.billingCycle) &&
+        request.resource.data.completedOnboarding == false &&
+        (
+          (
+            request.resource.data.role == 'owner' &&
+            request.resource.data.organizationStatus == 'owner' &&
+            request.resource.data.organizationId is string &&
+            request.resource.data.studentCount is number &&
+            request.resource.data.studentCount >= 1
+          ) ||
+          (
+            request.resource.data.role != 'owner' &&
+            request.resource.data.organizationStatus in ['member', 'pending']
+          )
+        )
       );
 
       // Self-updates remain restricted to non-privileged fields. Admins retain
@@ -202,6 +240,23 @@ service cloud.firestore {
             request.resource.data.onboardingCompleted is bool) &&
           (!('onboardingAnswers' in request.resource.data) ||
             request.resource.data.onboardingAnswers is map)
+        ) ||
+        (
+          request.auth.uid == uid &&
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly([
+              'selectedPlan', 'billingCycle', 'onboardingData',
+              'completedOnboarding', 'completedAt'
+            ]) &&
+          isFloworaRole(request.resource.data.role) &&
+          isFloworaPlan(request.resource.data.selectedPlan) &&
+          isFloworaBillingCycle(request.resource.data.billingCycle) &&
+          request.resource.data.onboardingData is map &&
+          request.resource.data.completedOnboarding is bool &&
+          (
+            !('completedAt' in request.resource.data) ||
+            request.resource.data.completedAt == request.time
+          )
         ) ||
         (
           request.auth.uid == uid &&
@@ -248,6 +303,24 @@ service cloud.firestore {
       allow delete: if isSignedIn() && (isSuperAdmin() || isOrgAdmin(resource.data.orgId));
     }
 
+    // Flowora's role-aware onboarding uses a deliberately narrow, anonymous
+    // Firebase Auth profile shape. It is separate from EduTrack's org_admin
+    // public-signup path above.
+    match /joinRequests/{requestId} {
+      allow create: if isSignedIn() &&
+        request.auth.uid == request.resource.data.uid &&
+        request.resource.data.keys().hasOnly([
+          'uid', 'organizationCode', 'role', 'status', 'createdAt'
+        ]) &&
+        isFloworaRole(request.resource.data.role) &&
+        request.resource.data.status == 'pending' &&
+        request.resource.data.organizationCode is string &&
+        request.resource.data.organizationCode.size() >= 1 &&
+        request.resource.data.createdAt == request.time;
+      allow read: if isSignedIn() && resource.data.uid == request.auth.uid;
+      allow update, delete: if false;
+    }
+
     // A username reservation makes availability checks race-safe. The profile
     // document remains the source of display data; this collection is only the
     // globally unique index.
@@ -292,6 +365,17 @@ service cloud.firestore {
         getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'org_admin' &&
         getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.orgId == orgId &&
         getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.createdByPublicSignup == true
+      ) || (
+        isSignedIn() &&
+        request.auth.uid == request.resource.data.ownerUid &&
+        request.resource.data.keys().hasOnly([
+          'name', 'studentCount', 'ownerUid', 'createdAt'
+        ]) &&
+        request.resource.data.name is string &&
+        request.resource.data.name.size() >= 1 &&
+        request.resource.data.studentCount is number &&
+        request.resource.data.studentCount >= 1 &&
+        request.resource.data.createdAt == request.time
       );
       allow update, delete: if isSignedIn() && isSuperAdmin();
 
