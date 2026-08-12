@@ -1,14 +1,18 @@
 import { useState } from "react";
 import {
   CalendarDays,
+  CheckCircle2,
+  Edit3,
   Eye,
   Link2,
   Loader2,
   Mail,
   Phone,
   Plus,
+  Power,
   Search,
   ShieldCheck,
+  Trash2,
   UserMinus,
   UserPlus,
   UsersRound,
@@ -17,6 +21,16 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -24,6 +38,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { DataTable } from "@/components/management/DataTable";
 import { EmptyState } from "@/components/management/EmptyState";
@@ -33,9 +48,12 @@ import { Pagination } from "@/components/management/Pagination";
 import { SearchBar } from "@/components/management/SearchBar";
 import { DirectoryAddDialog } from "@/features/directory/components/DirectoryAddDialog";
 import {
+  useDeleteGuardian,
   useGuardiansCollection,
+  useSetGuardianStatus,
   useSetGuardianStudentLink,
   useStudentsCollection,
+  useUpdateGuardian,
   type GuardianRecord,
   type StudentLinkRecord,
 } from "@/features/directory";
@@ -61,6 +79,9 @@ export default function GuardianManagement() {
     useState<GuardianRecord | null>(null);
   const [studentSearch, setStudentSearch] = useState("");
   const [pendingStudentId, setPendingStudentId] = useState<string | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editForm, setEditForm] = useState({ name: "", phone: "" });
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const { toast } = useToast();
   const { data: guardians = [], isLoading } = useGuardiansCollection({
     search,
@@ -68,6 +89,9 @@ export default function GuardianManagement() {
   const { data: students = [], isLoading: studentsLoading } =
     useStudentsCollection({ enabled: Boolean(selectedGuardian) });
   const setGuardianStudentLink = useSetGuardianStudentLink();
+  const updateGuardian = useUpdateGuardian();
+  const setGuardianStatus = useSetGuardianStatus();
+  const deleteGuardian = useDeleteGuardian();
 
   const linkedStudentIds = selectedGuardian
     ? [...new Set(selectedGuardian.linkedStudentIds)]
@@ -89,7 +113,10 @@ export default function GuardianManagement() {
     })
     .slice(0, 12);
 
-  async function handleStudentLink(student: StudentLinkRecord, linked: boolean) {
+  async function handleStudentLink(
+    student: StudentLinkRecord,
+    linked: boolean,
+  ) {
     if (!selectedGuardian || pendingStudentId) return;
     setPendingStudentId(student.id);
     try {
@@ -114,11 +141,108 @@ export default function GuardianManagement() {
     } catch (error) {
       toast({
         title: linked ? "Could not link student" : "Could not remove student",
-        description: error instanceof Error ? error.message : "Please try again.",
+        description:
+          error instanceof Error ? error.message : "Please try again.",
         variant: "destructive",
       });
     } finally {
       setPendingStudentId(null);
+    }
+  }
+
+  function selectGuardian(guardian: GuardianRecord) {
+    setSelectedGuardian(guardian);
+    setStudentSearch("");
+    setEditOpen(false);
+    setEditForm({ name: guardian.name, phone: guardian.phone });
+  }
+
+  async function handleGuardianSave() {
+    if (!selectedGuardian) return;
+
+    try {
+      await updateGuardian.mutateAsync({
+        guardianId: selectedGuardian.id,
+        name: editForm.name,
+        phone: editForm.phone,
+      });
+      setSelectedGuardian((current) =>
+        current
+          ? {
+              ...current,
+              name: editForm.name.trim(),
+              phone: editForm.phone.trim(),
+            }
+          : current,
+      );
+      setEditOpen(false);
+      toast({
+        title: "Guardian updated",
+        description: "The guardian profile has been saved.",
+      });
+    } catch (error) {
+      toast({
+        title: "Could not update guardian",
+        description:
+          error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    }
+  }
+
+  async function handleGuardianStatusToggle() {
+    if (!selectedGuardian) return;
+    const nextStatus =
+      selectedGuardian.status === "active" ? "inactive" : "active";
+
+    try {
+      await setGuardianStatus.mutateAsync({
+        guardianId: selectedGuardian.id,
+        status: nextStatus,
+      });
+      setSelectedGuardian((current) =>
+        current ? { ...current, status: nextStatus } : current,
+      );
+      toast({
+        title:
+          nextStatus === "active"
+            ? "Guardian activated"
+            : "Guardian deactivated",
+        description:
+          nextStatus === "active"
+            ? "The guardian can access linked learner information again."
+            : "The guardian can no longer access organization data.",
+      });
+    } catch (error) {
+      toast({
+        title: "Could not change guardian status",
+        description:
+          error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    }
+  }
+
+  async function handleGuardianDelete() {
+    if (!selectedGuardian) return;
+
+    try {
+      await deleteGuardian.mutateAsync({ guardianId: selectedGuardian.id });
+      setDeleteOpen(false);
+      setSelectedGuardian(null);
+      setStudentSearch("");
+      toast({
+        title: "Guardian deleted",
+        description:
+          "The guardian profile has been removed from this organization.",
+      });
+    } catch (error) {
+      toast({
+        title: "Could not delete guardian",
+        description:
+          error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
     }
   }
 
@@ -235,7 +359,11 @@ export default function GuardianManagement() {
                   <TableCell>
                     <Badge
                       variant="outline"
-                      className="border-emerald-200 bg-emerald-50 text-emerald-700"
+                      className={
+                        guardian.status === "active"
+                          ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                          : "border-slate-200 bg-slate-50 text-slate-600"
+                      }
                     >
                       {guardian.status}
                     </Badge>
@@ -251,10 +379,7 @@ export default function GuardianManagement() {
                       variant="ghost"
                       size="sm"
                       className="gap-2 text-muted-foreground hover:text-foreground"
-                      onClick={() => {
-                        setSelectedGuardian(guardian);
-                        setStudentSearch("");
-                      }}
+                      onClick={() => selectGuardian(guardian)}
                       aria-label={`View details for ${guardian.name}`}
                       data-testid={`button-view-guardian-${guardian.id}`}
                     >
@@ -295,10 +420,12 @@ export default function GuardianManagement() {
           if (!open) {
             setSelectedGuardian(null);
             setStudentSearch("");
+            setEditOpen(false);
+            setDeleteOpen(false);
           }
         }}
       >
-        <DialogContent className="max-w-lg border-white/80 bg-background/95 shadow-[0_24px_80px_rgba(45,55,120,.2)] backdrop-blur-xl">
+        <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto border-white/80 bg-background/95 shadow-[0_24px_80px_rgba(45,55,120,.2)] backdrop-blur-xl">
           {selectedGuardian && (
             <>
               <DialogHeader>
@@ -316,6 +443,154 @@ export default function GuardianManagement() {
                   </div>
                 </div>
               </DialogHeader>
+
+              <div className="flex flex-col gap-2 border-b border-border/70 pb-5 sm:flex-row sm:flex-wrap">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="justify-center gap-2 sm:flex-1"
+                  onClick={() => {
+                    setEditForm({
+                      name: selectedGuardian.name,
+                      phone: selectedGuardian.phone,
+                    });
+                    setEditOpen((open) => !open);
+                  }}
+                  disabled={
+                    updateGuardian.isPending ||
+                    setGuardianStatus.isPending ||
+                    deleteGuardian.isPending
+                  }
+                  data-testid="button-edit-guardian"
+                >
+                  <Edit3 className="h-4 w-4" aria-hidden="true" />
+                  Edit details
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="justify-center gap-2 sm:flex-1"
+                  onClick={() => void handleGuardianStatusToggle()}
+                  disabled={
+                    updateGuardian.isPending ||
+                    setGuardianStatus.isPending ||
+                    deleteGuardian.isPending
+                  }
+                  data-testid="button-toggle-guardian-status"
+                >
+                  {setGuardianStatus.isPending ? (
+                    <Loader2
+                      className="h-4 w-4 animate-spin"
+                      aria-hidden="true"
+                    />
+                  ) : selectedGuardian.status === "active" ? (
+                    <Power className="h-4 w-4" aria-hidden="true" />
+                  ) : (
+                    <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+                  )}
+                  {selectedGuardian.status === "active"
+                    ? "Deactivate"
+                    : "Activate"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="justify-center gap-2 text-destructive hover:bg-destructive/10 hover:text-destructive sm:flex-1"
+                  onClick={() => setDeleteOpen(true)}
+                  disabled={
+                    updateGuardian.isPending ||
+                    setGuardianStatus.isPending ||
+                    deleteGuardian.isPending
+                  }
+                  data-testid="button-delete-guardian"
+                >
+                  <Trash2 className="h-4 w-4" aria-hidden="true" />
+                  Delete
+                </Button>
+              </div>
+
+              {editOpen && (
+                <section
+                  className="space-y-4 rounded-2xl border border-primary/15 bg-primary/[0.03] p-4"
+                  aria-labelledby="edit-guardian-title"
+                >
+                  <div>
+                    <h3
+                      id="edit-guardian-title"
+                      className="text-sm font-semibold"
+                    >
+                      Edit guardian details
+                    </h3>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Email is managed by Firebase Authentication and cannot be
+                      changed here.
+                    </p>
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-guardian-name">Full name</Label>
+                      <Input
+                        id="edit-guardian-name"
+                        value={editForm.name}
+                        onChange={(event) =>
+                          setEditForm((form) => ({
+                            ...form,
+                            name: event.target.value,
+                          }))
+                        }
+                        minLength={2}
+                        required
+                        data-testid="input-edit-guardian-name"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-guardian-phone">Phone number</Label>
+                      <Input
+                        id="edit-guardian-phone"
+                        type="tel"
+                        value={editForm.phone}
+                        onChange={(event) =>
+                          setEditForm((form) => ({
+                            ...form,
+                            phone: event.target.value,
+                          }))
+                        }
+                        required
+                        data-testid="input-edit-guardian-phone"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => setEditOpen(false)}
+                      disabled={updateGuardian.isPending}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={() => void handleGuardianSave()}
+                      disabled={
+                        updateGuardian.isPending ||
+                        !editForm.name.trim() ||
+                        !editForm.phone.trim()
+                      }
+                      className="gap-2"
+                      data-testid="button-save-guardian"
+                    >
+                      {updateGuardian.isPending && (
+                        <Loader2
+                          className="h-4 w-4 animate-spin"
+                          aria-hidden="true"
+                        />
+                      )}
+                      Save changes
+                    </Button>
+                  </div>
+                </section>
+              )}
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="rounded-2xl border border-border/70 bg-muted/30 p-4">
@@ -342,7 +617,11 @@ export default function GuardianManagement() {
                   </div>
                   <Badge
                     variant="outline"
-                    className="mt-2 border-emerald-200 bg-emerald-50 text-emerald-700"
+                    className={
+                      selectedGuardian.status === "active"
+                        ? "mt-2 border-emerald-200 bg-emerald-50 text-emerald-700"
+                        : "mt-2 border-slate-200 bg-slate-50 text-slate-600"
+                    }
                   >
                     {selectedGuardian.status}
                   </Badge>
@@ -570,6 +849,43 @@ export default function GuardianManagement() {
           )}
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent className="max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Delete {selectedGuardian?.name}?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              This removes the guardian profile from your organization and
+              disconnects their linked learner records. Their Firebase sign-in
+              credential is not removed by this browser-only action.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteGuardian.isPending}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={(event) => {
+                event.preventDefault();
+                void handleGuardianDelete();
+              }}
+              disabled={deleteGuardian.isPending}
+              data-testid="button-confirm-delete-guardian"
+            >
+              {deleteGuardian.isPending && (
+                <Loader2
+                  className="mr-2 h-4 w-4 animate-spin"
+                  aria-hidden="true"
+                />
+              )}
+              Delete guardian
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <DirectoryAddDialog
         kind="guardian"

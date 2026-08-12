@@ -15,8 +15,11 @@ import type {
   DirectoryCollectionParams,
   DirectoryCreateInput,
   DirectoryCreateResult,
+  GuardianDeleteInput,
+  GuardianStatusInput,
   GuardianStudentLinkInput,
   GuardianRecord,
+  GuardianUpdateInput,
   StudentLinkRecord,
 } from "@/features/directory/types";
 
@@ -32,6 +35,9 @@ export interface DirectoryDataProvider {
   ): Promise<AdministrativeStaffRecord[]>;
   listStudents(params: DirectoryCollectionParams): Promise<StudentLinkRecord[]>;
   setGuardianStudentLink(input: GuardianStudentLinkInput): Promise<void>;
+  updateGuardian(input: GuardianUpdateInput): Promise<void>;
+  setGuardianStatus(input: GuardianStatusInput): Promise<void>;
+  deleteGuardian(input: GuardianDeleteInput): Promise<void>;
   createRecord(input: DirectoryCreateInput): Promise<DirectoryCreateResult>;
 }
 
@@ -116,7 +122,9 @@ export const placeholderDirectoryDataProvider: DirectoryDataProvider = {
         guardianData.role !== "guardian" ||
         guardianData.orgId !== input.organizationId
       ) {
-        throw new Error("This guardian does not belong to the selected organization.");
+        throw new Error(
+          "This guardian does not belong to the selected organization.",
+        );
       }
 
       const existingIds = [
@@ -148,6 +156,53 @@ export const placeholderDirectoryDataProvider: DirectoryDataProvider = {
     });
   },
 
+  async updateGuardian(input) {
+    const guardianRef = doc(db, "users", input.guardianId);
+
+    await runTransaction(db, async (transaction) => {
+      const guardianSnapshot = await transaction.get(guardianRef);
+      assertGuardianForOrganization(guardianSnapshot, input.organizationId);
+
+      const name = input.name.trim();
+      const phone = input.phone.trim();
+      if (name.length < 2) {
+        throw new Error("Guardian name must be at least 2 characters.");
+      }
+      if (!phone) {
+        throw new Error("Guardian phone number is required.");
+      }
+
+      transaction.update(guardianRef, {
+        name,
+        phone,
+        updatedAt: serverTimestamp(),
+      });
+    });
+  },
+
+  async setGuardianStatus(input) {
+    const guardianRef = doc(db, "users", input.guardianId);
+
+    await runTransaction(db, async (transaction) => {
+      const guardianSnapshot = await transaction.get(guardianRef);
+      assertGuardianForOrganization(guardianSnapshot, input.organizationId);
+      transaction.update(guardianRef, {
+        status: input.status,
+        updatedAt: serverTimestamp(),
+      });
+    });
+  },
+
+  async deleteGuardian(input) {
+    const guardianRef = doc(db, "users", input.guardianId);
+
+    await runTransaction(db, async (transaction) => {
+      const guardianSnapshot = await transaction.get(guardianRef);
+      assertGuardianForOrganization(guardianSnapshot, input.organizationId);
+      transaction.delete(guardianRef);
+    });
+  },
+
   async createRecord(input) {
     const email = input.email.trim().toLowerCase();
     const temporaryPassword = generateTempPassword();
@@ -171,6 +226,25 @@ export const placeholderDirectoryDataProvider: DirectoryDataProvider = {
     return { id: uid, temporaryPassword };
   },
 };
+
+function assertGuardianForOrganization(
+  snapshot: {
+    exists: () => boolean;
+    data: () => unknown;
+  },
+  organizationId: string,
+) {
+  if (!snapshot.exists()) {
+    throw new Error("Guardian account was not found.");
+  }
+
+  const data = snapshot.data() as Record<string, unknown>;
+  if (data.role !== "guardian" || data.orgId !== organizationId) {
+    throw new Error(
+      "This guardian does not belong to the selected organization.",
+    );
+  }
+}
 
 type DirectoryUserRow = {
   id: string;
@@ -211,7 +285,13 @@ async function listOrganizationUsers(
         updatedAt: toIsoString(data.updatedAt),
         lastActiveAt: toIsoString(data.lastActiveAt),
         linkedStudentIds: Array.isArray(data.linkedStudentIds)
-           ? [...new Set(data.linkedStudentIds.filter((id): id is string => typeof id === "string" && id.length > 0))]
+          ? [
+              ...new Set(
+                data.linkedStudentIds.filter(
+                  (id): id is string => typeof id === "string" && id.length > 0,
+                ),
+              ),
+            ]
           : [],
         staffRole: data.staffRole,
         role: data.role,

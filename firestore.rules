@@ -49,7 +49,10 @@ service cloud.firestore {
     }
 
     function isGuardian(orgId) {
-      return myRole() == 'guardian' && myOrgId() == orgId;
+      // A deactivated guardian may still have a Firebase Auth credential, but
+      // must not be able to read or write any organization-scoped data.
+      return myRole() == 'guardian' && myOrgId() == orgId &&
+        (!('status' in myProfile()) || myProfile().status == 'active');
     }
 
     function isAdministrativeStaff(orgId) {
@@ -164,7 +167,31 @@ service cloud.firestore {
         ) ||
         (
           isOrgAdmin(resource.data.orgId) &&
-          isValidUserRole(request.resource.data.role)
+          isValidUserRole(request.resource.data.role) &&
+          (
+            // Organization admins may keep the existing user-management
+            // behavior for other roles. Guardian profiles are deliberately
+            // restricted to directory fields and cannot change organization
+            // or role through the guardian-management surface.
+            resource.data.role != 'guardian' ||
+            (
+              request.resource.data.role == 'guardian' &&
+              request.resource.data.orgId == resource.data.orgId &&
+              request.resource.data.name is string &&
+              request.resource.data.name.size() >= 2 &&
+              request.resource.data.name.size() <= 120 &&
+              request.resource.data.phone is string &&
+              request.resource.data.phone.size() >= 7 &&
+              request.resource.data.phone.size() <= 30 &&
+              (!('status' in request.resource.data) ||
+                request.resource.data.status in ['active', 'inactive']) &&
+              request.resource.data.diff(resource.data).affectedKeys()
+                .hasOnly([
+                  'name', 'phone', 'status', 'updatedAt',
+                  'linkedStudentIds'
+                ])
+            )
+          )
         )
       );
       allow delete: if isSignedIn() && (isSuperAdmin() || isOrgAdmin(resource.data.orgId));

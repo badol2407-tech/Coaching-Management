@@ -64,7 +64,9 @@ export function useAdministrativeStaffCollection(
   });
 }
 
-export function useStudentsCollection(options: DirectoryCollectionOptions = {}) {
+export function useStudentsCollection(
+  options: DirectoryCollectionOptions = {},
+) {
   const { userProfile } = useAuth();
   const organizationId = userProfile?.orgId;
   const search = options.search?.trim() ?? "";
@@ -102,6 +104,92 @@ export function useSetGuardianStudentLink() {
         guardianId,
         studentId,
         linked,
+      });
+    },
+    onSuccess: () => {
+      const organizationId = userProfile?.orgId;
+      if (!organizationId) return;
+      void queryClient.invalidateQueries({
+        queryKey: ["directory", "guardians", organizationId],
+      });
+    },
+  });
+}
+
+export function useUpdateGuardian() {
+  const queryClient = useQueryClient();
+  const { userProfile } = useAuth();
+
+  return useMutation({
+    mutationFn: ({
+      guardianId,
+      name,
+      phone,
+    }: {
+      guardianId: string;
+      name: string;
+      phone: string;
+    }) => {
+      const organizationId = userProfile?.orgId;
+      if (!organizationId) throw new Error("No organization is selected.");
+      return directoryService.updateGuardian({
+        organizationId,
+        guardianId,
+        name,
+        phone,
+      });
+    },
+    onSuccess: () => {
+      const organizationId = userProfile?.orgId;
+      if (!organizationId) return;
+      void queryClient.invalidateQueries({
+        queryKey: ["directory", "guardians", organizationId],
+      });
+    },
+  });
+}
+
+export function useSetGuardianStatus() {
+  const queryClient = useQueryClient();
+  const { userProfile } = useAuth();
+
+  return useMutation({
+    mutationFn: ({
+      guardianId,
+      status,
+    }: {
+      guardianId: string;
+      status: "active" | "inactive";
+    }) => {
+      const organizationId = userProfile?.orgId;
+      if (!organizationId) throw new Error("No organization is selected.");
+      return directoryService.setGuardianStatus({
+        organizationId,
+        guardianId,
+        status,
+      });
+    },
+    onSuccess: () => {
+      const organizationId = userProfile?.orgId;
+      if (!organizationId) return;
+      void queryClient.invalidateQueries({
+        queryKey: ["directory", "guardians", organizationId],
+      });
+    },
+  });
+}
+
+export function useDeleteGuardian() {
+  const queryClient = useQueryClient();
+  const { userProfile } = useAuth();
+
+  return useMutation({
+    mutationFn: ({ guardianId }: { guardianId: string }) => {
+      const organizationId = userProfile?.orgId;
+      if (!organizationId) throw new Error("No organization is selected.");
+      return directoryService.deleteGuardian({
+        organizationId,
+        guardianId,
       });
     },
     onSuccess: () => {

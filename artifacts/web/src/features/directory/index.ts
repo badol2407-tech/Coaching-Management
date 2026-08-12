@@ -3,10 +3,13 @@ export {
   getGuardiansCollectionQueryKey,
   getStudentsCollectionQueryKey,
   useCreateDirectoryRecord,
+  useDeleteGuardian,
   useAdministrativeStaffCollection,
   useGuardiansCollection,
+  useSetGuardianStatus,
   useSetGuardianStudentLink,
   useStudentsCollection,
+  useUpdateGuardian,
 } from "@/features/directory/hooks/useDirectoryCollections";
 export {
   createDirectoryRepository,
@@ -27,10 +30,13 @@ export type {
   DirectoryCollectionParams,
   DirectoryCreateInput,
   DirectoryCreateResult,
+  GuardianDeleteInput,
+  GuardianStatusInput,
   DirectoryRecordKind,
   DirectoryRecord,
   DirectoryStatus,
   GuardianStudentLinkInput,
   GuardianRecord,
+  GuardianUpdateInput,
   StudentLinkRecord,
 } from "@/features/directory/types";

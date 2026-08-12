@@ -34,6 +34,24 @@ export interface GuardianStudentLinkInput {
   linked: boolean;
 }
 
+export interface GuardianUpdateInput {
+  organizationId: string;
+  guardianId: string;
+  name: string;
+  phone: string;
+}
+
+export interface GuardianStatusInput {
+  organizationId: string;
+  guardianId: string;
+  status: Exclude<DirectoryStatus, "invited">;
+}
+
+export interface GuardianDeleteInput {
+  organizationId: string;
+  guardianId: string;
+}
+
 export interface DirectoryCreateInput {
   organizationId: string;
   kind: DirectoryRecordKind;
