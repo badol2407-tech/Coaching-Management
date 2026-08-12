@@ -7,7 +7,9 @@ import type {
   DirectoryCollectionParams,
   DirectoryCreateInput,
   DirectoryCreateResult,
+  GuardianStudentLinkInput,
   GuardianRecord,
+  StudentLinkRecord,
 } from "@/features/directory/types";
 
 /**
@@ -22,6 +24,8 @@ export interface DirectoryService {
   listAdministrativeStaff(
     params: DirectoryCollectionParams,
   ): Promise<AdministrativeStaffRecord[]>;
+  listStudents(params: DirectoryCollectionParams): Promise<StudentLinkRecord[]>;
+  setGuardianStudentLink(input: GuardianStudentLinkInput): Promise<void>;
   createRecord(input: DirectoryCreateInput): Promise<DirectoryCreateResult>;
 }
 
@@ -32,6 +36,8 @@ export function createDirectoryService(
     listGuardians: (params) => repository.listGuardians(params),
     listAdministrativeStaff: (params) =>
       repository.listAdministrativeStaff(params),
+    listStudents: (params) => repository.listStudents(params),
+    setGuardianStudentLink: (input) => repository.setGuardianStudentLink(input),
     createRecord: (input) => repository.createRecord(input),
   };
 }

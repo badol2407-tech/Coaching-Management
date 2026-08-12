@@ -1,9 +1,12 @@
 export {
   getAdministrativeStaffCollectionQueryKey,
   getGuardiansCollectionQueryKey,
+  getStudentsCollectionQueryKey,
   useCreateDirectoryRecord,
   useAdministrativeStaffCollection,
   useGuardiansCollection,
+  useSetGuardianStudentLink,
+  useStudentsCollection,
 } from "@/features/directory/hooks/useDirectoryCollections";
 export {
   createDirectoryRepository,
@@ -27,5 +30,7 @@ export type {
   DirectoryRecordKind,
   DirectoryRecord,
   DirectoryStatus,
+  GuardianStudentLinkInput,
   GuardianRecord,
+  StudentLinkRecord,
 } from "@/features/directory/types";

@@ -2,10 +2,15 @@ import { useState } from "react";
 import {
   CalendarDays,
   Eye,
+  Link2,
+  Loader2,
   Mail,
   Phone,
   Plus,
+  Search,
   ShieldCheck,
+  UserMinus,
+  UserPlus,
   UsersRound,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +23,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { DataTable } from "@/components/management/DataTable";
 import { EmptyState } from "@/components/management/EmptyState";
@@ -28,8 +34,12 @@ import { SearchBar } from "@/components/management/SearchBar";
 import { DirectoryAddDialog } from "@/features/directory/components/DirectoryAddDialog";
 import {
   useGuardiansCollection,
+  useSetGuardianStudentLink,
+  useStudentsCollection,
   type GuardianRecord,
+  type StudentLinkRecord,
 } from "@/features/directory";
+import { useToast } from "@/hooks/use-toast";
 
 function formatDate(value?: string | null) {
   if (!value) return "Not available";
@@ -49,9 +59,68 @@ export default function GuardianManagement() {
   const [addOpen, setAddOpen] = useState(false);
   const [selectedGuardian, setSelectedGuardian] =
     useState<GuardianRecord | null>(null);
+  const [studentSearch, setStudentSearch] = useState("");
+  const [pendingStudentId, setPendingStudentId] = useState<string | null>(null);
+  const { toast } = useToast();
   const { data: guardians = [], isLoading } = useGuardiansCollection({
     search,
   });
+  const { data: students = [], isLoading: studentsLoading } =
+    useStudentsCollection({ enabled: Boolean(selectedGuardian) });
+  const setGuardianStudentLink = useSetGuardianStudentLink();
+
+  const linkedStudentIds = selectedGuardian
+    ? [...new Set(selectedGuardian.linkedStudentIds)]
+    : [];
+  const linkedStudentIdSet = new Set(linkedStudentIds);
+  const normalizedStudentSearch = studentSearch.trim().toLowerCase();
+  const availableStudents = students
+    .filter((student) => !linkedStudentIdSet.has(student.id))
+    .filter((student) => {
+      if (!normalizedStudentSearch) return true;
+      return [
+        student.name,
+        student.email,
+        student.phone,
+        student.rollNumber,
+        student.className,
+        student.batch,
+      ].some((value) => value?.toLowerCase().includes(normalizedStudentSearch));
+    })
+    .slice(0, 12);
+
+  async function handleStudentLink(student: StudentLinkRecord, linked: boolean) {
+    if (!selectedGuardian || pendingStudentId) return;
+    setPendingStudentId(student.id);
+    try {
+      await setGuardianStudentLink.mutateAsync({
+        guardianId: selectedGuardian.id,
+        studentId: student.id,
+        linked,
+      });
+      setSelectedGuardian((current) => {
+        if (!current) return current;
+        const nextIds = new Set(current.linkedStudentIds);
+        if (linked) nextIds.add(student.id);
+        else nextIds.delete(student.id);
+        return { ...current, linkedStudentIds: [...nextIds] };
+      });
+      toast({
+        title: linked ? "Student linked" : "Student removed",
+        description: linked
+          ? `${student.name} is now connected to ${selectedGuardian.name}.`
+          : `${student.name} is no longer connected to ${selectedGuardian.name}.`,
+      });
+    } catch (error) {
+      toast({
+        title: linked ? "Could not link student" : "Could not remove student",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setPendingStudentId(null);
+    }
+  }
 
   return (
     <div className="app-command-surface mx-auto max-w-[1320px] space-y-6 pb-12">
@@ -182,7 +251,10 @@ export default function GuardianManagement() {
                       variant="ghost"
                       size="sm"
                       className="gap-2 text-muted-foreground hover:text-foreground"
-                      onClick={() => setSelectedGuardian(guardian)}
+                      onClick={() => {
+                        setSelectedGuardian(guardian);
+                        setStudentSearch("");
+                      }}
                       aria-label={`View details for ${guardian.name}`}
                       data-testid={`button-view-guardian-${guardian.id}`}
                     >
@@ -220,7 +292,10 @@ export default function GuardianManagement() {
       <Dialog
         open={Boolean(selectedGuardian)}
         onOpenChange={(open) => {
-          if (!open) setSelectedGuardian(null);
+          if (!open) {
+            setSelectedGuardian(null);
+            setStudentSearch("");
+          }
         }}
       >
         <DialogContent className="max-w-lg border-white/80 bg-background/95 shadow-[0_24px_80px_rgba(45,55,120,.2)] backdrop-blur-xl">
@@ -278,7 +353,7 @@ export default function GuardianManagement() {
                     Linked students
                   </div>
                   <p className="mt-2 text-sm font-medium">
-                    {selectedGuardian.linkedStudentIds.length}
+                    {linkedStudentIds.length}
                   </p>
                 </div>
                 <div className="rounded-2xl border border-border/70 bg-muted/30 p-4 sm:col-span-2">
@@ -293,6 +368,204 @@ export default function GuardianManagement() {
                   </p>
                 </div>
               </div>
+
+              <section
+                className="space-y-4 border-t border-border/70 pt-5"
+                aria-labelledby="guardian-student-links-title"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <Link2
+                        className="h-4 w-4 text-primary"
+                        aria-hidden="true"
+                      />
+                      <h3
+                        id="guardian-student-links-title"
+                        className="text-sm font-semibold"
+                      >
+                        Linked students
+                      </h3>
+                    </div>
+                    <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                      Connect one guardian to every student they support. Each
+                      student can only be added once.
+                    </p>
+                  </div>
+                  <Badge variant="secondary">{linkedStudentIds.length}</Badge>
+                </div>
+
+                <div className="space-y-2">
+                  {linkedStudentIds.length > 0 ? (
+                    linkedStudentIds.map((studentId) => {
+                      const student = students.find(
+                        (candidate) => candidate.id === studentId,
+                      );
+                      return (
+                        <div
+                          key={studentId}
+                          className="flex items-center justify-between gap-3 rounded-xl border border-primary/10 bg-primary/5 px-3 py-2.5"
+                        >
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-medium">
+                              {student?.name ?? "Student record"}
+                            </p>
+                            <p className="truncate text-xs text-muted-foreground">
+                              {student
+                                ? [
+                                    student.className,
+                                    student.section,
+                                    student.rollNumber
+                                      ? `Roll ${student.rollNumber}`
+                                      : null,
+                                  ]
+                                    .filter(Boolean)
+                                    .join(" · ") ||
+                                  student.email ||
+                                  student.id
+                                : `Student ID: ${studentId}`}
+                            </p>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="shrink-0 gap-1.5 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                            onClick={() =>
+                              student && void handleStudentLink(student, false)
+                            }
+                            disabled={
+                              !student ||
+                              pendingStudentId === studentId ||
+                              Boolean(pendingStudentId)
+                            }
+                            aria-label={`Remove ${student?.name ?? "student"}`}
+                            data-testid={`button-remove-linked-student-${studentId}`}
+                          >
+                            {pendingStudentId === studentId ? (
+                              <Loader2
+                                className="h-4 w-4 animate-spin"
+                                aria-hidden="true"
+                              />
+                            ) : (
+                              <UserMinus
+                                className="h-4 w-4"
+                                aria-hidden="true"
+                              />
+                            )}
+                            Remove
+                          </Button>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className="rounded-xl border border-dashed border-border bg-muted/20 px-3 py-3 text-sm text-muted-foreground">
+                      No students are linked to this guardian yet.
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <label
+                    htmlFor="guardian-student-search"
+                    className="text-sm font-medium"
+                  >
+                    Add a student
+                  </label>
+                  <div className="relative">
+                    <Search
+                      className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                      aria-hidden="true"
+                    />
+                    <Input
+                      id="guardian-student-search"
+                      value={studentSearch}
+                      onChange={(event) => setStudentSearch(event.target.value)}
+                      placeholder="Search by name, email, phone, roll, or class"
+                      className="pl-9"
+                      autoComplete="off"
+                      data-testid="input-search-guardian-students"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2" aria-live="polite">
+                  {studentsLoading ? (
+                    <div className="flex items-center gap-2 rounded-xl border border-border bg-muted/20 px-3 py-4 text-sm text-muted-foreground">
+                      <Loader2
+                        className="h-4 w-4 animate-spin"
+                        aria-hidden="true"
+                      />
+                      Loading students...
+                    </div>
+                  ) : availableStudents.length > 0 ? (
+                    availableStudents.map((student) => (
+                      <div
+                        key={student.id}
+                        className="flex items-center justify-between gap-3 rounded-xl border border-border/70 px-3 py-2.5"
+                      >
+                        <div className="flex min-w-0 items-center gap-2.5">
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted text-xs font-semibold text-muted-foreground">
+                            <UserPlus className="h-4 w-4" aria-hidden="true" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-medium">
+                              {student.name}
+                            </p>
+                            <p className="truncate text-xs text-muted-foreground">
+                              {[
+                                student.className,
+                                student.section,
+                                student.rollNumber
+                                  ? `Roll ${student.rollNumber}`
+                                  : null,
+                              ]
+                                .filter(Boolean)
+                                .join(" · ") ||
+                                student.email ||
+                                student.id}
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="shrink-0 gap-1.5"
+                          onClick={() => void handleStudentLink(student, true)}
+                          disabled={Boolean(pendingStudentId)}
+                          data-testid={`button-link-student-${student.id}`}
+                        >
+                          {pendingStudentId === student.id ? (
+                            <Loader2
+                              className="h-4 w-4 animate-spin"
+                              aria-hidden="true"
+                            />
+                          ) : (
+                            <Link2 className="h-4 w-4" aria-hidden="true" />
+                          )}
+                          Link
+                        </Button>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="rounded-xl border border-dashed border-border bg-muted/20 px-3 py-4 text-sm text-muted-foreground">
+                      {studentSearch
+                        ? "No matching students found."
+                        : "All students are already linked or no student records exist."}
+                    </p>
+                  )}
+                  {!studentsLoading &&
+                    !studentSearch &&
+                    availableStudents.length > 0 &&
+                    students.length - linkedStudentIds.length >
+                      availableStudents.length && (
+                      <p className="text-xs text-muted-foreground">
+                        Search to find more students.
+                      </p>
+                    )}
+                </div>
+              </section>
             </>
           )}
         </DialogContent>

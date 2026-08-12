@@ -27,12 +27,13 @@ const GuardianContext = createContext<GuardianContextValue | null>(null);
 
 function getLinkedStudentIds(profile: ReturnType<typeof useAuth>["userProfile"]) {
   if (!profile) return [];
-  const ids = [
-    ...(profile.linkedStudentIds ?? []),
-    ...(profile.studentIds ?? []),
-    ...(profile.childrenIds ?? []),
-    ...(profile.studentId ? [profile.studentId] : []),
-  ];
+  const ids = Array.isArray(profile.linkedStudentIds)
+    ? profile.linkedStudentIds
+    : [
+        ...(profile.studentIds ?? []),
+        ...(profile.childrenIds ?? []),
+        ...(profile.studentId ? [profile.studentId] : []),
+      ];
   return [...new Set(ids.filter((id): id is string => typeof id === "string" && id.length > 0))];
 }
 

@@ -5,6 +5,7 @@ import type {
   AdministrativeStaffRecord,
   DirectoryCreateInput,
   GuardianRecord,
+  StudentLinkRecord,
 } from "@/features/directory/types";
 
 interface DirectoryCollectionOptions {
@@ -21,6 +22,11 @@ export const getAdministrativeStaffCollectionQueryKey = (
   organizationId?: string | null,
   search = "",
 ) => ["directory", "administrative-staff", organizationId ?? "", search];
+
+export const getStudentsCollectionQueryKey = (
+  organizationId?: string | null,
+  search = "",
+) => ["directory", "students", organizationId ?? "", search];
 
 export function useGuardiansCollection(
   options: DirectoryCollectionOptions = {},
@@ -55,6 +61,56 @@ export function useAdministrativeStaffCollection(
         search,
       }),
     enabled: Boolean(organizationId) && options.enabled !== false,
+  });
+}
+
+export function useStudentsCollection(options: DirectoryCollectionOptions = {}) {
+  const { userProfile } = useAuth();
+  const organizationId = userProfile?.orgId;
+  const search = options.search?.trim() ?? "";
+
+  return useQuery<StudentLinkRecord[]>({
+    queryKey: getStudentsCollectionQueryKey(organizationId, search),
+    queryFn: () =>
+      directoryService.listStudents({
+        organizationId: organizationId!,
+        search,
+      }),
+    enabled: Boolean(organizationId) && options.enabled !== false,
+    staleTime: 30_000,
+  });
+}
+
+export function useSetGuardianStudentLink() {
+  const queryClient = useQueryClient();
+  const { userProfile } = useAuth();
+
+  return useMutation({
+    mutationFn: ({
+      guardianId,
+      studentId,
+      linked,
+    }: {
+      guardianId: string;
+      studentId: string;
+      linked: boolean;
+    }) => {
+      const organizationId = userProfile?.orgId;
+      if (!organizationId) throw new Error("No organization is selected.");
+      return directoryService.setGuardianStudentLink({
+        organizationId,
+        guardianId,
+        studentId,
+        linked,
+      });
+    },
+    onSuccess: () => {
+      const organizationId = userProfile?.orgId;
+      if (!organizationId) return;
+      void queryClient.invalidateQueries({
+        queryKey: ["directory", "guardians", organizationId],
+      });
+    },
   });
 }
 

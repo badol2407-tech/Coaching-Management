@@ -15,6 +15,25 @@ export interface DirectoryCollectionParams {
 
 export type DirectoryRecordKind = "guardian" | "administrative_staff";
 
+export interface StudentLinkRecord {
+  id: string;
+  name: string;
+  email?: string | null;
+  phone?: string | null;
+  className?: string | null;
+  section?: string | null;
+  batch?: string | null;
+  rollNumber?: string | null;
+  status: DirectoryStatus;
+}
+
+export interface GuardianStudentLinkInput {
+  organizationId: string;
+  guardianId: string;
+  studentId: string;
+  linked: boolean;
+}
+
 export interface DirectoryCreateInput {
   organizationId: string;
   kind: DirectoryRecordKind;

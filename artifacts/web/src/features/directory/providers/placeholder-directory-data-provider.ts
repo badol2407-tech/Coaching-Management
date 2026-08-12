@@ -2,6 +2,7 @@ import {
   collection,
   getDocs,
   query,
+  runTransaction,
   serverTimestamp,
   setDoc,
   where,
@@ -14,7 +15,9 @@ import type {
   DirectoryCollectionParams,
   DirectoryCreateInput,
   DirectoryCreateResult,
+  GuardianStudentLinkInput,
   GuardianRecord,
+  StudentLinkRecord,
 } from "@/features/directory/types";
 
 /**
@@ -27,6 +30,8 @@ export interface DirectoryDataProvider {
   listAdministrativeStaff(
     params: DirectoryCollectionParams,
   ): Promise<AdministrativeStaffRecord[]>;
+  listStudents(params: DirectoryCollectionParams): Promise<StudentLinkRecord[]>;
+  setGuardianStudentLink(input: GuardianStudentLinkInput): Promise<void>;
   createRecord(input: DirectoryCreateInput): Promise<DirectoryCreateResult>;
 }
 
@@ -45,6 +50,102 @@ export const placeholderDirectoryDataProvider: DirectoryDataProvider = {
       ...row,
       role: row.staffRole ?? "other",
     })) as AdministrativeStaffRecord[];
+  },
+
+  async listStudents(params) {
+    const snapshot = await getDocs(
+      collection(db, "organizations", params.organizationId, "students"),
+    );
+    const normalizedSearch = params.search?.trim().toLowerCase() ?? "";
+
+    return snapshot.docs
+      .map((studentDoc) => {
+        const data = studentDoc.data();
+        return {
+          id: studentDoc.id,
+          name: typeof data.name === "string" ? data.name : "Unnamed student",
+          email: (data.email as string | null | undefined) ?? null,
+          phone: (data.phone as string | null | undefined) ?? null,
+          className: (data.className as string | null | undefined) ?? null,
+          section: (data.section as string | null | undefined) ?? null,
+          batch: (data.batch as string | null | undefined) ?? null,
+          rollNumber: (data.rollNumber as string | null | undefined) ?? null,
+          status:
+            data.status === "inactive" || data.status === "invited"
+              ? data.status
+              : "active",
+        } satisfies StudentLinkRecord;
+      })
+      .filter((student) => {
+        if (!normalizedSearch) return true;
+        return [
+          student.name,
+          student.email,
+          student.phone,
+          student.rollNumber,
+          student.className,
+          student.batch,
+        ].some((value) => value?.toLowerCase().includes(normalizedSearch));
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
+  },
+
+  async setGuardianStudentLink(input) {
+    const guardianRef = doc(db, "users", input.guardianId);
+    const studentRef = doc(
+      db,
+      "organizations",
+      input.organizationId,
+      "students",
+      input.studentId,
+    );
+
+    await runTransaction(db, async (transaction) => {
+      const guardianSnapshot = await transaction.get(guardianRef);
+      const studentSnapshot = await transaction.get(studentRef);
+
+      if (!guardianSnapshot.exists()) {
+        throw new Error("Guardian account was not found.");
+      }
+      if (!studentSnapshot.exists()) {
+        throw new Error("Student record was not found.");
+      }
+
+      const guardianData = guardianSnapshot.data();
+      if (
+        guardianData.role !== "guardian" ||
+        guardianData.orgId !== input.organizationId
+      ) {
+        throw new Error("This guardian does not belong to the selected organization.");
+      }
+
+      const existingIds = [
+        ...(Array.isArray(guardianData.linkedStudentIds)
+          ? guardianData.linkedStudentIds
+          : []),
+        ...(Array.isArray(guardianData.studentIds)
+          ? guardianData.studentIds
+          : []),
+        ...(Array.isArray(guardianData.childrenIds)
+          ? guardianData.childrenIds
+          : []),
+        ...(typeof guardianData.studentId === "string"
+          ? [guardianData.studentId]
+          : []),
+      ].filter((id): id is string => typeof id === "string" && id.length > 0);
+
+      const nextIds = new Set(existingIds);
+      if (input.linked) {
+        nextIds.add(input.studentId);
+      } else {
+        nextIds.delete(input.studentId);
+      }
+
+      transaction.update(guardianRef, {
+        linkedStudentIds: [...nextIds],
+        updatedAt: serverTimestamp(),
+      });
+    });
   },
 
   async createRecord(input) {
@@ -110,7 +211,7 @@ async function listOrganizationUsers(
         updatedAt: toIsoString(data.updatedAt),
         lastActiveAt: toIsoString(data.lastActiveAt),
         linkedStudentIds: Array.isArray(data.linkedStudentIds)
-          ? data.linkedStudentIds
+           ? [...new Set(data.linkedStudentIds.filter((id): id is string => typeof id === "string" && id.length > 0))]
           : [],
         staffRole: data.staffRole,
         role: data.role,
