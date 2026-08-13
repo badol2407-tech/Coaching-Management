@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type FormEvent } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useLocation } from "wouter";
 import {
@@ -1780,12 +1780,12 @@ export default function LandingPage() {
     };
   }, [reduceMotion]);
 
-  function openAuth(mode: AuthMode, source: string, tier: PlanTier = "free_trial") {
+  const openAuth = useCallback((mode: AuthMode, source: string, tier: PlanTier = "free_trial") => {
     trackFeatureUsed("landing_cta_click", { mode, source });
     setAuthMode(mode);
     setSignupTier(tier);
     setShowAuth(true);
-  }
+  }, []);
 
   function openDemo(source: string) {
     trackFeatureUsed("demo_booking_opened", { source });
@@ -1800,15 +1800,15 @@ export default function LandingPage() {
   const whatsappMsg = encodeURIComponent("আমি EduTrack সম্পর্কে জানতে চাই। একটু বিস্তারিত বলবেন?");
   const whatsappNumber = "8801632905056";
   const [signupTier, setSignupTier] = useState<PlanTier>("free_trial");
-  function selectPlan(tier: PlanTier) {
+  const selectPlan = useCallback((tier: PlanTier) => {
     trackFeatureUsed("pricing_cta_click", { plan: tier });
     openAuth("signup", `pricing_${tier}`, tier);
-  }
+  }, [openAuth]);
 
-  function openPremiumLaunch() {
+  const openPremiumLaunch = useCallback(() => {
     trackFeatureUsed("pricing_cta_click", { plan: "premium_monthly" });
     setShowPremiumLaunch(true);
-  }
+  }, []);
   const navItems = [
     { label: "Features", href: "/features" },
     { label: "Solutions", href: "/solutions" },

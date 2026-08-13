@@ -1,13 +1,15 @@
 import { PromoBanner } from "./promotionData";
+import { memo } from "react";
 import type { CSSProperties } from "react";
 
 interface BannerSlideProps {
   banner: PromoBanner;
   compact?: boolean;
+  priority?: boolean;
   onCtaClick: () => void;
 }
 
-export function BannerSlide({ banner, compact = false, onCtaClick }: BannerSlideProps) {
+export const BannerSlide = memo(function BannerSlide({ banner, compact = false,priority = false, onCtaClick }: BannerSlideProps) {
   const style = {
     background: banner.gradient,
     "--promo-rail-image-position": banner.railImagePosition,
@@ -25,7 +27,7 @@ export function BannerSlide({ banner, compact = false, onCtaClick }: BannerSlide
           alt=""
           aria-hidden="true"
           className="promo-banner-image"
-          loading="eager"
+          loading={priority ? "eager" : "lazy"}
         />
       </picture>
       <div className="promo-banner-image-wash" aria-hidden="true" />
@@ -64,4 +66,4 @@ export function BannerSlide({ banner, compact = false, onCtaClick }: BannerSlide
       </div>
     </div>
   );
-}
+});

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { promoBanners } from "./promotionData";
@@ -8,7 +8,7 @@ interface HeroCarouselProps {
   onCtaClick: (cta: string, index: number) => void;
 }
 
-export function HeroCarousel({ onCtaClick }: HeroCarouselProps) {
+export const HeroCarousel = memo(function HeroCarousel({ onCtaClick }: HeroCarouselProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "center" });
   const [selectedIndex, setSelectedIndex] = useState(0);
   const autoplayRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -64,9 +64,11 @@ export function HeroCarousel({ onCtaClick }: HeroCarouselProps) {
           {promoBanners.map((banner, i) => (
             <div key={i} className="flex-[0_0_100%] min-w-0">
               <BannerSlide
-                banner={banner}
-                compact={false}
-                onCtaClick={() => onCtaClick(banner.cta, i)}
+  banner={banner}
+  compact={false}
+  priority={i === 0}
+  onCtaClick={() => onCtaClick(banner.cta, i)}
+/>onCtaClick(banner.cta, i)}
               />
             </div>
           ))}
@@ -101,4 +103,4 @@ export function HeroCarousel({ onCtaClick }: HeroCarouselProps) {
       </div>
     </div>
   );
-}
+});
