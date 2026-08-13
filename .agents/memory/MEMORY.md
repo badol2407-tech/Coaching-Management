@@ -20,3 +20,4 @@
 - [Landing glass surfaces](landing-glass-surfaces.md) — keep Flowora-inspired glass treatments scoped to public landing sections, not authenticated product UI
 - [Realtime portal synchronization](realtime-portal-sync.md) — Firestore listeners plus cache invalidation keep all role portals current across sessions
 - [Guardian management boundary](guardian-management.md) — browser-side deletion removes the Firestore profile; full Auth credential deletion requires a trusted Admin SDK path
+- [Flowora authentication boundary](flowora-auth.md) — onboarding requires a real Firebase account; anonymous sign-in is not a valid bootstrap fallback
