@@ -33,9 +33,9 @@ service cloud.firestore {
     }
 
     function isSuperAdmin() {
-      return myRole() == 'super_admin';
-    }
-
+  return myRole() == 'super_admin' &&
+         request.auth.token.admin == true;
+}
     function isOrgAdmin(orgId) {
       return myRole() == 'org_admin' && myOrgId() == orgId;
     }
@@ -81,7 +81,17 @@ service cloud.firestore {
       ];
     }
 
-    function isFloworaRole(role) {
+    function isOrgManagedRole(role) {
+  return role in [
+    'org_admin',
+    'teacher',
+    'student',
+    'guardian',
+    'administrative_staff'
+  ];
+}
+
+function isFloworaRole(role) {
       return role in ['owner', 'teacher', 'student', 'guardian', 'staff'];
     }
 
@@ -152,18 +162,14 @@ service cloud.firestore {
       // The public path is constrained to the caller's own UID/email, an
       // org_admin role, a fixed field set, and a matching atomic org write.
       allow create: if (
-        isSignedIn() &&
-        request.auth.uid == uid &&
-        request.resource.data.role == 'super_admin' &&
-        request.resource.data.orgId == null
-      ) || (
+        
         isSignedIn() &&
         isSuperAdmin() &&
         isValidUserRole(request.resource.data.role)
       ) || (
         isSignedIn() &&
         isOrgAdmin(request.resource.data.orgId) &&
-        isValidUserRole(request.resource.data.role)
+        isOrgManagedRole(request.resource.data.role)
       ) || (
         isSignedIn() &&
         request.auth.uid == uid &&
@@ -273,7 +279,7 @@ service cloud.firestore {
         ) ||
         (
           isOrgAdmin(resource.data.orgId) &&
-          isValidUserRole(request.resource.data.role) &&
+          isOrgManagedRole(request.resource.data.role) &&
           (
             // Organization admins may keep the existing user-management
             // behavior for other roles. Guardian profiles are deliberately
