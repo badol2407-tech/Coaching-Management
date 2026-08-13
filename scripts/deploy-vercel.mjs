@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Deploys artifacts/web/dist/public to Vercel via REST API (file upload approach)
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { cpSync, readFileSync, readdirSync, rmSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
@@ -9,6 +9,8 @@ import https from "node:https";
 
 const ROOT_DIR = fileURLToPath(new URL("..", import.meta.url));
 const DIST_DIR = join(ROOT_DIR, "artifacts/web/dist/public");
+const FLOWORA_DIST_DIR = join(ROOT_DIR, "artifacts/flowora-onboarding/dist/public");
+const FLOWORA_PUBLIC_DIR = join(DIST_DIR, "flowora");
 const PROJECT_ID = "prj_wS8nOI5dtrAgTygcqEmWbJFwYvCO";
 const TOKEN = process.env.VERCEL_TOKEN;
 if (!TOKEN) { console.error("VERCEL_TOKEN not set"); process.exit(1); }
@@ -31,6 +33,20 @@ execFileSync("pnpm", ["--filter", "@workspace/web", "run", "build"], {
   cwd: ROOT_DIR,
   stdio: "inherit",
 });
+
+console.log("Building Flowora onboarding before upload...");
+execFileSync("pnpm", ["--filter", "@workspace/flowora-onboarding", "run", "build"], {
+  cwd: ROOT_DIR,
+  stdio: "inherit",
+  env: {
+    ...process.env,
+    NODE_ENV: "production",
+    PORT: process.env.FLOWORA_BUILD_PORT ?? "24395",
+    BASE_PATH: "/flowora/",
+  },
+});
+rmSync(FLOWORA_PUBLIC_DIR, { recursive: true, force: true });
+cpSync(FLOWORA_DIST_DIR, FLOWORA_PUBLIC_DIR, { recursive: true });
 
 function walk(dir) {
   const files = [];
@@ -73,6 +89,10 @@ const bodyStr = JSON.stringify({
     // every /assets/* request and returns index.html as text/javascript,
     // which prevents the app from booting (white screen).
     { handle: "filesystem" },
+    // Flowora is shipped alongside the main EduTrack app so the corrected
+    // onboarding build is available from the same production project.
+    { src: "^/flowora/?$", dest: "/flowora/index.html" },
+    { src: "^/flowora/(.*)$", dest: "/flowora/index.html" },
     // SPA fallback — unknown paths render index.html so client-side
     // routing can take over.
     { src: "/(.*)", dest: "/index.html" },
