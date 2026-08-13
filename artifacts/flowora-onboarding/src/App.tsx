@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { completeOnboarding, getAuthenticatedUser, getFirebaseError, readUser, saveMembership, saveOwner, type BillingCycle, type Plan, type Role, type UserRecord } from '@/lib/firebase';
+import { completeOnboarding, getFirebaseError, readUser, saveMembership, saveOwner, signInDemo, type Plan, type Role, type UserRecord } from '@/lib/firebase';
 import { ArrowRight, BadgeCheck, BookOpen, Building2, Check, ChevronLeft, CircleUserRound, GraduationCap, KeyRound, LoaderCircle, LockKeyhole, Menu, RotateCcw, School, ShieldCheck, Sparkles, UsersRound, WalletCards, X } from 'lucide-react';
 import { Route, Switch, Router as WouterRouter, useLocation } from 'wouter';
 import NotFound from '@/pages/not-found';
@@ -32,14 +32,6 @@ const roleLabels: Record<Role, string> = {
   staff: 'Staff',
 };
 
-const portalRoutes: Record<Role, string> = {
-  owner: '/dashboard/owner',
-  teacher: '/dashboard/teacher',
-  student: '/dashboard/student',
-  guardian: '/dashboard/guardian',
-  staff: '/dashboard/staff',
-};
-
 function AppLoader({ label = 'Opening your private workspace' }: { label?: string }) {
   return (
     <div className="texture-overlay flex min-h-[100dvh] items-center justify-center bg-[#eee9dc] px-6">
@@ -56,20 +48,20 @@ function AppLoader({ label = 'Opening your private workspace' }: { label?: strin
   );
 }
 
-function FirebaseErrorState({ onRetry, message, compact = false }: { onRetry: () => void; message: string; compact?: boolean }) {
+function FirebaseErrorState({ onRetry, compact = false }: { onRetry: () => void; compact?: boolean }) {
   return (
     <div className={`texture-overlay flex min-h-[100dvh] items-center justify-center bg-[#eee9dc] px-6 ${compact ? 'min-h-0 py-20' : ''}`}>
       <div className="glass-card w-full max-w-lg rounded-[28px] p-7 text-center sm:p-10 animate-rise">
         <div className="mx-auto mb-6 flex size-14 items-center justify-center rounded-full bg-[#f7d8cb] text-[#bc4c36]">
           <WifiOffIcon />
         </div>
-        <p className="eyebrow mb-3 text-[#bc4c36]">We couldn’t open onboarding</p>
-        <h1 className="font-serif text-3xl font-semibold tracking-[-.03em] text-[#232b48]">Let’s try that again.</h1>
+        <p className="eyebrow mb-3 text-[#bc4c36]">Connection needed</p>
+        <h1 className="font-serif text-3xl font-semibold tracking-[-.03em] text-[#232b48]">Flowora needs a secure connection.</h1>
         <p className="mx-auto mt-4 max-w-md text-sm leading-6 text-[#6f6b66]" data-testid="status-firebase-error">
-          {message}
+          We couldn’t complete the secure Firebase connection, so your onboarding cannot be safely saved. Check the Firebase setup, then try again.
         </p>
         <button type="button" onClick={onRetry} data-testid="button-retry-firebase" className="focus-ring mt-7 inline-flex items-center gap-2 rounded-full bg-[#232b48] px-5 py-3 text-sm font-semibold text-[#f8f3e7] transition hover:-translate-y-0.5 hover:bg-[#303a60]">
-          <RotateCcw className="size-4" /> Try again
+          <RotateCcw className="size-4" /> Try the connection again
         </button>
       </div>
     </div>
@@ -78,12 +70,6 @@ function FirebaseErrorState({ onRetry, message, compact = false }: { onRetry: ()
 
 function WifiOffIcon() {
   return <div className="relative"><LockKeyhole className="size-6" /><X className="absolute -bottom-1 -right-2 size-3.5 stroke-[3]" /></div>;
-}
-
-function isUnauthenticatedError(error: unknown) {
-  if (typeof error !== 'object' || error === null || !('code' in error)) return false;
-  const code = String((error as { code?: unknown }).code ?? '');
-  return code.includes('unauthenticated') || code === 'auth/user-token-expired';
 }
 
 function BrandMark({ inverse = false }: { inverse?: boolean }) {
@@ -247,7 +233,7 @@ function Onboarding() {
     setError('');
     try {
       if (getFirebaseError()) throw getFirebaseError();
-      const user = await getAuthenticatedUser();
+      const user = await signInDemo();
       setUid(user.uid);
       const record = await readUser(user.uid);
       if (record?.completedOnboarding && record.role) setLocation(`/dashboard/${record.role}`);
@@ -259,11 +245,6 @@ function Onboarding() {
         setBooting(false);
       } else setBooting(false);
     } catch (err) {
-      if (isUnauthenticatedError(err)) {
-        setBooting(false);
-        setLocation('/login');
-        return;
-      }
       setError(err instanceof Error ? err.message : 'Unable to connect to Firebase.');
       setBooting(false);
     }
@@ -287,44 +268,18 @@ function Onboarding() {
   };
 
   const submitPlan = async () => {
-    if (saving) return;
-    if (!uid) {
-      setError('Your sign-in session is missing. Please sign in again to continue.');
-      setLocation('/login');
-      return;
-    }
-    if (!role) {
-      setError('Please choose how you will use EduTrack before continuing.');
-      return;
-    }
-    if (!selectedPlan) {
-      setError('Please choose a pricing plan before continuing.');
-      return;
-    }
-    const billingCycle: BillingCycle = selectedPlan === 'yearly' ? 'yearly' : 'monthly';
+    if (saving || !uid || !role) return;
     setSaving(true);
     setError('');
     try {
-      await completeOnboarding(uid, selectedPlan, billingCycle, {
+      await completeOnboarding(uid, selectedPlan, {
         role,
         ...(role === 'owner' ? { studentCount: Number(count) } : { organizationCode: code.trim().toUpperCase() }),
       });
       setStep(3);
-      window.setTimeout(() => setLocation(portalRoutes[role]), 1700);
+      window.setTimeout(() => setLocation(`/dashboard/${role}`), 1700);
     } catch (err) {
-      if (import.meta.env.DEV) console.error('Pricing Save Error:', err);
-      const code = typeof err === 'object' && err !== null && 'code' in err ? String((err as { code?: unknown }).code) : '';
-      if (code.includes('permission-denied')) {
-        setError('EduTrack does not have permission to save this plan. Please check your account access and try again.');
-      } else if (code.includes('unauthenticated')) {
-        setError('Your sign-in session expired. Please sign in again to continue.');
-        setLocation('/login');
-      } else if (code.includes('network') || code.includes('unavailable') || code.includes('deadline-exceeded')) {
-        setError('The save service is temporarily unavailable. Please try again.');
-      } else {
-        setError(err instanceof Error ? err.message : 'We could not save your plan. Please try again.');
-      }
-    } finally {
+      setError(err instanceof Error ? err.message : 'Your onboarding could not be saved.');
       setSaving(false);
     }
   };
@@ -335,7 +290,7 @@ function Onboarding() {
   };
 
   if (booting) return <AppLoader />;
-  if (error && !uid) return <FirebaseErrorState message={error} onRetry={() => void bootstrap()} />;
+  if (error && !uid) return <FirebaseErrorState onRetry={() => void bootstrap()} />;
 
   return (
     <div className="texture-overlay flex min-h-[100dvh] bg-[#eee9dc]">
@@ -374,7 +329,7 @@ function Dashboard({ role: routeRole }: { role: Role }) {
     setError('');
     try {
       if (getFirebaseError()) throw getFirebaseError();
-      const user = await getAuthenticatedUser();
+      const user = await signInDemo();
       const data = await readUser(user.uid);
       if (!data?.completedOnboarding) {
         setLocation('/');
@@ -388,11 +343,6 @@ function Dashboard({ role: routeRole }: { role: Role }) {
       setRecord(data);
       setBooting(false);
     } catch (err) {
-      if (isUnauthenticatedError(err)) {
-        setBooting(false);
-        setLocation('/login');
-        return;
-      }
       setError(err instanceof Error ? err.message : 'Unable to load this workspace.');
       setBooting(false);
     }
@@ -400,7 +350,7 @@ function Dashboard({ role: routeRole }: { role: Role }) {
   useEffect(() => { void bootstrap(); }, []);
 
   if (booting) return <AppLoader label="Loading your Flowora dashboard" />;
-  if (error) return <FirebaseErrorState message={error} onRetry={() => void bootstrap()} />;
+  if (error) return <FirebaseErrorState onRetry={() => void bootstrap()} />;
   if (!record) return null;
 
   const isPending = record.organizationStatus === 'pending';
