@@ -14,6 +14,8 @@ export type InstituteType =
   | "university"
   | "training_institute";
 
+export type SetupWizardLanguage = "bn" | "en";
+
 export interface SetupWizardState {
   status: SetupWizardStatus;
   currentStep?: number;
@@ -23,6 +25,9 @@ export interface SetupWizardState {
   instituteName?: string;
   instituteType?: InstituteType;
   academicYear?: string;
+  campusName?: string;
+  language?: SetupWizardLanguage;
+  timeZone?: string;
 }
 
 type SetupWizardWriteState = {
@@ -34,6 +39,9 @@ type SetupWizardWriteState = {
   instituteName?: string;
   instituteType?: InstituteType;
   academicYear?: string;
+  campusName?: string;
+  language?: SetupWizardLanguage;
+  timeZone?: string;
 };
 
 export async function saveSetupWizardState(
@@ -65,6 +73,15 @@ export async function saveSetupWizardState(
   }
   if (setupWizard.academicYear !== undefined) {
     updates["setupWizard.academicYear"] = setupWizard.academicYear;
+  }
+  if (setupWizard.campusName !== undefined) {
+    updates["setupWizard.campusName"] = setupWizard.campusName;
+  }
+  if (setupWizard.language !== undefined) {
+    updates["setupWizard.language"] = setupWizard.language;
+  }
+  if (setupWizard.timeZone !== undefined) {
+    updates["setupWizard.timeZone"] = setupWizard.timeZone;
   }
 
   if (Object.keys(updates).length > 0) {

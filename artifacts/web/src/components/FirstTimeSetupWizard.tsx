@@ -7,6 +7,7 @@ import {
   Check,
   GraduationCap,
   Landmark,
+  LockKeyhole,
   Loader2,
   School,
   Sparkles,
@@ -17,11 +18,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import {
   saveSetupWizardState,
   type InstituteType,
+  type SetupWizardLanguage,
   type SetupWizardStatus,
 } from "@/lib/setup-wizard";
 
-const TOTAL_SETUP_STEPS = 3;
+const TOTAL_SETUP_STEPS = 4;
 const currentAcademicYear = String(new Date().getFullYear());
+const DEFAULT_TIME_ZONE = "Asia/Dhaka";
 
 const instituteTypeOptions: Array<{
   value: InstituteType;
@@ -41,11 +44,25 @@ type StepTwoValues = {
   academicYear: string;
 };
 
+type StepThreeValues = {
+  campusName: string;
+  language: SetupWizardLanguage | "";
+  timeZone: string;
+};
+
 function getStepTwoDraft(values: StepTwoValues) {
   return {
     instituteName: values.instituteName,
     academicYear: values.academicYear,
     ...(values.instituteType ? { instituteType: values.instituteType } : {}),
+  };
+}
+
+function getStepThreeDraft(values: StepThreeValues) {
+  return {
+    campusName: values.campusName,
+    ...(values.language ? { language: values.language } : {}),
+    timeZone: values.timeZone,
   };
 }
 
@@ -78,6 +95,9 @@ function ProgressBar({ currentStep }: { currentStep: number }) {
           Institute
         </span>
         <span className={visibleStep >= 3 ? "text-teal-100" : undefined}>
+          Settings
+        </span>
+        <span className={visibleStep >= 4 ? "text-teal-100" : undefined}>
           Next step
         </span>
       </div>
@@ -307,7 +327,127 @@ function StepTwoContent({
   );
 }
 
-function StepThreePlaceholder({ onBack }: { onBack: () => void }) {
+function StepThreeContent({
+  values,
+  onChange,
+  onBack,
+  onContinue,
+  isSaving,
+  saveState,
+}: {
+  values: StepThreeValues;
+  onChange: (values: Partial<StepThreeValues>) => void;
+  onBack: () => void;
+  onContinue: () => void;
+  isSaving: boolean;
+  saveState: "idle" | "saving" | "saved" | "error";
+}) {
+  return (
+    <div className="space-y-7">
+      <div className="space-y-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal-100/80">
+          Step 3
+        </p>
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+          Basic institution settings
+        </h1>
+        <p className="text-sm leading-7 text-white/65 sm:text-base">
+          Set the defaults your team will use across the EduTrack workspace.
+        </p>
+      </div>
+
+      <div className="space-y-5">
+        <div className="space-y-2">
+          <label
+            htmlFor="campus-name"
+            className="text-sm font-semibold text-white/85"
+          >
+            Campus Name <span className="text-amber-200">*</span>
+          </label>
+          <input
+            id="campus-name"
+            type="text"
+            value={values.campusName}
+            onChange={(event) => onChange({ campusName: event.target.value })}
+            placeholder="Main Campus"
+            autoComplete="organization"
+            className="min-h-12 w-full rounded-xl border border-white/15 bg-white/[0.07] px-4 text-sm text-white outline-none transition-colors placeholder:text-white/30 focus:border-teal-200/70 focus:bg-white/[0.1] focus:ring-2 focus:ring-teal-200/20"
+          />
+        </div>
+
+        <fieldset className="space-y-3">
+          <legend className="text-sm font-semibold text-white/85">
+            Language <span className="text-amber-200">*</span>
+          </legend>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {[
+              { value: "bn" as const, label: "বাংলা" },
+              { value: "en" as const, label: "English" },
+            ].map(({ value, label }) => {
+              const selected = values.language === value;
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  aria-pressed={selected}
+                  onClick={() => onChange({ language: value })}
+                  className={`flex min-h-32 items-center justify-center rounded-2xl border px-4 py-5 text-lg font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-200 ${
+                    selected
+                      ? "border-teal-200/80 bg-teal-200/15 text-teal-50 shadow-[0_0_28px_rgba(45,212,191,0.16)]"
+                      : "border-white/10 bg-white/[0.045] text-white/70 hover:-translate-y-0.5 hover:border-white/25 hover:bg-white/[0.08] hover:text-white"
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>
+
+        <div className="space-y-2">
+          <span className="text-sm font-semibold text-white/85">
+            Time Zone <span className="text-amber-200">*</span>
+          </span>
+          <div
+            role="textbox"
+            aria-readonly="true"
+            aria-label="Time Zone"
+            className="flex min-h-14 items-center justify-between rounded-xl border border-white/10 bg-white/[0.045] px-4 text-sm text-white/75"
+          >
+            <span>
+              {values.timeZone || DEFAULT_TIME_ZONE}{" "}
+              <span className="text-white/40">(GMT+6)</span>
+            </span>
+            <LockKeyhole
+              className="h-4 w-4 text-white/40"
+              aria-label="Locked"
+            />
+          </div>
+          <p className="text-xs text-white/40">
+            Time zone is fixed to your organization&apos;s location.
+          </p>
+        </div>
+      </div>
+
+      <div className="flex min-h-5 items-center justify-end text-xs text-white/40">
+        {saveState === "saving" ? "Saving draft…" : null}
+        {saveState === "saved" ? "Draft saved automatically" : null}
+        {saveState === "error" ? (
+          <span className="text-rose-200">Draft save will retry shortly</span>
+        ) : null}
+      </div>
+
+      <WizardNavigation
+        onBack={onBack}
+        onContinue={onContinue}
+        continueLabel="Continue"
+        isSaving={isSaving}
+      />
+    </div>
+  );
+}
+
+function StepFourPlaceholder({ onBack }: { onBack: () => void }) {
   return (
     <div className="space-y-7 text-center">
       <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[1.4rem] border border-teal-200/25 bg-teal-200/10 text-teal-100 shadow-[0_0_36px_rgba(45,212,191,0.18)]">
@@ -315,10 +455,10 @@ function StepThreePlaceholder({ onBack }: { onBack: () => void }) {
       </div>
       <div className="space-y-3">
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal-100/80">
-          Step 3
+          Step 4
         </p>
         <h1 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-          Your institute details are saved
+          Your setup is taking shape
         </h1>
         <p className="mx-auto max-w-md text-sm leading-7 text-white/65 sm:text-base">
           The next part of your workspace setup will appear here soon. Your
@@ -326,7 +466,7 @@ function StepThreePlaceholder({ onBack }: { onBack: () => void }) {
         </p>
       </div>
       <div className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-left text-sm leading-6 text-white/60">
-        <span className="font-medium text-white/85">Step 3 is ready.</span>{" "}
+        <span className="font-medium text-white/85">Step 4 is ready.</span>{" "}
         Future setup fields can be added here without changing the wizard shell.
       </div>
       <WizardNavigation
@@ -366,6 +506,11 @@ export default function FirstTimeSetupWizard() {
     instituteType: userProfile?.setupWizard?.instituteType ?? "",
     academicYear: userProfile?.setupWizard?.academicYear ?? currentAcademicYear,
   });
+  const [stepThreeValues, setStepThreeValues] = useState<StepThreeValues>({
+    campusName: userProfile?.setupWizard?.campusName ?? "Main Campus",
+    language: userProfile?.setupWizard?.language ?? "",
+    timeZone: userProfile?.setupWizard?.timeZone ?? DEFAULT_TIME_ZONE,
+  });
 
   useEffect(() => {
     const persistedWizard = userProfile?.setupWizard;
@@ -381,6 +526,11 @@ export default function FirstTimeSetupWizard() {
       instituteName: persistedWizard.instituteName ?? "",
       instituteType: persistedWizard.instituteType ?? "",
       academicYear: persistedWizard.academicYear ?? currentAcademicYear,
+    });
+    setStepThreeValues({
+      campusName: persistedWizard.campusName ?? "Main Campus",
+      language: persistedWizard.language ?? "",
+      timeZone: persistedWizard.timeZone ?? DEFAULT_TIME_ZONE,
     });
   }, [userProfile?.setupWizard]);
 
@@ -411,6 +561,34 @@ export default function FirstTimeSetupWizard() {
       if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
     };
   }, [currentStep, status, stepTwoValues, user]);
+
+  useEffect(() => {
+    if (
+      !user ||
+      status !== "in_progress" ||
+      currentStep !== 3 ||
+      !stepThreeValues.campusName.trim() &&
+        !stepThreeValues.language &&
+        !stepThreeValues.timeZone.trim()
+    ) {
+      return;
+    }
+
+    if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    draftTimerRef.current = setTimeout(() => {
+      setSaveState("saving");
+      void saveSetupWizardState(user.uid, getStepThreeDraft(stepThreeValues))
+        .then(() => setSaveState("saved"))
+        .catch(() => {
+          setSaveState("error");
+          setError("Your draft could not be saved. We’ll keep trying.");
+        });
+    }, 650);
+
+    return () => {
+      if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    };
+  }, [currentStep, status, stepThreeValues, user]);
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
@@ -455,6 +633,12 @@ export default function FirstTimeSetupWizard() {
     setStepTwoValues((current) => ({ ...current, ...values }));
   };
 
+  const updateStepThreeValues = (values: Partial<StepThreeValues>) => {
+    setError("");
+    setSaveState("idle");
+    setStepThreeValues((current) => ({ ...current, ...values }));
+  };
+
   const handleStart = async () => {
     if (!user || isSaving) return;
 
@@ -490,6 +674,9 @@ export default function FirstTimeSetupWizard() {
       if (currentStep === 2) {
         await saveSetupWizardState(user.uid, getStepTwoDraft(stepTwoValues));
       }
+      if (currentStep === 3) {
+        await saveSetupWizardState(user.uid, getStepThreeDraft(stepThreeValues));
+      }
       await saveSetupWizardState(user.uid, { currentStep: nextStep });
       setCurrentStep(nextStep);
     } catch {
@@ -499,7 +686,7 @@ export default function FirstTimeSetupWizard() {
     }
   };
 
-  const handleContinue = async () => {
+  const handleStepTwoContinue = async () => {
     if (!user || isSaving) return;
 
     const instituteName = stepTwoValues.instituteName.trim();
@@ -543,6 +730,55 @@ export default function FirstTimeSetupWizard() {
     } catch {
       setSaveState("error");
       setError("We couldn’t save your institute details. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleStepThreeContinue = async () => {
+    if (!user || isSaving) return;
+
+    const campusName = stepThreeValues.campusName.trim();
+    const timeZone = stepThreeValues.timeZone.trim();
+
+    if (!campusName) {
+      setError("Please enter your campus name.");
+      return;
+    }
+    if (!stepThreeValues.language) {
+      setError("Please choose a language.");
+      return;
+    }
+    if (!timeZone) {
+      setError("Time zone is required.");
+      return;
+    }
+
+    if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    setIsSaving(true);
+    setSaveState("saving");
+    setError("");
+
+    try {
+      await saveSetupWizardState(
+        user.uid,
+        getStepThreeDraft({
+          campusName,
+          language: stepThreeValues.language,
+          timeZone,
+        }),
+      );
+      await saveSetupWizardState(user.uid, { currentStep: 4 });
+      setStepThreeValues({
+        campusName,
+        language: stepThreeValues.language,
+        timeZone,
+      });
+      setCurrentStep(4);
+      setSaveState("saved");
+    } catch {
+      setSaveState("error");
+      setError("We couldn’t save your institution settings. Please try again.");
     } finally {
       setIsSaving(false);
     }
@@ -621,12 +857,21 @@ export default function FirstTimeSetupWizard() {
                       values={stepTwoValues}
                       onChange={updateStepTwoValues}
                       onBack={() => void handleBack()}
-                      onContinue={() => void handleContinue()}
+                      onContinue={() => void handleStepTwoContinue()}
+                      isSaving={isSaving}
+                      saveState={saveState}
+                    />
+                  ) : visibleStep === 3 ? (
+                    <StepThreeContent
+                      values={stepThreeValues}
+                      onChange={updateStepThreeValues}
+                      onBack={() => void handleBack()}
+                      onContinue={() => void handleStepThreeContinue()}
                       isSaving={isSaving}
                       saveState={saveState}
                     />
                   ) : (
-                    <StepThreePlaceholder onBack={() => void handleBack()} />
+                    <StepFourPlaceholder onBack={() => void handleBack()} />
                   )}
                 </motion.div>
               </AnimatePresence>
