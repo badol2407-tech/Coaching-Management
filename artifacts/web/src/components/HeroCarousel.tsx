@@ -64,11 +64,10 @@ export const HeroCarousel = memo(function HeroCarousel({ onCtaClick }: HeroCarou
           {promoBanners.map((banner, i) => (
             <div key={i} className="flex-[0_0_100%] min-w-0">
               <BannerSlide
-  banner={banner}
-  compact={false}
-  priority={i === 0}
-  onCtaClick={() => onCtaClick(banner.cta, i)}
-/>onCtaClick(banner.cta, i)}
+                banner={banner}
+                compact={false}
+                priority={i === 0}
+                onCtaClick={() => onCtaClick(banner.cta, i)}
               />
             </div>
           ))}

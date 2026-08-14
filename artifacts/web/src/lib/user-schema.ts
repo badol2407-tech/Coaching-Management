@@ -2,6 +2,7 @@ import {
   mapFirebaseAuthRole,
   type UserRole,
 } from "./roles";
+import type { SetupWizardState } from "./setup-wizard";
 
 export interface FirestoreUserProfile {
   role: UserRole;
@@ -14,6 +15,7 @@ export interface FirestoreUserProfile {
   studentIds?: string[];
   childrenIds?: string[];
   mustChangePassword?: boolean;
+  setupWizard?: SetupWizardState;
   [key: string]: unknown;
 }
 

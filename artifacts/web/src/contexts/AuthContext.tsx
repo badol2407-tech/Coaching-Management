@@ -6,6 +6,7 @@ import { identifyUser, resetUser, trackLogout } from "@/lib/analytics";
 import { mapLegacyPlanToTier, type PlanTier } from "@/lib/plan-config";
 import { parseFirestoreUserProfile } from "@/lib/user-schema";
 import { USER_ROLES, type UserRole } from "@/lib/roles";
+import type { SetupWizardState } from "@/lib/setup-wizard";
 
 export type { UserRole } from "@/lib/roles";
 
@@ -40,6 +41,7 @@ export interface UserProfile {
   profileSetupStep?: "name" | "username" | "questions" | "complete";
   onboardingCompleted?: boolean;
   onboardingAnswers?: Record<string, string>;
+  setupWizard?: SetupWizardState;
   /** Set to true when the account was created by an admin with a temp password */
   mustChangePassword?: boolean;
   /** Present for organization-scoped roles — undefined for super_admin */

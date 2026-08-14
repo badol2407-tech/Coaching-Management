@@ -249,6 +249,26 @@ function isFloworaRole(role) {
         ) ||
         (
           request.auth.uid == uid &&
+          resource.data.role == 'org_admin' &&
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['setupWizard']) &&
+          request.resource.data.setupWizard is map &&
+          request.resource.data.setupWizard.status in [
+            'not_started', 'in_progress', 'completed', 'skipped'
+          ] &&
+          (!('currentStep' in request.resource.data.setupWizard) ||
+            request.resource.data.setupWizard.currentStep is number) &&
+          (!('completedSteps' in request.resource.data.setupWizard) ||
+            request.resource.data.setupWizard.completedSteps is list) &&
+          (!('startedAt' in request.resource.data.setupWizard) ||
+            request.resource.data.setupWizard.startedAt is timestamp ||
+            request.resource.data.setupWizard.startedAt == request.time) &&
+          (!('completedAt' in request.resource.data.setupWizard) ||
+            request.resource.data.setupWizard.completedAt is timestamp ||
+            request.resource.data.setupWizard.completedAt == request.time)
+        ) ||
+        (
+          request.auth.uid == uid &&
           request.resource.data.diff(resource.data).affectedKeys()
             .hasOnly([
               'selectedPlan', 'billingCycle', 'onboardingData',

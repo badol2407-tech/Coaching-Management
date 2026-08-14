@@ -20,6 +20,9 @@ import {
 import { ImpersonationBanner } from "@/components/ImpersonationBanner";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { RealtimeSync } from "@/components/RealtimeSync";
+const FirstTimeSetupWizard = lazy(
+  () => import("@/components/FirstTimeSetupWizard"),
+);
 
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
 const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
@@ -333,6 +336,19 @@ function AuthenticatedRoutes() {
     return (
       <Suspense fallback={<Spinner />}>
         <ForceChangePassword />
+      </Suspense>
+    );
+  }
+
+  if (
+    userProfile.role === "org_admin" &&
+    (!userProfile.setupWizard ||
+      userProfile.setupWizard.status === "not_started" ||
+      userProfile.setupWizard.status === "in_progress")
+  ) {
+    return (
+      <Suspense fallback={<Spinner />}>
+        <FirstTimeSetupWizard />
       </Suspense>
     );
   }

@@ -1,15 +1,18 @@
-import type { ElementType, ReactNode } from "react";
+import { useState, type ElementType, type ReactNode } from "react";
 import { useGetDashboardStats, useGetAttendanceSummary, useGetRecentFees } from "@/lib/hooks";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
+import { useAuth } from "@/contexts/AuthContext";
+import { saveSetupWizardState } from "@/lib/setup-wizard";
+import { serverTimestamp } from "firebase/firestore";
 import {
   Users, GraduationCap,
   CalendarCheck, ClipboardList, CheckSquare,
   ArrowRight, Activity, RotateCcw,
   Banknote, AlertTriangle, UserPlus, CreditCard,
-  AlertCircle, FileText
+  AlertCircle, FileText, Loader2
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
@@ -55,6 +58,9 @@ function MetricCard({
 }
 
 export default function Dashboard() {
+  const { user, userProfile, refreshProfile } = useAuth();
+  const [isResumingSetup, setIsResumingSetup] = useState(false);
+  const [setupResumeError, setSetupResumeError] = useState("");
   const { data: stats, isLoading: statsLoading, isError: statsError, refetch: refetchStats } = useGetDashboardStats();
   const { data: summary, isLoading: summaryLoading, isError: summaryError, refetch: refetchSummary } = useGetAttendanceSummary();
   const { data: recentFees, isLoading: feesLoading, isError: feesError, refetch: refetchFees } = useGetRecentFees();
@@ -76,6 +82,25 @@ export default function Dashboard() {
     if (statsError) refetchStats();
     if (summaryError) refetchSummary();
     if (feesError) refetchFees();
+  };
+
+  const handleResumeSetup = async () => {
+    if (!user || isResumingSetup) return;
+
+    setIsResumingSetup(true);
+    setSetupResumeError("");
+    try {
+      await saveSetupWizardState(user.uid, {
+        status: "in_progress",
+        currentStep: 2,
+        completedSteps: [],
+        startedAt: serverTimestamp(),
+      });
+      await refreshProfile();
+    } catch {
+      setSetupResumeError("We couldn’t reopen setup. Please try again.");
+      setIsResumingSetup(false);
+    }
   };
 
   return (
@@ -134,6 +159,45 @@ export default function Dashboard() {
           </Button>
         </div>
       )}
+
+      {userProfile?.role === "org_admin" &&
+        userProfile.setupWizard?.status === "skipped" && (
+          <Card
+            className="relative overflow-hidden border-teal-200/60 bg-gradient-to-br from-teal-50 via-white to-cyan-50 shadow-sm dark:border-teal-900/70 dark:from-teal-950/40 dark:via-background dark:to-cyan-950/20"
+            data-testid="card-complete-setup"
+          >
+            <div className="pointer-events-none absolute -right-12 -top-16 h-40 w-40 rounded-full bg-teal-300/20 blur-3xl" aria-hidden="true" />
+            <CardContent className="relative flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+              <div className="max-w-2xl">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-teal-700 dark:text-teal-300">
+                  Setup saved
+                </p>
+                <h2 className="mt-1 text-lg font-semibold text-foreground">
+                  Complete your setup
+                </h2>
+                <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                  Pick up where you left off and prepare the rest of your organization workspace.
+                </p>
+                {setupResumeError ? (
+                  <p className="mt-2 text-sm text-destructive" role="alert">
+                    {setupResumeError}
+                  </p>
+                ) : null}
+              </div>
+              <Button
+                type="button"
+                onClick={() => void handleResumeSetup()}
+                disabled={isResumingSetup}
+                className="w-full shrink-0 sm:w-auto"
+                data-testid="action-resume-setup"
+              >
+                {isResumingSetup ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : null}
+                Resume setup
+                {!isResumingSetup ? <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" /> : null}
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
       {/* Main Grid */}
       <div className="grid gap-6 lg:grid-cols-3 items-start">
