@@ -41,12 +41,21 @@ export type WeeklyHoliday = "friday" | "saturday" | "sunday" | "none";
 export type WorkingDays = 5 | 6 | 7;
 
 export type DefaultShift = "morning" | "day" | "evening" | "mixed";
+export type FirstClassShift = "morning" | "day" | "evening";
 
 export type SetupWizardLanguage = "bn" | "en";
+
+export interface FirstClassDraft {
+  className?: string;
+  section?: string;
+  shift?: FirstClassShift;
+}
 
 export interface SetupWizardState {
   status: SetupWizardStatus;
   currentStep?: number;
+  firstClassCreated?: boolean;
+  firstClassDraft?: FirstClassDraft;
   completedSteps?: number[];
   startedAt?: unknown;
   completedAt?: unknown;
@@ -67,6 +76,8 @@ export interface SetupWizardState {
 type SetupWizardWriteState = {
   status?: SetupWizardStatus;
   currentStep?: number;
+  firstClassCreated?: boolean;
+  firstClassDraft?: FirstClassDraft;
   completedSteps?: number[];
   startedAt?: ReturnType<typeof serverTimestamp>;
   completedAt?: ReturnType<typeof serverTimestamp>;
@@ -95,6 +106,12 @@ export async function saveSetupWizardState(
   }
   if (setupWizard.currentStep !== undefined) {
     updates["setupWizard.currentStep"] = setupWizard.currentStep;
+  }
+  if (setupWizard.firstClassCreated !== undefined) {
+    updates["setupWizard.firstClassCreated"] = setupWizard.firstClassCreated;
+  }
+  if (setupWizard.firstClassDraft !== undefined) {
+    updates["setupWizard.firstClassDraft"] = setupWizard.firstClassDraft;
   }
   if (setupWizard.completedSteps !== undefined) {
     updates["setupWizard.completedSteps"] = setupWizard.completedSteps;

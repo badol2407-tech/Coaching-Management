@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   ArrowLeft,
   ArrowRight,
@@ -21,6 +21,8 @@ import {
   type ClassRange,
   type DefaultShift,
   type EducationType,
+  type FirstClassShift,
+  type FirstClassDraft,
   type InstituteType,
   type ProgramType,
   type SetupWizardLanguage,
@@ -28,8 +30,9 @@ import {
   type WeeklyHoliday,
   type WorkingDays,
 } from "@/lib/setup-wizard";
+import { useCreateFirstClass } from "@/lib/class-hooks";
 
-const TOTAL_SETUP_STEPS = 6;
+const TOTAL_SETUP_STEPS = 7;
 const currentAcademicYear = String(new Date().getFullYear());
 const DEFAULT_TIME_ZONE = "Asia/Dhaka";
 
@@ -67,6 +70,12 @@ type StepFiveValues = {
   weeklyHolidays: WeeklyHoliday[];
   workingDays: WorkingDays | "";
   defaultShift: DefaultShift | "";
+};
+
+type StepSixValues = {
+  className: string;
+  section: string;
+  shift: FirstClassShift | "";
 };
 
 const educationTypeOptions: Array<{
@@ -115,6 +124,12 @@ const shiftOptions: Array<{ value: DefaultShift; label: string }> = [
   { value: "day", label: "Day" },
   { value: "evening", label: "Evening" },
   { value: "mixed", label: "Mixed" },
+];
+
+const firstClassShiftOptions: Array<{ value: FirstClassShift; label: string }> = [
+  { value: "morning", label: "Morning" },
+  { value: "day", label: "Day" },
+  { value: "evening", label: "Evening" },
 ];
 
 function getStepTwoDraft(values: StepTwoValues) {
@@ -198,7 +213,10 @@ function ProgressBar({ currentStep }: { currentStep: number }) {
           Schedule
         </span>
         <span className={visibleStep >= 6 ? "text-teal-100" : undefined}>
-          Next step
+          Class
+        </span>
+        <span className={visibleStep >= 7 ? "text-teal-100" : undefined}>
+          Done
         </span>
       </div>
     </div>
@@ -839,7 +857,123 @@ function StepFiveContent({
   );
 }
 
-function StepSixPlaceholder({ onBack }: { onBack: () => void }) {
+function StepSixContent({
+  values,
+  onChange,
+  onBack,
+  onContinue,
+  isSaving,
+  saveState,
+}: {
+  values: StepSixValues;
+  onChange: (values: Partial<StepSixValues>) => void;
+  onBack: () => void;
+  onContinue: () => void;
+  isSaving: boolean;
+  saveState: "idle" | "saving" | "saved" | "error";
+}) {
+  return (
+    <div className="space-y-7">
+      <div className="space-y-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal-100/80">
+          Step 6
+        </p>
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+          Create your first class
+        </h1>
+        <p className="max-w-md text-sm leading-7 text-white/65 sm:text-base">
+          Start with one class. You can add more sections, teachers, and students
+          from your workspace later.
+        </p>
+      </div>
+
+      <div className="space-y-5">
+        <div className="space-y-2">
+          <label
+            htmlFor="first-class-name"
+            className="text-sm font-semibold text-white/85"
+          >
+            Class Name <span className="text-amber-200">*</span>
+          </label>
+          <input
+            id="first-class-name"
+            type="text"
+            value={values.className}
+            onChange={(event) => onChange({ className: event.target.value })}
+            placeholder="e.g. Class 10"
+            autoComplete="off"
+            aria-invalid={!values.className.trim()}
+            className="min-h-12 w-full rounded-xl border border-white/15 bg-white/[0.07] px-4 text-sm text-white outline-none transition-colors placeholder:text-white/30 focus:border-teal-200/70 focus:bg-white/[0.1] focus:ring-2 focus:ring-teal-200/20"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label
+            htmlFor="first-class-section"
+            className="text-sm font-semibold text-white/85"
+          >
+            Section
+          </label>
+          <input
+            id="first-class-section"
+            type="text"
+            value={values.section}
+            onChange={(event) => onChange({ section: event.target.value })}
+            placeholder="A"
+            autoComplete="off"
+            className="min-h-12 w-full rounded-xl border border-white/15 bg-white/[0.07] px-4 text-sm text-white outline-none transition-colors placeholder:text-white/30 focus:border-teal-200/70 focus:bg-white/[0.1] focus:ring-2 focus:ring-teal-200/20"
+          />
+          <p className="text-xs text-white/40">Section A is ready by default.</p>
+        </div>
+
+        <fieldset className="space-y-3">
+          <legend className="text-sm font-semibold text-white/85">Shift</legend>
+          <div className="grid grid-cols-3 gap-3">
+            {firstClassShiftOptions.map(({ value, label }) => {
+              const selected = values.shift === value;
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  aria-pressed={selected}
+                  onClick={() => onChange({ shift: value })}
+                  className={`flex min-h-20 items-center justify-center rounded-2xl border px-3 py-4 text-center text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-200 ${
+                    selected
+                      ? "border-teal-200/80 bg-teal-200/15 text-teal-50 shadow-[0_0_28px_rgba(45,212,191,0.16)]"
+                      : "border-white/10 bg-white/[0.045] text-white/70 hover:-translate-y-0.5 hover:border-white/25 hover:bg-white/[0.08] hover:text-white"
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>
+      </div>
+
+      <div
+        className="flex min-h-5 items-center justify-end text-xs text-white/40"
+        role="status"
+        aria-live="polite"
+      >
+        {saveState === "saving" ? "Saving draft…" : null}
+        {saveState === "saved" ? "Draft saved automatically" : null}
+        {saveState === "error" ? (
+          <span className="text-rose-200">Draft save will retry shortly</span>
+        ) : null}
+      </div>
+
+      <WizardNavigation
+        onBack={onBack}
+        onContinue={onContinue}
+        continueLabel="Create class"
+        isSaving={isSaving}
+      />
+    </div>
+  );
+}
+
+function StepSevenPlaceholder({ onBack }: { onBack: () => void }) {
   return (
     <div className="space-y-7 text-center">
       <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[1.4rem] border border-teal-200/25 bg-teal-200/10 text-teal-100 shadow-[0_0_36px_rgba(45,212,191,0.18)]">
@@ -847,19 +981,19 @@ function StepSixPlaceholder({ onBack }: { onBack: () => void }) {
       </div>
       <div className="space-y-3">
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal-100/80">
-          Step 6
+          Step 7
         </p>
         <h1 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-          Your setup is taking shape
+          Your first class is ready
         </h1>
         <p className="mx-auto max-w-md text-sm leading-7 text-white/65 sm:text-base">
-          The next part of your workspace setup will appear here soon. Your
-          wizard will stay open until setup is fully completed.
+          Your first class has been added to your organization. The next part of
+          your workspace setup will appear here soon.
         </p>
       </div>
       <div className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-left text-sm leading-6 text-white/60">
-        <span className="font-medium text-white/85">Step 6 is ready.</span>{" "}
-        Future setup fields can be added here without changing the wizard shell.
+        <span className="font-medium text-white/85">Setup saved.</span>{" "}
+        Your wizard will stay open until setup is fully completed.
       </div>
       <WizardNavigation
         onBack={onBack}
@@ -873,6 +1007,7 @@ function StepSixPlaceholder({ onBack }: { onBack: () => void }) {
 
 export default function FirstTimeSetupWizard() {
   const { user, userProfile, refreshProfile } = useAuth();
+  const createFirstClass = useCreateFirstClass();
   const dialogRef = useRef<HTMLDivElement>(null);
   const draftTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const previousStepRef = useRef(
@@ -913,6 +1048,11 @@ export default function FirstTimeSetupWizard() {
     workingDays: userProfile?.setupWizard?.workingDays ?? "",
     defaultShift: userProfile?.setupWizard?.defaultShift ?? "",
   });
+  const [stepSixValues, setStepSixValues] = useState<StepSixValues>({
+    className: userProfile?.setupWizard?.firstClassDraft?.className ?? "",
+    section: userProfile?.setupWizard?.firstClassDraft?.section ?? "A",
+    shift: userProfile?.setupWizard?.firstClassDraft?.shift ?? "",
+  });
 
   useEffect(() => {
     const persistedWizard = userProfile?.setupWizard;
@@ -920,7 +1060,9 @@ export default function FirstTimeSetupWizard() {
 
     const nextStep =
       persistedWizard.status === "in_progress"
-        ? persistedWizard.currentStep ?? 2
+        ? persistedWizard.firstClassCreated
+          ? 7
+          : persistedWizard.currentStep ?? 2
         : 1;
     setStatus(persistedWizard.status);
     setCurrentStep(nextStep);
@@ -943,6 +1085,11 @@ export default function FirstTimeSetupWizard() {
       weeklyHolidays: persistedWizard.weeklyHolidays ?? [],
       workingDays: persistedWizard.workingDays ?? "",
       defaultShift: persistedWizard.defaultShift ?? "",
+    });
+    setStepSixValues({
+      className: persistedWizard.firstClassDraft?.className ?? "",
+      section: persistedWizard.firstClassDraft?.section ?? "A",
+      shift: persistedWizard.firstClassDraft?.shift ?? "",
     });
   }, [userProfile?.setupWizard]);
 
@@ -1057,6 +1204,32 @@ export default function FirstTimeSetupWizard() {
   }, [currentStep, status, stepFiveValues, user]);
 
   useEffect(() => {
+    if (!user || status !== "in_progress" || currentStep !== 6) {
+      return;
+    }
+
+    if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    draftTimerRef.current = setTimeout(() => {
+      setSaveState("saving");
+      const firstClassDraft: FirstClassDraft = {
+        className: stepSixValues.className,
+        section: stepSixValues.section,
+        ...(stepSixValues.shift ? { shift: stepSixValues.shift } : {}),
+      };
+      void saveSetupWizardState(user.uid, { firstClassDraft })
+        .then(() => setSaveState("saved"))
+        .catch(() => {
+          setSaveState("error");
+          setError("Your draft could not be saved. We’ll keep trying.");
+        });
+    }, 650);
+
+    return () => {
+      if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    };
+  }, [currentStep, status, stepSixValues, user]);
+
+  useEffect(() => {
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     dialogRef.current?.focus();
@@ -1144,6 +1317,12 @@ export default function FirstTimeSetupWizard() {
           : values.weeklyHolidays
         : current.weeklyHolidays,
     }));
+  };
+
+  const updateStepSixValues = (values: Partial<StepSixValues>) => {
+    setError("");
+    setSaveState("idle");
+    setStepSixValues((current) => ({ ...current, ...values }));
   };
 
   const handleStart = async () => {
@@ -1377,8 +1556,56 @@ export default function FirstTimeSetupWizard() {
     }
   };
 
+  const handleStepSixContinue = async () => {
+    if (!user || isSaving) return;
+
+    const className = stepSixValues.className.trim();
+    const section = stepSixValues.section.trim() || "A";
+
+    if (!className) {
+      setError("Please enter a class name.");
+      return;
+    }
+
+    if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    setIsSaving(true);
+    setSaveState("saving");
+    setError("");
+
+    try {
+      const firstClassDraft: FirstClassDraft = {
+        className,
+        section,
+        ...(stepSixValues.shift ? { shift: stepSixValues.shift } : {}),
+      };
+      await createFirstClass.mutateAsync({
+        data: {
+          name: className,
+          section,
+          ...(stepSixValues.shift ? { shift: stepSixValues.shift } : {}),
+          setupWizardFirstClass: true,
+        },
+      });
+      await saveSetupWizardState(user.uid, {
+        firstClassDraft,
+        firstClassCreated: true,
+        currentStep: 7,
+      });
+      setStepSixValues({ className, section, shift: stepSixValues.shift });
+      setCurrentStep(7);
+      setSaveState("saved");
+      await refreshProfile();
+    } catch {
+      setSaveState("error");
+      setError("We couldn’t create your first class. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const visibleStep = Math.min(Math.max(1, currentStep), TOTAL_SETUP_STEPS);
   const slideDirection = visibleStep >= previousStepRef.current ? 1 : -1;
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
     previousStepRef.current = visibleStep;
@@ -1441,7 +1668,11 @@ export default function FirstTimeSetupWizard() {
                   initial={{ opacity: 0, x: slideDirection * 28 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: slideDirection * -28 }}
-                  transition={{ duration: 0.3, ease: "easeOut" }}
+                   transition={
+                     prefersReducedMotion
+                       ? { duration: 0 }
+                       : { duration: 0.3, ease: "easeOut" }
+                   }
                 >
                   {visibleStep === 1 ? (
                     <WelcomeStep onStart={handleStart} isSaving={isSaving} />
@@ -1481,8 +1712,17 @@ export default function FirstTimeSetupWizard() {
                       isSaving={isSaving}
                       saveState={saveState}
                     />
+                  ) : visibleStep === 6 ? (
+                    <StepSixContent
+                      values={stepSixValues}
+                      onChange={updateStepSixValues}
+                      onBack={() => void handleBack()}
+                      onContinue={() => void handleStepSixContinue()}
+                      isSaving={isSaving}
+                      saveState={saveState}
+                    />
                   ) : (
-                    <StepSixPlaceholder onBack={() => void handleBack()} />
+                    <StepSevenPlaceholder onBack={() => void handleBack()} />
                   )}
                 </motion.div>
               </AnimatePresence>

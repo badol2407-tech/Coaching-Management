@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   collection, getDocs, addDoc, updateDoc, deleteDoc,
-  doc, serverTimestamp, Timestamp, query, where,
+  doc, serverTimestamp, Timestamp, query, where, setDoc,
 } from "firebase/firestore";
 import { db } from "./firebase";
 import { useAuth } from "@/contexts/AuthContext";
@@ -50,6 +50,29 @@ export function useCreateClass() {
       if (!orgId) throw new Error("No org");
       const ref = await addDoc(orgCol(orgId, "classes"), { ...data, createdAt: serverTimestamp() });
       return { id: ref.id };
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: [userProfile?.orgId, "classes"] }),
+  });
+}
+
+/**
+ * Setup creates the first class with a stable id so a retry after a successful
+ * class write but a failed wizard-state write cannot create a duplicate.
+ */
+export function useCreateFirstClass() {
+  const qc = useQueryClient();
+  const { user, userProfile } = useAuth();
+  return useMutation({
+    mutationFn: async ({ data }: { data: Record<string, unknown> }) => {
+      const orgId = userProfile?.orgId;
+      if (!orgId || !user?.uid) throw new Error("No organization");
+      const id = `first-${user.uid}`;
+      await setDoc(
+        orgDocRef(orgId, "classes", id),
+        { ...data, createdAt: serverTimestamp(), createdBy: user.uid },
+        { merge: true },
+      );
+      return { id };
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: [userProfile?.orgId, "classes"] }),
   });
