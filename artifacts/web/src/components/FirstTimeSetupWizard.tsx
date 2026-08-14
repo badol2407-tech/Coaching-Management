@@ -1,24 +1,68 @@
 import { useEffect, useRef, useState } from "react";
-import { Check, ChevronRight, Loader2, Sparkles } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Building2,
+  Check,
+  GraduationCap,
+  Landmark,
+  Loader2,
+  School,
+  Sparkles,
+  type LucideIcon,
+} from "lucide-react";
 import { serverTimestamp } from "firebase/firestore";
-import { useLocation } from "wouter";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   saveSetupWizardState,
+  type InstituteType,
   type SetupWizardStatus,
 } from "@/lib/setup-wizard";
 
+const TOTAL_SETUP_STEPS = 3;
+const currentAcademicYear = String(new Date().getFullYear());
+
+const instituteTypeOptions: Array<{
+  value: InstituteType;
+  label: string;
+  Icon: LucideIcon;
+}> = [
+  { value: "school", label: "School", Icon: School },
+  { value: "coaching_centre", label: "Coaching Centre", Icon: Building2 },
+  { value: "college", label: "College", Icon: GraduationCap },
+  { value: "university", label: "University", Icon: Landmark },
+  { value: "training_institute", label: "Training Institute", Icon: Sparkles },
+];
+
+type StepTwoValues = {
+  instituteName: string;
+  instituteType: InstituteType | "";
+  academicYear: string;
+};
+
+function getStepTwoDraft(values: StepTwoValues) {
+  return {
+    instituteName: values.instituteName,
+    academicYear: values.academicYear,
+    ...(values.instituteType ? { instituteType: values.instituteType } : {}),
+  };
+}
+
 function ProgressBar({ currentStep }: { currentStep: number }) {
-  const progress = currentStep >= 2 ? 100 : 50;
+  const visibleStep = Math.min(Math.max(currentStep, 1), TOTAL_SETUP_STEPS);
+  const progress = (visibleStep / TOTAL_SETUP_STEPS) * 100;
 
   return (
     <div
       className="w-full max-w-md"
-      aria-label={`Setup progress: step ${currentStep} of 2`}
+      aria-label={`Setup progress: step ${visibleStep} of ${TOTAL_SETUP_STEPS}`}
     >
       <div className="mb-3 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.2em] text-white/55">
         <span>Set up your workspace</span>
-        <span>Step {currentStep} of 2</span>
+        <span>
+          Step {visibleStep} of {TOTAL_SETUP_STEPS}
+        </span>
       </div>
       <div className="h-1.5 overflow-hidden rounded-full bg-white/12">
         <div
@@ -27,10 +71,13 @@ function ProgressBar({ currentStep }: { currentStep: number }) {
         />
       </div>
       <div className="mt-2 flex items-center justify-between text-[11px] text-white/40">
-        <span className={currentStep >= 1 ? "text-teal-100" : undefined}>
+        <span className={visibleStep >= 1 ? "text-teal-100" : undefined}>
           Welcome
         </span>
-        <span className={currentStep >= 2 ? "text-teal-100" : undefined}>
+        <span className={visibleStep >= 2 ? "text-teal-100" : undefined}>
+          Institute
+        </span>
+        <span className={visibleStep >= 3 ? "text-teal-100" : undefined}>
           Next step
         </span>
       </div>
@@ -38,7 +85,229 @@ function ProgressBar({ currentStep }: { currentStep: number }) {
   );
 }
 
-function StepTwoPlaceholder() {
+function WizardNavigation({
+  onBack,
+  onContinue,
+  continueLabel,
+  continueDisabled = false,
+  isSaving = false,
+}: {
+  onBack: () => void;
+  onContinue: () => void;
+  continueLabel: string;
+  continueDisabled?: boolean;
+  isSaving?: boolean;
+}) {
+  return (
+    <div className="flex flex-col-reverse gap-3 pt-1 sm:flex-row sm:justify-between">
+      <button
+        type="button"
+        onClick={onBack}
+        disabled={isSaving}
+        className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/10 px-5 text-sm font-semibold text-white/65 transition-all hover:border-white/25 hover:bg-white/[0.07] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-200 disabled:cursor-not-allowed disabled:opacity-50 sm:min-w-28"
+      >
+        <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+        Back
+      </button>
+      <button
+        type="button"
+        onClick={onContinue}
+        disabled={continueDisabled || isSaving}
+        className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-300 to-cyan-300 px-5 text-sm font-bold text-slate-950 shadow-[0_12px_30px_rgba(45,212,191,0.2)] transition-all hover:-translate-y-0.5 hover:from-teal-200 hover:to-cyan-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-100 focus-visible:ring-offset-2 focus-visible:ring-offset-[#12183b] disabled:cursor-not-allowed disabled:opacity-60 sm:min-w-36"
+      >
+        {isSaving ? (
+          <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+        ) : null}
+        {continueLabel}
+        {!isSaving ? (
+          <ArrowRight
+            className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+            aria-hidden="true"
+          />
+        ) : null}
+      </button>
+    </div>
+  );
+}
+
+function WelcomeStep({
+  onStart,
+  isSaving,
+}: {
+  onStart: () => void;
+  isSaving: boolean;
+}) {
+  return (
+    <div className="space-y-7 text-center">
+      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[1.4rem] border border-amber-200/25 bg-gradient-to-br from-amber-200/20 to-teal-200/10 text-amber-100 shadow-[0_0_36px_rgba(251,191,36,0.16)]">
+        <Sparkles className="h-8 w-8" aria-hidden="true" />
+      </div>
+      <div className="space-y-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-100/80">
+          Welcome
+        </p>
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+          Welcome to EduTrack !!!
+        </h1>
+        <p className="text-base leading-8 text-white/70 sm:text-lg">
+          চলুন ২ মিনিটে আপনার প্রতিষ্ঠান প্রস্তুত করি।
+        </p>
+      </div>
+      <div className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-left text-sm leading-6 text-white/60">
+        আপনার workspace-টি সাজাতে কয়েকটি সহজ ধাপ অনুসরণ করব। আপনার progress
+        automatically save হবে।
+      </div>
+      <button
+        type="button"
+        onClick={onStart}
+        disabled={isSaving}
+        className="group inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-300 to-cyan-300 px-5 text-sm font-bold text-slate-950 shadow-[0_12px_30px_rgba(45,212,191,0.2)] transition-all hover:-translate-y-0.5 hover:from-teal-200 hover:to-cyan-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-100 focus-visible:ring-offset-2 focus-visible:ring-offset-[#12183b] disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {isSaving ? (
+          <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+        ) : null}
+        Start Setup
+        {!isSaving ? (
+          <ArrowRight
+            className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+            aria-hidden="true"
+          />
+        ) : null}
+      </button>
+    </div>
+  );
+}
+
+function StepTwoContent({
+  values,
+  onChange,
+  onBack,
+  onContinue,
+  isSaving,
+  saveState,
+}: {
+  values: StepTwoValues;
+  onChange: (values: Partial<StepTwoValues>) => void;
+  onBack: () => void;
+  onContinue: () => void;
+  isSaving: boolean;
+  saveState: "idle" | "saving" | "saved" | "error";
+}) {
+  return (
+    <div className="space-y-7">
+      <div className="space-y-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal-100/80">
+          Step 2
+        </p>
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+          Tell us about your institute
+        </h1>
+        <p className="text-sm leading-7 text-white/65 sm:text-base">
+          Add a few details so EduTrack can shape your workspace around your
+          institution.
+        </p>
+      </div>
+
+      <div className="space-y-5">
+        <div className="space-y-2">
+          <label
+            htmlFor="institute-name"
+            className="text-sm font-semibold text-white/85"
+          >
+            Institute Name <span className="text-amber-200">*</span>
+          </label>
+          <input
+            id="institute-name"
+            type="text"
+            value={values.instituteName}
+            onChange={(event) =>
+              onChange({ instituteName: event.target.value })
+            }
+            placeholder="e.g. EduTrack Academy"
+            autoComplete="organization"
+            className="min-h-12 w-full rounded-xl border border-white/15 bg-white/[0.07] px-4 text-sm text-white outline-none transition-colors placeholder:text-white/30 focus:border-teal-200/70 focus:bg-white/[0.1] focus:ring-2 focus:ring-teal-200/20"
+          />
+        </div>
+
+        <fieldset className="space-y-3">
+          <legend className="text-sm font-semibold text-white/85">
+            Institute Type <span className="text-amber-200">*</span>
+          </legend>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {instituteTypeOptions.map(({ value, label, Icon }) => {
+              const selected = values.instituteType === value;
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  aria-pressed={selected}
+                  onClick={() => onChange({ instituteType: value })}
+                  className={`group flex min-h-28 flex-col items-center justify-center gap-3 rounded-2xl border px-3 py-4 text-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-200 ${
+                    selected
+                      ? "border-teal-200/80 bg-teal-200/15 text-teal-50 shadow-[0_0_28px_rgba(45,212,191,0.16)]"
+                      : "border-white/10 bg-white/[0.045] text-white/65 hover:-translate-y-0.5 hover:border-white/25 hover:bg-white/[0.08] hover:text-white"
+                  }`}
+                >
+                  <span
+                    className={`flex h-11 w-11 items-center justify-center rounded-xl border transition-colors ${
+                      selected
+                        ? "border-teal-100/40 bg-teal-200/15 text-teal-100"
+                        : "border-white/10 bg-white/[0.06] text-white/55 group-hover:text-teal-100"
+                    }`}
+                  >
+                    <Icon className="h-6 w-6" aria-hidden="true" />
+                  </span>
+                  <span className="text-xs font-semibold leading-4">{label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>
+
+        <div className="space-y-2">
+          <label
+            htmlFor="academic-year"
+            className="text-sm font-semibold text-white/85"
+          >
+            Academic Year
+          </label>
+          <input
+            id="academic-year"
+            type="text"
+            inputMode="numeric"
+            value={values.academicYear}
+            onChange={(event) =>
+              onChange({ academicYear: event.target.value })
+            }
+            placeholder={currentAcademicYear}
+            maxLength={4}
+            className="min-h-12 w-full rounded-xl border border-white/15 bg-white/[0.07] px-4 text-sm text-white outline-none transition-colors placeholder:text-white/30 focus:border-teal-200/70 focus:bg-white/[0.1] focus:ring-2 focus:ring-teal-200/20"
+          />
+          <p className="text-xs text-white/40">
+            Pre-filled with the current year. You can edit it anytime.
+          </p>
+        </div>
+      </div>
+
+      <div className="flex min-h-5 items-center justify-end text-xs text-white/40">
+        {saveState === "saving" ? "Saving draft…" : null}
+        {saveState === "saved" ? "Draft saved automatically" : null}
+        {saveState === "error" ? (
+          <span className="text-rose-200">Draft save will retry shortly</span>
+        ) : null}
+      </div>
+
+      <WizardNavigation
+        onBack={onBack}
+        onContinue={onContinue}
+        continueLabel="Continue"
+        isSaving={isSaving}
+      />
+    </div>
+  );
+}
+
+function StepThreePlaceholder({ onBack }: { onBack: () => void }) {
   return (
     <div className="space-y-7 text-center">
       <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[1.4rem] border border-teal-200/25 bg-teal-200/10 text-teal-100 shadow-[0_0_36px_rgba(45,212,191,0.18)]">
@@ -46,30 +315,44 @@ function StepTwoPlaceholder() {
       </div>
       <div className="space-y-3">
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal-100/80">
-          Step 2
+          Step 3
         </p>
         <h1 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-          You’re ready for the next step
+          Your institute details are saved
         </h1>
         <p className="mx-auto max-w-md text-sm leading-7 text-white/65 sm:text-base">
-          Your setup progress is saved. The next part of your organization setup
-          will appear here soon.
+          The next part of your workspace setup will appear here soon. Your
+          wizard will stay open until setup is fully completed.
         </p>
       </div>
-      <div className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-left text-sm text-white/60">
-        <span className="font-medium text-white/85">Saved automatically.</span>{" "}
-        You can safely leave this screen and come back from your dashboard.
+      <div className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-left text-sm leading-6 text-white/60">
+        <span className="font-medium text-white/85">Step 3 is ready.</span>{" "}
+        Future setup fields can be added here without changing the wizard shell.
       </div>
+      <WizardNavigation
+        onBack={onBack}
+        onContinue={() => {}}
+        continueLabel="Coming soon"
+        continueDisabled
+      />
     </div>
   );
 }
 
 export default function FirstTimeSetupWizard() {
   const { user, userProfile, refreshProfile } = useAuth();
-  const [, navigate] = useLocation();
   const dialogRef = useRef<HTMLDivElement>(null);
+  const draftTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const previousStepRef = useRef(
+    userProfile?.setupWizard?.status === "in_progress"
+      ? userProfile.setupWizard.currentStep ?? 2
+      : 1,
+  );
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
+  const [saveState, setSaveState] = useState<
+    "idle" | "saving" | "saved" | "error"
+  >("idle");
   const [status, setStatus] = useState<SetupWizardStatus>(
     userProfile?.setupWizard?.status ?? "not_started",
   );
@@ -78,46 +361,56 @@ export default function FirstTimeSetupWizard() {
       ? userProfile.setupWizard.currentStep ?? 2
       : 1,
   );
+  const [stepTwoValues, setStepTwoValues] = useState<StepTwoValues>({
+    instituteName: userProfile?.setupWizard?.instituteName ?? "",
+    instituteType: userProfile?.setupWizard?.instituteType ?? "",
+    academicYear: userProfile?.setupWizard?.academicYear ?? currentAcademicYear,
+  });
 
-  const handleSkip = async () => {
-    if (!user || isSaving) return;
+  useEffect(() => {
+    const persistedWizard = userProfile?.setupWizard;
+    if (!persistedWizard) return;
 
-    setIsSaving(true);
-    setError("");
-    try {
-      await saveSetupWizardState(user.uid, { status: "skipped" });
-      await refreshProfile();
-      navigate("/");
-    } catch {
-      setError("We couldn’t save your choice. Please try again.");
-      setIsSaving(false);
+    const nextStep =
+      persistedWizard.status === "in_progress"
+        ? persistedWizard.currentStep ?? 2
+        : 1;
+    setStatus(persistedWizard.status);
+    setCurrentStep(nextStep);
+    setStepTwoValues({
+      instituteName: persistedWizard.instituteName ?? "",
+      instituteType: persistedWizard.instituteType ?? "",
+      academicYear: persistedWizard.academicYear ?? currentAcademicYear,
+    });
+  }, [userProfile?.setupWizard]);
+
+  useEffect(() => {
+    if (
+      !user ||
+      status !== "in_progress" ||
+      currentStep !== 2 ||
+      !stepTwoValues.instituteName.trim() &&
+        !stepTwoValues.instituteType &&
+        !stepTwoValues.academicYear.trim()
+    ) {
+      return;
     }
-  };
 
-  const handleStart = async () => {
-    if (!user || isSaving) return;
+    if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    draftTimerRef.current = setTimeout(() => {
+      setSaveState("saving");
+      void saveSetupWizardState(user.uid, getStepTwoDraft(stepTwoValues))
+        .then(() => setSaveState("saved"))
+        .catch(() => {
+          setSaveState("error");
+          setError("Your draft could not be saved. We’ll keep trying.");
+        });
+    }, 650);
 
-    setIsSaving(true);
-    setError("");
-    setStatus("in_progress");
-    setCurrentStep(2);
-
-    try {
-      await saveSetupWizardState(user.uid, {
-        status: "in_progress",
-        currentStep: 2,
-        completedSteps: [],
-        startedAt: serverTimestamp(),
-      });
-      await refreshProfile();
-      setIsSaving(false);
-    } catch {
-      setStatus("not_started");
-      setCurrentStep(1);
-      setError("We couldn’t save your progress. Please try again.");
-      setIsSaving(false);
-    }
-  };
+    return () => {
+      if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    };
+  }, [currentStep, status, stepTwoValues, user]);
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
@@ -125,15 +418,15 @@ export default function FirstTimeSetupWizard() {
     dialogRef.current?.focus();
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && !isSaving) {
-        void handleSkip();
+      if (event.key === "Escape") {
+        event.preventDefault();
         return;
       }
 
       if (event.key !== "Tab" || !dialogRef.current) return;
       const focusable = Array.from(
         dialogRef.current.querySelectorAll<HTMLElement>(
-          'button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])',
+          'button:not([disabled]), input:not([disabled]), [href], [tabindex]:not([tabindex="-1"])',
         ),
       );
       if (focusable.length === 0) return;
@@ -154,9 +447,113 @@ export default function FirstTimeSetupWizard() {
       document.body.style.overflow = previousOverflow;
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isSaving]);
+  }, []);
 
-  const showStepTwo = status === "in_progress" && currentStep >= 2;
+  const updateStepTwoValues = (values: Partial<StepTwoValues>) => {
+    setError("");
+    setSaveState("idle");
+    setStepTwoValues((current) => ({ ...current, ...values }));
+  };
+
+  const handleStart = async () => {
+    if (!user || isSaving) return;
+
+    setIsSaving(true);
+    setError("");
+    setStatus("in_progress");
+    setCurrentStep(2);
+
+    try {
+      await saveSetupWizardState(user.uid, {
+        status: "in_progress",
+        currentStep: 2,
+        startedAt: serverTimestamp(),
+      });
+      await refreshProfile();
+    } catch {
+      setStatus("not_started");
+      setCurrentStep(1);
+      setError("We couldn’t save your progress. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleBack = async () => {
+    if (!user || isSaving || currentStep <= 1) return;
+
+    if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    const nextStep = Math.max(1, currentStep - 1);
+    setIsSaving(true);
+    setError("");
+    try {
+      if (currentStep === 2) {
+        await saveSetupWizardState(user.uid, getStepTwoDraft(stepTwoValues));
+      }
+      await saveSetupWizardState(user.uid, { currentStep: nextStep });
+      setCurrentStep(nextStep);
+    } catch {
+      setError("We couldn’t move back. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleContinue = async () => {
+    if (!user || isSaving) return;
+
+    const instituteName = stepTwoValues.instituteName.trim();
+    const academicYear = stepTwoValues.academicYear.trim();
+
+    if (!instituteName) {
+      setError("Please enter your institute name.");
+      return;
+    }
+    if (!stepTwoValues.instituteType) {
+      setError("Please choose your institute type.");
+      return;
+    }
+    if (!/^\d{4}$/.test(academicYear)) {
+      setError("Please enter a valid four-digit academic year.");
+      return;
+    }
+
+    if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    setIsSaving(true);
+    setSaveState("saving");
+    setError("");
+
+    try {
+      await saveSetupWizardState(
+        user.uid,
+        getStepTwoDraft({
+          instituteName,
+          instituteType: stepTwoValues.instituteType,
+          academicYear,
+        }),
+      );
+      await saveSetupWizardState(user.uid, { currentStep: 3 });
+      setStepTwoValues({
+        instituteName,
+        instituteType: stepTwoValues.instituteType,
+        academicYear,
+      });
+      setCurrentStep(3);
+      setSaveState("saved");
+    } catch {
+      setSaveState("error");
+      setError("We couldn’t save your institute details. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const visibleStep = Math.max(1, currentStep);
+  const slideDirection = visibleStep >= previousStepRef.current ? 1 : -1;
+
+  useEffect(() => {
+    previousStepRef.current = visibleStep;
+  }, [visibleStep]);
 
   return (
     <div
@@ -195,19 +592,10 @@ export default function FirstTimeSetupWizard() {
               </p>
             </div>
           </div>
-
-          <button
-            type="button"
-            onClick={() => void handleSkip()}
-            disabled={isSaving}
-            className="min-h-11 rounded-full border border-white/15 bg-white/[0.07] px-4 text-sm font-medium text-white/75 transition-colors hover:border-white/30 hover:bg-white/12 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-200 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {isSaving ? "Saving…" : "Skip for now"}
-          </button>
         </header>
 
         <div className="mx-auto mt-10 w-full sm:mt-14">
-          <ProgressBar currentStep={showStepTwo ? 2 : 1} />
+          <ProgressBar currentStep={visibleStep} />
         </div>
 
         <main className="flex flex-1 items-center justify-center py-10 sm:py-14">
@@ -218,60 +606,30 @@ export default function FirstTimeSetupWizard() {
             />
 
             <div id="setup-wizard-title">
-              {showStepTwo ? (
-                <StepTwoPlaceholder />
-              ) : (
-                <div className="space-y-7 text-center">
-                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[1.4rem] border border-amber-200/25 bg-gradient-to-br from-amber-200/20 to-teal-200/10 text-amber-100 shadow-[0_0_36px_rgba(251,191,36,0.16)]">
-                    <Sparkles className="h-8 w-8" aria-hidden="true" />
-                  </div>
-                  <div className="space-y-3">
-                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-100/80">
-                      Welcome
-                    </p>
-                    <h1 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-                      Welcome to EduTrack !!!
-                    </h1>
-                    <p className="text-base leading-8 text-white/70 sm:text-lg">
-                      চলুন ২ মিনিটে আপনার প্রতিষ্ঠান প্রস্তুত করি।
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-left text-sm leading-6 text-white/60">
-                    আপনার workspace-টি সাজাতে কয়েকটি সহজ ধাপ অনুসরণ করব।
-                    আপনার progress automatically save হবে।
-                  </div>
-                  <div className="flex flex-col gap-3 pt-1">
-                    <button
-                      type="button"
-                      onClick={() => void handleStart()}
-                      disabled={isSaving}
-                      className="group inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-300 to-cyan-300 px-5 text-sm font-bold text-slate-950 shadow-[0_12px_30px_rgba(45,212,191,0.2)] transition-all hover:-translate-y-0.5 hover:from-teal-200 hover:to-cyan-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-100 focus-visible:ring-offset-2 focus-visible:ring-offset-[#12183b] disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      {isSaving ? (
-                        <Loader2
-                          className="h-4 w-4 animate-spin"
-                          aria-hidden="true"
-                        />
-                      ) : null}
-                      Start Setup
-                      {!isSaving ? (
-                        <ChevronRight
-                          className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-                          aria-hidden="true"
-                        />
-                      ) : null}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => void handleSkip()}
-                      disabled={isSaving}
-                      className="min-h-11 rounded-xl px-5 text-sm font-medium text-white/60 transition-colors hover:bg-white/[0.07] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-200 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      Skip for now
-                    </button>
-                  </div>
-                </div>
-              )}
+              <AnimatePresence initial={false} mode="wait">
+                <motion.div
+                  key={visibleStep}
+                  initial={{ opacity: 0, x: slideDirection * 28 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: slideDirection * -28 }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                >
+                  {visibleStep === 1 ? (
+                    <WelcomeStep onStart={handleStart} isSaving={isSaving} />
+                  ) : visibleStep === 2 ? (
+                    <StepTwoContent
+                      values={stepTwoValues}
+                      onChange={updateStepTwoValues}
+                      onBack={() => void handleBack()}
+                      onContinue={() => void handleContinue()}
+                      isSaving={isSaving}
+                      saveState={saveState}
+                    />
+                  ) : (
+                    <StepThreePlaceholder onBack={() => void handleBack()} />
+                  )}
+                </motion.div>
+              </AnimatePresence>
             </div>
 
             {error ? (

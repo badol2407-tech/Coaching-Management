@@ -7,25 +7,67 @@ export type SetupWizardStatus =
   | "completed"
   | "skipped";
 
+export type InstituteType =
+  | "school"
+  | "coaching_centre"
+  | "college"
+  | "university"
+  | "training_institute";
+
 export interface SetupWizardState {
   status: SetupWizardStatus;
   currentStep?: number;
   completedSteps?: number[];
   startedAt?: unknown;
   completedAt?: unknown;
+  instituteName?: string;
+  instituteType?: InstituteType;
+  academicYear?: string;
 }
 
 type SetupWizardWriteState = {
-  status: SetupWizardStatus;
+  status?: SetupWizardStatus;
   currentStep?: number;
   completedSteps?: number[];
   startedAt?: ReturnType<typeof serverTimestamp>;
   completedAt?: ReturnType<typeof serverTimestamp>;
+  instituteName?: string;
+  instituteType?: InstituteType;
+  academicYear?: string;
 };
 
 export async function saveSetupWizardState(
   uid: string,
   setupWizard: SetupWizardWriteState,
 ) {
-  await updateDoc(doc(db, "users", uid), { setupWizard });
+  const updates: Record<string, unknown> = {};
+
+  if (setupWizard.status !== undefined) {
+    updates["setupWizard.status"] = setupWizard.status;
+  }
+  if (setupWizard.currentStep !== undefined) {
+    updates["setupWizard.currentStep"] = setupWizard.currentStep;
+  }
+  if (setupWizard.completedSteps !== undefined) {
+    updates["setupWizard.completedSteps"] = setupWizard.completedSteps;
+  }
+  if (setupWizard.startedAt !== undefined) {
+    updates["setupWizard.startedAt"] = setupWizard.startedAt;
+  }
+  if (setupWizard.completedAt !== undefined) {
+    updates["setupWizard.completedAt"] = setupWizard.completedAt;
+  }
+  if (setupWizard.instituteName !== undefined) {
+    updates["setupWizard.instituteName"] = setupWizard.instituteName;
+  }
+  if (setupWizard.instituteType !== undefined) {
+    updates["setupWizard.instituteType"] = setupWizard.instituteType;
+  }
+  if (setupWizard.academicYear !== undefined) {
+    updates["setupWizard.academicYear"] = setupWizard.academicYear;
+  }
+
+  if (Object.keys(updates).length > 0) {
+    await updateDoc(doc(db, "users", uid), updates);
+  }
 }
