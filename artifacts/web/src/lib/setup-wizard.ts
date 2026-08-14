@@ -1,4 +1,9 @@
-import { doc, serverTimestamp, updateDoc } from "firebase/firestore";
+import {
+  deleteField,
+  doc,
+  serverTimestamp,
+  updateDoc,
+} from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 export type SetupWizardStatus =
@@ -14,6 +19,23 @@ export type InstituteType =
   | "university"
   | "training_institute";
 
+export type EducationType =
+  | "school"
+  | "college"
+  | "university"
+  | "coaching_centre"
+  | "academy"
+  | "other";
+
+export type ClassRange = "play_5" | "6_10" | "11_12" | "custom";
+
+export type ProgramType =
+  | "academic"
+  | "admission"
+  | "job"
+  | "skill_development"
+  | "mixed";
+
 export type SetupWizardLanguage = "bn" | "en";
 
 export interface SetupWizardState {
@@ -24,6 +46,9 @@ export interface SetupWizardState {
   completedAt?: unknown;
   instituteName?: string;
   instituteType?: InstituteType;
+  educationType?: EducationType;
+  classRange?: ClassRange;
+  programType?: ProgramType;
   academicYear?: string;
   campusName?: string;
   language?: SetupWizardLanguage;
@@ -38,6 +63,9 @@ type SetupWizardWriteState = {
   completedAt?: ReturnType<typeof serverTimestamp>;
   instituteName?: string;
   instituteType?: InstituteType;
+  educationType?: EducationType;
+  classRange?: ClassRange | ReturnType<typeof deleteField>;
+  programType?: ProgramType | ReturnType<typeof deleteField>;
   academicYear?: string;
   campusName?: string;
   language?: SetupWizardLanguage;
@@ -70,6 +98,15 @@ export async function saveSetupWizardState(
   }
   if (setupWizard.instituteType !== undefined) {
     updates["setupWizard.instituteType"] = setupWizard.instituteType;
+  }
+  if (setupWizard.educationType !== undefined) {
+    updates["setupWizard.educationType"] = setupWizard.educationType;
+  }
+  if (setupWizard.classRange !== undefined) {
+    updates["setupWizard.classRange"] = setupWizard.classRange;
+  }
+  if (setupWizard.programType !== undefined) {
+    updates["setupWizard.programType"] = setupWizard.programType;
   }
   if (setupWizard.academicYear !== undefined) {
     updates["setupWizard.academicYear"] = setupWizard.academicYear;

@@ -5,6 +5,7 @@ import {
   ArrowRight,
   Building2,
   Check,
+  CircleHelp,
   GraduationCap,
   Landmark,
   LockKeyhole,
@@ -13,16 +14,19 @@ import {
   Sparkles,
   type LucideIcon,
 } from "lucide-react";
-import { serverTimestamp } from "firebase/firestore";
+import { deleteField, serverTimestamp } from "firebase/firestore";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   saveSetupWizardState,
+  type ClassRange,
+  type EducationType,
   type InstituteType,
+  type ProgramType,
   type SetupWizardLanguage,
   type SetupWizardStatus,
 } from "@/lib/setup-wizard";
 
-const TOTAL_SETUP_STEPS = 4;
+const TOTAL_SETUP_STEPS = 5;
 const currentAcademicYear = String(new Date().getFullYear());
 const DEFAULT_TIME_ZONE = "Asia/Dhaka";
 
@@ -50,6 +54,40 @@ type StepThreeValues = {
   timeZone: string;
 };
 
+type StepFourValues = {
+  educationType: EducationType | "";
+  classRange: ClassRange | "";
+  programType: ProgramType | "";
+};
+
+const educationTypeOptions: Array<{
+  value: EducationType;
+  label: string;
+  Icon: LucideIcon;
+}> = [
+  { value: "school", label: "School", Icon: School },
+  { value: "college", label: "College", Icon: GraduationCap },
+  { value: "university", label: "University", Icon: Landmark },
+  { value: "coaching_centre", label: "Coaching Centre", Icon: Building2 },
+  { value: "academy", label: "Academy", Icon: Sparkles },
+  { value: "other", label: "Other", Icon: CircleHelp },
+];
+
+const classRangeOptions: Array<{ value: ClassRange; label: string }> = [
+  { value: "play_5", label: "Play–5" },
+  { value: "6_10", label: "6–10" },
+  { value: "11_12", label: "11–12" },
+  { value: "custom", label: "Custom" },
+];
+
+const programOptions: Array<{ value: ProgramType; label: string }> = [
+  { value: "academic", label: "Academic" },
+  { value: "admission", label: "Admission" },
+  { value: "job", label: "Job" },
+  { value: "skill_development", label: "Skill Development" },
+  { value: "mixed", label: "Mixed" },
+];
+
 function getStepTwoDraft(values: StepTwoValues) {
   return {
     instituteName: values.instituteName,
@@ -63,6 +101,25 @@ function getStepThreeDraft(values: StepThreeValues) {
     campusName: values.campusName,
     ...(values.language ? { language: values.language } : {}),
     timeZone: values.timeZone,
+  };
+}
+
+function getStepFourDraft(values: StepFourValues) {
+  const educationType = values.educationType || undefined;
+  const isSchoolOrCollege =
+    educationType === "school" || educationType === "college";
+  const isCoachingCentre = educationType === "coaching_centre";
+
+  return {
+    ...(educationType ? { educationType } : {}),
+    classRange:
+      isSchoolOrCollege && values.classRange
+        ? values.classRange
+        : deleteField(),
+    programType:
+      isCoachingCentre && values.programType
+        ? values.programType
+        : deleteField(),
   };
 }
 
@@ -98,6 +155,9 @@ function ProgressBar({ currentStep }: { currentStep: number }) {
           Settings
         </span>
         <span className={visibleStep >= 4 ? "text-teal-100" : undefined}>
+          Academic
+        </span>
+        <span className={visibleStep >= 5 ? "text-teal-100" : undefined}>
           Next step
         </span>
       </div>
@@ -447,7 +507,154 @@ function StepThreeContent({
   );
 }
 
-function StepFourPlaceholder({ onBack }: { onBack: () => void }) {
+function StepFourContent({
+  values,
+  onChange,
+  onBack,
+  onContinue,
+  isSaving,
+  saveState,
+}: {
+  values: StepFourValues;
+  onChange: (values: Partial<StepFourValues>) => void;
+  onBack: () => void;
+  onContinue: () => void;
+  isSaving: boolean;
+  saveState: "idle" | "saving" | "saved" | "error";
+}) {
+  const showClassRange =
+    values.educationType === "school" || values.educationType === "college";
+  const showPrograms = values.educationType === "coaching_centre";
+
+  return (
+    <div className="space-y-7">
+      <div className="space-y-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal-100/80">
+          Step 4
+        </p>
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+          Academic Structure
+        </h1>
+        <p className="text-sm leading-7 text-white/65 sm:text-base">
+          Tell us how your learning programs are organized so EduTrack can
+          tailor your workspace.
+        </p>
+      </div>
+
+      <div className="space-y-6">
+        <fieldset className="space-y-3">
+          <legend className="text-sm font-semibold text-white/85">
+            Education Type <span className="text-amber-200">*</span>
+          </legend>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {educationTypeOptions.map(({ value, label, Icon }) => {
+              const selected = values.educationType === value;
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  aria-pressed={selected}
+                  onClick={() => onChange({ educationType: value })}
+                  className={`group flex min-h-28 flex-col items-center justify-center gap-3 rounded-2xl border px-3 py-4 text-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-200 ${
+                    selected
+                      ? "border-teal-200/80 bg-teal-200/15 text-teal-50 shadow-[0_0_28px_rgba(45,212,191,0.16)]"
+                      : "border-white/10 bg-white/[0.045] text-white/65 hover:-translate-y-0.5 hover:border-white/25 hover:bg-white/[0.08] hover:text-white"
+                  }`}
+                >
+                  <span
+                    className={`flex h-11 w-11 items-center justify-center rounded-xl border transition-colors ${
+                      selected
+                        ? "border-teal-100/40 bg-teal-200/15 text-teal-100"
+                        : "border-white/10 bg-white/[0.06] text-white/55 group-hover:text-teal-100"
+                    }`}
+                  >
+                    <Icon className="h-6 w-6" aria-hidden="true" />
+                  </span>
+                  <span className="text-xs font-semibold leading-4">
+                    {label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>
+
+        {showClassRange ? (
+          <fieldset className="space-y-3">
+            <legend className="text-sm font-semibold text-white/85">
+              Class Range <span className="text-amber-200">*</span>
+            </legend>
+            <div className="grid grid-cols-2 gap-3">
+              {classRangeOptions.map(({ value, label }) => {
+                const selected = values.classRange === value;
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    aria-pressed={selected}
+                    onClick={() => onChange({ classRange: value })}
+                    className={`flex min-h-24 items-center justify-center rounded-2xl border px-4 py-5 text-base font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-200 ${
+                      selected
+                        ? "border-teal-200/80 bg-teal-200/15 text-teal-50 shadow-[0_0_28px_rgba(45,212,191,0.16)]"
+                        : "border-white/10 bg-white/[0.045] text-white/70 hover:-translate-y-0.5 hover:border-white/25 hover:bg-white/[0.08] hover:text-white"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          </fieldset>
+        ) : null}
+
+        {showPrograms ? (
+          <fieldset className="space-y-3">
+            <legend className="text-sm font-semibold text-white/85">
+              Program <span className="text-amber-200">*</span>
+            </legend>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {programOptions.map(({ value, label }) => {
+                const selected = values.programType === value;
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    aria-pressed={selected}
+                    onClick={() => onChange({ programType: value })}
+                    className={`flex min-h-24 items-center justify-center rounded-2xl border px-4 py-5 text-center text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-200 ${
+                      selected
+                        ? "border-teal-200/80 bg-teal-200/15 text-teal-50 shadow-[0_0_28px_rgba(45,212,191,0.16)]"
+                        : "border-white/10 bg-white/[0.045] text-white/70 hover:-translate-y-0.5 hover:border-white/25 hover:bg-white/[0.08] hover:text-white"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          </fieldset>
+        ) : null}
+      </div>
+
+      <div className="flex min-h-5 items-center justify-end text-xs text-white/40">
+        {saveState === "saving" ? "Saving draft…" : null}
+        {saveState === "saved" ? "Draft saved automatically" : null}
+        {saveState === "error" ? (
+          <span className="text-rose-200">Draft save will retry shortly</span>
+        ) : null}
+      </div>
+
+      <WizardNavigation
+        onBack={onBack}
+        onContinue={onContinue}
+        continueLabel="Continue"
+        isSaving={isSaving}
+      />
+    </div>
+  );
+}
+
+function StepFivePlaceholder({ onBack }: { onBack: () => void }) {
   return (
     <div className="space-y-7 text-center">
       <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[1.4rem] border border-teal-200/25 bg-teal-200/10 text-teal-100 shadow-[0_0_36px_rgba(45,212,191,0.18)]">
@@ -455,7 +662,7 @@ function StepFourPlaceholder({ onBack }: { onBack: () => void }) {
       </div>
       <div className="space-y-3">
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal-100/80">
-          Step 4
+          Step 5
         </p>
         <h1 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
           Your setup is taking shape
@@ -466,7 +673,7 @@ function StepFourPlaceholder({ onBack }: { onBack: () => void }) {
         </p>
       </div>
       <div className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-left text-sm leading-6 text-white/60">
-        <span className="font-medium text-white/85">Step 4 is ready.</span>{" "}
+        <span className="font-medium text-white/85">Step 5 is ready.</span>{" "}
         Future setup fields can be added here without changing the wizard shell.
       </div>
       <WizardNavigation
@@ -511,6 +718,11 @@ export default function FirstTimeSetupWizard() {
     language: userProfile?.setupWizard?.language ?? "",
     timeZone: userProfile?.setupWizard?.timeZone ?? DEFAULT_TIME_ZONE,
   });
+  const [stepFourValues, setStepFourValues] = useState<StepFourValues>({
+    educationType: userProfile?.setupWizard?.educationType ?? "",
+    classRange: userProfile?.setupWizard?.classRange ?? "",
+    programType: userProfile?.setupWizard?.programType ?? "",
+  });
 
   useEffect(() => {
     const persistedWizard = userProfile?.setupWizard;
@@ -531,6 +743,11 @@ export default function FirstTimeSetupWizard() {
       campusName: persistedWizard.campusName ?? "Main Campus",
       language: persistedWizard.language ?? "",
       timeZone: persistedWizard.timeZone ?? DEFAULT_TIME_ZONE,
+    });
+    setStepFourValues({
+      educationType: persistedWizard.educationType ?? "",
+      classRange: persistedWizard.classRange ?? "",
+      programType: persistedWizard.programType ?? "",
     });
   }, [userProfile?.setupWizard]);
 
@@ -591,6 +808,32 @@ export default function FirstTimeSetupWizard() {
   }, [currentStep, status, stepThreeValues, user]);
 
   useEffect(() => {
+    if (
+      !user ||
+      status !== "in_progress" ||
+      currentStep !== 4 ||
+      !stepFourValues.educationType
+    ) {
+      return;
+    }
+
+    if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    draftTimerRef.current = setTimeout(() => {
+      setSaveState("saving");
+      void saveSetupWizardState(user.uid, getStepFourDraft(stepFourValues))
+        .then(() => setSaveState("saved"))
+        .catch(() => {
+          setSaveState("error");
+          setError("Your draft could not be saved. We’ll keep trying.");
+        });
+    }, 650);
+
+    return () => {
+      if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    };
+  }, [currentStep, status, stepFourValues, user]);
+
+  useEffect(() => {
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     dialogRef.current?.focus();
@@ -639,6 +882,33 @@ export default function FirstTimeSetupWizard() {
     setStepThreeValues((current) => ({ ...current, ...values }));
   };
 
+  const updateStepFourValues = (values: Partial<StepFourValues>) => {
+    setError("");
+    setSaveState("idle");
+    setStepFourValues((current) => {
+      const nextEducationType = values.educationType ?? current.educationType;
+      const educationTypeChanged =
+        values.educationType !== undefined &&
+        values.educationType !== current.educationType;
+      const isSchoolOrCollege =
+        nextEducationType === "school" || nextEducationType === "college";
+      const isCoachingCentre = nextEducationType === "coaching_centre";
+
+      return {
+        ...current,
+        ...values,
+        classRange:
+          educationTypeChanged || !isSchoolOrCollege
+            ? ""
+            : (values.classRange ?? current.classRange),
+        programType:
+          educationTypeChanged || !isCoachingCentre
+            ? ""
+            : (values.programType ?? current.programType),
+      };
+    });
+  };
+
   const handleStart = async () => {
     if (!user || isSaving) return;
 
@@ -676,6 +946,9 @@ export default function FirstTimeSetupWizard() {
       }
       if (currentStep === 3) {
         await saveSetupWizardState(user.uid, getStepThreeDraft(stepThreeValues));
+      }
+      if (currentStep === 4 && stepFourValues.educationType) {
+        await saveSetupWizardState(user.uid, getStepFourDraft(stepFourValues));
       }
       await saveSetupWizardState(user.uid, { currentStep: nextStep });
       setCurrentStep(nextStep);
@@ -784,7 +1057,46 @@ export default function FirstTimeSetupWizard() {
     }
   };
 
-  const visibleStep = Math.max(1, currentStep);
+  const handleStepFourContinue = async () => {
+    if (!user || isSaving) return;
+
+    const { educationType, classRange, programType } = stepFourValues;
+    const isSchoolOrCollege =
+      educationType === "school" || educationType === "college";
+    const isCoachingCentre = educationType === "coaching_centre";
+
+    if (!educationType) {
+      setError("Please choose an education type.");
+      return;
+    }
+    if (isSchoolOrCollege && !classRange) {
+      setError("Please choose a class range.");
+      return;
+    }
+    if (isCoachingCentre && !programType) {
+      setError("Please choose a program.");
+      return;
+    }
+
+    if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    setIsSaving(true);
+    setSaveState("saving");
+    setError("");
+
+    try {
+      await saveSetupWizardState(user.uid, getStepFourDraft(stepFourValues));
+      await saveSetupWizardState(user.uid, { currentStep: 5 });
+      setCurrentStep(5);
+      setSaveState("saved");
+    } catch {
+      setSaveState("error");
+      setError("We couldn’t save your academic structure. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const visibleStep = Math.min(Math.max(1, currentStep), TOTAL_SETUP_STEPS);
   const slideDirection = visibleStep >= previousStepRef.current ? 1 : -1;
 
   useEffect(() => {
@@ -870,8 +1182,17 @@ export default function FirstTimeSetupWizard() {
                       isSaving={isSaving}
                       saveState={saveState}
                     />
+                  ) : visibleStep === 4 ? (
+                    <StepFourContent
+                      values={stepFourValues}
+                      onChange={updateStepFourValues}
+                      onBack={() => void handleBack()}
+                      onContinue={() => void handleStepFourContinue()}
+                      isSaving={isSaving}
+                      saveState={saveState}
+                    />
                   ) : (
-                    <StepFourPlaceholder onBack={() => void handleBack()} />
+                    <StepFivePlaceholder onBack={() => void handleBack()} />
                   )}
                 </motion.div>
               </AnimatePresence>
