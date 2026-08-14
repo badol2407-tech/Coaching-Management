@@ -36,6 +36,12 @@ export type ProgramType =
   | "skill_development"
   | "mixed";
 
+export type WeeklyHoliday = "friday" | "saturday" | "sunday" | "none";
+
+export type WorkingDays = 5 | 6 | 7;
+
+export type DefaultShift = "morning" | "day" | "evening" | "mixed";
+
 export type SetupWizardLanguage = "bn" | "en";
 
 export interface SetupWizardState {
@@ -49,6 +55,9 @@ export interface SetupWizardState {
   educationType?: EducationType;
   classRange?: ClassRange;
   programType?: ProgramType;
+  weeklyHolidays?: WeeklyHoliday[];
+  workingDays?: WorkingDays;
+  defaultShift?: DefaultShift;
   academicYear?: string;
   campusName?: string;
   language?: SetupWizardLanguage;
@@ -66,6 +75,9 @@ type SetupWizardWriteState = {
   educationType?: EducationType;
   classRange?: ClassRange | ReturnType<typeof deleteField>;
   programType?: ProgramType | ReturnType<typeof deleteField>;
+  weeklyHolidays?: WeeklyHoliday[];
+  workingDays?: WorkingDays;
+  defaultShift?: DefaultShift;
   academicYear?: string;
   campusName?: string;
   language?: SetupWizardLanguage;
@@ -107,6 +119,15 @@ export async function saveSetupWizardState(
   }
   if (setupWizard.programType !== undefined) {
     updates["setupWizard.programType"] = setupWizard.programType;
+  }
+  if (setupWizard.weeklyHolidays !== undefined) {
+    updates["setupWizard.weeklyHolidays"] = setupWizard.weeklyHolidays;
+  }
+  if (setupWizard.workingDays !== undefined) {
+    updates["setupWizard.workingDays"] = setupWizard.workingDays;
+  }
+  if (setupWizard.defaultShift !== undefined) {
+    updates["setupWizard.defaultShift"] = setupWizard.defaultShift;
   }
   if (setupWizard.academicYear !== undefined) {
     updates["setupWizard.academicYear"] = setupWizard.academicYear;

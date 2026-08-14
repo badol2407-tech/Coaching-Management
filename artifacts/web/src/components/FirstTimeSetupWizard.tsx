@@ -19,14 +19,17 @@ import { useAuth } from "@/contexts/AuthContext";
 import {
   saveSetupWizardState,
   type ClassRange,
+  type DefaultShift,
   type EducationType,
   type InstituteType,
   type ProgramType,
   type SetupWizardLanguage,
   type SetupWizardStatus,
+  type WeeklyHoliday,
+  type WorkingDays,
 } from "@/lib/setup-wizard";
 
-const TOTAL_SETUP_STEPS = 5;
+const TOTAL_SETUP_STEPS = 6;
 const currentAcademicYear = String(new Date().getFullYear());
 const DEFAULT_TIME_ZONE = "Asia/Dhaka";
 
@@ -60,6 +63,12 @@ type StepFourValues = {
   programType: ProgramType | "";
 };
 
+type StepFiveValues = {
+  weeklyHolidays: WeeklyHoliday[];
+  workingDays: WorkingDays | "";
+  defaultShift: DefaultShift | "";
+};
+
 const educationTypeOptions: Array<{
   value: EducationType;
   label: string;
@@ -85,6 +94,26 @@ const programOptions: Array<{ value: ProgramType; label: string }> = [
   { value: "admission", label: "Admission" },
   { value: "job", label: "Job" },
   { value: "skill_development", label: "Skill Development" },
+  { value: "mixed", label: "Mixed" },
+];
+
+const weeklyHolidayOptions: Array<{ value: WeeklyHoliday; label: string }> = [
+  { value: "friday", label: "Friday" },
+  { value: "saturday", label: "Saturday" },
+  { value: "sunday", label: "Sunday" },
+  { value: "none", label: "None" },
+];
+
+const workingDaysOptions: Array<{ value: WorkingDays; label: string }> = [
+  { value: 5, label: "5 Days" },
+  { value: 6, label: "6 Days" },
+  { value: 7, label: "7 Days" },
+];
+
+const shiftOptions: Array<{ value: DefaultShift; label: string }> = [
+  { value: "morning", label: "Morning" },
+  { value: "day", label: "Day" },
+  { value: "evening", label: "Evening" },
   { value: "mixed", label: "Mixed" },
 ];
 
@@ -123,6 +152,14 @@ function getStepFourDraft(values: StepFourValues) {
   };
 }
 
+function getStepFiveDraft(values: StepFiveValues) {
+  return {
+    weeklyHolidays: values.weeklyHolidays,
+    ...(values.workingDays ? { workingDays: values.workingDays } : {}),
+    ...(values.defaultShift ? { defaultShift: values.defaultShift } : {}),
+  };
+}
+
 function ProgressBar({ currentStep }: { currentStep: number }) {
   const visibleStep = Math.min(Math.max(currentStep, 1), TOTAL_SETUP_STEPS);
   const progress = (visibleStep / TOTAL_SETUP_STEPS) * 100;
@@ -158,6 +195,9 @@ function ProgressBar({ currentStep }: { currentStep: number }) {
           Academic
         </span>
         <span className={visibleStep >= 5 ? "text-teal-100" : undefined}>
+          Schedule
+        </span>
+        <span className={visibleStep >= 6 ? "text-teal-100" : undefined}>
           Next step
         </span>
       </div>
@@ -654,7 +694,152 @@ function StepFourContent({
   );
 }
 
-function StepFivePlaceholder({ onBack }: { onBack: () => void }) {
+function StepFiveContent({
+  values,
+  onChange,
+  onBack,
+  onContinue,
+  isSaving,
+  saveState,
+}: {
+  values: StepFiveValues;
+  onChange: (values: Partial<StepFiveValues>) => void;
+  onBack: () => void;
+  onContinue: () => void;
+  isSaving: boolean;
+  saveState: "idle" | "saving" | "saved" | "error";
+}) {
+  const toggleHoliday = (holiday: WeeklyHoliday) => {
+    if (holiday === "none") {
+      onChange({
+        weeklyHolidays: values.weeklyHolidays.includes("none") ? [] : ["none"],
+      });
+      return;
+    }
+
+    const withoutNone = values.weeklyHolidays.filter((value) => value !== "none");
+    onChange({
+      weeklyHolidays: withoutNone.includes(holiday)
+        ? withoutNone.filter((value) => value !== holiday)
+        : [...withoutNone, holiday],
+    });
+  };
+
+  return (
+    <div className="space-y-7">
+      <div className="space-y-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal-100/80">
+          Step 5
+        </p>
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+          Working Schedule
+        </h1>
+        <p className="text-sm leading-7 text-white/65 sm:text-base">
+          Set the weekly rhythm EduTrack will use for your classes and
+          activities.
+        </p>
+      </div>
+
+      <div className="space-y-6">
+        <fieldset className="space-y-3">
+          <legend className="text-sm font-semibold text-white/85">
+            Weekly Holiday <span className="text-white/45">(multi-select)</span>{" "}
+            <span className="text-amber-200">*</span>
+          </legend>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {weeklyHolidayOptions.map(({ value, label }) => {
+              const selected = values.weeklyHolidays.includes(value);
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  aria-pressed={selected}
+                  onClick={() => toggleHoliday(value)}
+                  className={`flex min-h-24 items-center justify-center rounded-2xl border px-3 py-5 text-center text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-200 ${
+                    selected
+                      ? "border-teal-200/80 bg-teal-200/15 text-teal-50 shadow-[0_0_28px_rgba(45,212,191,0.16)]"
+                      : "border-white/10 bg-white/[0.045] text-white/70 hover:-translate-y-0.5 hover:border-white/25 hover:bg-white/[0.08] hover:text-white"
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>
+
+        <fieldset className="space-y-3">
+          <legend className="text-sm font-semibold text-white/85">
+            Working Days <span className="text-amber-200">*</span>
+          </legend>
+          <div className="grid grid-cols-3 gap-3">
+            {workingDaysOptions.map(({ value, label }) => {
+              const selected = values.workingDays === value;
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  aria-pressed={selected}
+                  onClick={() => onChange({ workingDays: value })}
+                  className={`flex min-h-24 items-center justify-center rounded-2xl border px-3 py-5 text-center text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-200 ${
+                    selected
+                      ? "border-teal-200/80 bg-teal-200/15 text-teal-50 shadow-[0_0_28px_rgba(45,212,191,0.16)]"
+                      : "border-white/10 bg-white/[0.045] text-white/70 hover:-translate-y-0.5 hover:border-white/25 hover:bg-white/[0.08] hover:text-white"
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>
+
+        <fieldset className="space-y-3">
+          <legend className="text-sm font-semibold text-white/85">
+            Default Class Shift <span className="text-amber-200">*</span>
+          </legend>
+          <div className="grid grid-cols-2 gap-3">
+            {shiftOptions.map(({ value, label }) => {
+              const selected = values.defaultShift === value;
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  aria-pressed={selected}
+                  onClick={() => onChange({ defaultShift: value })}
+                  className={`flex min-h-24 items-center justify-center rounded-2xl border px-4 py-5 text-center text-base font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-200 ${
+                    selected
+                      ? "border-teal-200/80 bg-teal-200/15 text-teal-50 shadow-[0_0_28px_rgba(45,212,191,0.16)]"
+                      : "border-white/10 bg-white/[0.045] text-white/70 hover:-translate-y-0.5 hover:border-white/25 hover:bg-white/[0.08] hover:text-white"
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>
+      </div>
+
+      <div className="flex min-h-5 items-center justify-end text-xs text-white/40">
+        {saveState === "saving" ? "Saving draft…" : null}
+        {saveState === "saved" ? "Draft saved automatically" : null}
+        {saveState === "error" ? (
+          <span className="text-rose-200">Draft save will retry shortly</span>
+        ) : null}
+      </div>
+
+      <WizardNavigation
+        onBack={onBack}
+        onContinue={onContinue}
+        continueLabel="Continue"
+        isSaving={isSaving}
+      />
+    </div>
+  );
+}
+
+function StepSixPlaceholder({ onBack }: { onBack: () => void }) {
   return (
     <div className="space-y-7 text-center">
       <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[1.4rem] border border-teal-200/25 bg-teal-200/10 text-teal-100 shadow-[0_0_36px_rgba(45,212,191,0.18)]">
@@ -662,7 +847,7 @@ function StepFivePlaceholder({ onBack }: { onBack: () => void }) {
       </div>
       <div className="space-y-3">
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal-100/80">
-          Step 5
+          Step 6
         </p>
         <h1 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
           Your setup is taking shape
@@ -673,7 +858,7 @@ function StepFivePlaceholder({ onBack }: { onBack: () => void }) {
         </p>
       </div>
       <div className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-left text-sm leading-6 text-white/60">
-        <span className="font-medium text-white/85">Step 5 is ready.</span>{" "}
+        <span className="font-medium text-white/85">Step 6 is ready.</span>{" "}
         Future setup fields can be added here without changing the wizard shell.
       </div>
       <WizardNavigation
@@ -723,6 +908,11 @@ export default function FirstTimeSetupWizard() {
     classRange: userProfile?.setupWizard?.classRange ?? "",
     programType: userProfile?.setupWizard?.programType ?? "",
   });
+  const [stepFiveValues, setStepFiveValues] = useState<StepFiveValues>({
+    weeklyHolidays: userProfile?.setupWizard?.weeklyHolidays ?? [],
+    workingDays: userProfile?.setupWizard?.workingDays ?? "",
+    defaultShift: userProfile?.setupWizard?.defaultShift ?? "",
+  });
 
   useEffect(() => {
     const persistedWizard = userProfile?.setupWizard;
@@ -748,6 +938,11 @@ export default function FirstTimeSetupWizard() {
       educationType: persistedWizard.educationType ?? "",
       classRange: persistedWizard.classRange ?? "",
       programType: persistedWizard.programType ?? "",
+    });
+    setStepFiveValues({
+      weeklyHolidays: persistedWizard.weeklyHolidays ?? [],
+      workingDays: persistedWizard.workingDays ?? "",
+      defaultShift: persistedWizard.defaultShift ?? "",
     });
   }, [userProfile?.setupWizard]);
 
@@ -834,6 +1029,34 @@ export default function FirstTimeSetupWizard() {
   }, [currentStep, status, stepFourValues, user]);
 
   useEffect(() => {
+    if (
+      !user ||
+      status !== "in_progress" ||
+      currentStep !== 5 ||
+      (!stepFiveValues.weeklyHolidays.length &&
+        !stepFiveValues.workingDays &&
+        !stepFiveValues.defaultShift)
+    ) {
+      return;
+    }
+
+    if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    draftTimerRef.current = setTimeout(() => {
+      setSaveState("saving");
+      void saveSetupWizardState(user.uid, getStepFiveDraft(stepFiveValues))
+        .then(() => setSaveState("saved"))
+        .catch(() => {
+          setSaveState("error");
+          setError("Your draft could not be saved. We’ll keep trying.");
+        });
+    }, 650);
+
+    return () => {
+      if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    };
+  }, [currentStep, status, stepFiveValues, user]);
+
+  useEffect(() => {
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     dialogRef.current?.focus();
@@ -909,6 +1132,20 @@ export default function FirstTimeSetupWizard() {
     });
   };
 
+  const updateStepFiveValues = (values: Partial<StepFiveValues>) => {
+    setError("");
+    setSaveState("idle");
+    setStepFiveValues((current) => ({
+      ...current,
+      ...values,
+      weeklyHolidays: values.weeklyHolidays
+        ? values.weeklyHolidays.includes("none")
+          ? ["none"]
+          : values.weeklyHolidays
+        : current.weeklyHolidays,
+    }));
+  };
+
   const handleStart = async () => {
     if (!user || isSaving) return;
 
@@ -949,6 +1186,14 @@ export default function FirstTimeSetupWizard() {
       }
       if (currentStep === 4 && stepFourValues.educationType) {
         await saveSetupWizardState(user.uid, getStepFourDraft(stepFourValues));
+      }
+      if (
+        currentStep === 5 &&
+        (stepFiveValues.weeklyHolidays.length ||
+          stepFiveValues.workingDays ||
+          stepFiveValues.defaultShift)
+      ) {
+        await saveSetupWizardState(user.uid, getStepFiveDraft(stepFiveValues));
       }
       await saveSetupWizardState(user.uid, { currentStep: nextStep });
       setCurrentStep(nextStep);
@@ -1096,6 +1341,42 @@ export default function FirstTimeSetupWizard() {
     }
   };
 
+  const handleStepFiveContinue = async () => {
+    if (!user || isSaving) return;
+
+    const { weeklyHolidays, workingDays, defaultShift } = stepFiveValues;
+
+    if (!weeklyHolidays.length) {
+      setError("Please choose at least one weekly holiday option.");
+      return;
+    }
+    if (!workingDays) {
+      setError("Please choose the number of working days.");
+      return;
+    }
+    if (!defaultShift) {
+      setError("Please choose a default class shift.");
+      return;
+    }
+
+    if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    setIsSaving(true);
+    setSaveState("saving");
+    setError("");
+
+    try {
+      await saveSetupWizardState(user.uid, getStepFiveDraft(stepFiveValues));
+      await saveSetupWizardState(user.uid, { currentStep: 6 });
+      setCurrentStep(6);
+      setSaveState("saved");
+    } catch {
+      setSaveState("error");
+      setError("We couldn’t save your working schedule. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const visibleStep = Math.min(Math.max(1, currentStep), TOTAL_SETUP_STEPS);
   const slideDirection = visibleStep >= previousStepRef.current ? 1 : -1;
 
@@ -1191,8 +1472,17 @@ export default function FirstTimeSetupWizard() {
                       isSaving={isSaving}
                       saveState={saveState}
                     />
+                  ) : visibleStep === 5 ? (
+                    <StepFiveContent
+                      values={stepFiveValues}
+                      onChange={updateStepFiveValues}
+                      onBack={() => void handleBack()}
+                      onContinue={() => void handleStepFiveContinue()}
+                      isSaving={isSaving}
+                      saveState={saveState}
+                    />
                   ) : (
-                    <StepFivePlaceholder onBack={() => void handleBack()} />
+                    <StepSixPlaceholder onBack={() => void handleBack()} />
                   )}
                 </motion.div>
               </AnimatePresence>
