@@ -23,6 +23,7 @@ import {
   type EducationType,
   type FirstClassShift,
   type FirstClassDraft,
+  type FirstTeacherDraft,
   type InstituteType,
   type ProgramType,
   type SetupWizardLanguage,
@@ -31,7 +32,8 @@ import {
   type WeeklyHoliday,
   type WorkingDays,
 } from "@/lib/setup-wizard";
-import { useCreateFirstClass } from "@/lib/class-hooks";
+import { useCreateFirstClass, useListClasses } from "@/lib/class-hooks";
+import { useCreateFirstTeacher } from "@/lib/hooks";
 
 const TOTAL_SETUP_STEPS = 9;
 const currentAcademicYear = String(new Date().getFullYear());
@@ -1079,9 +1081,41 @@ function StepSevenTeacherDecision({
   );
 }
 
-function StepEightTeacherSetup({ onBack }: { onBack: () => void }) {
+type FirstTeacherValues = {
+  name: string;
+  phone: string;
+  email: string;
+  classId: string;
+};
+
+type SetupClass = {
+  id: string;
+  name?: string;
+  section?: string;
+  createdAt?: string;
+};
+
+function StepEightTeacherSetup({
+  values,
+  classes,
+  classesLoading,
+  onChange,
+  onBack,
+  onContinue,
+  isSaving,
+  saveState,
+}: {
+  values: FirstTeacherValues;
+  classes: SetupClass[];
+  classesLoading: boolean;
+  onChange: (values: Partial<FirstTeacherValues>) => void;
+  onBack: () => void;
+  onContinue: () => void;
+  isSaving: boolean;
+  saveState: "idle" | "saving" | "saved" | "error";
+}) {
   return (
-    <div className="space-y-7 text-center">
+    <div className="space-y-7">
       <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[1.4rem] border border-teal-200/25 bg-teal-200/10 text-teal-100 shadow-[0_0_36px_rgba(45,212,191,0.18)]">
         <GraduationCap className="h-8 w-8" aria-hidden="true" />
       </div>
@@ -1092,20 +1126,111 @@ function StepEightTeacherSetup({ onBack }: { onBack: () => void }) {
         <h1 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
           Create Your First Teacher
         </h1>
-        <p className="mx-auto max-w-md text-sm leading-7 text-white/65 sm:text-base">
-          The teacher creation flow will appear here next. Your teacher setup
-          decision has been saved.
+        <p className="max-w-md text-sm leading-7 text-white/65 sm:text-base">
+          Add one teacher profile now. You can invite them to sign in later.
         </p>
       </div>
-      <div className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-left text-sm leading-6 text-white/60">
-        <span className="font-medium text-white/85">Ready for teachers.</span>{" "}
-        The wizard will stay open while this step is completed.
+
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <label htmlFor="first-teacher-name" className="text-sm font-medium text-white/85">
+            Full Name <span className="text-teal-200" aria-hidden="true">*</span>
+          </label>
+          <input
+            id="first-teacher-name"
+            value={values.name}
+            onChange={(event) => onChange({ name: event.target.value })}
+            autoComplete="name"
+            placeholder="e.g. Ayesha Rahman"
+            className="min-h-12 w-full rounded-xl border border-white/15 bg-white/[0.07] px-4 text-base text-white outline-none transition focus:border-teal-200/80 focus:bg-white/[0.1] focus:ring-2 focus:ring-teal-200/20 placeholder:text-white/30"
+            required
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="first-teacher-phone" className="text-sm font-medium text-white/85">
+            Phone Number <span className="text-teal-200" aria-hidden="true">*</span>
+          </label>
+          <input
+            id="first-teacher-phone"
+            value={values.phone}
+            onChange={(event) => onChange({ phone: event.target.value })}
+            autoComplete="tel"
+            inputMode="tel"
+            placeholder="e.g. 017XXXXXXXX"
+            className="min-h-12 w-full rounded-xl border border-white/15 bg-white/[0.07] px-4 text-base text-white outline-none transition focus:border-teal-200/80 focus:bg-white/[0.1] focus:ring-2 focus:ring-teal-200/20 placeholder:text-white/30"
+            required
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="first-teacher-email" className="text-sm font-medium text-white/85">
+            Email <span className="text-white/35">(optional)</span>
+          </label>
+          <input
+            id="first-teacher-email"
+            type="email"
+            value={values.email}
+            onChange={(event) => onChange({ email: event.target.value })}
+            autoComplete="email"
+            placeholder="teacher@example.com"
+            className="min-h-12 w-full rounded-xl border border-white/15 bg-white/[0.07] px-4 text-base text-white outline-none transition focus:border-teal-200/80 focus:bg-white/[0.1] focus:ring-2 focus:ring-teal-200/20 placeholder:text-white/30"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="first-teacher-class" className="text-sm font-medium text-white/85">
+            Assign Class <span className="text-teal-200" aria-hidden="true">*</span>
+          </label>
+          <select
+            id="first-teacher-class"
+            value={values.classId}
+            onChange={(event) => onChange({ classId: event.target.value })}
+            disabled={classesLoading || classes.length === 0}
+            className="min-h-12 w-full rounded-xl border border-white/15 bg-[#172044] px-4 text-base text-white outline-none transition focus:border-teal-200/80 focus:ring-2 focus:ring-teal-200/20 disabled:cursor-not-allowed disabled:opacity-60"
+            required
+          >
+            <option value="">
+              {classesLoading ? "Loading classes…" : "Select a class"}
+            </option>
+            {classes.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.name ?? "Unnamed class"}
+                {item.section ? ` · ${item.section}` : ""}
+              </option>
+            ))}
+          </select>
+          {!classesLoading && classes.length === 0 ? (
+            <p className="text-xs leading-5 text-amber-100/70">
+              Create a class in the previous step before adding a teacher.
+            </p>
+          ) : null}
+        </div>
       </div>
+
+      <div
+        className="flex min-h-5 items-center justify-end text-xs text-white/40"
+        role="status"
+        aria-live="polite"
+      >
+        {saveState === "saving" ? "Saving draft…" : null}
+        {saveState === "saved" ? "Draft saved automatically" : null}
+        {saveState === "error" ? (
+          <span className="text-rose-200">Draft save will retry shortly</span>
+        ) : null}
+      </div>
+
       <WizardNavigation
         onBack={onBack}
-        onContinue={() => {}}
-        continueLabel="Coming soon"
-        continueDisabled
+        onContinue={onContinue}
+        continueLabel="Continue"
+        continueDisabled={
+          !values.name.trim() ||
+          !values.phone.trim() ||
+          !values.classId ||
+          classesLoading
+        }
+        isSaving={isSaving}
       />
     </div>
   );
@@ -1114,6 +1239,8 @@ function StepEightTeacherSetup({ onBack }: { onBack: () => void }) {
 export default function FirstTimeSetupWizard() {
   const { user, userProfile, refreshProfile } = useAuth();
   const createFirstClass = useCreateFirstClass();
+  const createFirstTeacher = useCreateFirstTeacher();
+  const classesQuery = useListClasses();
   const dialogRef = useRef<HTMLDivElement>(null);
   const draftTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const previousStepRef = useRef(
@@ -1162,6 +1289,13 @@ export default function FirstTimeSetupWizard() {
   const [teacherCount, setTeacherCount] = useState<TeacherCount | "">(
     userProfile?.setupWizard?.teacherCount ?? "",
   );
+  const [firstTeacherValues, setFirstTeacherValues] =
+    useState<FirstTeacherValues>({
+      name: userProfile?.setupWizard?.firstTeacherDraft?.name ?? "",
+      phone: userProfile?.setupWizard?.firstTeacherDraft?.phone ?? "",
+      email: userProfile?.setupWizard?.firstTeacherDraft?.email ?? "",
+      classId: userProfile?.setupWizard?.firstTeacherDraft?.classId ?? "",
+    });
 
   useEffect(() => {
     const persistedWizard = userProfile?.setupWizard;
@@ -1201,7 +1335,57 @@ export default function FirstTimeSetupWizard() {
       shift: persistedWizard.firstClassDraft?.shift ?? "",
     });
     setTeacherCount(persistedWizard.teacherCount ?? "");
+    setFirstTeacherValues({
+      name: persistedWizard.firstTeacherDraft?.name ?? "",
+      phone: persistedWizard.firstTeacherDraft?.phone ?? "",
+      email: persistedWizard.firstTeacherDraft?.email ?? "",
+      classId: persistedWizard.firstTeacherDraft?.classId ?? "",
+    });
   }, [userProfile?.setupWizard]);
+
+  const setupClasses = (classesQuery.data ?? []) as SetupClass[];
+  const firstCreatedClass = [...setupClasses].sort((a, b) => {
+    const aTime = a.createdAt ? new Date(a.createdAt).getTime() : Number.MAX_SAFE_INTEGER;
+    const bTime = b.createdAt ? new Date(b.createdAt).getTime() : Number.MAX_SAFE_INTEGER;
+    return aTime - bTime;
+  })[0];
+
+  useEffect(() => {
+    if (!firstCreatedClass || firstTeacherValues.classId) return;
+    setFirstTeacherValues((current) => ({
+      ...current,
+      classId: firstCreatedClass.id,
+    }));
+  }, [firstCreatedClass, firstTeacherValues.classId]);
+
+  useEffect(() => {
+    if (!user || status !== "in_progress" || currentStep !== 8) {
+      return;
+    }
+
+    if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    draftTimerRef.current = setTimeout(() => {
+      setSaveState("saving");
+      const firstTeacherDraft: FirstTeacherDraft = {
+        name: firstTeacherValues.name,
+        phone: firstTeacherValues.phone,
+        email: firstTeacherValues.email,
+        ...(firstTeacherValues.classId
+          ? { classId: firstTeacherValues.classId }
+          : {}),
+      };
+      void saveSetupWizardState(user.uid, { firstTeacherDraft })
+        .then(() => setSaveState("saved"))
+        .catch(() => {
+          setSaveState("error");
+          setError("Your draft could not be saved. We’ll keep trying.");
+        });
+    }, 650);
+
+    return () => {
+      if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    };
+  }, [currentStep, firstTeacherValues, status, user]);
 
   useEffect(() => {
     if (
@@ -1462,6 +1646,14 @@ export default function FirstTimeSetupWizard() {
     setTeacherCount(value);
   };
 
+  const updateFirstTeacherValues = (
+    values: Partial<FirstTeacherValues>,
+  ) => {
+    setError("");
+    setSaveState("idle");
+    setFirstTeacherValues((current) => ({ ...current, ...values }));
+  };
+
   const handleStart = async () => {
     if (!user || isSaving) return;
 
@@ -1513,6 +1705,17 @@ export default function FirstTimeSetupWizard() {
       }
       if (currentStep === 7 && teacherCount) {
         await saveSetupWizardState(user.uid, { teacherCount });
+      }
+      if (currentStep === 8) {
+        const firstTeacherDraft: FirstTeacherDraft = {
+          name: firstTeacherValues.name,
+          phone: firstTeacherValues.phone,
+          email: firstTeacherValues.email,
+          ...(firstTeacherValues.classId
+            ? { classId: firstTeacherValues.classId }
+            : {}),
+        };
+        await saveSetupWizardState(user.uid, { firstTeacherDraft });
       }
       await saveSetupWizardState(user.uid, { currentStep: nextStep });
       setCurrentStep(nextStep);
@@ -1774,6 +1977,71 @@ export default function FirstTimeSetupWizard() {
     }
   };
 
+  const handleStepEightContinue = async () => {
+    if (!user || isSaving) return;
+
+    const name = firstTeacherValues.name.trim();
+    const phone = firstTeacherValues.phone.trim();
+    const email = firstTeacherValues.email.trim();
+    const classId = firstTeacherValues.classId;
+
+    if (!name) {
+      setError("Please enter the teacher’s full name.");
+      return;
+    }
+    if (!phone) {
+      setError("Please enter the teacher’s phone number.");
+      return;
+    }
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError("Please enter a valid email address or leave it blank.");
+      return;
+    }
+    if (!classId) {
+      setError("Please assign the teacher to a class.");
+      return;
+    }
+
+    if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    setIsSaving(true);
+    setSaveState("saving");
+    setError("");
+
+    const firstTeacherDraft: FirstTeacherDraft = {
+      name,
+      phone,
+      email,
+      classId,
+    };
+
+    try {
+      // Flush the latest keystrokes before the one-time teacher write. This
+      // still only touches setupWizard.firstTeacherDraft.
+      await saveSetupWizardState(user.uid, { firstTeacherDraft });
+      await createFirstTeacher.mutateAsync({
+        data: {
+          name,
+          phone,
+          ...(email ? { email } : {}),
+          classId,
+        },
+      });
+      await saveSetupWizardState(user.uid, {
+        firstTeacherCreated: true,
+        currentStep: 9,
+      });
+      setFirstTeacherValues({ name, phone, email, classId });
+      setCurrentStep(9);
+      setSaveState("saved");
+      await refreshProfile();
+    } catch {
+      setSaveState("error");
+      setError("We couldn’t create your first teacher. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const visibleStep = Math.min(Math.max(1, currentStep), TOTAL_SETUP_STEPS);
   const slideDirection = visibleStep >= previousStepRef.current ? 1 : -1;
   const prefersReducedMotion = useReducedMotion();
@@ -1902,7 +2170,16 @@ export default function FirstTimeSetupWizard() {
                       saveState={saveState}
                     />
                   ) : visibleStep === 8 ? (
-                    <StepEightTeacherSetup onBack={() => void handleBack()} />
+                    <StepEightTeacherSetup
+                      values={firstTeacherValues}
+                      classes={setupClasses}
+                      classesLoading={classesQuery.isLoading}
+                      onChange={updateFirstTeacherValues}
+                      onBack={() => void handleBack()}
+                      onContinue={() => void handleStepEightContinue()}
+                      isSaving={isSaving}
+                      saveState={saveState}
+                    />
                   ) : (
                     null
                   )}

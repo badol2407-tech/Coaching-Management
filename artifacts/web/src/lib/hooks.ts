@@ -183,6 +183,47 @@ export function useCreateTeacher() {
   });
 }
 
+/**
+ * The setup wizard creates a Teacher profile before the teacher has a login.
+ * Keep this write idempotent so a retry after a successful Firestore write
+ * cannot create a second organization-scoped Teacher document.
+ */
+export function useCreateFirstTeacher() {
+  const qc = useQueryClient();
+  const { user, userProfile } = useAuth();
+  return useMutation({
+    mutationFn: async ({
+      data,
+    }: {
+      data: {
+        name: string;
+        phone: string;
+        email?: string;
+        classId: string;
+      };
+    }) => {
+      const orgId = userProfile?.orgId;
+      if (!orgId || !user?.uid) throw new Error("No organization");
+
+      const id = `first-${user.uid}`;
+      await setDoc(
+        orgDocRef(orgId, "teachers", id),
+        {
+          ...data,
+          createdBy: user.uid,
+          createdAt: serverTimestamp(),
+          setupWizardFirstTeacher: true,
+        },
+        { merge: true },
+      );
+
+      return { id };
+    },
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: [userProfile?.orgId, "teachers"] }),
+  });
+}
+
 export function useUpdateTeacher() {
   const qc = useQueryClient();
   const { userProfile } = useAuth();

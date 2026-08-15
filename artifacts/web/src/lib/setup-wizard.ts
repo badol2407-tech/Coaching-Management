@@ -52,11 +52,20 @@ export interface FirstClassDraft {
   shift?: FirstClassShift;
 }
 
+export interface FirstTeacherDraft {
+  name?: string;
+  phone?: string;
+  email?: string;
+  classId?: string;
+}
+
 export interface SetupWizardState {
   status: SetupWizardStatus;
   currentStep?: number;
   firstClassCreated?: boolean;
   firstClassDraft?: FirstClassDraft;
+  firstTeacherCreated?: boolean;
+  firstTeacherDraft?: FirstTeacherDraft;
   teacherCount?: TeacherCount;
   teacherSetupSkipped?: boolean;
   completedSteps?: number[];
@@ -81,6 +90,8 @@ type SetupWizardWriteState = {
   currentStep?: number;
   firstClassCreated?: boolean;
   firstClassDraft?: FirstClassDraft;
+  firstTeacherCreated?: boolean;
+  firstTeacherDraft?: FirstTeacherDraft;
   teacherCount?: TeacherCount;
   teacherSetupSkipped?: boolean;
   completedSteps?: number[];
@@ -117,6 +128,12 @@ export async function saveSetupWizardState(
   }
   if (setupWizard.firstClassDraft !== undefined) {
     updates["setupWizard.firstClassDraft"] = setupWizard.firstClassDraft;
+  }
+  if (setupWizard.firstTeacherCreated !== undefined) {
+    updates["setupWizard.firstTeacherCreated"] = setupWizard.firstTeacherCreated;
+  }
+  if (setupWizard.firstTeacherDraft !== undefined) {
+    updates["setupWizard.firstTeacherDraft"] = setupWizard.firstTeacherDraft;
   }
   if (setupWizard.teacherCount !== undefined) {
     updates["setupWizard.teacherCount"] = setupWizard.teacherCount;
