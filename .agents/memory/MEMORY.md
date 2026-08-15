@@ -1,6 +1,6 @@
 - [Documentation architecture](documentation-architecture.md) — keep permanent product principles in the constitution and implementation standards in focused `/docs` handbooks
 - [Coaching App Architecture](coaching-app-architecture.md) — main app is artifacts/web (React+Vite+Firebase); api-server is separate and not used by the main app
-- [GitHub push quirk](github-push-quirk.md) — remote was not configured; must set origin to https://github.com/badol2407-tech/Coaching-Management.git before gitPush
+- [GitHub push quirk](github-push-quirk.md) — HTTPS pushes use the configured origin with a PAT encoded as Basic auth when managed GitHub OAuth is unavailable
 - [Vercel deployment](vercel-deployment.md) — deploy via scripts/deploy-vercel.mjs (builds first, then uploads dist/public); production alias coaching-management-three.vercel.app
 - [Fee Management implementation](fee-management.md) — installments stored as array on fee doc; status: pending/partial/paid; hooks: useAddInstallment, useBulkCreateFees, useGetIncomeSummary added to lib/hooks.ts
 - [White screen fix](white-screen-fix.md) — Vercel deploy script uses handle:filesystem + SPA fallback route order to serve assets correctly
