@@ -1236,6 +1236,82 @@ function StepEightTeacherSetup({
   );
 }
 
+function SetupCompleteStep({
+  onContinue,
+  isSaving,
+}: {
+  onContinue: () => void;
+  isSaving: boolean;
+}) {
+  return (
+    <div className="space-y-7 text-center">
+      <div
+        className="mx-auto flex h-20 w-20 items-center justify-center rounded-[1.6rem] border border-teal-100/35 bg-gradient-to-br from-teal-200/35 via-cyan-200/20 to-white/10 text-teal-50 shadow-[0_0_42px_rgba(45,212,191,0.2)]"
+        aria-hidden="true"
+      >
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-teal-100/80 text-slate-950">
+          <Check className="h-7 w-7" strokeWidth={3} />
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal-100/80">
+          Setup complete
+        </p>
+        <h1 className="font-display text-3xl font-semibold leading-tight tracking-tight text-white sm:text-4xl">
+          🎉 আপনার EduTrack Workspace প্রস্তুত!
+        </h1>
+        <p className="text-base leading-7 text-white/70">
+          আপনার workspace এখন Organization Admin Dashboard-এর জন্য প্রস্তুত।
+        </p>
+      </div>
+
+      <ul
+        aria-label="Setup completion checklist"
+        className="space-y-3 border-y border-white/10 py-4 text-left"
+      >
+        {[
+          "প্রতিষ্ঠান প্রস্তুত",
+          "প্রথম Class তৈরি হয়েছে",
+          "Teacher Setup সম্পন্ন অথবা Skip হয়েছে",
+        ].map((item) => (
+          <li
+            key={item}
+            className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.055] px-3 py-3 text-sm leading-6 text-white/85"
+          >
+            <span
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-teal-200/35 bg-teal-200/15 text-sm font-bold text-teal-100"
+              aria-hidden="true"
+            >
+              ✓
+            </span>
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
+
+      <button
+        type="button"
+        onClick={onContinue}
+        disabled={isSaving}
+        aria-busy={isSaving}
+        className="group inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-300 to-cyan-300 px-5 text-sm font-bold text-slate-950 shadow-[0_12px_30px_rgba(45,212,191,0.2)] transition-all hover:-translate-y-0.5 hover:from-teal-200 hover:to-cyan-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-100 focus-visible:ring-offset-2 focus-visible:ring-offset-[#12183b] disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {isSaving ? (
+          <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+        ) : null}
+        {isSaving ? "Saving workspace…" : "Continue to Dashboard"}
+        {!isSaving ? (
+          <ArrowRight
+            className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+            aria-hidden="true"
+          />
+        ) : null}
+      </button>
+    </div>
+  );
+}
+
 export default function FirstTimeSetupWizard() {
   const { user, userProfile, refreshProfile } = useAuth();
   const createFirstClass = useCreateFirstClass();
@@ -2042,6 +2118,33 @@ export default function FirstTimeSetupWizard() {
     }
   };
 
+  const handleStepNineContinue = async () => {
+    if (!user || isSaving) return;
+
+    if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    setIsSaving(true);
+    setSaveState("saving");
+    setError("");
+
+    try {
+      await saveSetupWizardState(user.uid, {
+        status: "completed",
+        completed: true,
+        completedAt: serverTimestamp(),
+        currentStep: TOTAL_SETUP_STEPS,
+      });
+      setStatus("completed");
+      setSaveState("saved");
+      await refreshProfile();
+      window.location.assign("/");
+    } catch {
+      setSaveState("error");
+      setError("We couldn’t complete your workspace setup. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const visibleStep = Math.min(Math.max(1, currentStep), TOTAL_SETUP_STEPS);
   const slideDirection = visibleStep >= previousStepRef.current ? 1 : -1;
   const prefersReducedMotion = useReducedMotion();
@@ -2179,6 +2282,11 @@ export default function FirstTimeSetupWizard() {
                       onContinue={() => void handleStepEightContinue()}
                       isSaving={isSaving}
                       saveState={saveState}
+                    />
+                  ) : visibleStep === 9 ? (
+                    <SetupCompleteStep
+                      onContinue={() => void handleStepNineContinue()}
+                      isSaving={isSaving}
                     />
                   ) : (
                     null

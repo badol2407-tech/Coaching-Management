@@ -342,6 +342,7 @@ function AuthenticatedRoutes() {
 
   if (
     userProfile.role === "org_admin" &&
+    userProfile.setupWizard?.completed !== true &&
     (!userProfile.setupWizard ||
       userProfile.setupWizard.status === "not_started" ||
       userProfile.setupWizard.status === "in_progress")

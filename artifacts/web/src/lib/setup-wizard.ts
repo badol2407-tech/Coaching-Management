@@ -61,6 +61,7 @@ export interface FirstTeacherDraft {
 
 export interface SetupWizardState {
   status: SetupWizardStatus;
+  completed?: boolean;
   currentStep?: number;
   firstClassCreated?: boolean;
   firstClassDraft?: FirstClassDraft;
@@ -87,6 +88,7 @@ export interface SetupWizardState {
 
 type SetupWizardWriteState = {
   status?: SetupWizardStatus;
+  completed?: boolean;
   currentStep?: number;
   firstClassCreated?: boolean;
   firstClassDraft?: FirstClassDraft;
@@ -119,6 +121,9 @@ export async function saveSetupWizardState(
 
   if (setupWizard.status !== undefined) {
     updates["setupWizard.status"] = setupWizard.status;
+  }
+  if (setupWizard.completed !== undefined) {
+    updates["setupWizard.completed"] = setupWizard.completed;
   }
   if (setupWizard.currentStep !== undefined) {
     updates["setupWizard.currentStep"] = setupWizard.currentStep;
