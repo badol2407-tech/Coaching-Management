@@ -27,12 +27,13 @@ import {
   type ProgramType,
   type SetupWizardLanguage,
   type SetupWizardStatus,
+  type TeacherCount,
   type WeeklyHoliday,
   type WorkingDays,
 } from "@/lib/setup-wizard";
 import { useCreateFirstClass } from "@/lib/class-hooks";
 
-const TOTAL_SETUP_STEPS = 7;
+const TOTAL_SETUP_STEPS = 9;
 const currentAcademicYear = String(new Date().getFullYear());
 const DEFAULT_TIME_ZONE = "Asia/Dhaka";
 
@@ -196,7 +197,7 @@ function ProgressBar({ currentStep }: { currentStep: number }) {
           style={{ width: `${progress}%` }}
         />
       </div>
-      <div className="mt-2 flex items-center justify-between text-[11px] text-white/40">
+      <div className="mt-2 grid grid-cols-9 gap-1 text-center text-[10px] text-white/40">
         <span className={visibleStep >= 1 ? "text-teal-100" : undefined}>
           Welcome
         </span>
@@ -216,7 +217,13 @@ function ProgressBar({ currentStep }: { currentStep: number }) {
           Class
         </span>
         <span className={visibleStep >= 7 ? "text-teal-100" : undefined}>
-          Done
+          Teachers
+        </span>
+        <span className={visibleStep >= 8 ? "text-teal-100" : undefined}>
+          Setup
+        </span>
+        <span className={visibleStep >= 9 ? "text-teal-100" : undefined}>
+          Plan
         </span>
       </div>
     </div>
@@ -973,27 +980,126 @@ function StepSixContent({
   );
 }
 
-function StepSevenPlaceholder({ onBack }: { onBack: () => void }) {
+const teacherCountOptions: Array<{
+  value: TeacherCount;
+  label: string;
+}> = [
+  { value: "self", label: "আমি নিজেই" },
+  { value: "2_10", label: "2–10" },
+  { value: "10_plus", label: "10+" },
+];
+
+function StepSevenTeacherDecision({
+  value,
+  onChange,
+  onBack,
+  onContinue,
+  isSaving,
+  saveState,
+}: {
+  value: TeacherCount | "";
+  onChange: (value: TeacherCount) => void;
+  onBack: () => void;
+  onContinue: () => void;
+  isSaving: boolean;
+  saveState: "idle" | "saving" | "saved" | "error";
+}) {
   return (
-    <div className="space-y-7 text-center">
-      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[1.4rem] border border-teal-200/25 bg-teal-200/10 text-teal-100 shadow-[0_0_36px_rgba(45,212,191,0.18)]">
-        <Check className="h-8 w-8" aria-hidden="true" />
-      </div>
+    <div className="space-y-7">
       <div className="space-y-3">
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal-100/80">
           Step 7
         </p>
         <h1 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-          Your first class is ready
+          Teacher setup
+        </h1>
+        <p className="max-w-md text-sm leading-7 text-white/65 sm:text-base">
+          বর্তমানে আপনার প্রতিষ্ঠানে কতজন শিক্ষক রয়েছেন?
+        </p>
+      </div>
+
+      <fieldset className="space-y-3">
+        <legend className="sr-only">Teacher count</legend>
+        <div
+          className="grid gap-3"
+          role="group"
+          aria-label="Teacher count options"
+        >
+          {teacherCountOptions.map(({ value: optionValue, label }) => {
+            const selected = value === optionValue;
+            return (
+              <button
+                key={optionValue}
+                type="button"
+                aria-pressed={selected}
+                onClick={() => onChange(optionValue)}
+                className={`flex min-h-20 w-full items-center justify-between rounded-2xl border px-5 py-5 text-left text-base font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-200 sm:min-h-24 sm:px-6 sm:text-lg ${
+                  selected
+                    ? "border-teal-200/80 bg-teal-200/15 text-teal-50 shadow-[0_0_28px_rgba(45,212,191,0.16)]"
+                    : "border-white/10 bg-white/[0.045] text-white/75 hover:-translate-y-0.5 hover:border-white/25 hover:bg-white/[0.08] hover:text-white"
+                }`}
+              >
+                <span>{label}</span>
+                <span
+                  className={`flex h-6 w-6 items-center justify-center rounded-full border ${
+                    selected
+                      ? "border-teal-100 bg-teal-100 text-slate-950"
+                      : "border-white/25"
+                  }`}
+                  aria-hidden="true"
+                >
+                  {selected ? <Check className="h-4 w-4" /> : null}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </fieldset>
+
+      <div
+        className="flex min-h-5 items-center justify-end text-xs text-white/40"
+        role="status"
+        aria-live="polite"
+      >
+        {saveState === "saving" ? "Saving draft…" : null}
+        {saveState === "saved" ? "Draft saved automatically" : null}
+        {saveState === "error" ? (
+          <span className="text-rose-200">Draft save will retry shortly</span>
+        ) : null}
+      </div>
+
+      <WizardNavigation
+        onBack={onBack}
+        onContinue={onContinue}
+        continueLabel="Continue"
+        continueDisabled={!value}
+        isSaving={isSaving}
+      />
+    </div>
+  );
+}
+
+function StepEightTeacherSetup({ onBack }: { onBack: () => void }) {
+  return (
+    <div className="space-y-7 text-center">
+      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[1.4rem] border border-teal-200/25 bg-teal-200/10 text-teal-100 shadow-[0_0_36px_rgba(45,212,191,0.18)]">
+        <GraduationCap className="h-8 w-8" aria-hidden="true" />
+      </div>
+      <div className="space-y-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal-100/80">
+          Step 8
+        </p>
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+          Create Your First Teacher
         </h1>
         <p className="mx-auto max-w-md text-sm leading-7 text-white/65 sm:text-base">
-          Your first class has been added to your organization. The next part of
-          your workspace setup will appear here soon.
+          The teacher creation flow will appear here next. Your teacher setup
+          decision has been saved.
         </p>
       </div>
       <div className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-left text-sm leading-6 text-white/60">
-        <span className="font-medium text-white/85">Setup saved.</span>{" "}
-        Your wizard will stay open until setup is fully completed.
+        <span className="font-medium text-white/85">Ready for teachers.</span>{" "}
+        The wizard will stay open while this step is completed.
       </div>
       <WizardNavigation
         onBack={onBack}
@@ -1053,6 +1159,9 @@ export default function FirstTimeSetupWizard() {
     section: userProfile?.setupWizard?.firstClassDraft?.section ?? "A",
     shift: userProfile?.setupWizard?.firstClassDraft?.shift ?? "",
   });
+  const [teacherCount, setTeacherCount] = useState<TeacherCount | "">(
+    userProfile?.setupWizard?.teacherCount ?? "",
+  );
 
   useEffect(() => {
     const persistedWizard = userProfile?.setupWizard;
@@ -1061,7 +1170,7 @@ export default function FirstTimeSetupWizard() {
     const nextStep =
       persistedWizard.status === "in_progress"
         ? persistedWizard.firstClassCreated
-          ? 7
+          ? persistedWizard.currentStep ?? 7
           : persistedWizard.currentStep ?? 2
         : 1;
     setStatus(persistedWizard.status);
@@ -1091,6 +1200,7 @@ export default function FirstTimeSetupWizard() {
       section: persistedWizard.firstClassDraft?.section ?? "A",
       shift: persistedWizard.firstClassDraft?.shift ?? "",
     });
+    setTeacherCount(persistedWizard.teacherCount ?? "");
   }, [userProfile?.setupWizard]);
 
   useEffect(() => {
@@ -1230,6 +1340,27 @@ export default function FirstTimeSetupWizard() {
   }, [currentStep, status, stepSixValues, user]);
 
   useEffect(() => {
+    if (!user || status !== "in_progress" || currentStep !== 7 || !teacherCount) {
+      return;
+    }
+
+    if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    draftTimerRef.current = setTimeout(() => {
+      setSaveState("saving");
+      void saveSetupWizardState(user.uid, { teacherCount })
+        .then(() => setSaveState("saved"))
+        .catch(() => {
+          setSaveState("error");
+          setError("Your draft could not be saved. We’ll keep trying.");
+        });
+    }, 650);
+
+    return () => {
+      if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    };
+  }, [currentStep, status, teacherCount, user]);
+
+  useEffect(() => {
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     dialogRef.current?.focus();
@@ -1325,6 +1456,12 @@ export default function FirstTimeSetupWizard() {
     setStepSixValues((current) => ({ ...current, ...values }));
   };
 
+  const updateTeacherCount = (value: TeacherCount) => {
+    setError("");
+    setSaveState("idle");
+    setTeacherCount(value);
+  };
+
   const handleStart = async () => {
     if (!user || isSaving) return;
 
@@ -1373,6 +1510,9 @@ export default function FirstTimeSetupWizard() {
           stepFiveValues.defaultShift)
       ) {
         await saveSetupWizardState(user.uid, getStepFiveDraft(stepFiveValues));
+      }
+      if (currentStep === 7 && teacherCount) {
+        await saveSetupWizardState(user.uid, { teacherCount });
       }
       await saveSetupWizardState(user.uid, { currentStep: nextStep });
       setCurrentStep(nextStep);
@@ -1603,6 +1743,37 @@ export default function FirstTimeSetupWizard() {
     }
   };
 
+  const handleStepSevenContinue = async () => {
+    if (!user || isSaving) return;
+
+    if (!teacherCount) {
+      setError("Please choose how many teachers your organization has.");
+      return;
+    }
+
+    if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    setIsSaving(true);
+    setSaveState("saving");
+    setError("");
+
+    const isSelfManaged = teacherCount === "self";
+    try {
+      await saveSetupWizardState(user.uid, {
+        teacherCount,
+        teacherSetupSkipped: isSelfManaged,
+        currentStep: isSelfManaged ? 9 : 8,
+      });
+      setCurrentStep(isSelfManaged ? 9 : 8);
+      setSaveState("saved");
+      await refreshProfile();
+    } catch {
+      setSaveState("error");
+      setError("We couldn’t save your teacher setup choice. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const visibleStep = Math.min(Math.max(1, currentStep), TOTAL_SETUP_STEPS);
   const slideDirection = visibleStep >= previousStepRef.current ? 1 : -1;
   const prefersReducedMotion = useReducedMotion();
@@ -1721,8 +1892,19 @@ export default function FirstTimeSetupWizard() {
                       isSaving={isSaving}
                       saveState={saveState}
                     />
+                  ) : visibleStep === 7 ? (
+                    <StepSevenTeacherDecision
+                      value={teacherCount}
+                      onChange={updateTeacherCount}
+                      onBack={() => void handleBack()}
+                      onContinue={() => void handleStepSevenContinue()}
+                      isSaving={isSaving}
+                      saveState={saveState}
+                    />
+                  ) : visibleStep === 8 ? (
+                    <StepEightTeacherSetup onBack={() => void handleBack()} />
                   ) : (
-                    <StepSevenPlaceholder onBack={() => void handleBack()} />
+                    null
                   )}
                 </motion.div>
               </AnimatePresence>

@@ -42,6 +42,7 @@ export type WorkingDays = 5 | 6 | 7;
 
 export type DefaultShift = "morning" | "day" | "evening" | "mixed";
 export type FirstClassShift = "morning" | "day" | "evening";
+export type TeacherCount = "self" | "2_10" | "10_plus";
 
 export type SetupWizardLanguage = "bn" | "en";
 
@@ -56,6 +57,8 @@ export interface SetupWizardState {
   currentStep?: number;
   firstClassCreated?: boolean;
   firstClassDraft?: FirstClassDraft;
+  teacherCount?: TeacherCount;
+  teacherSetupSkipped?: boolean;
   completedSteps?: number[];
   startedAt?: unknown;
   completedAt?: unknown;
@@ -78,6 +81,8 @@ type SetupWizardWriteState = {
   currentStep?: number;
   firstClassCreated?: boolean;
   firstClassDraft?: FirstClassDraft;
+  teacherCount?: TeacherCount;
+  teacherSetupSkipped?: boolean;
   completedSteps?: number[];
   startedAt?: ReturnType<typeof serverTimestamp>;
   completedAt?: ReturnType<typeof serverTimestamp>;
@@ -112,6 +117,13 @@ export async function saveSetupWizardState(
   }
   if (setupWizard.firstClassDraft !== undefined) {
     updates["setupWizard.firstClassDraft"] = setupWizard.firstClassDraft;
+  }
+  if (setupWizard.teacherCount !== undefined) {
+    updates["setupWizard.teacherCount"] = setupWizard.teacherCount;
+  }
+  if (setupWizard.teacherSetupSkipped !== undefined) {
+    updates["setupWizard.teacherSetupSkipped"] =
+      setupWizard.teacherSetupSkipped;
   }
   if (setupWizard.completedSteps !== undefined) {
     updates["setupWizard.completedSteps"] = setupWizard.completedSteps;
