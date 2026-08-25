@@ -391,23 +391,12 @@ function isFloworaRole(role) {
         getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'org_admin' &&
         getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.orgId == orgId &&
         getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.createdByPublicSignup == true
-      ) || (
-        isSignedIn() &&
-        request.auth.uid == request.resource.data.ownerUid &&
-        request.resource.data.keys().hasOnly([
-          'name', 'studentCount', 'ownerUid', 'createdAt'
-        ]) &&
-        request.resource.data.name is string &&
-        request.resource.data.name.size() >= 1 &&
-        request.resource.data.studentCount is number &&
-        request.resource.data.studentCount >= 1 &&
-        request.resource.data.createdAt == request.time
       );
       allow update, delete: if isSignedIn() && isSuperAdmin();
 
       // Classes are readable publicly for /join/:code, but writable by staff.
       match /classes/{classId} {
-        allow read: if true;
+        allow read: if isOrgMember(orgId) || isSuperAdmin();
         allow write: if isOrgStaffWithPermission(orgId, 'classes.write') || isSuperAdmin();
       }
 
