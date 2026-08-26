@@ -394,7 +394,7 @@ function isFloworaRole(role) {
       );
       allow update, delete: if isSignedIn() && isSuperAdmin();
 
-      // Classes are readable publicly for /join/:code, but writable by staff.
+      // Classes are readable by organization members for /join/:code, and writable by staff.
       match /classes/{classId} {
         allow read: if isOrgMember(orgId) || isSuperAdmin();
         allow write: if isOrgStaffWithPermission(orgId, 'classes.write') || isSuperAdmin();
