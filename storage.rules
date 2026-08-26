@@ -21,13 +21,20 @@ service firebase.storage {
     function isAuthorizedOrgMember(orgId) {
       return isSignedIn() &&
         userProfile().orgId == orgId &&
-        userProfile().role in [
-          'org_admin',
-          'teacher',
-          'student',
-          'guardian',
-          'administrative_staff'
-        ] &&
+        (
+          userProfile().role in [
+            'org_admin',
+            'teacher',
+            'student',
+            'guardian'
+          ] ||
+          (
+            userProfile().role == 'administrative_staff' &&
+            ('permissions' in userProfile()) &&
+            userProfile().permissions is list &&
+            'organization.read' in userProfile().permissions
+          )
+        ) &&
         (!('status' in userProfile()) || userProfile().status == 'active');
     }
 
