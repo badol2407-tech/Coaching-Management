@@ -402,13 +402,50 @@ function isFloworaRole(role) {
 
       // Public join requests are reviewed by organization staff.
       match /admission_requests/{reqId} {
-        allow create: if true;
+        allow create: if isSignedIn() &&
+          request.auth.uid == request.resource.data.uid &&
+          exists(/databases/$(database)/documents/organizations/$(orgId)) &&
+          request.resource.data.keys().hasOnly([
+            'uid', 'name', 'email', 'phone', 'className', 'section', 'batch',
+            'guardianName', 'guardianPhone', 'status', 'source', 'createdAt'
+          ]) &&
+          request.resource.data.uid is string &&
+          request.resource.data.email is string &&
+          request.resource.data.email == request.auth.token.email &&
+          request.resource.data.name is string &&
+          request.resource.data.name.size() >= 2 && request.resource.data.name.size() <= 120 &&
+          request.resource.data.phone is string &&
+          request.resource.data.phone.size() >= 7 && request.resource.data.phone.size() <= 30 &&
+          request.resource.data.className is string && request.resource.data.className.size() <= 80 &&
+          request.resource.data.section is string && request.resource.data.section.size() <= 80 &&
+          request.resource.data.batch is string && request.resource.data.batch.size() <= 80 &&
+          request.resource.data.guardianName is string && request.resource.data.guardianName.size() <= 120 &&
+          request.resource.data.guardianPhone is string && request.resource.data.guardianPhone.size() <= 30 &&
+          request.resource.data.status == 'pending' &&
+          request.resource.data.source == 'admission_link' &&
+          request.resource.data.createdAt == request.time;
         allow read: if isOrgStaffWithPermission(orgId, 'admission_requests.read') || isSuperAdmin();
         allow update, delete: if isOrgStaffWithPermission(orgId, 'admission_requests.write') || isSuperAdmin();
       }
 
       match /teacher_requests/{reqId} {
-        allow create: if true;
+        allow create: if isSignedIn() &&
+          request.auth.uid == request.resource.data.uid &&
+          exists(/databases/$(database)/documents/organizations/$(orgId)) &&
+          request.resource.data.keys().hasOnly([
+            'uid', 'name', 'email', 'phone', 'subject', 'status', 'source', 'createdAt'
+          ]) &&
+          request.resource.data.uid is string &&
+          request.resource.data.email is string &&
+          request.resource.data.email == request.auth.token.email &&
+          request.resource.data.name is string &&
+          request.resource.data.name.size() >= 2 && request.resource.data.name.size() <= 120 &&
+          request.resource.data.phone is string &&
+          request.resource.data.phone.size() >= 7 && request.resource.data.phone.size() <= 30 &&
+          request.resource.data.subject is string && request.resource.data.subject.size() <= 120 &&
+          request.resource.data.status == 'pending' &&
+          request.resource.data.source == 'join_link' &&
+          request.resource.data.createdAt == request.time;
         allow read: if isOrgStaffWithPermission(orgId, 'teacher_requests.read') || isSuperAdmin();
         allow update, delete: if isOrgStaffWithPermission(orgId, 'teacher_requests.write') || isSuperAdmin();
       }

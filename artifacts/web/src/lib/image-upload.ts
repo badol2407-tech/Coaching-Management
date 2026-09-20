@@ -31,6 +31,8 @@ const ACCEPTED_MIME_TYPES = new Set([
 
 // ── Cloudinary config (from environment variables — never hardcoded) ───────────
 
+import { auth } from "@/lib/firebase";
+
 const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME as string;
 const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET as string;
 
@@ -241,9 +243,17 @@ export async function uploadStudentPhoto(
 export async function deleteCloudinaryImage(publicId: string): Promise<void> {
   if (!publicId) return;
   try {
+    const token = await auth.currentUser?.getIdToken();
+    if (!token) {
+      console.warn("Skipping Cloudinary deletion without an authenticated user");
+      return;
+    }
     const res = await fetch("/api/cloudinary-delete", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify({ publicId }),
     });
     if (!res.ok) {

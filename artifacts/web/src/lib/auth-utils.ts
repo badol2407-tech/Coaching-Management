@@ -17,6 +17,18 @@ import { firebaseConfig } from "./firebase-config";
  * Generate a secure temporary password: 10 chars with uppercase, lowercase,
  * digits, and symbols — but easy to type and share.
  */
+function secureRandomIndex(max: number): number {
+  if (!globalThis.crypto?.getRandomValues) {
+    throw new Error("Secure random number generation is unavailable");
+  }
+  const values = new Uint32Array(1);
+  const limit = 0x100000000 - (0x100000000 % max);
+  do {
+    globalThis.crypto.getRandomValues(values);
+  } while (values[0] >= limit);
+  return values[0] % max;
+}
+
 export function generateTempPassword(): string {
   const upper = "ABCDEFGHJKLMNPQRSTUVWXYZ";
   const lower = "abcdefghjkmnpqrstuvwxyz";
@@ -24,8 +36,7 @@ export function generateTempPassword(): string {
   const symbols = "@#$!%";
   const all = upper + lower + digits + symbols;
 
-  const pick = (chars: string) =>
-    chars[Math.floor(Math.random() * chars.length)];
+  const pick = (chars: string) => chars[secureRandomIndex(chars.length)];
 
   // Guarantee at least one from each character class
   const guaranteed = [pick(upper), pick(lower), pick(digits), pick(symbols)];
@@ -34,7 +45,7 @@ export function generateTempPassword(): string {
 
   // Fisher-Yates shuffle
   for (let i = combined.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = secureRandomIndex(i + 1);
     [combined[i], combined[j]] = [combined[j], combined[i]];
   }
   return combined.join("");
