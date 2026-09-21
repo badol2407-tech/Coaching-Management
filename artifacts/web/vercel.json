@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/fees",
+      "destination": "/index.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
