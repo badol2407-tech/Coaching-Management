@@ -18,23 +18,15 @@ import { SubscriptionExpiredScreen } from "@/pages/SubscriptionExpired";
 import { PortalNavLink } from "@/components/layout/PortalNavLink";
 
 const navItems = [
-  { title: "Dashboard",   href: "/",            icon: LayoutDashboard },
-  { title: "Students",    href: "/students",    icon: Users },
-  { title: "Add Student", href: "/students/add",icon: UserPlus },
-  { title: "Teachers",    href: "/teachers",    icon: GraduationCap },
-  { title: "Classes",     href: "/classes",     icon: BookOpen },
-  { title: "Routine",     href: "/routine",     icon: CalendarRange },
-  { title: "Attendance",  href: "/attendance",  icon: CalendarCheck },
-  { title: "Fees",        href: "/fees",        icon: Wallet },
-  { title: "Exams",       href: "/exams",       icon: ClipboardList },
-  { title: "Notices",     href: "/notices",     icon: Bell },
-  { title: "Homework",    href: "/homework",    icon: NotebookPen },
-  { title: "Expenses",    href: "/expenses",    icon: Receipt },
-  { title: "ID Cards",    href: "/id-cards",    icon: IdCard },
-  { title: "Reports",     href: "/reports",     icon: FileBarChart2 },
-  { title: "Guardian inbox", href: "/guardian-communications", icon: MessageSquareText },
-  { title: "Guardian Management", href: "/guardians", icon: UserRoundCog },
-  { title: "Administrative Staff Management", href: "/administrative-staff", icon: BriefcaseBusiness },
+  { title: "Dashboard",   href: "/",             icon: LayoutDashboard },
+  { title: "Students",    href: "/students",     icon: Users },
+  { title: "Add Student", href: "/students/add", icon: UserPlus },
+  { title: "Teachers",    href: "/teachers",     icon: GraduationCap },
+  { title: "Classes",     href: "/classes",      icon: BookOpen },
+  { title: "Attendance",  href: "/attendance",   icon: CalendarCheck },
+  { title: "Fees",        href: "/fees",         icon: Wallet },
+  { title: "Notices",     href: "/notices",      icon: Bell },
+  { title: "Homework",    href: "/homework",     icon: NotebookPen },
 ];
 
 const bottomItems = [
@@ -133,6 +125,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
           <div className={`min-w-0 overflow-hidden transition-all duration-200 max-w-[140px] opacity-100 ${navExpanded ? "md:max-w-[140px] md:opacity-100" : "md:max-w-0 md:opacity-0"}`}>
             <p className="text-white font-bold text-sm leading-none">EduTrack</p>
+            <p className="text-indigo-300/70 text-[10px] leading-none mt-0.5 truncate">Org Admin Portal</p>
             {userProfile?.orgName && (
               <p className="text-indigo-300/70 text-[10px] leading-none mt-0.5 truncate">{userProfile.orgName}</p>
             )}
