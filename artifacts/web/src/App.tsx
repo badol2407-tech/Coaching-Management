@@ -313,10 +313,16 @@ function AuthenticatedRoutes() {
       </Suspense>
     );
 
+  // Normalize at the routing boundary so legacy casing/whitespace cannot
+  // fall through to the org-admin layout.
+  const normalizedRole = typeof normalizedRole === "string"
+    ? userProfile.role.trim().toLowerCase()
+    : "";
+
   // Publicly created org admins complete their identity before entering the
   // workspace. Existing staff/admin-created profiles are not interrupted.
   if (
-    userProfile.role === "org_admin" &&
+    normalizedRole === "org_admin" &&
     userProfile.createdByPublicSignup === true &&
     userProfile.onboardingCompleted !== true
   ) {
@@ -341,7 +347,7 @@ function AuthenticatedRoutes() {
   }
 
   if (
-    userProfile.role === "org_admin" &&
+    normalizedRole === "org_admin" &&
     userProfile.setupWizard?.completed !== true &&
     (!userProfile.setupWizard ||
       userProfile.setupWizard.status === "not_started" ||
@@ -354,7 +360,7 @@ function AuthenticatedRoutes() {
     );
   }
 
-  if (userProfile.role === "super_admin") {
+  if (normalizedRole === "super_admin") {
     return (
       <SuperAdminLayout>
         <Suspense fallback={<Spinner />}>
@@ -400,7 +406,7 @@ function AuthenticatedRoutes() {
     );
   }
 
-  if (userProfile.role === "teacher") {
+  if (normalizedRole === "teacher") {
     return (
       <TeacherLayout>
         <Suspense fallback={<Spinner />}>
@@ -427,7 +433,7 @@ function AuthenticatedRoutes() {
     );
   }
 
-  if (userProfile.role === "student") {
+  if (normalizedRole === "student") {
     return (
       <StudentLayout>
         <Suspense fallback={<Spinner />}>
@@ -442,7 +448,7 @@ function AuthenticatedRoutes() {
     );
   }
 
-  if ((userProfile.role as string) === "guardian") {
+  if (normalizedRole === "guardian") {
     return (
       <GuardianLayout>
         <Suspense fallback={<Spinner />}>
@@ -452,7 +458,7 @@ function AuthenticatedRoutes() {
     );
   }
 
-  if (userProfile.role === "administrative_staff") {
+  if (normalizedRole === "administrative_staff") {
     return (
       <RoleGuard allowedRoles={[USER_ROLES.ADMINISTRATIVE_STAFF]}>
         <AdministrativeStaffLayout>
@@ -511,6 +517,11 @@ function AuthenticatedRoutes() {
         </AdministrativeStaffLayout>
       </RoleGuard>
     );
+  }
+
+  // Fail closed: only org admins may receive the organization-management layout.
+  if (normalizedRole !== USER_ROLES.ORG_ADMIN) {
+    return <Redirect to="/" />;
   }
 
   // org_admin
