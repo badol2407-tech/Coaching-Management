@@ -15,16 +15,14 @@ import { SubscriptionExpiredScreen } from "@/pages/SubscriptionExpired";
 import { PortalNavLink } from "@/components/layout/PortalNavLink";
 
 const navItems = [
-  { tab: "dashboard",  label: "Overview",       icon: LayoutDashboard },
-  { tab: "attendance", label: "Attendance", icon: CalendarCheck },
-  { tab: "courses",    label: "Courses",    icon: BookOpen },
-  { tab: "assignments",label: "Assignments",icon: ClipboardCheck },
-  { tab: "exams",      label: "Exams",      icon: CalendarDays },
-  { tab: "results",    label: "Results",    icon: ClipboardList },
-  { tab: "fees",       label: "Fees",       icon: Wallet },
-  { tab: "notifications", label: "Notifications", icon: Bell },
-  { tab: "profile",    label: "Profile",    icon: UserRound },
-  { tab: "settings",   label: "Settings",   icon: Settings },
+  { tab: "dashboard",     label: "Overview",    icon: LayoutDashboard },
+  { tab: "assignments",   label: "Homework",    icon: NotebookPen },
+  { tab: "attendance",    label: "Attendance",  icon: CalendarCheck },
+  { tab: "notifications", label: "Notices",     icon: Bell },
+  { tab: "fees",          label: "Fees",        icon: Wallet },
+  { tab: "exams",         label: "Exams",       icon: CalendarDays },
+  { tab: "results",       label: "Results",     icon: ClipboardList },
+  { tab: "profile",       label: "Profile",     icon: UserRound },
 ];
 
 function initExpanded() {
