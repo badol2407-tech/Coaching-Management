@@ -56,6 +56,13 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const [expanded, setExpanded] = useState(initExpanded);
   const [peeked, setPeeked] = useState(false);
   const navExpanded = expanded || peeked;
+  // This layout is admin-only. Keep the guard here too so a role-routing
+  // regression can never expose organization tabs to another role.
+  const normalizedRole = typeof userProfile?.role === "string"
+    ? userProfile.role.trim().toLowerCase()
+    : "";
+  const visibleNavItems = normalizedRole === "org_admin" ? navItems : [];
+  const visibleBottomItems = normalizedRole === "org_admin" ? bottomItems : [];
 
   if (!impersonation && userProfile && userProfile.role !== "super_admin" && userProfile.orgSubscription) {
     const accessStatus = getOrgAccessStatus(userProfile.orgSubscription);
@@ -161,7 +168,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
         {/* Nav */}
          <nav className={`flex-1 overflow-y-auto py-3 space-y-0.5 min-h-0 transition-all duration-300 px-2 ${navExpanded ? "md:px-2" : "md:px-1"}`}>
-          {navItems.map((item) => {
+          {visibleNavItems.map((item) => {
             const active = isActive(item.href);
             return (
               <PortalNavLink
@@ -185,7 +192,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="border-t border-white/10 shrink-0">
           {/* Bottom nav items */}
            <div className={`py-2 space-y-0.5 transition-all duration-300 px-2 ${navExpanded ? "md:px-2" : "md:px-1"}`}>
-            {bottomItems.map(item => {
+            {visibleBottomItems.map(item => {
               const active = location === item.href;
               return (
                 <PortalNavLink
