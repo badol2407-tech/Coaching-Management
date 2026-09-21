@@ -1290,30 +1290,35 @@ export function useMyFees(studentIdOverride?: string | null) {
 }
 
 export function useMyAttendance(studentIdOverride?: string | null) {
-  const { userProfile } = useAuth();
-  const orgId = userProfile?.orgId;
-  const studentId = studentIdOverride === undefined ? userProfile?.studentId : studentIdOverride;
-  const email = userProfile?.email;
-  return useQuery({
-    queryKey: [orgId, "my_attendance", studentId ?? email],
-    queryFn: async () => {
-      if (!orgId || studentId === null) return [];
-      let q: any;
-      if (studentId) {
-        q = query(orgCol(orgId, "attendance"), where("studentId", "==", studentId));
-      } else q = orgCol(orgId, "attendance");
-      const snap = await getDocs(q);
-      let rows = snap.docs.map(mapDoc) as any[];
-      if (!studentId && email) {
-        rows = rows.filter((r) => r.studentEmail === email);
-      }
-      return rows.sort((a: any, b: any) => (b.date ?? "").localeCompare(a.date ?? ""));
-    },
-    enabled: !!orgId && studentId !== null,
-  });
-}
+    const { userProfile } = useAuth();
+    const orgId = userProfile?.orgId;
+    const studentId = studentIdOverride === undefined ? userProfile?.studentId : studentIdOverride;
+    const studentName = userProfile?.name;
+    const email = userProfile?.email;
+    return useQuery({
+      queryKey: [orgId, "my_attendance", studentId ?? studentName ?? email],
+      queryFn: async () => {
+        if (!orgId || studentId === null) return [];
+        let q: any;
+        if (studentId) {
+          q = query(orgCol(orgId, "attendance"), where("studentId", "==", studentId));
+        } else if (studentName) {
+          // Admission-link profiles may not have studentId yet; attendance rows
+          // still carry the student's exact name as the fallback identity.
+          q = query(orgCol(orgId, "attendance"), where("studentName", "==", studentName));
+        } else q = orgCol(orgId, "attendance");
+        const snap = await getDocs(q);
+        let rows = snap.docs.map(mapDoc) as any[];
+        if (!studentId && !studentName && email) {
+          rows = rows.filter((r) => r.studentEmail === email);
+        }
+        return rows.sort((a: any, b: any) => (b.date ?? "").localeCompare(a.date ?? ""));
+      },
+      enabled: !!orgId && studentId !== null,
+    });
+    }
 
-export function useMyResults(studentIdOverride?: string | null) {
+    export function useMyResults(studentIdOverride?: string | null) {
   const { userProfile } = useAuth();
   const orgId = userProfile?.orgId;
   const studentId = studentIdOverride === undefined ? userProfile?.studentId : studentIdOverride;
