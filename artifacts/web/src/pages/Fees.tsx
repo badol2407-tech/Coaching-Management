@@ -363,6 +363,8 @@ function BulkAddDialog({
         students: eligible.map((s: any) => ({
           id: s.id,
           name: s.name,
+          uid: s.uid ?? null,
+          email: s.email ?? null,
           className: s.className,
           section: s.section,
           batch: s.batch,
@@ -638,6 +640,8 @@ export default function Fees() {
         data: {
           studentId: form.studentId,
           studentName: student?.name ?? "",
+          studentUid: student?.uid ?? null,
+          studentEmail: student?.email ?? null,
           className: form.className,
           section: form.section,
           batch: form.batch,

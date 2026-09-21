@@ -168,6 +168,8 @@ function DailyAttendanceTab() {
       .filter((s: any) => marks[s.id])
       .map((s: any) => ({
         studentId: s.id,
+        studentUid: s.uid ?? null,
+        studentEmail: s.email ?? null,
         studentName: s.name ?? "",
         status: marks[s.id],
         className: s.className ?? className,

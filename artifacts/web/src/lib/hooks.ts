@@ -126,11 +126,35 @@ export function useMyStudentRecord(studentIdOverride?: string | null) {
   return useQuery({
     queryKey: [orgId, "my_student_record", studentId ?? ""],
     queryFn: async () => {
-      if (!orgId || !studentId) return null;
-      const snap = await getDoc(doc(db, "organizations", orgId, "students", studentId));
-      return snap.exists() ? ({ id: snap.id, ...snap.data() } as any) : null;
+      if (!orgId || studentId === null || !userProfile?.uid) return null;
+      if (studentId) {
+        const snap = await getDoc(doc(db, "organizations", orgId, "students", studentId));
+        return snap.exists() ? ({ id: snap.id, ...snap.data() } as any) : null;
+      }
+
+      // Some older student accounts were created before studentId was copied
+      // back to users/{uid}. Resolve the organization student record from the
+      // UID (then email) so their existing fee/attendance records remain
+      // visible without weakening Firestore ownership rules.
+      const byUid = await getDocs(
+        query(orgCol(orgId, "students"), where("uid", "==", userProfile.uid)),
+      );
+      if (!byUid.empty) {
+        const student = byUid.docs[0];
+        return { id: student.id, ...student.data() } as any;
+      }
+      if (userProfile.email) {
+        const byEmail = await getDocs(
+          query(orgCol(orgId, "students"), where("email", "==", userProfile.email)),
+        );
+        if (!byEmail.empty) {
+          const student = byEmail.docs[0];
+          return { id: student.id, ...student.data() } as any;
+        }
+      }
+      return null;
     },
-    enabled: !!orgId && !!studentId,
+    enabled: !!orgId && studentId !== null && !!userProfile?.uid,
   });
 }
 
@@ -340,6 +364,8 @@ export function useBulkMarkAttendance() {
       date: string;
       records: Array<{
         studentId: string;
+        studentUid?: string | null;
+        studentEmail?: string | null;
         studentName: string;
         status: string;
         className?: string;
@@ -601,6 +627,8 @@ export function useBulkCreateFees() {
       students: {
         id: string;
         name: string;
+        uid?: string | null;
+        email?: string | null;
         className: string;
         section: string;
         batch: string;
@@ -614,6 +642,8 @@ export function useBulkCreateFees() {
         students.map((s) =>
           addDoc(orgCol(orgId, "fees"), {
             studentId: s.id,
+            studentUid: s.uid ?? null,
+            studentEmail: s.email ?? null,
             studentName: s.name,
             className: s.className,
             section: s.section,
@@ -1263,62 +1293,48 @@ export function useMyFees(studentIdOverride?: string | null) {
   const { userProfile } = useAuth();
   const orgId = userProfile?.orgId;
   const studentId = studentIdOverride === undefined ? userProfile?.studentId : studentIdOverride;
-  const email = userProfile?.email;
+  const { data: myStudent } = useMyStudentRecord(studentIdOverride);
+  const resolvedStudentId = studentId ?? myStudent?.id;
   return useQuery({
-    queryKey: [orgId, "my_fees", studentId ?? email],
+    queryKey: [orgId, "my_fees", resolvedStudentId ?? userProfile?.uid],
     queryFn: async () => {
-      if (!orgId || studentId === null) return [];
+      if (!orgId || studentIdOverride === null || !resolvedStudentId) return [];
       const snap = await getDocs(
-        studentId
-          ? query(orgCol(orgId, "fees"), where("studentId", "==", studentId))
-          : orgCol(orgId, "fees"),
+        query(orgCol(orgId, "fees"), where("studentId", "==", resolvedStudentId)),
       );
       let rows = snap.docs.map(mapDoc).map((r: any) => ({
         ...r,
         amount: Number(r.amount),
         paidAt: r.paidAt ? ts(r.paidAt) : null,
       })) as any[];
-      if (studentId) {
-        rows = rows.filter((r) => r.studentId === studentId);
-      } else if (!studentId && email) {
-        rows = rows.filter((r) => r.studentEmail === email);
-      }
+      rows = rows.filter((r) => r.studentId === resolvedStudentId);
       return rows.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     },
-    enabled: !!orgId && studentId !== null,
+    enabled: !!orgId && studentIdOverride !== null && !!resolvedStudentId,
   });
 }
 
 export function useMyAttendance(studentIdOverride?: string | null) {
-    const { userProfile } = useAuth();
-    const orgId = userProfile?.orgId;
-    const studentId = studentIdOverride === undefined ? userProfile?.studentId : studentIdOverride;
-    const studentName = userProfile?.name;
-    const email = userProfile?.email;
-    return useQuery({
-      queryKey: [orgId, "my_attendance", studentId ?? studentName ?? email],
-      queryFn: async () => {
-        if (!orgId || studentId === null) return [];
-        let q: any;
-        if (studentId) {
-          q = query(orgCol(orgId, "attendance"), where("studentId", "==", studentId));
-        } else if (studentName) {
-          // Admission-link profiles may not have studentId yet; attendance rows
-          // still carry the student's exact name as the fallback identity.
-          q = query(orgCol(orgId, "attendance"), where("studentName", "==", studentName));
-        } else q = orgCol(orgId, "attendance");
-        const snap = await getDocs(q);
-        let rows = snap.docs.map(mapDoc) as any[];
-        if (!studentId && !studentName && email) {
-          rows = rows.filter((r) => r.studentEmail === email);
-        }
-        return rows.sort((a: any, b: any) => (b.date ?? "").localeCompare(a.date ?? ""));
-      },
-      enabled: !!orgId && studentId !== null,
-    });
-    }
+  const { userProfile } = useAuth();
+  const orgId = userProfile?.orgId;
+  const studentId = studentIdOverride === undefined ? userProfile?.studentId : studentIdOverride;
+  const { data: myStudent } = useMyStudentRecord(studentIdOverride);
+  const resolvedStudentId = studentId ?? myStudent?.id;
+  return useQuery({
+    queryKey: [orgId, "my_attendance", resolvedStudentId ?? userProfile?.uid],
+    queryFn: async () => {
+      if (!orgId || studentIdOverride === null || !resolvedStudentId) return [];
+      const snap = await getDocs(
+        query(orgCol(orgId, "attendance"), where("studentId", "==", resolvedStudentId)),
+      );
+      const rows = snap.docs.map(mapDoc) as any[];
+      return rows.sort((a: any, b: any) => (b.date ?? "").localeCompare(a.date ?? ""));
+    },
+    enabled: !!orgId && studentIdOverride !== null && !!resolvedStudentId,
+  });
+}
 
-    export function useMyResults(studentIdOverride?: string | null) {
+export function useMyResults(studentIdOverride?: string | null) {
   const { userProfile } = useAuth();
   const orgId = userProfile?.orgId;
   const studentId = studentIdOverride === undefined ? userProfile?.studentId : studentIdOverride;

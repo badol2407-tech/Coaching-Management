@@ -48,6 +48,46 @@ service cloud.firestore {
       return myRole() == 'student' && myOrgId() == orgId;
     }
 
+    // Student-owned records are keyed by the organization student document ID.
+    // Older records may also carry the Firebase UID/email, so accept those
+    // identity markers as a safe migration path while keeping reads scoped to
+    // the signed-in student's own records.
+    function hasMyStudentId(studentId) {
+      return isStudent(myOrgId()) &&
+        (
+          (myProfile().studentId is string && studentId == myProfile().studentId) ||
+          (myProfile().studentIds is list && studentId in myProfile().studentIds)
+        );
+    }
+
+    function isMyStudentRecord() {
+      return isStudent(myOrgId()) &&
+        (
+          (resource.data.studentId is string && hasMyStudentId(resource.data.studentId)) ||
+          (resource.data.studentUid is string && resource.data.studentUid == request.auth.uid) ||
+          (resource.data.studentEmail is string && resource.data.studentEmail == request.auth.token.email)
+        );
+    }
+
+    function isMyStudentDocument(studentId) {
+      return isStudent(myOrgId()) &&
+        (
+          hasMyStudentId(studentId) ||
+          (resource.data.uid is string && resource.data.uid == request.auth.uid) ||
+          (resource.data.email is string && resource.data.email == request.auth.token.email)
+        );
+    }
+
+    function isMyFee(feeId, orgId) {
+      let fee = get(/databases/$(database)/documents/organizations/$(orgId)/fees/$(feeId)).data;
+      return isStudent(orgId) &&
+        (
+          (fee.studentId is string && hasMyStudentId(fee.studentId)) ||
+          (fee.studentUid is string && fee.studentUid == request.auth.uid) ||
+          (fee.studentEmail is string && fee.studentEmail == request.auth.token.email)
+        );
+    }
+
     function isGuardian(orgId) {
       // A deactivated guardian may still have a Firebase Auth credential, but
       // must not be able to read or write any organization-scoped data.
@@ -452,7 +492,8 @@ function isFloworaRole(role) {
 
       match /students/{studentId} {
         allow read: if isOrgStaffWithPermission(orgId, 'students.read') || isSuperAdmin() ||
-          ((isStudent(orgId) || isGuardian(orgId)) && isLinkedStudent(studentId));
+          (isStudent(orgId) && isMyStudentDocument(studentId)) ||
+          (isGuardian(orgId) && isLinkedStudent(studentId));
         allow write: if isOrgStaffWithPermission(orgId, 'students.write') || isSuperAdmin();
       }
 
@@ -462,17 +503,19 @@ function isFloworaRole(role) {
       }
 
       match /attendance/{docId} {
-        allow read: if isOrgStaffWithPermission(orgId, 'attendance.read') || isSuperAdmin() || isStudent(orgId) || isLinkedResource(orgId);
+        allow read: if isOrgStaffWithPermission(orgId, 'attendance.read') || isSuperAdmin() ||
+          isMyStudentRecord() || isLinkedResource(orgId);
         allow write: if isOrgStaffWithPermission(orgId, 'attendance.write') || isSuperAdmin();
       }
 
       match /fees/{feeId} {
-        allow read: if isOrgStaffWithPermission(orgId, 'fees.read') || isSuperAdmin() || isStudent(orgId) || isLinkedResource(orgId);
+        allow read: if isOrgStaffWithPermission(orgId, 'fees.read') || isSuperAdmin() ||
+          isMyStudentRecord() || isLinkedResource(orgId);
         allow write: if isOrgStaffWithPermission(orgId, 'fees.write') || isSuperAdmin();
 
         match /seen/{uid} {
           allow read: if isOrgStaffWithPermission(orgId, 'fees.read') || isSuperAdmin();
-          allow write: if isStudent(orgId) && request.auth.uid == uid;
+          allow write: if isMyFee(feeId, orgId) && request.auth.uid == uid;
         }
       }
 

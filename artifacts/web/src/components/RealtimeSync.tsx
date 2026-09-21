@@ -3,6 +3,8 @@ import {
   collection,
   doc,
   onSnapshot,
+  query,
+  where,
   type DocumentData,
   type DocumentReference,
   type Query,
@@ -48,8 +50,6 @@ const ORG_COLLECTIONS_BY_ROLE = {
     "notifications",
   ],
   student: [
-    "attendance",
-    "fees",
     "exams",
     "results",
     "routine",
@@ -230,6 +230,20 @@ export function RealtimeSync() {
         listenToCollection(collection(db, "organizations", userProfile.orgId, collectionName), () =>
           invalidateOrgCollection(queryClient, userProfile.orgId!, collectionName),
         );
+      }
+
+      // Attendance and fees are student-owned collections. A student must
+      // never attach an unfiltered organization-wide listener to them.
+      if (userProfile.role === "student" && userProfile.studentId) {
+        for (const collectionName of ["attendance", "fees"] as const) {
+          listenToCollection(
+            query(
+              collection(db, "organizations", userProfile.orgId, collectionName),
+              where("studentId", "==", userProfile.studentId),
+            ),
+            () => invalidateOrgCollection(queryClient, userProfile.orgId!, collectionName),
+          );
+        }
       }
 
       listenToCollection(
