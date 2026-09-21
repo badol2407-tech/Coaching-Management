@@ -13,7 +13,7 @@ import {
   IdCard,
   LayoutDashboard,
   LogOut,
-  Menu,
+  PanelLeft,
   X,
   UsersRound,
   Settings,
@@ -76,6 +76,8 @@ export function AdministrativeStaffLayout({
     close: closeDrawer,
   } = useMobileDrawer();
   const [expanded, setExpanded] = useState(initExpanded);
+  const [peeked, setPeeked] = useState(false);
+  const navExpanded = expanded || peeked;
 
   if (!impersonation && userProfile?.orgSubscription) {
     const accessStatus = getOrgAccessStatus(userProfile.orgSubscription);
@@ -123,13 +125,16 @@ export function AdministrativeStaffLayout({
 
       <aside
         ref={drawerRef}
+        onMouseEnter={() => setPeeked(true)}
+        onMouseLeave={() => setPeeked(false)}
+        onFocusCapture={() => setPeeked(true)}
         tabIndex={isMobile && mobileOpen ? -1 : undefined}
         role={isMobile ? "dialog" : undefined}
         aria-modal={isMobile ? true : undefined}
         aria-hidden={isMobile ? !mobileOpen : undefined}
         inert={isMobile && !mobileOpen ? true : undefined}
         className={`fixed md:sticky top-0 h-screen z-50 shrink-0 flex flex-col border-r border-white/10 transition-all duration-300 ease-in-out
-          w-64 md:w-14 ${expanded ? "md:w-56" : "md:w-14"}
+          w-64 ${navExpanded ? "md:w-56" : "md:w-14"}
           ${mobileOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
         style={{
           background:
@@ -140,7 +145,7 @@ export function AdministrativeStaffLayout({
       >
         <div
           className={`flex items-center h-16 border-b border-white/10 shrink-0 overflow-hidden transition-all duration-300 px-4 gap-2 ${
-            expanded ? "md:px-4 md:gap-2" : "md:px-0 md:justify-center"
+            navExpanded ? "md:px-4 md:gap-2" : "md:px-0 md:justify-center"
           }`}
         >
           <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-violet-300 to-fuchsia-500 flex items-center justify-center shadow-md shadow-violet-500/30 shrink-0">
@@ -148,7 +153,7 @@ export function AdministrativeStaffLayout({
           </div>
           <div
             className={`min-w-0 overflow-hidden transition-all duration-200 max-w-[140px] opacity-100 ${
-              expanded
+              navExpanded
                 ? "md:max-w-[140px] md:opacity-100"
                 : "md:max-w-0 md:opacity-0"
             }`}
@@ -173,7 +178,7 @@ export function AdministrativeStaffLayout({
 
         <div
           className={`overflow-hidden transition-all duration-200 max-h-12 opacity-100 ${
-            expanded ? "md:max-h-12 md:opacity-100" : "md:max-h-0 md:opacity-0"
+            navExpanded ? "md:max-h-12 md:opacity-100" : "md:max-h-0 md:opacity-0"
           }`}
         >
           <div className="px-4 py-2.5 border-b border-white/10">
@@ -185,7 +190,7 @@ export function AdministrativeStaffLayout({
 
         <nav
           className={`flex-1 overflow-y-auto py-3 space-y-0.5 min-h-0 transition-all duration-300 px-2 ${
-            expanded ? "md:px-2" : "md:px-1"
+            navExpanded ? "md:px-2" : "md:px-1"
           }`}
           aria-label="Administrative staff navigation"
         >
@@ -196,7 +201,7 @@ export function AdministrativeStaffLayout({
               label={item.title}
               icon={item.icon}
               active={isActive(item.href)}
-              collapsed={!expanded}
+              collapsed={!navExpanded}
               onClick={closeDrawer}
               activeClassName="text-[#a5b4fc] border border-indigo-400/35 bg-indigo-500/20 shadow-[0_0_12px_rgba(99,102,241,0.15)]"
               inactiveClassName="border border-transparent text-[rgba(148,163,184,0.85)] hover:bg-white/5 hover:text-[#e2e8f0]"
@@ -209,14 +214,14 @@ export function AdministrativeStaffLayout({
         <div className="border-t border-white/10 shrink-0">
           <div
             className={`border-t border-white/10 flex items-center gap-2.5 px-3 py-3 transition-all duration-300 ${
-              expanded
+              navExpanded
                 ? "md:flex-row md:px-3 md:gap-2.5"
                 : "md:flex-col md:px-0 md:gap-1.5 md:py-2 md:items-center"
             }`}
           >
             <div
               title={
-                !expanded ? userProfile?.name || user?.email || "" : undefined
+                !navExpanded ? userProfile?.name || user?.email || "" : undefined
               }
               className="h-8 w-8 rounded-full bg-gradient-to-br from-indigo-400 to-blue-500 flex items-center justify-center text-white text-xs font-bold shadow-md shrink-0"
             >
@@ -224,7 +229,7 @@ export function AdministrativeStaffLayout({
             </div>
             <div
               className={`min-w-0 flex-1 overflow-hidden transition-all duration-200 max-w-[120px] opacity-100 ${
-                expanded
+                navExpanded
                   ? "md:max-w-[120px] md:opacity-100"
                   : "md:max-w-0 md:opacity-0 md:flex-none"
               }`}
@@ -250,15 +255,15 @@ export function AdministrativeStaffLayout({
           <button
             onClick={toggleExpanded}
             className="hidden md:flex min-h-11 w-full items-center justify-center border-t border-white/10 text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300"
-            title={expanded ? "Collapse sidebar" : "Expand sidebar"}
-            aria-label={expanded ? "Collapse sidebar" : "Expand sidebar"}
+            title={expanded ? "Collapse sidebar" : "Hover or focus to preview navigation"}
+            aria-label={expanded ? "Collapse sidebar" : "Keep navigation expanded"}
             aria-expanded={expanded}
             data-testid="button-toggle-sidebar"
           >
             {expanded ? (
               <ChevronLeft className="h-4 w-4" />
             ) : (
-              <ChevronRight className="h-4 w-4" />
+              <PanelLeft className="h-4 w-4" />
             )}
           </button>
         </div>
@@ -274,7 +279,7 @@ export function AdministrativeStaffLayout({
             aria-expanded={mobileOpen}
             data-testid="button-open-navigation"
           >
-            <Menu className="h-5 w-5" />
+            <PanelLeft className="h-5 w-5" />
           </button>
           <div className="flex items-center gap-2">
             <div className="h-6 w-6 rounded-md bg-gradient-to-br from-violet-300 to-fuchsia-500 flex items-center justify-center">

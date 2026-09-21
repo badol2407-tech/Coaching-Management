@@ -1,5 +1,5 @@
 kind = "web"
-previewPath = "/"
+previewPath = "/flowora/"
 title = "Flowora Onboarding"
 description = "A role-aware onboarding experience for Flowora that validates organization membership, handles join requests, saves premium plan selection, and routes users into the right dashboard."
 version = "1.0.0"
@@ -8,7 +8,7 @@ router = "path"
 
 [[services]]
 name = "web"
-paths = [ "/" ]
+paths = [ "/flowora/" ]
 localPort = 24395
 
 [services.development]
@@ -25,4 +25,4 @@ to = "/index.html"
 
 [services.env]
 PORT = "24395"
-BASE_PATH = "/"
+BASE_PATH = "/flowora/"

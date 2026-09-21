@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Wallet, CalendarCheck, ClipboardList,
   CalendarDays, NotebookPen, Bell, GraduationCap, LogOut,
   BookOpen, ClipboardCheck, UserRound, Settings,
-  Menu, X, ChevronRight, ChevronLeft,
+  PanelLeft, X, ChevronRight, ChevronLeft,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMobileDrawer } from "@/hooks/use-mobile-drawer";
@@ -47,6 +47,8 @@ export function StudentLayout({ children }: { children: React.ReactNode }) {
   const requestedTab = new URLSearchParams(search).get("tab") ?? "dashboard";
   const activeTab = requestedTab === "notices" ? "notifications" : requestedTab === "routine" ? "courses" : requestedTab === "homework" ? "assignments" : requestedTab;
   const [expanded, setExpanded] = useState(initExpanded);
+  const [peeked, setPeeked] = useState(false);
+  const navExpanded = expanded || peeked;
 
   if (!impersonation && userProfile && userProfile.role !== "super_admin" && userProfile.orgSubscription) {
     const accessStatus = getOrgAccessStatus(userProfile.orgSubscription);
@@ -80,22 +82,25 @@ export function StudentLayout({ children }: { children: React.ReactNode }) {
       {/* Sidebar */}
       <aside
         ref={drawerRef}
+        onMouseEnter={() => setPeeked(true)}
+        onMouseLeave={() => setPeeked(false)}
+        onFocusCapture={() => setPeeked(true)}
         tabIndex={isMobile && mobileOpen ? -1 : undefined}
         role={isMobile ? "dialog" : undefined}
         aria-modal={isMobile ? true : undefined}
         aria-hidden={isMobile ? !mobileOpen : undefined}
         inert={isMobile && !mobileOpen ? true : undefined}
         className={`fixed md:sticky top-0 h-screen z-50 shrink-0 flex flex-col border-r border-sidebar-border bg-sidebar transition-all duration-300 ease-in-out
-          w-64 ${expanded ? "md:w-56" : "md:w-14"}
+          w-64 ${navExpanded ? "md:w-56" : "md:w-14"}
           ${mobileOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
         aria-label="Student navigation"
       >
         {/* Logo */}
-        <div className={`flex items-center h-14 border-b border-sidebar-border shrink-0 overflow-hidden transition-all duration-300 px-4 gap-2 ${expanded ? "md:px-4 md:gap-2" : "md:px-0 md:justify-center"}`}>
+         <div className={`flex items-center h-14 border-b border-sidebar-border shrink-0 overflow-hidden transition-all duration-300 px-4 gap-2 ${navExpanded ? "md:px-4 md:gap-2" : "md:px-0 md:justify-center"}`}>
           <div className="h-7 w-7 rounded-lg bg-sidebar-primary flex items-center justify-center shadow-md shrink-0">
             <GraduationCap className="h-4 w-4 text-sidebar-primary-foreground" />
           </div>
-          <div className={`min-w-0 overflow-hidden transition-all duration-200 max-w-36 opacity-100 ${expanded ? "md:max-w-36 md:opacity-100" : "md:max-w-0 md:opacity-0"}`}>
+           <div className={`min-w-0 overflow-hidden transition-all duration-200 max-w-36 opacity-100 ${navExpanded ? "md:max-w-36 md:opacity-100" : "md:max-w-0 md:opacity-0"}`}>
             <p className="text-sidebar-foreground font-bold text-sm leading-none">EduTrack</p>
             {userProfile?.orgName && (
               <p className="text-sidebar-accent-foreground text-xs leading-none mt-0.5 truncate">{userProfile.orgName}</p>
@@ -107,7 +112,7 @@ export function StudentLayout({ children }: { children: React.ReactNode }) {
         </div>
 
         {/* Student badge — only when expanded */}
-        <div className={`overflow-hidden transition-all duration-200 max-h-12 opacity-100 ${expanded ? "md:max-h-12 md:opacity-100" : "md:max-h-0 md:opacity-0"}`}>
+         <div className={`overflow-hidden transition-all duration-200 max-h-12 opacity-100 ${navExpanded ? "md:max-h-12 md:opacity-100" : "md:max-h-0 md:opacity-0"}`}>
           <div className="px-4 py-2.5 border-b border-sidebar-border">
             <span
               className="inline-flex items-center rounded-full border border-sidebar-accent px-2 py-1 text-xs font-semibold text-sidebar-accent-foreground"
@@ -118,7 +123,7 @@ export function StudentLayout({ children }: { children: React.ReactNode }) {
         </div>
 
         {/* Nav */}
-        <nav className={`flex-1 overflow-y-auto py-3 space-y-0.5 min-h-0 transition-all duration-300 px-2 ${expanded ? "md:px-2" : "md:px-1"}`}>
+         <nav className={`flex-1 overflow-y-auto py-3 space-y-0.5 min-h-0 transition-all duration-300 px-2 ${navExpanded ? "md:px-2" : "md:px-1"}`}>
           {navItems.map(({ tab, label, icon: Icon }) => {
             const active = activeTab === tab;
             return (
@@ -128,7 +133,7 @@ export function StudentLayout({ children }: { children: React.ReactNode }) {
                 label={label}
                 icon={Icon}
                 active={active}
-                collapsed={!expanded}
+                 collapsed={!navExpanded}
                 onClick={closeDrawer}
                  activeClassName="text-sidebar-accent-foreground border border-sidebar-primary bg-sidebar-accent"
                  inactiveClassName="border border-transparent text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
@@ -142,25 +147,25 @@ export function StudentLayout({ children }: { children: React.ReactNode }) {
         {/* Bottom: profile + logout */}
           <div className="border-t border-sidebar-border shrink-0">
           <div className={`flex items-center gap-2.5 px-3 py-3 transition-all duration-300 ${
-            expanded ? "md:flex-row md:px-3 md:gap-2.5" : "md:flex-col md:px-0 md:gap-1.5 md:py-2 md:items-center"
+             navExpanded ? "md:flex-row md:px-3 md:gap-2.5" : "md:flex-col md:px-0 md:gap-1.5 md:py-2 md:items-center"
           }`}>
             {userProfile?.photoUrl ? (
               <img
                 src={userProfile.photoUrl}
                 alt={userProfile.name || "Student"}
-                title={!expanded ? (userProfile?.name || user?.email || "") : undefined}
+                 title={!navExpanded ? (userProfile?.name || user?.email || "") : undefined}
                 className="h-8 w-8 rounded-full object-cover shadow-md shrink-0"
                 onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
               />
             ) : (
               <div
-                title={!expanded ? (userProfile?.name || user?.email || "") : undefined}
+                 title={!navExpanded ? (userProfile?.name || user?.email || "") : undefined}
                 className="h-8 w-8 rounded-full bg-sidebar-primary flex items-center justify-center text-sidebar-primary-foreground text-xs font-bold shadow-md shrink-0"
               >
                 {(userProfile?.name || user?.email || "S")[0].toUpperCase()}
               </div>
             )}
-            <div className={`min-w-0 flex-1 overflow-hidden transition-all duration-200 max-w-32 opacity-100 ${expanded ? "md:max-w-32 md:opacity-100" : "md:max-w-0 md:opacity-0 md:flex-none"}`}>
+             <div className={`min-w-0 flex-1 overflow-hidden transition-all duration-200 max-w-32 opacity-100 ${navExpanded ? "md:max-w-32 md:opacity-100" : "md:max-w-0 md:opacity-0 md:flex-none"}`}>
               <p className="text-sidebar-foreground text-xs font-semibold truncate leading-tight">{userProfile?.name || user?.displayName}</p>
               <p className="text-sidebar-accent-foreground text-xs truncate leading-tight">{user?.email}</p>
             </div>
@@ -173,12 +178,12 @@ export function StudentLayout({ children }: { children: React.ReactNode }) {
           <button
             onClick={toggleExpanded}
             className="hidden md:flex min-h-11 w-full items-center justify-center border-t border-sidebar-border text-sidebar-foreground hover:bg-sidebar-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            title={expanded ? "Collapse sidebar" : "Expand sidebar"}
-            aria-label={expanded ? "Collapse sidebar" : "Expand sidebar"}
+             title={expanded ? "Collapse sidebar" : "Hover or focus to preview navigation"}
+             aria-label={expanded ? "Collapse sidebar" : "Keep navigation expanded"}
             aria-expanded={expanded}
             data-testid="button-toggle-sidebar"
           >
-            {expanded ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+             {expanded ? <ChevronLeft className="h-4 w-4" /> : <PanelLeft className="h-4 w-4" />}
           </button>
         </div>
       </aside>
@@ -188,7 +193,7 @@ export function StudentLayout({ children }: { children: React.ReactNode }) {
         {/* Mobile top bar */}
         <header className="md:hidden sticky top-0 z-30 h-14 flex items-center gap-3 px-4 border-b border-border/60 bg-background">
           <button ref={triggerRef} onClick={openDrawer} className="flex min-h-11 min-w-11 items-center justify-center text-foreground rounded-md hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="Open navigation" aria-expanded={mobileOpen} data-testid="button-open-navigation">
-            <Menu className="h-5 w-5" />
+             <PanelLeft className="h-5 w-5" />
           </button>
           <div className="flex items-center gap-2">
             <div className="h-6 w-6 rounded-md bg-sidebar-primary flex items-center justify-center">

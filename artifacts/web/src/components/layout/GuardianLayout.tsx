@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useSearch } from "wouter";
 import {
   Bell, CalendarCheck, CalendarDays, ClipboardList, FileText, GraduationCap,
-  LayoutDashboard, LogOut, Menu, MessageCircle, Settings, UserRound, Wallet, X,
+  LayoutDashboard, LogOut, PanelLeft, MessageCircle, Settings, UserRound, Wallet, X,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { GuardianProvider, useGuardianContext } from "@/contexts/GuardianContext";
@@ -77,7 +77,7 @@ function GuardianNavigation({ children }: { children: React.ReactNode }) {
       </aside>
       <div className="guardian-main">
         <header className="guardian-mobile-bar">
-          <button onClick={() => setOpen(true)} aria-label="Open navigation" data-testid="button-guardian-menu"><Menu /></button>
+          <button onClick={() => setOpen(true)} aria-label="Open navigation" data-testid="button-guardian-menu"><PanelLeft /></button>
           <span className="guardian-mobile-title">EduTrack <em>Guardian</em></span>
           <span className="guardian-mobile-dot" />
         </header>
