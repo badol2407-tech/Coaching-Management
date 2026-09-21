@@ -29,23 +29,11 @@ import { PortalNavLink } from "@/components/layout/PortalNavLink";
 const navItems = [
   { title: "Dashboard", href: "/", icon: LayoutDashboard },
   { title: "Student Records", href: "/staff/students", icon: UsersRound },
-  {
-    title: "Admission Management",
-    href: "/staff/admissions",
-    icon: ClipboardCheck,
-  },
+  { title: "Admission Management", href: "/staff/admissions", icon: ClipboardCheck },
   { title: "Fee Collection", href: "/staff/fees", icon: CreditCard },
   { title: "Payment History", href: "/staff/payments", icon: CreditCard },
-  { title: "Routine Management", href: "/staff/routine", icon: CalendarRange },
   { title: "Notice Management", href: "/staff/notices", icon: Bell },
   { title: "Reports", href: "/staff/reports", icon: FileBarChart2 },
-  { title: "Notifications", href: "/staff/notifications", icon: Bell },
-  { title: "ID Card Management", href: "/staff/id-cards", icon: IdCard },
-  {
-    title: "Certificate Management",
-    href: "/staff/certificates",
-    icon: FileBadge,
-  },
   { title: "Profile & Settings", href: "/staff/settings", icon: Settings },
 ];
 
