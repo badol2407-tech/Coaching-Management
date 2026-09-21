@@ -1160,7 +1160,7 @@ export function useGetDashboardStats() {
   return useQuery({
     queryKey: [orgId, "dashboard", "stats"],
     queryFn: async () => {
-      if (!orgId) return null;
+      if (!orgId || userProfile?.role !== "org_admin") return null;
       const today = new Date().toISOString().split("T")[0];
       const [sSnap, tSnap, fSnap, eSnap, exSnap, atSnap] = await Promise.all([
         getDocs(orgCol(orgId, "students")),
@@ -1182,7 +1182,7 @@ export function useGetDashboardStats() {
         totalExams: exSnap.size,
       };
     },
-    enabled: !!orgId,
+    enabled: !!orgId && userProfile?.role === "org_admin",
   });
 }
 
@@ -1192,7 +1192,7 @@ export function useGetAttendanceSummary() {
   return useQuery({
     queryKey: [orgId, "dashboard", "attendance-summary"],
     queryFn: async () => {
-      if (!orgId) return [];
+      if (!orgId || userProfile?.role !== "org_admin") return [];
       const snap = await getDocs(orgCol(orgId, "attendance"));
       const cutoff = new Date();
       cutoff.setDate(cutoff.getDate() - 7);
@@ -1209,7 +1209,7 @@ export function useGetAttendanceSummary() {
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([date, v]) => ({ date, ...v }));
     },
-    enabled: !!orgId,
+    enabled: !!orgId && userProfile?.role === "org_admin",
   });
 }
 
@@ -1219,7 +1219,7 @@ export function useGetRecentFees() {
   return useQuery({
     queryKey: [orgId, "dashboard", "recent-fees"],
     queryFn: async () => {
-      if (!orgId) return [];
+      if (!orgId || userProfile?.role !== "org_admin") return [];
       const snap = await getDocs(orgCol(orgId, "fees"));
       return snap.docs
         .map(mapDoc)
@@ -1227,7 +1227,7 @@ export function useGetRecentFees() {
         .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         .slice(0, 10) as any[];
     },
-    enabled: !!orgId,
+    enabled: !!orgId && userProfile?.role === "org_admin",
   });
 }
 
