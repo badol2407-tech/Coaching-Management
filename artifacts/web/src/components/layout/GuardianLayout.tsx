@@ -10,16 +10,12 @@ import { GuardianProvider, useGuardianContext } from "@/contexts/GuardianContext
 const items = [
   ["dashboard", "Today", LayoutDashboard],
   ["attendance", "Attendance", CalendarCheck],
-  ["results", "Results", GraduationCap],
-  ["routine", "Routine", CalendarDays],
+  ["homework", "Homework", ClipboardList],
   ["notices", "Notices", Bell],
   ["fees", "Fees", Wallet],
-  ["homework", "Homework", ClipboardList],
+  ["routine", "Routine", CalendarDays],
+  ["results", "Results", GraduationCap],
   ["messages", "Teacher messages", MessageCircle],
-  ["leave", "Leave requests", FileText],
-  ["notifications", "Notifications", Bell],
-  ["profile", "Profile", UserRound],
-  ["settings", "Settings", Settings],
 ] as const;
 
 function GuardianNavigation({ children }: { children: React.ReactNode }) {
