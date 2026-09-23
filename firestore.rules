@@ -32,20 +32,36 @@ service cloud.firestore {
         : null;
     }
 
+    function isActiveUser() {
+      return !('status' in myProfile()) || myProfile().status == 'active';
+    }
+
+    // Organization access is enforced here as well as in the UI. Legacy
+    // organizations without the newer status fields remain active by default.
+    function isActiveOrganization(orgId) {
+      let org = get(/databases/$(database)/documents/organizations/$(orgId)).data;
+      return (!('status' in org) || org.status == 'active') &&
+        (!('accountStatus' in org) || org.accountStatus == 'active');
+    }
+
     function isSuperAdmin() {
-  return myRole() == 'super_admin' &&
-         request.auth.token.admin == true;
-}
+      return myRole() == 'super_admin' &&
+        request.auth.token.admin == true;
+    }
+
     function isOrgAdmin(orgId) {
-      return myRole() == 'org_admin' && myOrgId() == orgId;
+      return myRole() == 'org_admin' && myOrgId() == orgId &&
+        isActiveUser() && isActiveOrganization(orgId);
     }
 
     function isTeacher(orgId) {
-      return myRole() == 'teacher' && myOrgId() == orgId;
+      return myRole() == 'teacher' && myOrgId() == orgId &&
+        isActiveUser() && isActiveOrganization(orgId);
     }
 
     function isStudent(orgId) {
-      return myRole() == 'student' && myOrgId() == orgId;
+      return myRole() == 'student' && myOrgId() == orgId &&
+        isActiveUser() && isActiveOrganization(orgId);
     }
 
     // Student-owned records are keyed by the organization student document ID.
@@ -211,6 +227,24 @@ function isFloworaRole(role) {
         isOrgAdmin(request.resource.data.orgId) &&
         isOrgManagedRole(request.resource.data.role)
       ) || (
+        // Admission approval may create a student profile in the same
+        // atomic batch that marks the matching request approved. This is
+        // intentionally narrower than generic organization user creation.
+        isSignedIn() &&
+        request.resource.data.role == 'student' &&
+        request.resource.data.orgId is string &&
+        (
+          isOrgAdmin(request.resource.data.orgId) ||
+          hasAdministrativePermission(request.resource.data.orgId, 'admission_requests.write')
+        ) &&
+        request.resource.data.admissionRequestId is string &&
+        getAfter(
+          /databases/$(database)/documents/organizations/$(request.resource.data.orgId)/admission_requests/$(request.resource.data.admissionRequestId)
+        ).data.uid == uid &&
+        getAfter(
+          /databases/$(database)/documents/organizations/$(request.resource.data.orgId)/admission_requests/$(request.resource.data.admissionRequestId)
+        ).data.status == 'approved'
+      ) || (
         isSignedIn() &&
         request.auth.uid == uid &&
         request.resource.data.role == 'org_admin' &&
@@ -340,6 +374,15 @@ function isFloworaRole(role) {
         (
           isOrgAdmin(resource.data.orgId) &&
           isOrgManagedRole(request.resource.data.role) &&
+          request.resource.data.orgId == resource.data.orgId &&
+          // An organization administrator may not change their own
+          // privileged role from the client.
+          (request.auth.uid != uid || request.resource.data.role == resource.data.role) &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'role', 'name', 'firstName', 'lastName', 'phone', 'status',
+            'permissions', 'mustChangePassword', 'studentId', 'studentIds',
+            'linkedStudentIds', 'childrenIds', 'updatedAt'
+          ]) &&
           (
             // Organization admins may keep the existing user-management
             // behavior for other roles. Guardian profiles are deliberately
@@ -405,7 +448,11 @@ function isFloworaRole(role) {
 
     // ── organizations/{orgId} ────────────────────────────────────────────────
     match /organizations/{orgId} {
-      allow read: if isSuperAdmin() || isOrgMember(orgId);
+      // Members may still read the organization's status metadata while
+      // paused, so the client can display the existing subscription screen.
+      allow read: if isSuperAdmin() ||
+        (isSignedIn() && myOrgId() == orgId) ||
+        isOrgMember(orgId);
 
       // Keep super-admin management, and add only the matching atomic public
       // onboarding write. getAfter() ensures the profile and organization are
@@ -444,7 +491,7 @@ function isFloworaRole(role) {
       match /admission_requests/{reqId} {
         allow create: if isSignedIn() &&
           request.auth.uid == request.resource.data.uid &&
-          exists(/databases/$(database)/documents/organizations/$(orgId)) &&
+          isActiveOrganization(orgId) &&
           request.resource.data.keys().hasOnly([
             'uid', 'name', 'email', 'phone', 'className', 'section', 'batch',
             'guardianName', 'guardianPhone', 'status', 'source', 'createdAt'
@@ -465,7 +512,16 @@ function isFloworaRole(role) {
           request.resource.data.source == 'admission_link' &&
           request.resource.data.createdAt == request.time;
         allow read: if isOrgStaffWithPermission(orgId, 'admission_requests.read') || isSuperAdmin();
-        allow update, delete: if isOrgStaffWithPermission(orgId, 'admission_requests.write') || isSuperAdmin();
+      allow update: if (isOrgStaffWithPermission(orgId, 'admission_requests.write') || isSuperAdmin()) &&
+        resource.data.status == 'pending' &&
+        request.resource.data.uid == resource.data.uid &&
+        request.resource.data.email == resource.data.email &&
+        request.resource.data.source == resource.data.source &&
+        request.resource.data.status in ['approved', 'rejected'] &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'status', 'reviewedAt', 'reviewedBy'
+        ]);
+      allow delete: if isOrgStaffWithPermission(orgId, 'admission_requests.write') || isSuperAdmin();
       }
 
       match /teacher_requests/{reqId} {
@@ -487,7 +543,16 @@ function isFloworaRole(role) {
           request.resource.data.source == 'join_link' &&
           request.resource.data.createdAt == request.time;
         allow read: if isOrgStaffWithPermission(orgId, 'teacher_requests.read') || isSuperAdmin();
-        allow update, delete: if isOrgStaffWithPermission(orgId, 'teacher_requests.write') || isSuperAdmin();
+      allow update: if (isOrgStaffWithPermission(orgId, 'teacher_requests.write') || isSuperAdmin()) &&
+        resource.data.status == 'pending' &&
+        request.resource.data.uid == resource.data.uid &&
+        request.resource.data.email == resource.data.email &&
+        request.resource.data.source == resource.data.source &&
+        request.resource.data.status in ['approved', 'rejected'] &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'status', 'reviewedAt', 'reviewedBy'
+        ]);
+      allow delete: if isOrgStaffWithPermission(orgId, 'teacher_requests.write') || isSuperAdmin();
       }
 
       match /students/{studentId} {

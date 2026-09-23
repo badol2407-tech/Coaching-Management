@@ -136,6 +136,7 @@ export function useDecideAdmission() {
             {
               role: "student",
               orgId,
+              admissionRequestId: request.id,
               name: request.name,
               email: request.email ?? "",
               mustChangePassword: false,

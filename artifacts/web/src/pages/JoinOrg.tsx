@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { doc, getDoc, getDocs, addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { auth, db } from "@/lib/firebase";
 import { createFirebaseAuthUser } from "@/lib/auth-utils";
 import { GraduationCap, CheckCircle2, Loader2, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -158,6 +159,11 @@ export default function JoinOrg() {
     // 2. Store the request for admin review. Login only starts working once
     //    the admin approves — that's when a `users/{uid}` profile is created.
     try {
+      // The account is created through an isolated Firebase app so an
+      // existing administrator session is not replaced. Sign the applicant
+      // into the primary app only for the request write, because Firestore
+      // rules require request.auth.uid to match the submitted UID.
+      await signInWithEmailAndPassword(auth, email.trim(), password);
       if (role === "student") {
         await addDoc(collection(db, "organizations", orgId!, "admission_requests"), {
           uid,
@@ -185,8 +191,10 @@ export default function JoinOrg() {
           createdAt: serverTimestamp(),
         });
       }
+      await signOut(auth);
       setStatus("success");
     } catch (err: any) {
+      await signOut(auth).catch(() => undefined);
       setStatus("form");
       if (err?.code === "permission-denied") {
         setErrorMsg("Firebase Rules-এ request write allow নেই। Admin-কে rules আপডেট করতে বলুন।");
