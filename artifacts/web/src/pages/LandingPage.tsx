@@ -640,103 +640,8 @@ function SectionHeading({ eyebrow, title, description, align = "center" }: { eye
   );
 }
 
-function TrustBar() {
-  const trustItems = [
-    { icon: ShieldCheck, label: "Secure Cloud Platform" },
-    { icon: Phone, label: "Mobile Friendly" },
-    { icon: Clock3, label: "Setup in Minutes" },
-    { icon: School, label: "Built for Bangladesh" },
-  ];
 
-  return (
-    <section className="landing-trust-bar glass-panel relative z-10 mx-auto mt-10 max-w-6xl rounded-2xl px-4 py-5 sm:px-6" data-testid="section-trust-bar">
-      <div className="landing-trust-grid grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-        {trustItems.map(({ icon: Icon, label }) => (
-          <div key={label} className="landing-trust-item flex items-center justify-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-foreground/75">
-            <span className="landing-trust-icon flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-primary" aria-hidden="true">
-              <Icon className="h-4 w-4" />
-            </span>
-            <span>{label}</span>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
 
-function HowItWorksSection({ onStart, onDemo }: { onStart: () => void; onDemo: () => void }) {
-  return (
-    <section className="landing-how glass-panel relative z-10 mx-auto mt-16 max-w-6xl rounded-3xl px-5 py-10 sm:px-8 lg:mt-20 lg:py-14" data-testid="section-how-it-works">
-      <div className="landing-how-orb landing-how-orb--one" aria-hidden="true" />
-      <div className="landing-how-orb landing-how-orb--two" aria-hidden="true" />
-      <SectionHeading
-        eyebrow="How EduTrack Works"
-        title="শুরু করা যতটা সহজ, ব্যবহার করাও ততটাই সহজ"
-        description="আপনার institute-এর daily operation গুছিয়ে নিতে তিনটি simple step যথেষ্ট।"
-      />
-      <div className="mt-10 grid gap-5 md:grid-cols-3">
-        {howItWorksSteps.map(({ number, icon: Icon, title, description }, index) => (
-          <div key={number} className="landing-how-step glass-panel relative rounded-2xl p-5" data-testid={`card-how-it-works-${index + 1}`}>
-            <div className="flex items-center justify-between">
-              <div className="landing-how-step-icon flex h-11 w-11 items-center justify-center rounded-xl text-primary">
-                <Icon className="h-5 w-5" aria-hidden="true" />
-              </div>
-              <span className="font-display text-4xl font-semibold text-primary/15">{number}</span>
-            </div>
-            <h3 className="mt-5 text-lg font-semibold">{title}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{description}</p>
-          </div>
-        ))}
-      </div>
-      <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-        <Button onClick={onStart} className="gap-2">
-          ফ্রি workspace তৈরি করুন <ArrowRight className="h-4 w-4" aria-hidden="true" />
-        </Button>
-        <Button onClick={onDemo} variant="outline" className="gap-2">
-          আগে demo দেখুন <CalendarCheck className="h-4 w-4" aria-hidden="true" />
-        </Button>
-      </div>
-    </section>
-  );
-}
-
-function ComparisonSection({ onDemo }: { onDemo: () => void }) {
-  return (
-    <section className="landing-comparison glass-panel-dark relative z-10 mx-auto mt-8 max-w-6xl rounded-3xl px-5 py-10 text-white sm:px-8 lg:py-14" data-testid="section-comparison">
-      <div className="landing-comparison-orb landing-comparison-orb--one" aria-hidden="true" />
-      <div className="landing-comparison-orb landing-comparison-orb--two" aria-hidden="true" />
-      <div className="grid gap-10 lg:grid-cols-[.8fr_1.2fr] lg:items-center">
-        <div>
-          <Badge className="mb-4 border-white/15 bg-white/10 text-white hover:bg-white/10">Why choose EduTrack?</Badge>
-          <h2 className="font-display text-3xl leading-tight sm:text-4xl">খাতা, আলাদা spreadsheet আর endless phone call থেকে বেরিয়ে আসুন</h2>
-          <p className="mt-4 max-w-lg leading-relaxed text-white/65">
-            আপনার existing process-কে একদিনে বদলাতে হবে না। EduTrack একই কাজকে আরও visible, searchable এবং team-এর জন্য সহজ করে।
-          </p>
-          <Button onClick={onDemo} variant="outline" className="mt-6 gap-2 border-white/25 bg-white/5 text-white hover:bg-white/10 hover:text-white">
-            আপনার workflow-এর demo নিন <MessageCircle className="h-4 w-4" aria-hidden="true" />
-          </Button>
-        </div>
-        <div className="landing-comparison-table glass-panel-dark overflow-hidden rounded-2xl">
-          <div className="landing-comparison-header grid grid-cols-[1fr_1fr] px-4 py-3 text-xs font-semibold uppercase tracking-[.14em] text-white/45 sm:px-5">
-            <span>Traditional</span>
-            <span className="text-primary-foreground/80">EduTrack</span>
-          </div>
-          <div className="landing-comparison-rows">
-            {comparisonRows.map(([traditional, edutrack]) => (
-              <div key={traditional} className="landing-comparison-row grid grid-cols-[1fr_1fr] gap-4 px-4 py-4 text-sm sm:px-5">
-                <span className="text-white/55">{traditional}</span>
-                <span className="flex items-start gap-2 font-medium text-white">
-                  <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" aria-hidden="true" />
-                  {edutrack}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
 
 function AdminGauge() {
   return (
@@ -767,135 +672,7 @@ function MiniSparkline({ bars = ["h-5", "h-8", "h-6", "h-10", "h-9", "h-12", "h-
   );
 }
 
-function TeamProgressWindow({ reduceMotion }: { reduceMotion: boolean | null }) {
-  const [progress, setProgress] = useState(reduceMotion ? 56 : 0);
 
-  useEffect(() => {
-    if (reduceMotion) {
-      setProgress(56);
-      return;
-    }
-
-    let frame = 0;
-    const startedAt = performance.now();
-    const duration = 2800;
-
-    function tick(now: number) {
-      const elapsed = Math.min((now - startedAt) / duration, 1);
-      const eased = 1 - Math.pow(1 - elapsed, 3);
-      setProgress(Math.round(eased * 56));
-      if (elapsed < 1) frame = requestAnimationFrame(tick);
-    }
-
-    frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
-  }, [reduceMotion]);
-
-  const needleRotation = -90 + progress * 1.8;
-
-  return (
-    <div
-      className="hero-mini-window hero-mini-team glass-panel rounded-2xl border border-white/70 bg-white/80 p-4 shadow-xl backdrop-blur-xl"
-      data-testid="hero-window-team-progress"
-      aria-label={`স্কুলের স্বাস্থ্য ${progress}% Healthy`}
-      onTouchStart={triggerHeroHaptic}
-    >
-      <StrobeLights />
-      <div className="hero-mini-header">
-        <p className="text-[10px] font-semibold tracking-[0.08em] text-muted-foreground">স্কুলের স্বাস্থ্য</p>
-        <span className="hero-mini-header-icon flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
-          <TrendingUp className="h-3.5 w-3.5" aria-hidden="true" />
-        </span>
-      </div>
-      <div className="hero-speedometer mt-2">
-          <svg viewBox="0 0 180 112" role="img" aria-label={`${progress}% Healthy`}>
-          <path className="hero-speedometer-track" d="M 22 94 A 68 68 0 0 1 158 94" pathLength="1" />
-          <path
-            className="hero-speedometer-progress"
-            d="M 22 94 A 68 68 0 0 1 158 94"
-            pathLength="1"
-            style={{ strokeDashoffset: 1 - progress / 100 }}
-          />
-          <g className="hero-speedometer-needle" transform={`rotate(${needleRotation} 90 94)`}>
-            <line x1="90" y1="94" x2="90" y2="27" />
-          </g>
-          <circle className="hero-speedometer-hub" cx="90" cy="94" r="6" />
-        </svg>
-        <div className="hero-speedometer-value">
-          <strong>{progress}%</strong>
-          <span>Healthy</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function AttendanceChart() {
-  const grades = ["ষষ্ঠ", "সপ্তম", "অষ্টম", "নবম", "দশম"];
-  const values = [38, 45, 33, 42, 48];
-  const chart = { left: 31, top: 12, width: 139, height: 96 };
-  const points = values.map((value, index) => ({
-    x: chart.left + (chart.width / (values.length - 1)) * index,
-    y: chart.top + ((50 - value) / 40) * chart.height,
-  }));
-  const linePath = points.map(({ x, y }, index) => `${index === 0 ? "M" : "L"} ${x} ${y}`).join(" ");
-  const lastPoint = points[points.length - 1] ?? { x: chart.left, y: chart.top + chart.height };
-  const areaPath = `${linePath} L ${lastPoint.x} ${chart.top + chart.height} L ${chart.left} ${chart.top + chart.height} Z`;
-  const yTicks = [50, 40, 30, 20, 10];
-
-  return (
-    <div className="hero-attendance-chart" aria-label="শ্রেণিভিত্তিক উপস্থিতি চার্ট">
-      <svg viewBox="0 0 180 150" role="img" aria-labelledby="attendance-chart-title attendance-chart-description">
-        <title id="attendance-chart-title">আজকের উপস্থিতি</title>
-        <desc id="attendance-chart-description">ষষ্ঠ থেকে দশম শ্রেণির উপস্থিতি ১০ থেকে ৫০-এর স্কেলে দেখানো হয়েছে।</desc>
-        <defs>
-          <linearGradient id="attendance-area-gradient" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor="hsl(221 83% 58% / .32)" />
-            <stop offset="100%" stopColor="hsl(267 75% 72% / .03)" />
-          </linearGradient>
-          <linearGradient id="attendance-line-gradient" x1="0" x2="1" y1="0" y2="0">
-            <stop offset="0%" stopColor="hsl(221 83% 58%)" />
-            <stop offset="100%" stopColor="hsl(267 75% 64%)" />
-          </linearGradient>
-          <filter id="attendance-point-glow" x="-100%" y="-100%" width="300%" height="300%">
-            <feGaussianBlur stdDeviation="2.2" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        </defs>
-
-        <g className="hero-attendance-grid">
-          {yTicks.map((tick) => {
-            const y = chart.top + ((50 - tick) / 40) * chart.height;
-            return (
-              <g key={tick}>
-                <line x1={chart.left} x2={chart.left + chart.width} y1={y} y2={y} />
-                <text x="25" y={y + 2.5} textAnchor="end">{toBanglaDigits(tick)}</text>
-              </g>
-            );
-          })}
-        </g>
-        <line className="hero-attendance-axis" x1={chart.left} x2={chart.left} y1={chart.top} y2={chart.top + chart.height} />
-        <line className="hero-attendance-axis" x1={chart.left} x2={chart.left + chart.width} y1={chart.top + chart.height} y2={chart.top + chart.height} />
-        <path className="hero-attendance-area" d={areaPath} />
-        <path className="hero-attendance-line" pathLength="1" d={linePath} />
-        {points.map(({ x, y }, index) => (
-          <g key={grades[index]} filter="url(#attendance-point-glow)">
-            <circle className="hero-attendance-point-halo" cx={x} cy={y} r="5.5" />
-            <circle className="hero-attendance-point" cx={x} cy={y} r="2.7" />
-          </g>
-        ))}
-        {grades.map((grade, index) => (
-          <text key={grade} className="hero-attendance-grade" x={points[index].x} y="121" textAnchor="middle">{grade}</text>
-        ))}
-        <text className="hero-attendance-axis-label" x="99" y="145" textAnchor="middle">শ্রেণি</text>
-        <text className="hero-attendance-axis-label" transform="translate(8 62) rotate(-90)" textAnchor="middle">উপস্থিতি</text>
-      </svg>
-    </div>
-  );
-}
 
 const examResults = [
   { subject: "পদার্থবিজ্ঞান", value: 89 },
@@ -905,151 +682,6 @@ const examResults = [
   { subject: "ইংরেজি", value: 91 },
 ];
 
-function RadarChart({ animateOrbit }: { animateOrbit: boolean }) {
-  const chart = { cx: 110, cy: 77, radius: 46, labelRadius: 67 };
-  const totalScore = examResults.reduce((sum, result) => sum + result.value, 0);
-  const points = examResults.map((result, index) => {
-    const angle = -90 + index * 72;
-    const point = polarPoint(chart.cx, chart.cy, chart.radius * (result.value / 100), angle);
-    const labelPoint = polarPoint(chart.cx, chart.cy, chart.labelRadius, angle);
-    return { ...result, angle, point, labelPoint };
-  });
-  const polygonPath = points.map(({ point }, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`).join(" ") + " Z";
-  const orbitPoints = [points[0], ...points.slice(1).reverse(), points[0]];
-  const orbitPath = orbitPoints.map(({ point }, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`).join(" ");
-  const orbitMotionPath = orbitPoints
-    .map(({ point }, index) => `${index === 0 ? "M" : "L"} ${point.x - points[0].point.x} ${point.y - points[0].point.y}`)
-    .join(" ");
-  const orbitSegmentLengths = orbitPoints.slice(0, -1).map(({ point }, index) => {
-    const nextPoint = orbitPoints[index + 1]?.point ?? point;
-    return Math.hypot(nextPoint.x - point.x, nextPoint.y - point.y);
-  });
-  const orbitTotalLength = orbitSegmentLengths.reduce((sum, length) => sum + length, 0);
-  let travelledLength = 0;
-  const orbitVertexProgress = orbitSegmentLengths.map((length) => {
-    const progress = orbitTotalLength > 0 ? travelledLength / orbitTotalLength : 0;
-    travelledLength += length;
-    return progress;
-  });
-  const outerPoints = examResults.map((_, index) => polarPoint(chart.cx, chart.cy, chart.radius, -90 + index * 72));
-  const axisLabelAnchor = (x: number) => (x < chart.cx - 8 ? "end" : x > chart.cx + 8 ? "start" : "middle");
-
-  return (
-    <div className="hero-radar-chart" aria-label="রাফির পরীক্ষার ফলাফল">
-      <svg viewBox="0 0 220 165" role="img" aria-labelledby="radar-title radar-description">
-        <title id="radar-title">রাফির পরীক্ষার ফলাফল</title>
-        <desc id="radar-description">পদার্থবিজ্ঞান ৮৯, রসায়ন ৮৭, উচ্চতর গণিত ৮৮, জীববিজ্ঞান ৮৫, ইংরেজি ৯১।</desc>
-        <defs>
-          <linearGradient id="radar-fill-gradient" x1="0" x2="1" y1="0" y2="1">
-            <stop offset="0%" stopColor="hsl(221 83% 58% / .34)" />
-            <stop offset="100%" stopColor="hsl(267 75% 68% / .16)" />
-          </linearGradient>
-          <linearGradient id="radar-stroke-gradient" x1="0" x2="1" y1="0" y2="1">
-            <stop offset="0%" stopColor="hsl(221 83% 58%)" />
-            <stop offset="100%" stopColor="hsl(267 75% 64%)" />
-          </linearGradient>
-          <filter id="radar-point-glow" x="-100%" y="-100%" width="300%" height="300%">
-            <feGaussianBlur stdDeviation="2.2" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        </defs>
-        <g className="hero-radar-grid">
-          {[0.25, 0.5, 0.75, 1].map((scale) => (
-            <polygon
-              key={scale}
-              points={examResults.map((_, index) => {
-                const point = polarPoint(chart.cx, chart.cy, chart.radius * scale, -90 + index * 72);
-                return `${point.x},${point.y}`;
-              }).join(" ")}
-            />
-          ))}
-          {outerPoints.map((point, index) => (
-            <line key={examResults[index].subject} x1={chart.cx} y1={chart.cy} x2={point.x} y2={point.y} />
-          ))}
-        </g>
-        <g className="hero-radar-orbit" aria-hidden="true">
-          <path className="hero-radar-orbit-track" d={orbitPath} />
-          <circle className="hero-radar-orbit-dot" cx={points[0].point.x} cy={points[0].point.y} r="2.4">
-            {animateOrbit && <animateMotion dur="8s" repeatCount="indefinite" path={orbitMotionPath} />}
-          </circle>
-          <circle className="hero-radar-orbit-glint" cx={points[0].point.x} cy={points[0].point.y} r="5.5">
-            {animateOrbit && (
-              <>
-                <animateMotion dur="8s" repeatCount="indefinite" path={orbitMotionPath} />
-                <animate
-                  attributeName="opacity"
-                  dur="8s"
-                  repeatCount="indefinite"
-                  values=".92;.18;.92;.18;.92;.18;.92;.18;.92;.18;.92"
-                  keyTimes="0;.12;.2;.32;.4;.52;.6;.72;.8;.92;1"
-                />
-              </>
-            )}
-          </circle>
-          {animateOrbit && (
-            <>
-              <g className="hero-radar-sparkle-trail" transform={`translate(${points[0].point.x} ${points[0].point.y})`}>
-                {[0.18, 0.34, 0.52, 0.72].map((offset, index) => (
-                  <g
-                    key={`sparkle-trail-${index}`}
-                    transform={`rotate(${index * 27 - 22}) scale(${0.7 + index * 0.12})`}
-                  >
-                    <path className="hero-radar-sparkle" d="M 0 -2 L 0 -5 M -2 0 L -5 0 M 0 2 L 0 5 M 2 0 L 5 0" />
-                    <animateMotion
-                      dur="8s"
-                      begin={`-${offset}s`}
-                      repeatCount="indefinite"
-                      path={orbitMotionPath}
-                    />
-                    <animate
-                      attributeName="opacity"
-                      dur={`${1.5 + index * 0.15}s`}
-                      repeatCount="indefinite"
-                      values=".25;.95;.18"
-                    />
-                  </g>
-                ))}
-              </g>
-              {orbitPoints.slice(0, -1).map(({ point }, index) => (
-                <g
-                  key={`sparkle-burst-${index}`}
-                  className="hero-radar-sparkle-burst"
-                  style={{ animationDelay: `${(orbitVertexProgress[index] ?? 0) * 8}s` }}
-                  transform={`translate(${point.x} ${point.y})`}
-                >
-                  <path
-                    className="hero-radar-sparkle-burst-line"
-                    d="M 0 -2 L 0 -8 M -2 0 L -8 0 M 0 2 L 0 8 M 2 0 L 8 0 M -1.5 -1.5 L -5 -5 M 1.5 1.5 L 5 5 M 1.5 -1.5 L 5 -5 M -1.5 1.5 L -5 5"
-                  />
-                  <circle className="hero-radar-sparkle-burst-core" cx="0" cy="0" r="1.8" />
-                </g>
-              ))}
-            </>
-          )}
-        </g>
-        <polygon className="hero-radar-data-area" points={points.map(({ point }) => `${point.x},${point.y}`).join(" ")} />
-        <path className="hero-radar-data-line" d={polygonPath} />
-        {points.map(({ point, subject }, index) => (
-          <g key={subject} className="hero-radar-point" style={{ animationDelay: `${1.95 + index * 0.12}s` }} filter="url(#radar-point-glow)">
-            <circle className="hero-radar-point-halo" cx={point.x} cy={point.y} r="5.5" />
-            <circle className="hero-radar-point-core" cx={point.x} cy={point.y} r="2.7" />
-          </g>
-        ))}
-        <text className="hero-radar-center-label" x={chart.cx} y={chart.cy - 2} textAnchor="middle">মোট স্কোর</text>
-        <text className="hero-radar-center-value" x={chart.cx} y={chart.cy + 8} textAnchor="middle">{toBanglaDigits(totalScore)}/৫০০</text>
-        {points.map(({ labelPoint, subject, value }) => (
-          <g key={`${subject}-label`}>
-            <text className="hero-radar-subject" x={labelPoint.x} y={labelPoint.y + 2} textAnchor={axisLabelAnchor(labelPoint.x)}>{subject}</text>
-            <text className="hero-radar-value-outer" x={labelPoint.x} y={labelPoint.y + 10} textAnchor={axisLabelAnchor(labelPoint.x)}>{toBanglaDigits(value)}</text>
-          </g>
-        ))}
-      </svg>
-    </div>
-  );
-}
 
 type FeeSlice = {
   name: string;
@@ -1097,222 +729,9 @@ function donutSlicePath(
   ].join(" ");
 }
 
-function MonthlyFeeChart() {
-  const total = monthlyFees.reduce((sum, slice) => sum + slice.amount, 0);
-  const feeSegments = monthlyFees.map((slice, index) => {
-    const startAngle = monthlyFees
-      .slice(0, index)
-      .reduce((sum, currentSlice) => sum + (currentSlice.amount / total) * 360, 0);
-    const endAngle = startAngle + (slice.amount / total) * 360;
-    const textAngle = startAngle + (endAngle - startAngle) / 2;
-    return {
-      slice,
-      startAngle,
-      endAngle,
-      namePoint: polarPoint(140, 112, 56, textAngle),
-    };
-  });
-
-  return (
-    <div className="hero-fee-chart" aria-label="শিক্ষার্থীদের মাসিক ফি দেওয়ার অবস্থা">
-      <svg viewBox="0 0 280 230" role="img" aria-labelledby="monthly-fee-title monthly-fee-description">
-        <title id="monthly-fee-title">মাসিক ফি</title>
-        <desc id="monthly-fee-description">সবুজ অংশ ফি দিয়েছে এবং লাল অংশ ফি বাকি বোঝায়।</desc>
-        <defs>
-          <linearGradient id="fee-glass-highlight" x1="0" x2="1" y1="0" y2="1">
-            <stop offset="0%" stopColor="hsl(0 0% 100% / .9)" />
-            <stop offset="44%" stopColor="hsl(0 0% 100% / .24)" />
-            <stop offset="100%" stopColor="hsl(224 70% 77% / .2)" />
-          </linearGradient>
-          <filter id="fee-wheel-shadow" x="-35%" y="-35%" width="170%" height="170%">
-            <feDropShadow dx="0" dy="8" stdDeviation="7" floodColor="hsl(224 56% 22% / .2)" />
-          </filter>
-        </defs>
-
-        <g className="hero-fee-wheel" filter="url(#fee-wheel-shadow)">
-          <circle className="hero-fee-wheel-shadow" cx="140" cy="112" r="75" />
-          <circle className="hero-fee-wheel-base" cx="140" cy="112" r="73" />
-          {feeSegments.map(({ slice, startAngle, endAngle }) => (
-            <path
-              key={`${slice.name}-branch`}
-              className="hero-fee-sunburst-branch"
-              d={donutSlicePath(140, 112, 78, 69, startAngle + 1, endAngle - 1)}
-              fill={slice.color}
-            />
-          ))}
-          {feeSegments.map(({ slice, startAngle, endAngle }) => (
-            <g key={slice.name}>
-              <path
-                className={`hero-fee-slice hero-fee-slice--${slice.status}`}
-                d={donutSlicePath(140, 112, 69, 40, startAngle + 1, endAngle - 1)}
-                fill={slice.color}
-              />
-            </g>
-          ))}
-          <circle className="hero-fee-inner-glass" cx="140" cy="112" r="41" />
-          <circle className="hero-fee-inner-highlight" cx="140" cy="112" r="29" />
-          <path className="hero-fee-reflection" d="M 102 69 A 58 58 0 0 1 157 51" />
-        </g>
-        <g className="hero-fee-labels" aria-hidden="true">
-          {feeSegments.map(({ slice, namePoint }) => (
-            <text key={`${slice.name}-label`} className="hero-fee-name" x={namePoint.x} y={namePoint.y + 2} textAnchor="middle">
-              {slice.name}
-            </text>
-          ))}
-        </g>
-        <text className="hero-fee-center-label" x="140" y="109" textAnchor="middle">মাসিক</text>
-        <text className="hero-fee-center-value" x="140" y="123" textAnchor="middle">ফি</text>
-      </svg>
-      <div className="hero-fee-legend" aria-label="ফি status legend">
-        <span><i className="hero-fee-legend-dot hero-fee-legend-dot--paid" />দিয়েছে</span>
-        <span><i className="hero-fee-legend-dot hero-fee-legend-dot--due" />বাকি</span>
-      </div>
-    </div>
-  );
-}
 
 type HeroWindowEntrancePhase = "waiting" | "entering" | "settled";
 
-function HeroMiniWindows({
-  reduceMotion,
-  enter,
-  layout,
-}: {
-  reduceMotion: boolean | null;
-  enter: boolean;
-  layout: LandingPageLayout;
-}) {
-  const [entrancePhase, setEntrancePhase] = useState<HeroWindowEntrancePhase>(
-    () => (enter ? "settled" : "waiting"),
-  );
-
-  useEffect(() => {
-    if (!enter || entrancePhase !== "waiting") return;
-    if (reduceMotion) {
-      setEntrancePhase("settled");
-      return;
-    }
-
-    setEntrancePhase("entering");
-    const timer = window.setTimeout(() => setEntrancePhase("settled"), 2000);
-    return () => window.clearTimeout(timer);
-  }, [enter, entrancePhase, reduceMotion]);
-
-  const floatTransition = (duration: number, delay = 0) => ({
-    duration,
-    repeat: Infinity,
-    ease: "easeInOut" as const,
-    delay,
-  });
-
-  const windowStyle = (id: LandingWindowId): CSSProperties => {
-    const desktop = layout.desktop[id];
-    const mobile = layout.mobile[id];
-    return {
-      "--hero-window-desktop-x": `${desktop.x}%`,
-      "--hero-window-desktop-y": `${desktop.y}%`,
-      "--hero-window-desktop-width": `${desktop.width}%`,
-      "--hero-window-desktop-height": `${desktop.height}%`,
-      "--hero-window-mobile-x": `${mobile.x}%`,
-      "--hero-window-mobile-y": `${mobile.y}%`,
-      "--hero-window-mobile-width": `${mobile.width}%`,
-      "--hero-window-mobile-height": `${mobile.height}%`,
-    } as CSSProperties;
-  };
-
-  return (
-    <motion.div
-      className={`hero-mini-stage hero-mini-stage--${entrancePhase} hero-mini-stage--custom-layout relative mx-auto mt-14 max-w-6xl`}
-      initial={reduceMotion ? false : { opacity: 0, y: 18 }}
-      animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-      transition={{ duration: 0.7, delay: 0.15, ease: "easeOut" }}
-      data-testid="hero-mini-windows"
-    >
-      <div className="hero-mini-horizon" aria-hidden="true">
-        <span className="hero-mini-orb hero-mini-orb-one" />
-        <span className="hero-mini-orb hero-mini-orb-two" />
-        <span className="hero-mini-orb hero-mini-orb-three" />
-      </div>
-
-      <div className="hero-mini-entrance-group">
-        <motion.div
-          animate={reduceMotion || entrancePhase !== "settled" ? undefined : { y: [0, -7, 0] }}
-          transition={floatTransition(5.4)}
-          className="hero-mini-float hero-mini-team-float"
-          style={windowStyle("health")}
-        >
-          <TeamProgressWindow reduceMotion={reduceMotion} />
-        </motion.div>
-
-        <motion.div
-          animate={reduceMotion || entrancePhase !== "settled" ? undefined : { y: [0, 7, 0] }}
-          transition={floatTransition(5.8, 0.3)}
-          className="hero-mini-float hero-mini-plan-float"
-          style={windowStyle("fee")}
-          data-testid="hero-window-todays-plan"
-        >
-           <div
-             className="hero-mini-window hero-mini-plan glass-panel rounded-2xl border border-white/70 bg-white/85 p-4 shadow-xl backdrop-blur-xl"
-             onTouchStart={triggerHeroHaptic}
-           >
-              <StrobeLights />
-             <div className="hero-mini-header">
-               <p className="text-xs font-semibold tracking-[0.08em] text-foreground/80">মাসিক ফি</p>
-               <Wallet className="hero-mini-header-icon h-4 w-4 text-primary" aria-hidden="true" />
-             </div>
-             <MonthlyFeeChart />
-          </div>
-        </motion.div>
-
-        <motion.div
-          animate={reduceMotion || entrancePhase !== "settled" ? undefined : { y: [0, -6, 0] }}
-          transition={floatTransition(5.2, 0.55)}
-          className="hero-mini-float hero-mini-projects-float"
-          style={windowStyle("attendance")}
-        >
-           <div
-             className="hero-mini-window hero-mini-projects glass-panel rounded-2xl border border-white/70 bg-white/85 p-4 shadow-xl backdrop-blur-xl"
-             data-testid="hero-window-active-projects"
-             onTouchStart={triggerHeroHaptic}
-           >
-              <StrobeLights />
-             <div className="hero-mini-header">
-               <p className="text-[10px] font-semibold tracking-[0.08em] text-muted-foreground">আজকের উপস্থিতি</p>
-               <span className="hero-mini-header-icon flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <TrendingUp className="h-3.5 w-3.5" aria-hidden="true" />
-              </span>
-             </div>
-             <AttendanceChart />
-           </div>
-        </motion.div>
-
-        <motion.div
-          animate={reduceMotion || entrancePhase !== "settled" ? undefined : { y: [0, 5, 0] }}
-          transition={floatTransition(5.1, 0.2)}
-          className="hero-mini-float hero-mini-due-float"
-          style={windowStyle("results")}
-        >
-          <div
-            className="hero-mini-window hero-mini-due glass-panel rounded-2xl border border-white/70 bg-white/90 p-3 shadow-xl backdrop-blur-xl"
-            data-testid="hero-window-exam-results"
-            aria-label="পরীক্ষার ফলাফল রাফি"
-            onTouchStart={triggerHeroHaptic}
-          >
-             <StrobeLights />
-            <div className="hero-mini-header">
-              <div className="text-center">
-                <p className="text-[10px] font-semibold tracking-[0.08em] text-foreground/80">পরীক্ষার ফলাফল</p>
-                <p className="mt-0.5 text-[9px] text-muted-foreground">রাফি</p>
-              </div>
-              <BarChart3 className="hero-mini-header-icon h-4 w-4 text-primary" aria-hidden="true" />
-            </div>
-             <RadarChart animateOrbit={reduceMotion !== true} />
-          </div>
-        </motion.div>
-      </div>
-    </motion.div>
-  );
-}
 
 function ProductPreview() {
   const reduceMotion = useReducedMotion();
@@ -1374,22 +793,7 @@ function ProductPreview() {
             </div>
           </div>
         </Card>
-        <motion.div animate={reduceMotion ? undefined : { y: [0, -8, 0] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }} className="absolute -bottom-5 -left-5 hidden sm:block">
-          <Card className="glass-panel w-48 rounded-xl border-primary/20 shadow-xl" data-testid="card-hero-attendance">
-            <CardContent className="p-4"><div className="flex items-center justify-between"><span className="text-xs text-muted-foreground">Attendance</span><Badge variant="secondary">+2.4%</Badge></div><p className="mt-2 text-2xl font-semibold">92.6%</p><p className="mt-1 text-xs text-muted-foreground">vs. last Monday</p></CardContent>
-          </Card>
-        </motion.div>
-        <motion.div animate={reduceMotion ? undefined : { y: [0, 8, 0] }} transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }} className="absolute -right-5 -top-5 hidden sm:block">
-          <Card className="glass-panel w-48 rounded-xl border-primary/20 shadow-xl" data-testid="card-hero-fees">
-            <CardContent className="p-4"><div className="flex items-center gap-2"><CircleDollarSign className="h-4 w-4 text-primary" aria-hidden="true" /><span className="text-xs font-medium">Fees collected</span></div><p className="mt-2 text-xl font-semibold">৳8.42L</p><div className="mt-2 flex items-center gap-1 text-xs text-primary"><ArrowDownRight className="h-3 w-3 rotate-180" aria-hidden="true" />12.8% ahead</div></CardContent>
-          </Card>
-        </motion.div>
-        <motion.div animate={reduceMotion ? undefined : { y: [0, -6, 0] }} transition={{ duration: 5.2, repeat: Infinity, ease: "easeInOut", delay: 0.8 }} className="absolute -bottom-7 right-8 hidden xl:block">
-          <Card className="glass-panel w-44 rounded-xl border-primary/20 shadow-xl" data-testid="card-hero-results">
-            <CardContent className="p-4"><div className="flex items-center gap-2"><ClipboardCheck className="h-4 w-4 text-primary" aria-hidden="true" /><span className="text-xs font-medium">Exam results</span></div><p className="mt-2 text-xl font-semibold">06 ready</p><p className="mt-1 text-xs text-muted-foreground">Publish when you’re ready</p></CardContent>
-          </Card>
-        </motion.div>
-      </div>
+                              </div>
     </motion.div>
   );
 }
@@ -1598,11 +1002,7 @@ function LandingContent({
             <Button data-testid="button-hero-book-demo" size="lg" variant="outline" className="landing-glass-button text-foreground shadow-sm" onClick={() => openDemo("hero_book_demo")}>ডেমো দেখুন <CalendarCheck aria-hidden="true" /></Button>
           </div>
         </motion.div>
-         <HeroMiniWindows
-           reduceMotion={reduceMotion}
-           enter={heroWindowsEnter}
-           layout={landingLayout}
-         />
+
           <div className="relative mx-auto mt-10 max-w-6xl">
             <HeroCarousel
               onCtaClick={(cta, index) => {
@@ -1615,9 +1015,9 @@ function LandingContent({
               }}
             />
           </div>
-          <TrustBar />
-          <HowItWorksSection onStart={() => openAuth("signup", "how_it_works")} onDemo={() => openDemo("how_it_works")} />
-          <ComparisonSection onDemo={() => openDemo("comparison")} />
+
+
+
       </section>
     );
   }
@@ -1838,7 +1238,7 @@ export default function LandingPage() {
 
        <header className="landing-nav glass-panel sticky top-4 z-30 mx-3 rounded-2xl border backdrop-blur-xl sm:mx-5 lg:mx-auto lg:max-w-[calc(80rem-2rem)]" data-testid="navigation-header">
         <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-           <a data-testid="link-logo" href="/" className="flex shrink-0 items-center gap-2 font-semibold tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" aria-label="EduTrack home"><span data-app-logo className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground"><GraduationCap className="h-5 w-5" aria-hidden="true" /></span><span className="text-lg">EduTrack</span><Badge variant="secondary" className="hidden lg:inline-flex">OS for schools</Badge></a>
+           <a data-testid="link-logo" href="/" className="flex shrink-0 items-center gap-2 font-semibold tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" aria-label="EduTrack home"><span data-app-logo className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground"><GraduationCap className="h-5 w-5" aria-hidden="true" /></span><span className="text-lg">EduTrack</span></a>
             <nav className="hidden items-center gap-4 text-[13px] font-medium text-muted-foreground md:flex lg:gap-7" aria-label="Primary navigation">{navItems.map(({ label, href }) => <a key={label} data-testid={`link-nav-${label.toLowerCase()}`} className="landing-nav-link whitespace-nowrap transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" href={href}>{label}</a>)}</nav>
             <div className="flex items-center gap-1.5 sm:gap-2">
               <div className="hidden items-center gap-1 sm:flex">

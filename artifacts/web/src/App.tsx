@@ -315,7 +315,8 @@ function AuthenticatedRoutes() {
 
   // Normalize at the routing boundary so legacy casing/whitespace cannot
   // fall through to the org-admin layout.
-  const normalizedRole = typeof normalizedRole === "string"
+  const normalizedRole =
+  typeof userProfile.role === "string"
     ? userProfile.role.trim().toLowerCase()
     : "";
 
