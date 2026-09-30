@@ -19,7 +19,6 @@ import {
 } from "@/contexts/ImpersonationContext";
 import { ImpersonationBanner } from "@/components/ImpersonationBanner";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { RealtimeSync } from "@/components/RealtimeSync";
 const FirstTimeSetupWizard = lazy(
   () => import("@/components/FirstTimeSetupWizard"),
 );
@@ -570,7 +569,6 @@ function AppRoutes() {
   return (
     <AuthProvider>
       <ImpersonationProvider>
-        <RealtimeSync />
         <Switch>
           {/* Public routes — available regardless of auth state */}
           <Route path="/payment/success">

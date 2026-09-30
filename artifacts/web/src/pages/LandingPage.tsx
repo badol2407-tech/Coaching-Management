@@ -247,7 +247,6 @@ function AuthPanel({
   const [loading, setLoading] = useState(false);
   const [, navigate] = useLocation();
   const { toast } = useToast();
-  const { refreshProfile } = useAuth();
 
   async function handleGoogle() {
     setLoading(true);
@@ -275,7 +274,6 @@ function AuthPanel({
           }
           throw error;
         }
-        await refreshProfile();
         trackRegistered("google");
         navigate("/setup/profile");
       } else {
@@ -329,7 +327,6 @@ function AuthPanel({
           await deleteUser(credential.user).catch(() => undefined);
           throw error;
         }
-        await refreshProfile();
         trackRegistered("email");
         toast({ title: "Account created!", description: "Your EduTrack workspace is ready." });
         navigate("/setup/profile");
