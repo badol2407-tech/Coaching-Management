@@ -654,7 +654,7 @@ function AppRoutes() {
 
 // Splash screen feature flag.
 // false = OFF, true = ON
-const ENABLE_SPLASH_SCREEN = false;
+const ENABLE_SPLASH_SCREEN = true;
 
 const SPLASH_SESSION_KEY = "edutrack_splash_shown";
 
