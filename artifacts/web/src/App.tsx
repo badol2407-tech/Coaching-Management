@@ -652,13 +652,19 @@ function AppRoutes() {
   );
 }
 
+// Splash screen feature flag.
+// false = OFF, true = ON
+const ENABLE_SPLASH_SCREEN = false;
+
 const SPLASH_SESSION_KEY = "edutrack_splash_shown";
 
 function App() {
   // Show the splash animation only once per browser session — repeat visits
   // (navigations, refreshes) within the same tab session skip it entirely.
   const [splashDone, setSplashDone] = useState(
-    () => sessionStorage.getItem(SPLASH_SESSION_KEY) === "1",
+    () =>
+      !ENABLE_SPLASH_SCREEN ||
+      sessionStorage.getItem(SPLASH_SESSION_KEY) === "1",
   );
   const handleSplashDone = useCallback(() => {
     sessionStorage.setItem(SPLASH_SESSION_KEY, "1");
