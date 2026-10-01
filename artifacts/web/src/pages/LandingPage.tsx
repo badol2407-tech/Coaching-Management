@@ -922,7 +922,7 @@ function PricingCard({
       {cfg.badge && (
         <Badge
           variant="default"
-          className="premium-badge absolute right-3 top-3 z-10 max-w-[calc(100%-1.5rem)] whitespace-normal px-3 py-1 text-xs font-semibold leading-tight sm:right-4 sm:top-4 sm:px-4 sm:py-1.5 sm:text-sm"
+          className="premium-badge absolute left-1/2 top-3 z-10 w-fit -translate-x-1/2 max-w-[calc(100%-1.5rem)] whitespace-normal px-3 py-1 text-xs font-semibold leading-tight sm:top-4 sm:px-4 sm:py-1.5 sm:text-sm"
         >
           {cfg.badge}
         </Badge>
