@@ -5,6 +5,9 @@ import { promoBanners } from "./promotionData";
 
 const SESSION_KEY = "et_promo_shown";
 const POPUP_DISPLAY_MS = 15000;
+
+// Feature flag: false = popup OFF, true = popup ON
+const ENABLE_PROMOTION_POPUP = false;
 const POPUP_SCROLL_RATIO = 0.45;
 
 interface PromotionPopupProps {
@@ -20,6 +23,7 @@ export function PromotionPopup({ onCtaClick, onDismiss }: PromotionPopupProps) {
   useEffect(() => {
     if (sessionStorage.getItem(SESSION_KEY)) return;
     const showPopup = () => {
+      if (!ENABLE_PROMOTION_POPUP) return;
       if (!dismissedRef.current) setVisible(true);
     };
     const timer = window.setTimeout(showPopup, POPUP_DISPLAY_MS);

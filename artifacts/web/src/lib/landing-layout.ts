@@ -57,7 +57,7 @@ export const DEFAULT_LANDING_LAYOUT: LandingPageLayout = {
       label: "Hero & overview",
       visible: true,
       title: "এক প্ল্যাটফর্মে পুরো স্কুল পরিচালনা করুন",
-      description: "EduTrack-এর মাধ্যমে attendance, fees, exams, results, notices এবং প্রতিদিনের school operations এক জায়গা থেকে সহজে পরিচালনা করুন।",
+      description: "",
       customText: [],
       sensitivity: 72,
       x: 0,

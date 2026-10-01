@@ -52,11 +52,6 @@ export const HeroCarousel = memo(function HeroCarousel({ onCtaClick }: HeroCarou
   return (
     <div className="hero-promotion-rail relative w-full">
       <div className="hero-promotion-rail-heading">
-        <div>
-          <p className="hero-promotion-eyebrow">EduTrack-এর নতুন update</p>
-          <h2>আপনার school day-এর জন্য তৈরি</h2>
-        </div>
-        <p className="hero-promotion-hint">Swipe করে সব feature দেখুন</p>
       </div>
 
       <div className="hero-promotion-viewport" ref={emblaRef}>
