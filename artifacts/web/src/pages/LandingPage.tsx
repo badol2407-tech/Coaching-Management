@@ -60,11 +60,8 @@ import {
   signInWithPopup,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { PLAN_CONFIG, formatBnTaka, computeExpiryDate, type PlanTier } from "@/lib/plan-config";
 import { db } from "@/lib/firebase";
-import {
-  computeExpiryDate,
-  type PlanTier,
-} from "@/lib/plan-config";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -456,7 +453,7 @@ function PremiumLaunchDialog({
   const { toast } = useToast();
   const whatsappNumber = "8801632905056";
   const whatsappMessage = encodeURIComponent(
-    `আমি EduTrack Premium Monthly সম্পর্কে আগ্রহী। নাম: ${form.fullName || "—"} | প্রতিষ্ঠান: ${form.institute || "—"} | ফোন: ${form.phone || "—"}`,
+    `আমি EduTrack ${PLAN_CONFIG.founder_launch.name} সম্পর্কে আগ্রহী। নাম: ${form.fullName || "—"} | প্রতিষ্ঠান: ${form.institute || "—"} | ফোন: ${form.phone || "—"}`,
   );
 
   function closeDialog(nextOpen: boolean) {
@@ -511,7 +508,7 @@ function PremiumLaunchDialog({
             <DialogHeader className="mt-5">
               <DialogTitle>Premium Launch Coming Soon</DialogTitle>
               <DialogDescription className="mt-2 leading-relaxed">
-                আপনার আগ্রহটি সংরক্ষণ করেছি। Premium Monthly launch হলে আমরা আপনার সঙ্গে যোগাযোগ করব।
+                আপনার আগ্রহটি সংরক্ষণ করেছি। {PLAN_CONFIG.founder_launch.name} launch হলে আমরা আপনার সঙ্গে যোগাযোগ করব।
               </DialogDescription>
             </DialogHeader>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
@@ -541,7 +538,9 @@ function PremiumLaunchDialog({
             </DialogHeader>
 
             <div className="rounded-2xl border border-primary/15 bg-primary/5 p-4">
-              <p className="text-sm font-medium">Premium Monthly — ৳2,998/month</p>
+              <p className="text-sm font-medium">
+                {PLAN_CONFIG.founder_launch.name} — {formatBnTaka(PLAN_CONFIG.founder_launch.price)}/month
+              </p>
               <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
                 আপনার প্রতিষ্ঠানটি launch update-এর তালিকায় রাখতে নিচের তথ্য দিন।
               </p>
@@ -871,6 +870,12 @@ function DashboardShowcase({ variant = "main" }: { variant?: string }) {
 
 type PricingCardVariant = "free" | "premium" | "enterprise";
 
+const LANDING_PRICING_TIERS: Record<PricingCardVariant, PlanTier> = {
+  free: "free_trial",
+  premium: "founder_launch",
+  enterprise: "annual_premium",
+};
+
 function PricingCard({
   variant,
   onFreeSelect,
@@ -882,34 +887,25 @@ function PricingCard({
   onPremiumSelect: () => void;
   onEnterpriseSelect: () => void;
 }) {
+  const tier = LANDING_PRICING_TIERS[variant];
+  const cfg = PLAN_CONFIG[tier];
   const isPremium = variant === "premium";
   const isFree = variant === "free";
-  const card = isFree
-    ? {
-        name: "Free Forever",
-        subtitle: "Perfect for Schools & Coaching Centers",
-        price: "৳0",
-        cadence: "",
-        features: ["Attendance", "Fees", "Exams", "Results", "Routine", "Notices", "Students", "Teachers", "Parents", "Dashboard"],
-        action: "Start Free",
-      }
+
+  const price = formatBnTaka(cfg.price);
+
+  const cadence =
+    cfg.billingCycle === "trial"
+      ? `/${cfg.trialDays} দিন`
+      : cfg.billingCycle === "monthly"
+        ? "/month"
+        : "/year";
+
+  const action = isFree
+    ? "Start Free Trial"
     : isPremium
-      ? {
-          name: "Premium Monthly",
-          subtitle: "Everything in Free +",
-          price: "৳2,998",
-          cadence: "/month",
-          features: ["Payment Gateway", "SMS Notifications", "WhatsApp Notifications", "White Label Branding", "Custom Domain", "Android App", "Website Design", "Data Migration", "AI Features", "Advanced Analytics"],
-          action: "Coming Soon",
-        }
-      : {
-          name: "Enterprise",
-          subtitle: "For growing school networks",
-          price: "Custom",
-          cadence: "",
-          features: ["Everything in Premium", "Multiple branches", "Dedicated onboarding", "Priority support", "Custom reporting"],
-          action: "Talk to Us",
-        };
+      ? "Coming Soon"
+      : "View Annual Plan";
 
   function handleSelect() {
     if (isFree) onFreeSelect();
@@ -918,33 +914,75 @@ function PricingCard({
   }
 
   return (
-    <Card className={isPremium ? "landing-glass-card relative flex h-full flex-col border-primary ring-2 ring-primary/20" : "landing-glass-card flex h-full flex-col"} data-testid={`card-pricing-${variant}`}>
-      {isPremium && <Badge variant="default" className="premium-badge absolute right-4 top-4 px-4 py-1.5 text-sm font-semibold">Most Popular</Badge>}
+    <Card
+      className="landing-glass-card relative flex h-full min-w-0 flex-col overflow-visible"
+      data-testid={`card-pricing-${variant}`}
+    >
+      {cfg.badge && (
+        <Badge
+          variant="default"
+          className="premium-badge absolute right-3 top-3 z-10 max-w-[calc(100%-1.5rem)] whitespace-normal px-3 py-1 text-xs font-semibold leading-tight sm:right-4 sm:top-4 sm:px-4 sm:py-1.5 sm:text-sm"
+        >
+          {cfg.badge}
+        </Badge>
+      )}
+
       <CardHeader className="space-y-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-          {isFree ? <Clock3 className="h-5 w-5" aria-hidden="true" /> : isPremium ? <Sparkles className="h-5 w-5" aria-hidden="true" /> : <ShieldCheck className="h-5 w-5" aria-hidden="true" />}
+          {isFree ? (
+            <Clock3 className="h-5 w-5" aria-hidden="true" />
+          ) : isPremium ? (
+            <Sparkles className="h-5 w-5" aria-hidden="true" />
+          ) : (
+            <ShieldCheck className="h-5 w-5" aria-hidden="true" />
+          )}
         </div>
-        <div>
-          <CardTitle className="text-xl">{card.name}</CardTitle>
-          <p className="mt-1 text-sm text-muted-foreground">{card.subtitle}</p>
+
+        <div className={cfg.badge ? "pr-20 sm:pr-24" : ""}>
+          <CardTitle className="text-xl">{cfg.name}</CardTitle>
+          <p className="mt-1 text-sm text-muted-foreground">{cfg.tagline}</p>
         </div>
       </CardHeader>
+
       <CardContent className="flex flex-1 flex-col">
-        <div className="mb-5 flex items-baseline gap-2">
-          <span className="font-display text-4xl tracking-tight">{card.price}</span>
-          {card.cadence && <span className="text-sm text-muted-foreground">{card.cadence}</span>}
+        <div className="mb-5 flex flex-wrap items-baseline gap-2">
+          <span className="font-display text-4xl tracking-tight">{price}</span>
+          <span className="text-sm text-muted-foreground">{cadence}</span>
         </div>
-        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Includes</p>
+
+        {cfg.regularPrice != null && (
+          <p className="mb-3 text-sm text-muted-foreground">
+            Regular price: <span className="line-through">{formatBnTaka(cfg.regularPrice)}</span>
+            {cfg.savings ? ` · ${cfg.savings}` : ""}
+          </p>
+        )}
+
+        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          Includes
+        </p>
+
         <ul className="mb-6 flex-1 space-y-3">
-          {card.features.map((feature) => (
-            <li key={feature} className="flex items-start gap-2 text-sm text-muted-foreground">
-              <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+          {cfg.displayHighlights.map((feature) => (
+            <li
+              key={feature}
+              className="flex items-start gap-2 text-sm text-muted-foreground"
+            >
+              <Check
+                className="mt-0.5 h-4 w-4 shrink-0 text-primary"
+                aria-hidden="true"
+              />
               <span>{feature}</span>
             </li>
           ))}
         </ul>
-        <Button data-testid={`button-select-plan-${variant}`} className="w-full" variant={isPremium ? "default" : "outline"} onClick={handleSelect}>
-          {card.action}
+
+        <Button
+          data-testid={`button-select-plan-${variant}`}
+          className="w-full"
+          variant={isPremium ? "default" : "outline"}
+          onClick={handleSelect}
+        >
+          {action}
           <ArrowRight aria-hidden="true" />
         </Button>
       </CardContent>
@@ -1091,9 +1129,21 @@ function LandingContent({
            </div>
            <div className="mt-10 grid gap-5 md:grid-cols-3">
               {[
-                ["Start today", "৳0 forever", "Free Forever শুরু করতে কোনো payment বা credit card লাগবে না।"],
-                ["Premium launch", "৳2,998 / month", "Premium Monthly এখন Coming Soon — launch update পেতে Notify Me করুন।"],
-                ["Growing teams", "Custom plan", "একাধিক branch বা tailored workflow-এর জন্য আমাদের সঙ্গে কথা বলুন।"],
+                [
+                  PLAN_CONFIG.free_trial.name,
+                  `${formatBnTaka(PLAN_CONFIG.free_trial.price)} / ${PLAN_CONFIG.free_trial.trialDays} দিন`,
+                  PLAN_CONFIG.free_trial.tagline,
+                ],
+                [
+                  PLAN_CONFIG.founder_launch.name,
+                  `${formatBnTaka(PLAN_CONFIG.founder_launch.price)} / month`,
+                  PLAN_CONFIG.founder_launch.tagline,
+                ],
+                [
+                  PLAN_CONFIG.annual_premium.name,
+                  `${formatBnTaka(PLAN_CONFIG.annual_premium.price)} / year`,
+                  PLAN_CONFIG.annual_premium.tagline,
+                ],
               ].map(([title, value, desc]) => <Card key={title} className="landing-glass-card p-5"><p className="text-sm font-medium text-muted-foreground">{title}</p><p className="mt-2 text-xl font-semibold">{value}</p><p className="mt-2 text-sm leading-relaxed text-muted-foreground">{desc}</p></Card>)}
           </div>
         </div>
