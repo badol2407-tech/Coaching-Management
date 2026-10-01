@@ -95,7 +95,7 @@ export const DEFAULT_LANDING_LAYOUT: LandingPageLayout = {
       id: "pricing",
       label: "Pricing",
       visible: true,
-      title: "আপনার স্কুলের জন্য সঠিক প্ল্যান বেছে নিন",
+      title: "আপনার প্রতিষ্ঠানের জন্য সঠিক প্ল্যান বেছে নিন",
       description: "কোনো hidden charge নেই। Free Trial দিয়ে শুরু করুন, তারপর আপনার growth অনুযায়ী plan বেছে নিন।",
       customText: [],
       sensitivity: 60,

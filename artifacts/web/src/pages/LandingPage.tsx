@@ -100,6 +100,7 @@ const googleProvider = new GoogleAuthProvider();
 type AuthMode = "login" | "signup" | "reset";
 export type LandingSection = "home" | "features" | "solutions" | "pricing" | "resources" | "about";
 const toBanglaDigits = (value: number) => String(value).replace(/\d/g, (digit) => "০১২৩৪৫৬৭৮৯"[Number(digit)]);
+const toEnglishDigits = (value: string | number) => String(value).replace(/[০-৯]/g, (digit) => "০১২৩৪৫৬৭৮৯".indexOf(digit).toString());
 const PROMOTION_SESSION_KEY = "et_promo_shown";
 const HERO_WINDOWS_ENTRANCE_KEY = "edutrack_hero_windows_entered";
 
@@ -892,11 +893,11 @@ function PricingCard({
   const isPremium = variant === "premium";
   const isFree = variant === "free";
 
-  const price = formatBnTaka(cfg.price);
+  const price = toEnglishDigits(formatBnTaka(cfg.price));
 
   const cadence =
     cfg.billingCycle === "trial"
-      ? `/${cfg.trialDays} দিন`
+      ? `/${toEnglishDigits(cfg.trialDays)} দিন`
       : cfg.billingCycle === "monthly"
         ? "/month"
         : "/year";
@@ -940,7 +941,7 @@ function PricingCard({
 
         <div className={cfg.badge ? "pr-20 sm:pr-24" : ""}>
           <CardTitle className="text-xl">{cfg.name}</CardTitle>
-          <p className="mt-1 text-sm text-muted-foreground">{cfg.tagline}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{toEnglishDigits(cfg.tagline)}</p>
         </div>
       </CardHeader>
 
@@ -952,8 +953,8 @@ function PricingCard({
 
         {cfg.regularPrice != null && (
           <p className="mb-3 text-sm text-muted-foreground">
-            Regular price: <span className="line-through">{formatBnTaka(cfg.regularPrice)}</span>
-            {cfg.savings ? ` · ${cfg.savings}` : ""}
+            Regular price: <span className="line-through">{toEnglishDigits(formatBnTaka(cfg.regularPrice))}</span>
+            {cfg.savings ? ` · ${toEnglishDigits(cfg.savings)}` : ""}
           </p>
         )}
 
@@ -971,7 +972,7 @@ function PricingCard({
                 className="mt-0.5 h-4 w-4 shrink-0 text-primary"
                 aria-hidden="true"
               />
-              <span>{feature}</span>
+              <span>{toEnglishDigits(feature)}</span>
             </li>
           ))}
         </ul>
@@ -1131,18 +1132,18 @@ function LandingContent({
               {[
                 [
                   PLAN_CONFIG.free_trial.name,
-                  `${formatBnTaka(PLAN_CONFIG.free_trial.price)} / ${PLAN_CONFIG.free_trial.trialDays} দিন`,
-                  PLAN_CONFIG.free_trial.tagline,
+                  `${toEnglishDigits(formatBnTaka(PLAN_CONFIG.free_trial.price))} / ${toEnglishDigits(PLAN_CONFIG.free_trial.trialDays)} দিন`,
+                  toEnglishDigits(PLAN_CONFIG.free_trial.tagline),
                 ],
                 [
                   PLAN_CONFIG.founder_launch.name,
-                  `${formatBnTaka(PLAN_CONFIG.founder_launch.price)} / month`,
-                  PLAN_CONFIG.founder_launch.tagline,
+                  `${toEnglishDigits(formatBnTaka(PLAN_CONFIG.founder_launch.price))} / month`,
+                  toEnglishDigits(PLAN_CONFIG.founder_launch.tagline),
                 ],
                 [
                   PLAN_CONFIG.annual_premium.name,
-                  `${formatBnTaka(PLAN_CONFIG.annual_premium.price)} / year`,
-                  PLAN_CONFIG.annual_premium.tagline,
+                  `${toEnglishDigits(formatBnTaka(PLAN_CONFIG.annual_premium.price))} / year`,
+                  toEnglishDigits(PLAN_CONFIG.annual_premium.tagline),
                 ],
               ].map(([title, value, desc]) => <Card key={title} className="landing-glass-card p-5"><p className="text-sm font-medium text-muted-foreground">{title}</p><p className="mt-2 text-xl font-semibold">{value}</p><p className="mt-2 text-sm leading-relaxed text-muted-foreground">{desc}</p></Card>)}
           </div>
