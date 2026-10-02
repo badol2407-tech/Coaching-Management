@@ -728,6 +728,11 @@ function isFloworaRole(role) {
       allow write: if isSignedIn() && isSuperAdmin();
     }
 
+    match /pricing_config/{docId} {
+      allow read: if true;
+      allow write: if isSignedIn() && isSuperAdmin();
+    }
+
     // ── demo_leads ──────────────────────────────────────────────────────────
     // Public visitors may submit only a new, fixed-shape demo request. Lead
     // details are private and can only be viewed or managed by Super Admin.

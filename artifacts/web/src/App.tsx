@@ -67,6 +67,7 @@ const StudentsList = lazy(() => import("@/pages/super-admin/StudentsList"));
 const AccessPortal = lazy(() => import("@/pages/super-admin/AccessPortal"));
 // Super Admin pages — Billing
 const PricingPlans = lazy(() => import("@/pages/super-admin/PricingPlans"));
+const PricingBuilder = lazy(() => import("@/pages/super-admin/PricingBuilder"));
 const ActiveSubscriptions = lazy(
   () => import("@/pages/super-admin/ActiveSubscriptions"),
 );
@@ -380,6 +381,7 @@ function AuthenticatedRoutes() {
             <Route path="/operations/access-portal" component={AccessPortal} />
             {/* Billing & Finance */}
             <Route path="/billing/pricing" component={PricingPlans} />
+            <Route path="/billing/pricing-builder" component={PricingBuilder} />
             <Route
               path="/billing/subscriptions"
               component={ActiveSubscriptions}

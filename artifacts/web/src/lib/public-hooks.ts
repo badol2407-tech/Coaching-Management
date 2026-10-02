@@ -14,6 +14,10 @@ import {
   normalizeLandingLayout,
   type LandingPageLayout,
 } from "@/lib/landing-layout";
+import {
+  normalizePublicPricingConfig,
+  type PublicPricingConfig,
+} from "@/lib/pricing-config";
 
 export interface PublicTestimonial {
   id: string;
@@ -52,6 +56,28 @@ export function usePublicLandingLayout() {
       (snap) => setData(snap.exists() ? normalizeLandingLayout(snap.data()) : null),
       () => setData(null),
     );
+    return unsubscribe;
+  }, []);
+
+  return data;
+}
+
+
+export function usePublicPricingConfig() {
+  const [data, setData] = useState<PublicPricingConfig | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(
+      doc(db, "pricing_config", "public"),
+      (snap) =>
+        setData(
+          snap.exists()
+            ? normalizePublicPricingConfig(snap.data())
+            : null,
+        ),
+      () => setData(null),
+    );
+
     return unsubscribe;
   }, []);
 

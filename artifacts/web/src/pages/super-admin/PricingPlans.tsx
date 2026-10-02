@@ -1,5 +1,5 @@
-import { useListOrganizations } from "@/lib/super-admin-hooks";
-import { ALL_TIERS, PLAN_CONFIG, PlanTier, getEffectiveTier, getMonthlyEquivalent, getTierPriceLabel } from "@/lib/plan-config";
+import { useListOrganizations, usePricingConfig } from "@/lib/super-admin-hooks";
+import { ALL_TIERS, PLAN_CONFIG, PlanTier, getEffectiveTier } from "@/lib/plan-config";
 import { getOrgAccessStatus } from "@/lib/subscription";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +13,8 @@ const TIER_STYLES: Record<PlanTier, { color: string; bg: string; bar: string }> 
 
 export default function PricingPlans() {
   const { data: orgs = [], isLoading } = useListOrganizations();
+  const { data: pricingConfig } = usePricingConfig();
+  const pricingPlans = pricingConfig?.plans ?? PLAN_CONFIG;
 
   const counts = ALL_TIERS.reduce((acc, t) => {
     acc[t] = (orgs as any[]).filter((o) => getEffectiveTier(o) === t).length;
@@ -21,7 +23,16 @@ export default function PricingPlans() {
 
   const mrr = (orgs as any[])
     .filter((o: any) => o.paymentStatus === "paid" && getOrgAccessStatus(o) !== "paused")
-    .reduce((sum, o: any) => sum + getMonthlyEquivalent(getEffectiveTier(o)), 0);
+    .reduce((sum, o: any) => {
+      const tier = getEffectiveTier(o);
+      const cfg = pricingPlans[tier];
+
+      return sum + (
+        cfg.billingCycle === "annual"
+          ? Math.round(cfg.price / 12)
+          : cfg.price
+      );
+    }, 0);
 
   return (
     <div className="space-y-6">
@@ -72,11 +83,17 @@ export default function PricingPlans() {
       {/* Plan cards */}
       <div className="grid md:grid-cols-3 gap-5">
         {ALL_TIERS.map((tier) => {
-          const cfg = PLAN_CONFIG[tier];
+          const cfg = pricingPlans[tier];
           const count = counts[tier];
           const pct = orgs.length ? Math.round((count / orgs.length) * 100) : 0;
           const styles = TIER_STYLES[tier];
-          const priceLabel = getTierPriceLabel(tier);
+          const cadence =
+            cfg.billingCycle === "trial"
+              ? `/ ${cfg.trialDays} days`
+              : cfg.billingCycle === "monthly"
+                ? "/month"
+                : "/year";
+          const priceLabel = `৳${Math.round(cfg.price).toLocaleString("en-US")} ${cadence}`;
 
           return (
             <Card key={tier} className={`border ${styles.bg}`}>
@@ -103,7 +120,11 @@ export default function PricingPlans() {
                 </div>
                 {cfg.price > 0 && (
                   <p className="text-xs text-muted-foreground">
-                    MRR contribution: ৳{(count * getMonthlyEquivalent(tier)).toLocaleString()}/mo
+                    MRR contribution: ৳{(count * (
+                      cfg.billingCycle === "annual"
+                        ? Math.round(cfg.price / 12)
+                        : cfg.price
+                    )).toLocaleString()}/mo
                   </p>
                 )}
 
@@ -148,7 +169,7 @@ export default function PricingPlans() {
                       <tr key={o.id} className="border-b border-border/50 hover:bg-accent/30">
                         <td className="py-2.5 pr-4 font-medium">{o.name}</td>
                         <td className="py-2.5 pr-4">
-                          <Badge variant="outline" className="text-xs capitalize">{PLAN_CONFIG[tier].name}</Badge>
+                          <Badge variant="outline" className="text-xs capitalize">{pricingPlans[tier].name}</Badge>
                         </td>
                         <td className="py-2.5 pr-4">
                           <Badge variant={status === "active" ? "default" : "secondary"} className="text-xs">{statusLabel}</Badge>

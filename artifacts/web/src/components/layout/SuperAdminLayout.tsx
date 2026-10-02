@@ -39,6 +39,7 @@ const modules = [
     icon: DollarSign,
     items: [
       { title: "Pricing Plans", href: "/billing/pricing", icon: Tag },
+      { title: "Pricing Builder", href: "/billing/pricing-builder", icon: Tag },
       { title: "Subscriptions", href: "/billing/subscriptions", icon: Zap },
       { title: "Paid / Unpaid", href: "/billing/paid-unpaid", icon: CreditCard },
       { title: "Free Trials", href: "/billing/free-trial", icon: Gift },

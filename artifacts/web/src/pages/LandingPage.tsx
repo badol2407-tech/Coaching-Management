@@ -93,7 +93,10 @@ import {
   type LandingPageLayout,
   type LandingWindowId,
 } from "@/lib/landing-layout";
-import { usePublicLandingLayout } from "@/lib/public-hooks";
+import {
+  usePublicLandingLayout,
+  usePublicPricingConfig,
+} from "@/lib/public-hooks";
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -248,6 +251,10 @@ function AuthPanel({
 
   async function handleGoogle() {
     setLoading(true);
+    const isPublicSignup = mode === "signup";
+    if (isPublicSignup) {
+      sessionStorage.setItem("edutrack_public_signup_in_progress", "true");
+    }
     try {
       await setPersistence(auth, browserLocalPersistence);
       const result = await signInWithPopup(auth, googleProvider);
@@ -285,6 +292,9 @@ function AuthPanel({
         toast({ title: mode === "signup" ? "Sign Up Error" : "Google Sign-In Error", description: friendlyError(err.code), variant: "destructive" });
       }
     } finally {
+      if (isPublicSignup) {
+        sessionStorage.removeItem("edutrack_public_signup_in_progress");
+      }
       setLoading(false);
     }
   }
@@ -307,6 +317,7 @@ function AuthPanel({
         toast({ title: "Reset link sent!", description: "Check your email for the password reset link." });
         setMode("login");
       } else if (mode === "signup") {
+        sessionStorage.setItem("edutrack_public_signup_in_progress", "true");
         await setPersistence(auth, browserLocalPersistence);
         const credential = await createUserWithEmailAndPassword(auth, email.trim(), password);
         const { firstName, lastName } = inferAccountNames(undefined, email.trim());
@@ -337,9 +348,15 @@ function AuthPanel({
         onClose();
       }
     } catch (err: any) {
+      if (mode === "signup") {
+        sessionStorage.removeItem("edutrack_public_signup_in_progress");
+      }
       if (mode === "login") trackLoginFailed("email", err.code ?? "unknown");
       toast({ title: mode === "signup" ? "Sign Up Error" : "Login Error", description: friendlyError(err.code), variant: "destructive" });
     } finally {
+      if (mode === "signup") {
+        sessionStorage.removeItem("edutrack_public_signup_in_progress");
+      }
       setLoading(false);
     }
   }
@@ -879,21 +896,61 @@ const LANDING_PRICING_TIERS: Record<PricingCardVariant, PlanTier> = {
 
 function PricingCard({
   variant,
+  pricingConfig,
+  pricingElements,
   onFreeSelect,
   onPremiumSelect,
   onEnterpriseSelect,
 }: {
   variant: PricingCardVariant;
+  pricingConfig: typeof PLAN_CONFIG;
+  pricingElements?: any;
   onFreeSelect: () => void;
   onPremiumSelect: () => void;
   onEnterpriseSelect: () => void;
 }) {
   const tier = LANDING_PRICING_TIERS[variant];
-  const cfg = PLAN_CONFIG[tier];
+  const cfg = pricingConfig[tier];
   const isPremium = variant === "premium";
   const isFree = variant === "free";
 
-  const price = toEnglishDigits(formatBnTaka(cfg.price));
+  const elements = pricingElements?.desktop?.[tier] ?? [];
+  const visibleElements = elements.filter(
+    (element: any) => element.visible !== false,
+  );
+
+  const nameElement = visibleElements.find(
+    (element: any) => element.id === `${tier}-name`,
+  );
+  const taglineElement = visibleElements.find(
+    (element: any) => element.id === `${tier}-tagline`,
+  );
+  const priceElement = visibleElements.find(
+    (element: any) => element.type === "price",
+  );
+  const buttonElement = visibleElements.find(
+    (element: any) => element.type === "button",
+  );
+  const featureElements = visibleElements.filter(
+    (element: any) => element.type === "feature",
+  );
+
+  const cardName = nameElement?.content || cfg.name;
+  const cardTagline = taglineElement?.content || cfg.tagline;
+  const cardPrice = priceElement?.content ?? String(cfg.price);
+  const cardFeatures =
+    featureElements.length > 0
+      ? featureElements.map((element: any) => element.content)
+      : cfg.displayHighlights;
+  const action =
+    buttonElement?.content ||
+    (isFree
+      ? "Start Free Trial"
+      : isPremium
+        ? "Coming Soon"
+        : "View Annual Plan");
+
+  const price = toEnglishDigits(formatBnTaka(Number(cardPrice)));
 
   const cadence =
     cfg.billingCycle === "trial"
@@ -901,12 +958,6 @@ function PricingCard({
       : cfg.billingCycle === "monthly"
         ? "/month"
         : "/year";
-
-  const action = isFree
-    ? "Start Free Trial"
-    : isPremium
-      ? "Coming Soon"
-      : "View Annual Plan";
 
   function handleSelect() {
     if (isFree) onFreeSelect();
@@ -940,8 +991,8 @@ function PricingCard({
         </div>
 
         <div className={cfg.badge ? "pr-20 sm:pr-24" : ""}>
-          <CardTitle className="text-xl">{cfg.name}</CardTitle>
-          <p className="mt-1 text-sm text-muted-foreground">{toEnglishDigits(cfg.tagline)}</p>
+          <CardTitle className="text-xl">{cardName}</CardTitle>
+          <p className="mt-1 text-sm text-muted-foreground">{toEnglishDigits(cardTagline)}</p>
         </div>
       </CardHeader>
 
@@ -963,9 +1014,9 @@ function PricingCard({
         </p>
 
         <ul className="mb-6 flex-1 space-y-3">
-          {cfg.displayHighlights.map((feature) => (
+          {cardFeatures.map((feature: string, index: number) => (
             <li
-              key={feature}
+              key={`${feature}-${index}`}
               className="flex items-start gap-2 text-sm text-muted-foreground"
             >
               <Check
@@ -1001,6 +1052,8 @@ function LandingContent({
   onPremiumLaunch,
   heroWindowsEnter,
   landingLayout,
+  pricingConfig,
+  pricingElements,
 }: {
   section: LandingSection;
   heroRef: React.RefObject<HTMLElement | null>;
@@ -1011,6 +1064,8 @@ function LandingContent({
   onPremiumLaunch: () => void;
   heroWindowsEnter: boolean;
   landingLayout: LandingPageLayout;
+  pricingConfig: typeof PLAN_CONFIG;
+  pricingElements?: any;
 }) {
   const block = landingLayout.blocks[section];
   const blockStyle = {
@@ -1111,18 +1166,24 @@ function LandingContent({
            <div className="mt-10 grid gap-5 lg:grid-cols-3">
              <PricingCard
                variant="free"
+               pricingConfig={pricingConfig}
+               pricingElements={pricingElements}
                onFreeSelect={() => selectPlan("free_trial")}
                onPremiumSelect={onPremiumLaunch}
                onEnterpriseSelect={() => openDemo("pricing_enterprise")}
              />
              <PricingCard
                variant="premium"
+               pricingConfig={pricingConfig}
+               pricingElements={pricingElements}
                onFreeSelect={() => selectPlan("free_trial")}
                onPremiumSelect={onPremiumLaunch}
                onEnterpriseSelect={() => openDemo("pricing_enterprise")}
              />
              <PricingCard
                variant="enterprise"
+               pricingConfig={pricingConfig}
+               pricingElements={pricingElements}
                onFreeSelect={() => selectPlan("free_trial")}
                onPremiumSelect={onPremiumLaunch}
                onEnterpriseSelect={() => openDemo("pricing_enterprise")}
@@ -1131,19 +1192,19 @@ function LandingContent({
            <div className="mt-10 grid gap-5 md:grid-cols-3">
               {[
                 [
-                  PLAN_CONFIG.free_trial.name,
-                  `${toEnglishDigits(formatBnTaka(PLAN_CONFIG.free_trial.price))} / ${toEnglishDigits(PLAN_CONFIG.free_trial.trialDays)} দিন`,
-                  toEnglishDigits(PLAN_CONFIG.free_trial.tagline),
+                  pricingConfig.free_trial.name,
+                  `${toEnglishDigits(formatBnTaka(pricingConfig.free_trial.price))} / ${toEnglishDigits(pricingConfig.free_trial.trialDays)} দিন`,
+                  toEnglishDigits(pricingConfig.free_trial.tagline),
                 ],
                 [
-                  PLAN_CONFIG.founder_launch.name,
-                  `${toEnglishDigits(formatBnTaka(PLAN_CONFIG.founder_launch.price))} / month`,
-                  toEnglishDigits(PLAN_CONFIG.founder_launch.tagline),
+                  pricingConfig.founder_launch.name,
+                  `${toEnglishDigits(formatBnTaka(pricingConfig.founder_launch.price))} / month`,
+                  toEnglishDigits(pricingConfig.founder_launch.tagline),
                 ],
                 [
-                  PLAN_CONFIG.annual_premium.name,
-                  `${toEnglishDigits(formatBnTaka(PLAN_CONFIG.annual_premium.price))} / year`,
-                  toEnglishDigits(PLAN_CONFIG.annual_premium.tagline),
+                  pricingConfig.annual_premium.name,
+                  `${toEnglishDigits(formatBnTaka(pricingConfig.annual_premium.price))} / year`,
+                  toEnglishDigits(pricingConfig.annual_premium.tagline),
                 ],
               ].map(([title, value, desc]) => <Card key={title} className="landing-glass-card p-5"><p className="text-sm font-medium text-muted-foreground">{title}</p><p className="mt-2 text-xl font-semibold">{value}</p><p className="mt-2 text-sm leading-relaxed text-muted-foreground">{desc}</p></Card>)}
           </div>
@@ -1188,6 +1249,9 @@ export default function LandingPage() {
       sessionStorage.getItem(PROMOTION_SESSION_KEY) === "1",
   );
   const reduceMotion = useReducedMotion();
+  const publicPricingConfig = usePublicPricingConfig();
+  const pricingConfig = publicPricingConfig?.plans ?? PLAN_CONFIG;
+
   const landingLayout = usePublicLandingLayout() ?? DEFAULT_LANDING_LAYOUT;
   const heroRef = useRef<HTMLElement>(null);
   const [location, navigate] = useLocation();
@@ -1310,6 +1374,8 @@ export default function LandingPage() {
             onPremiumLaunch={openPremiumLaunch}
            heroWindowsEnter={heroWindowsEnter}
             landingLayout={landingLayout}
+            pricingConfig={pricingConfig}
+            pricingElements={publicPricingConfig?.elements}
          />
        </main>
 

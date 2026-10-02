@@ -23,6 +23,10 @@ import {
   getEffectiveTier,
   getMonthlyEquivalent,
 } from "./plan-config";
+import {
+  normalizePublicPricingConfig,
+  type PublicPricingConfig,
+} from "./pricing-config";
 
 function ts(val: unknown): string {
   if (!val) return "";
@@ -341,6 +345,50 @@ export function useSaveLandingPageLayout() {
         desktop: layout.desktop,
         mobile: layout.mobile,
         blocks: layout.blocks,
+        updatedAt: serverTimestamp(),
+      });
+    },
+  });
+}
+
+export function usePricingConfig() {
+  const [data, setData] = useState<PublicPricingConfig | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(
+      doc(db, "pricing_config", "public"),
+      (snap) => {
+        setData(
+          snap.exists()
+            ? normalizePublicPricingConfig(snap.data())
+            : null,
+        );
+        setIsLoading(false);
+        setError(null);
+      },
+      (snapshotError) => {
+        setError(snapshotError);
+        setIsLoading(false);
+      },
+    );
+
+    return unsubscribe;
+  }, []);
+
+  return { data, isLoading, error };
+}
+
+export function useSavePricingConfig() {
+  return useMutation({
+    mutationFn: async (config: PublicPricingConfig) => {
+      await setDoc(doc(db, "pricing_config", "public"), {
+        version: config.version,
+        heading: config.heading,
+        plans: config.plans,
+        layout: config.layout,
+        elements: config.elements,
         updatedAt: serverTimestamp(),
       });
     },
