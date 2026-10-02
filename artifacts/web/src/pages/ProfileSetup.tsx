@@ -23,8 +23,14 @@ export default function ProfileSetup() {
   const [stage, setStage] = useState<SetupStage>(
     userProfile?.profileSetupStep === "username" ? "username" : "name",
   );
-  const firstName = inferredFirstName;
+  const [firstName, setFirstName] = useState(inferredFirstName);
   const [lastName, setLastName] = useState(userProfile?.lastName ?? "");
+
+  useEffect(() => {
+    if (!firstName.trim() && inferredFirstName) {
+      setFirstName(inferredFirstName);
+    }
+  }, [firstName, inferredFirstName]);
   const [username, setUsername] = useState(
     cleanUsername(userProfile?.username ?? ""),
   );
@@ -34,8 +40,8 @@ export default function ProfileSetup() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (!inferredFirstName || usernameTouched || !user?.uid) return;
-    const base = cleanUsername(`${inferredFirstName}${lastName}`);
+    if (!firstName.trim() || usernameTouched || !user?.uid) return;
+    const base = cleanUsername(`${firstName}${lastName}`);
     if (base.length < 3) return;
     let cancelled = false;
     const timer = window.setTimeout(async () => {
@@ -60,7 +66,7 @@ export default function ProfileSetup() {
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [inferredFirstName, lastName, user?.uid, usernameTouched]);
+  }, [firstName, lastName, user?.uid, usernameTouched]);
 
   useEffect(() => {
     if (!lastName && userProfile?.lastName) setLastName(userProfile.lastName);
@@ -179,7 +185,7 @@ export default function ProfileSetup() {
               <p className="mt-2 text-sm leading-6 text-slate-500">This is the name your team will see around EduTrack.</p>
             </div>
             <div className="grid gap-5 sm:grid-cols-2">
-              <Field label="First name" value={firstName} icon={<UserRound size={17} />} id="input-first-name" />
+              <Field label="First name" value={firstName} onChange={setFirstName} icon={<UserRound size={17} />} id="input-first-name" />
               <Field label="Last name" value={lastName} icon={<UserRound size={17} />} onChange={setLastName} placeholder="Your family name" id="input-last-name" autoFocus />
             </div>
             {error && <ErrorMessage message={error} />}
