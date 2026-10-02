@@ -110,11 +110,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const loadProfile = useCallback(async (u: User) => {
     try {
       const ref = doc(db, "users", u.uid);
-      const snap = await getDoc(ref);
+      let snap = await getDoc(ref);
+      console.log("[EduTrack Auth] profile lookup", {
+        uid: u.uid,
+        exists: snap.exists(),
+        signupInProgress: sessionStorage.getItem("edutrack_public_signup_in_progress"),
+      });
+
+      // Public signup creates the Firebase Auth user before its Firestore
+      // profile. Wait for that signup transaction instead of briefly routing
+      // the authenticated user to the incomplete-profile screen.
+      if (!snap.exists() && sessionStorage.getItem("edutrack_public_signup_in_progress") === "true") {
+        for (let attempt = 0; attempt < 40 && !snap.exists(); attempt += 1) {
+          await new Promise((resolve) => setTimeout(resolve, 250));
+          snap = await getDoc(ref);
+        }
+      }
 
       if (snap.exists()) {
         const data = parseFirestoreUserProfile(snap.data());
         if (!data) {
+          console.log("[EduTrack Auth] profile rejected: parser returned null");
           setRealProfile(null);
           return;
         }
@@ -126,6 +142,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         //   • If email is NOT whitelisted but Firestore role === "super_admin"
         //     → block (security — prevents rogue Firestore edits from elevating)
         if (data.role === USER_ROLES.SUPER_ADMIN && !isSuperAdminEmail(u.email)) {
+          console.log("[EduTrack Auth] profile rejected: unauthorized super_admin role");
           setRealProfile(null);
           return;
         }
@@ -163,13 +180,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           orgSubscription,
         };
         setRealProfile(profile);
+        sessionStorage.removeItem("edutrack_public_signup_in_progress");
         identifyUser(u.uid, { role: data.role, email: data.email, name: data.name, orgId: data.orgId, orgName });
       } else {
+        console.log("[EduTrack Auth] profile missing after lookup/retries", {
+          uid: u.uid,
+          signupInProgress: sessionStorage.getItem("edutrack_public_signup_in_progress"),
+        });
         // No Firestore profile exists — no super_admin auto-creation by email alone.
         // Redirect to Setup so the user completes onboarding.
+        sessionStorage.removeItem("edutrack_public_signup_in_progress");
         setRealProfile(null);
       }
-    } catch {
+    } catch (error) {
+      console.error("[EduTrack Auth] profile load error", error);
       setRealProfile(null);
     }
   }, []);

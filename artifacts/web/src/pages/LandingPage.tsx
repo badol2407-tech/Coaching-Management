@@ -292,9 +292,6 @@ function AuthPanel({
         toast({ title: mode === "signup" ? "Sign Up Error" : "Google Sign-In Error", description: friendlyError(err.code), variant: "destructive" });
       }
     } finally {
-      if (isPublicSignup) {
-        sessionStorage.removeItem("edutrack_public_signup_in_progress");
-      }
       setLoading(false);
     }
   }
@@ -354,9 +351,6 @@ function AuthPanel({
       if (mode === "login") trackLoginFailed("email", err.code ?? "unknown");
       toast({ title: mode === "signup" ? "Sign Up Error" : "Login Error", description: friendlyError(err.code), variant: "destructive" });
     } finally {
-      if (mode === "signup") {
-        sessionStorage.removeItem("edutrack_public_signup_in_progress");
-      }
       setLoading(false);
     }
   }
