@@ -73,7 +73,7 @@ export default function FreeTrial() {
           <CardContent className="pt-5">
             <p className="text-sm text-muted-foreground">Conversion Opportunity</p>
             <p className="text-2xl font-bold mt-0.5 text-emerald-400">
-              ৳{(trialOrgs.length * 749).toLocaleString()}
+              ৳{(trialOrgs.length * PLAN_CONFIG.founder_launch.price).toLocaleString()}
               <span className="text-sm font-normal text-muted-foreground">/mo potential</span>
             </p>
           </CardContent>

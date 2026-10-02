@@ -17,14 +17,14 @@ const faqs = [
     items: [
       { q: "কীভাবে শুরু করব?", a: "'বিনামূল্যে শুরু করুন' button-এ click করুন → Google বা Email দিয়ে register করুন → Setup page-এ 'Org Admin' role select করুন → Organization-এর নাম দিন। ব্যস! আপনার coaching center ready।" },
       { q: "Teachers ও Students কীভাবে যোগ করব?", a: "Setup-এর পর আপনি একটি unique Organization Code পাবেন। এই code teachers ও students-দের দিন। তারা register করে সেই code দিলে automatically আপনার organization-এ join হবে।" },
-      { q: "একটি account দিয়ে কি একাধিক branch manage করা যাবে?", a: "Pro plan-এ একাধিক branch support আছে। Free Trial ও Basic plan-এ শুধুমাত্র ১টি branch।" },
+      { q: "একটি account দিয়ে কি একাধিক branch manage করা যাবে?", a: "Annual Premium plan-এ একাধিক branch support আছে। Free Trial ও Founder Launch plan-এ শুধুমাত্র ১টি branch।" },
       { q: "Password ভুলে গেলে কী করব?", a: "Login page-এ 'Password ভুলে গেছেন?' link-এ click করুন। Email-এ password reset link পাঠানো হবে।" },
     ],
   },
   {
     category: "Pricing ও Payment",
     items: [
-      { q: "Free trial-এ কতদিন সব features ব্যবহার করা যাবে?", a: "৩০ দিন সম্পূর্ণ বিনামূল্যে। কোনো credit card লাগবে না। ৩০ দিন পরে একটি plan select করতে হবে।" },
+      { q: "Free trial-এ কতদিন সব features ব্যবহার করা যাবে?", a: "৭ দিন সম্পূর্ণ বিনামূল্যে। কোনো credit card লাগবে না। ৭ দিন পরে একটি plan select করতে হবে।" },
       { q: "Subscription কীভাবে করব?", a: "App-এ Subscription page থেকে plan select করুন। bKash, Nagad, card — যেকোনো উপায়ে payment করা যাবে (SSLCommerz gateway)।" },
       { q: "Subscription cancel করলে কি refund পাব?", a: "Subscription cancel করলে বাকি মাসের service পাবেন কিন্তু টাকা refund হবে না। বিস্তারিত জানতে Refund Policy দেখুন।" },
       { q: "Plan upgrade করা যাবে?", a: "হ্যাঁ, যেকোনো সময় Basic থেকে Pro-তে upgrade করা যাবে।" },
@@ -34,7 +34,7 @@ const faqs = [
     category: "Data ও Security",
     items: [
       { q: "আমার data কি safe?", a: "হ্যাঁ। সব data Google Firebase-এ encrypted অবস্থায় store হয়। Organization-wise isolation — অন্য কোনো coaching center আপনার data দেখতে পারবে না।" },
-      { q: "Data export করা যাবে?", a: "Basic ও Pro plan-এ data export feature আছে। Free trial-এ export সীমিত।" },
+      { q: "Data export করা যাবে?", a: "সব plan-এ data export feature আছে।" },
       { q: "Account বন্ধ করলে data কী হবে?", a: "Account বন্ধ করার request করলে আমরা আপনার data ৭ দিনের মধ্যে মুছে দেব। আগে export করে নিন।" },
     ],
   },

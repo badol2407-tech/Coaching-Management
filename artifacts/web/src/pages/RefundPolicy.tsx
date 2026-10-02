@@ -36,7 +36,7 @@ export default function RefundPolicy() {
           <section>
             <h2 className="text-xl font-semibold mb-3">১. Free Trial</h2>
             <p className="text-muted-foreground">
-              নতুন account তৈরির পর ৩০ দিন সম্পূর্ণ বিনামূল্যে। Trial period-এ কোনো payment নেওয়া হয় না,
+              নতুন account তৈরির পর ৭ দিন সম্পূর্ণ বিনামূল্যে। Trial period-এ কোনো payment নেওয়া হয় না,
               তাই refund-এর প্রশ্ন আসে না।
             </p>
           </section>

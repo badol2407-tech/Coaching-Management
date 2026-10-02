@@ -47,7 +47,7 @@ export default function TermsOfService() {
           <section>
             <h2 className="text-xl font-semibold mb-3">৩. Free Trial ও Subscription</h2>
             <p className="text-muted-foreground">
-              নতুন account তৈরির পর ৩০ দিন সম্পূর্ণ বিনামূল্যে সব features ব্যবহার করা যাবে।
+              নতুন account তৈরির পর ৭ দিন সম্পূর্ণ বিনামূল্যে সব features ব্যবহার করা যাবে।
               Trial শেষে একটি paid plan select করতে হবে অথবা account inactive হয়ে যাবে।
               Subscription বাতিল করলে বাকি মাসের টাকা ফেরত দেওয়া হবে না।
             </p>

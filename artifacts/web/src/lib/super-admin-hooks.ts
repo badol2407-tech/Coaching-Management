@@ -19,6 +19,10 @@ import {
   normalizeLandingLayout,
   type LandingPageLayout,
 } from "./landing-layout";
+import {
+  getEffectiveTier,
+  getMonthlyEquivalent,
+} from "./plan-config";
 
 function ts(val: unknown): string {
   if (!val) return "";
@@ -104,17 +108,6 @@ export function useDeleteOrganization() {
 
 // ── Detailed Stats ─────────────────────────────────────────────────────────────
 
-const PLAN_PRICES: Record<string, number> = {
-  // Legacy IDs
-  free: 0,
-  basic: 499,
-  pro: 999,
-  // New canonical IDs — annual is divided by 12 for MRR
-  free_trial: 0,
-  founder_launch: 749,
-  annual_premium: Math.round(9999 / 12), // ~833/mo equivalent
-};
-
 export function useSuperAdminDetailedStats() {
   return useQuery({
     queryKey: ["super_admin", "stats"],
@@ -140,7 +133,10 @@ export function useSuperAdminDetailedStats() {
 
       const mrr = orgs
         .filter((o) => o.paymentStatus === "paid" && o.status !== "paused")
-        .reduce((sum, o) => sum + (PLAN_PRICES[o.plan ?? "free"] ?? 0), 0);
+        .reduce((sum, o) => {
+          const tier = getEffectiveTier(o);
+          return sum + getMonthlyEquivalent(tier);
+        }, 0);
 
       // Total revenue: sum from payment history collection if it exists, else estimate
       let totalRevenue = mrr;

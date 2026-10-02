@@ -2,12 +2,13 @@ import { useSuperAdminDetailedStats, useListPaymentHistory } from "@/lib/super-a
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, DollarSign, Building2, BarChart3 } from "lucide-react";
+import { getEffectiveTier, getMonthlyEquivalent } from "@/lib/plan-config";
 
 export default function Revenue() {
   const { data: stats, isLoading: statsLoading } = useSuperAdminDetailedStats();
   const { data: payments = [], isLoading: pmtLoading } = useListPaymentHistory();
 
-  const planLabels: Record<string, string> = { free: "Free", basic: "Founder Launch", pro: "Annual Premium" };
+  const planLabels: Record<string, string> = { free: "Free Trial", basic: "Founder Launch", pro: "Annual Premium", free_trial: "Free Trial", founder_launch: "Founder Launch", annual_premium: "Annual Premium" };
   const planColors: Record<string, string> = { free: "bg-slate-400", basic: "bg-amber-400", pro: "bg-violet-400" };
 
   const totalFromPayments = payments.reduce((s: number, p: any) => s + (Number(p.amount) || 0), 0);
@@ -60,8 +61,8 @@ export default function Revenue() {
             ) : (
               <div className="space-y-4">
                 {stats && Object.entries(stats.planBreakdown).map(([plan, count]) => {
-                  const prices: Record<string, number> = { free: 0, basic: 749, pro: Math.round(9999 / 12) };
-                  const rev = (count as number) * (prices[plan] ?? 0);
+                  const tier = getEffectiveTier({ plan } as any);
+                  const rev = (count as number) * getMonthlyEquivalent(tier);
                   const pct = stats.totalOrgs ? Math.round(((count as number) / stats.totalOrgs) * 100) : 0;
                   return (
                     <div key={plan} className="space-y-1.5">
