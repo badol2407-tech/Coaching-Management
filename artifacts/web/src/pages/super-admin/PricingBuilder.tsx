@@ -118,21 +118,73 @@ export default function PricingBuilder() {
   ) => {
     if (!selectedElementId) return;
 
-    setConfig((current) => ({
-      ...current,
-      elements: {
+    setConfig((current) => {
+      const currentElements = current.elements[viewport][selectedTier];
+      const selectedElement = currentElements.find(
+        (element) => element.id === selectedElementId,
+      );
+
+      if (!selectedElement) return current;
+
+      const nextElements = {
         ...current.elements,
         [viewport]: {
           ...current.elements[viewport],
-          [selectedTier]: current.elements[viewport][selectedTier].map(
-            (element) =>
-              element.id === selectedElementId
-                ? { ...element, ...patch }
-                : element,
+          [selectedTier]: currentElements.map((element) =>
+            element.id === selectedElementId
+              ? { ...element, ...patch }
+              : element,
           ),
         },
-      },
-    }));
+      };
+
+      if (
+        selectedElement.type === "price" &&
+        patch.content !== undefined
+      ) {
+        const nextPrice =
+          patch.content === "" ? 0 : Number(patch.content);
+
+        if (Number.isFinite(nextPrice)) {
+          return {
+            ...current,
+            plans: {
+              ...current.plans,
+              [selectedTier]: {
+                ...current.plans[selectedTier],
+                price: nextPrice,
+              },
+            },
+            elements: {
+              ...current.elements,
+              desktop: {
+                ...nextElements.desktop,
+                [selectedTier]: nextElements.desktop[selectedTier].map(
+                  (element) =>
+                    element.type === "price"
+                      ? { ...element, content: String(nextPrice) }
+                      : element,
+                ),
+              },
+              mobile: {
+                ...nextElements.mobile,
+                [selectedTier]: nextElements.mobile[selectedTier].map(
+                  (element) =>
+                    element.type === "price"
+                      ? { ...element, content: String(nextPrice) }
+                      : element,
+                ),
+              },
+            },
+          };
+        }
+      }
+
+      return {
+        ...current,
+        elements: nextElements,
+      };
+    });
   };
 
   const addElement = (
@@ -251,14 +303,11 @@ export default function PricingBuilder() {
 
       let nextValue: string | number = value;
 
-      if (
-        key === "price" ||
-        key === "regularPrice"
-      ) {
+      if (key === "price" || key === "regularPrice") {
         nextValue = value === "" ? 0 : Number(value);
       }
 
-      return {
+      const nextConfig = {
         ...current,
         plans: {
           ...current.plans,
@@ -268,6 +317,37 @@ export default function PricingBuilder() {
           },
         },
       };
+
+      if (key === "price" && Number.isFinite(nextValue)) {
+        const nextPrice = Number(nextValue);
+
+        return {
+          ...nextConfig,
+          elements: {
+            ...current.elements,
+            desktop: {
+              ...current.elements.desktop,
+              [selectedTier]: current.elements.desktop[selectedTier].map(
+                (element) =>
+                  element.type === "price"
+                    ? { ...element, content: String(nextPrice) }
+                    : element,
+              ),
+            },
+            mobile: {
+              ...current.elements.mobile,
+              [selectedTier]: current.elements.mobile[selectedTier].map(
+                (element) =>
+                  element.type === "price"
+                    ? { ...element, content: String(nextPrice) }
+                    : element,
+              ),
+            },
+          },
+        };
+      }
+
+      return nextConfig;
     });
   };
 
