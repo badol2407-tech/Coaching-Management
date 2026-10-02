@@ -56,7 +56,7 @@ export const DEFAULT_LANDING_LAYOUT: LandingPageLayout = {
       id: "home",
       label: "Hero & overview",
       visible: true,
-      title: "এক প্ল্যাটফর্মে পুরো স্কুল পরিচালনা করুন",
+      title: "এক প্ল্যাটফর্মে পুরো প্রতিষ্ঠান পরিচালনা করুন",
       description: "",
       customText: [],
       sensitivity: 72,
