@@ -26,11 +26,6 @@ export default function ProfileSetup() {
   const [firstName, setFirstName] = useState(inferredFirstName);
   const [lastName, setLastName] = useState(userProfile?.lastName ?? "");
 
-  useEffect(() => {
-    if (!firstName.trim() && inferredFirstName) {
-      setFirstName(inferredFirstName);
-    }
-  }, [firstName, inferredFirstName]);
   const [username, setUsername] = useState(
     cleanUsername(userProfile?.username ?? ""),
   );
