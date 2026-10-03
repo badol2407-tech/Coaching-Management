@@ -331,10 +331,10 @@ export default function OnboardingQuestions() {
 
 function QuestionShell({ children }: { children: React.ReactNode }) {
   return (
-    <main className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden bg-[#f4f5fb] px-4 py-8 text-slate-900 sm:px-6">
-      <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-indigo-200/35 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-24 -right-16 h-80 w-80 rounded-full bg-amber-100/60 blur-3xl" />
-      <section className="relative w-full max-w-xl rounded-[2rem] border border-white/80 bg-white/65 p-6 shadow-[0_30px_80px_-35px_rgba(50,55,100,.35)] backdrop-blur-2xl sm:p-10">
+    <main className="landing-shell relative flex min-h-[100dvh] items-center justify-center overflow-hidden px-4 py-8 text-foreground sm:px-6">
+      <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-primary/15 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-24 -right-16 h-80 w-80 rounded-full bg-orange-200/25 blur-3xl" />
+      <section className="landing-glass-card relative w-full max-w-xl rounded-[2rem] p-6 sm:p-10">
         {children}
         <p className="mt-10 text-center text-xs text-slate-400">EduTrack · a calmer way to run your coaching center</p>
       </section>

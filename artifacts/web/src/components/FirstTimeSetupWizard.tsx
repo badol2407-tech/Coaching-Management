@@ -50,7 +50,7 @@ import {
   sanitizeWizardContext,
 } from "@/lib/onboarding-decision-agent";
 
-const TOTAL_SETUP_STEPS = 9;
+const TOTAL_SETUP_STEPS = 8;
 const currentAcademicYear = String(new Date().getFullYear());
 const DEFAULT_TIME_ZONE = "Asia/Dhaka";
 
@@ -70,12 +70,6 @@ type StepTwoValues = {
   instituteName: string;
   instituteType: InstituteType | "";
   academicYear: string;
-};
-
-type StepThreeValues = {
-  campusName: string;
-  language: SetupWizardLanguage | "";
-  timeZone: string;
 };
 
 type StepFourValues = {
@@ -158,14 +152,6 @@ function getStepTwoDraft(values: StepTwoValues) {
   };
 }
 
-function getStepThreeDraft(values: StepThreeValues) {
-  return {
-    campusName: values.campusName,
-    ...(values.language ? { language: values.language } : {}),
-    timeZone: values.timeZone,
-  };
-}
-
 function getStepFourDraft(values: StepFourValues) {
   const educationType = values.educationType || undefined;
   const isSchoolOrCollege =
@@ -214,7 +200,7 @@ function ProgressBar({ currentStep }: { currentStep: number }) {
           style={{ width: `${progress}%` }}
         />
       </div>
-      <div className="mt-2 grid grid-cols-9 gap-1 text-center text-[10px] text-white/40">
+      <div className="mt-2 grid grid-cols-8 gap-1 text-center text-[10px] text-white/40">
         <span className={visibleStep >= 1 ? "text-teal-100" : undefined}>
           Welcome
         </span>
@@ -469,126 +455,6 @@ function StepTwoContent({
   );
 }
 
-function StepThreeContent({
-  values,
-  onChange,
-  onBack,
-  onContinue,
-  isSaving,
-  saveState,
-}: {
-  values: StepThreeValues;
-  onChange: (values: Partial<StepThreeValues>) => void;
-  onBack: () => void;
-  onContinue: () => void;
-  isSaving: boolean;
-  saveState: "idle" | "saving" | "saved" | "error";
-}) {
-  return (
-    <div className="space-y-7">
-      <div className="space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal-100/80">
-          Step 3
-        </p>
-        <h1 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-          Basic institution settings
-        </h1>
-        <p className="text-sm leading-7 text-white/65 sm:text-base">
-          Set the defaults your team will use across the EduTrack workspace.
-        </p>
-      </div>
-
-      <div className="space-y-5">
-        <div className="space-y-2">
-          <label
-            htmlFor="campus-name"
-            className="text-sm font-semibold text-white/85"
-          >
-            Campus Name <span className="text-amber-200">*</span>
-          </label>
-          <input
-            id="campus-name"
-            type="text"
-            value={values.campusName}
-            onChange={(event) => onChange({ campusName: event.target.value })}
-            placeholder="Main Campus"
-            autoComplete="organization"
-            className="min-h-12 w-full rounded-xl border border-white/15 bg-white/[0.07] px-4 text-sm text-white outline-none transition-colors placeholder:text-white/30 focus:border-teal-200/70 focus:bg-white/[0.1] focus:ring-2 focus:ring-teal-200/20"
-          />
-        </div>
-
-        <fieldset className="space-y-3">
-          <legend className="text-sm font-semibold text-white/85">
-            Language <span className="text-amber-200">*</span>
-          </legend>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {[
-              { value: "bn" as const, label: "বাংলা" },
-              { value: "en" as const, label: "English" },
-            ].map(({ value, label }) => {
-              const selected = values.language === value;
-              return (
-                <button
-                  key={value}
-                  type="button"
-                  aria-pressed={selected}
-                  onClick={() => onChange({ language: value })}
-                  className={`flex min-h-32 items-center justify-center rounded-2xl border px-4 py-5 text-lg font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-200 ${
-                    selected
-                      ? "border-teal-200/80 bg-teal-200/15 text-teal-50 shadow-[0_0_28px_rgba(45,212,191,0.16)]"
-                      : "border-white/10 bg-white/[0.045] text-white/70 hover:-translate-y-0.5 hover:border-white/25 hover:bg-white/[0.08] hover:text-white"
-                  }`}
-                >
-                  {label}
-                </button>
-              );
-            })}
-          </div>
-        </fieldset>
-
-        <div className="space-y-2">
-          <span className="text-sm font-semibold text-white/85">
-            Time Zone <span className="text-amber-200">*</span>
-          </span>
-          <div
-            role="textbox"
-            aria-readonly="true"
-            aria-label="Time Zone"
-            className="flex min-h-14 items-center justify-between rounded-xl border border-white/10 bg-white/[0.045] px-4 text-sm text-white/75"
-          >
-            <span>
-              {values.timeZone || DEFAULT_TIME_ZONE}{" "}
-              <span className="text-white/40">(GMT+6)</span>
-            </span>
-            <LockKeyhole
-              className="h-4 w-4 text-white/40"
-              aria-label="Locked"
-            />
-          </div>
-          <p className="text-xs text-white/40">
-            Time zone is fixed to your organization&apos;s location.
-          </p>
-        </div>
-      </div>
-
-      <div className="flex min-h-5 items-center justify-end text-xs text-white/40">
-        {saveState === "saving" ? "Saving draft…" : null}
-        {saveState === "saved" ? "Draft saved automatically" : null}
-        {saveState === "error" ? (
-          <span className="text-rose-200">Draft save will retry shortly</span>
-        ) : null}
-      </div>
-
-      <WizardNavigation
-        onBack={onBack}
-        onContinue={onContinue}
-        continueLabel="Continue"
-        isSaving={isSaving}
-      />
-    </div>
-  );
-}
-
 function StepFourContent({
   values,
   instituteType,
@@ -619,7 +485,7 @@ function StepFourContent({
     <div className="space-y-7">
       <div className="space-y-3">
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal-100/80">
-          Step 4
+          Step 3
         </p>
         <h1 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
           Academic Structure
@@ -788,7 +654,7 @@ function StepFiveContent({
     <div className="space-y-7">
       <div className="space-y-3">
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal-100/80">
-          Step 5
+          Step 4
         </p>
         <h1 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
           Working Schedule
@@ -917,7 +783,7 @@ function StepSixContent({
     <div className="space-y-7">
       <div className="space-y-3">
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal-100/80">
-          Step 6
+          Step 5
         </p>
         <h1 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
           Create your first class
@@ -1042,7 +908,7 @@ function StepSevenTeacherDecision({
     <div className="space-y-7">
       <div className="space-y-3">
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal-100/80">
-          Step 7
+          Step 6
         </p>
         <h1 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
           Teacher setup
@@ -1153,7 +1019,7 @@ function StepEightTeacherSetup({
       </div>
       <div className="space-y-3">
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal-100/80">
-          Step 8
+          Step 7
         </p>
         <h1 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
           Create Your First Teacher
@@ -1374,11 +1240,6 @@ export default function FirstTimeSetupWizard() {
     instituteType: userProfile?.setupWizard?.instituteType ?? "",
     academicYear: userProfile?.setupWizard?.academicYear ?? currentAcademicYear,
   });
-  const [stepThreeValues, setStepThreeValues] = useState<StepThreeValues>({
-    campusName: userProfile?.setupWizard?.campusName ?? "Main Campus",
-    language: userProfile?.setupWizard?.language ?? "",
-    timeZone: userProfile?.setupWizard?.timeZone ?? DEFAULT_TIME_ZONE,
-  });
   const [stepFourValues, setStepFourValues] = useState<StepFourValues>({
     educationType: userProfile?.setupWizard?.educationType ?? "",
     classRange: userProfile?.setupWizard?.classRange ?? "",
@@ -1409,12 +1270,24 @@ export default function FirstTimeSetupWizard() {
     const persistedWizard = userProfile?.setupWizard;
     if (!persistedWizard) return;
 
-    const persistedStep =
+    const isLegacyWizard =
+      "campusName" in persistedWizard ||
+      "language" in persistedWizard ||
+      "timeZone" in persistedWizard;
+
+    const rawPersistedStep =
       persistedWizard.status === "in_progress"
-        ? persistedWizard.firstClassCreated
-          ? persistedWizard.currentStep ?? 7
-          : persistedWizard.currentStep ?? 2
+        ? persistedWizard.currentStep ??
+          (persistedWizard.firstClassCreated ? 7 : 2)
         : 1;
+
+    const persistedStep = isLegacyWizard
+      ? rawPersistedStep <= 2
+        ? rawPersistedStep
+        : rawPersistedStep === 3
+          ? 3
+          : Math.min(rawPersistedStep - 1, TOTAL_SETUP_STEPS)
+      : Math.min(Math.max(rawPersistedStep, 1), TOTAL_SETUP_STEPS);
 
     const wizardContext = {
       instituteType: persistedWizard.instituteType ?? "",
@@ -1440,11 +1313,6 @@ export default function FirstTimeSetupWizard() {
       instituteName: persistedWizard.instituteName ?? "",
       instituteType: persistedWizard.instituteType ?? "",
       academicYear: persistedWizard.academicYear ?? currentAcademicYear,
-    });
-    setStepThreeValues({
-      campusName: persistedWizard.campusName ?? "Main Campus",
-      language: persistedWizard.language ?? "",
-      timeZone: persistedWizard.timeZone ?? DEFAULT_TIME_ZONE,
     });
     const sanitizedAcademicContext = sanitizeWizardContext({
       instituteType: persistedWizard.instituteType ?? "",
@@ -1499,7 +1367,7 @@ export default function FirstTimeSetupWizard() {
   }, [firstCreatedClass, firstTeacherValues.classId]);
 
   useEffect(() => {
-    if (!user || status !== "in_progress" || currentStep !== 8) {
+    if (!user || status !== "in_progress" || currentStep !== 7) {
       return;
     }
 
@@ -1560,34 +1428,6 @@ export default function FirstTimeSetupWizard() {
       !user ||
       status !== "in_progress" ||
       currentStep !== 3 ||
-      !stepThreeValues.campusName.trim() &&
-        !stepThreeValues.language &&
-        !stepThreeValues.timeZone.trim()
-    ) {
-      return;
-    }
-
-    if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
-    draftTimerRef.current = setTimeout(() => {
-      setSaveState("saving");
-      void saveSetupWizardState(user.uid, getStepThreeDraft(stepThreeValues))
-        .then(() => setSaveState("saved"))
-        .catch(() => {
-          setSaveState("error");
-          setError("Your draft could not be saved. We’ll keep trying.");
-        });
-    }, 650);
-
-    return () => {
-      if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
-    };
-  }, [currentStep, status, stepThreeValues, user]);
-
-  useEffect(() => {
-    if (
-      !user ||
-      status !== "in_progress" ||
-      currentStep !== 4 ||
       !stepFourValues.educationType
     ) {
       return;
@@ -1613,7 +1453,7 @@ export default function FirstTimeSetupWizard() {
     if (
       !user ||
       status !== "in_progress" ||
-      currentStep !== 5 ||
+      currentStep !== 4 ||
       (!stepFiveValues.weeklyHolidays.length &&
         !stepFiveValues.workingDays &&
         !stepFiveValues.defaultShift)
@@ -1638,7 +1478,7 @@ export default function FirstTimeSetupWizard() {
   }, [currentStep, status, stepFiveValues, user]);
 
   useEffect(() => {
-    if (!user || status !== "in_progress" || currentStep !== 6) {
+    if (!user || status !== "in_progress" || currentStep !== 5) {
       return;
     }
 
@@ -1664,7 +1504,7 @@ export default function FirstTimeSetupWizard() {
   }, [currentStep, status, stepSixValues, user]);
 
   useEffect(() => {
-    if (!user || status !== "in_progress" || currentStep !== 7 || !teacherCount) {
+    if (!user || status !== "in_progress" || currentStep !== 6 || !teacherCount) {
       return;
     }
 
@@ -1725,12 +1565,6 @@ export default function FirstTimeSetupWizard() {
     setError("");
     setSaveState("idle");
     setStepTwoValues((current) => ({ ...current, ...values }));
-  };
-
-  const updateStepThreeValues = (values: Partial<StepThreeValues>) => {
-    setError("");
-    setSaveState("idle");
-    setStepThreeValues((current) => ({ ...current, ...values }));
   };
 
   const updateStepFourValues = (values: Partial<StepFourValues>) => {
@@ -1838,9 +1672,6 @@ export default function FirstTimeSetupWizard() {
     try {
       if (currentStep === 2) {
         await saveSetupWizardState(user.uid, getStepTwoDraft(stepTwoValues));
-      }
-      if (currentStep === 3) {
-        await saveSetupWizardState(user.uid, getStepThreeDraft(stepThreeValues));
       }
       if (currentStep === 4) {
         const sanitized = onboardingDecisionAgent.sanitizeWizardContext({
@@ -1994,57 +1825,6 @@ export default function FirstTimeSetupWizard() {
   const handleStepThreeContinue = async () => {
     if (!user || isSaving) return;
 
-    const campusName = stepThreeValues.campusName.trim();
-    const timeZone = stepThreeValues.timeZone.trim();
-
-    const campusError = validateCampusName(campusName);
-    if (campusError) {
-      setError(campusError);
-      return;
-    }
-
-    if (!stepThreeValues.language) {
-      setError("Please choose a language.");
-      return;
-    }
-    if (!timeZone) {
-      setError("Time zone is required.");
-      return;
-    }
-
-    if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
-    setIsSaving(true);
-    setSaveState("saving");
-    setError("");
-
-    try {
-      await saveSetupWizardState(
-        user.uid,
-        getStepThreeDraft({
-          campusName,
-          language: stepThreeValues.language,
-          timeZone,
-        }),
-      );
-      await saveSetupWizardState(user.uid, { currentStep: 4 });
-      setStepThreeValues({
-        campusName,
-        language: stepThreeValues.language,
-        timeZone,
-      });
-      setCurrentStep(4);
-      setSaveState("saved");
-    } catch {
-      setSaveState("error");
-      setError("We couldn’t save your institution settings. Please try again.");
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleStepFourContinue = async () => {
-    if (!user || isSaving) return;
-
     const { educationType, classRange, programType } = stepFourValues;
     const isSchoolOrCollege =
       educationType === "school" || educationType === "college";
@@ -2072,8 +1852,8 @@ export default function FirstTimeSetupWizard() {
 
     try {
       await saveSetupWizardState(user.uid, getStepFourDraft(stepFourValues));
-      await saveSetupWizardState(user.uid, { currentStep: 5 });
-      setCurrentStep(5);
+      await saveSetupWizardState(user.uid, { currentStep: 4 });
+      setCurrentStep(4);
       setSaveState("saved");
     } catch {
       setSaveState("error");
@@ -2083,7 +1863,7 @@ export default function FirstTimeSetupWizard() {
     }
   };
 
-  const handleStepFiveContinue = async () => {
+  const handleStepFourContinue = async () => {
     if (!user || isSaving) return;
 
     const { weeklyHolidays, workingDays, defaultShift } = stepFiveValues;
@@ -2107,7 +1887,7 @@ export default function FirstTimeSetupWizard() {
     setError("");
 
     try {
-      const nextStep = onboardingDecisionAgent.getNextWizardStep(5, {
+      const nextStep = onboardingDecisionAgent.getNextWizardStep(4, {
         instituteType: stepTwoValues.instituteType,
         educationType: stepFourValues.educationType,
         classRange: stepFourValues.classRange,
@@ -2129,7 +1909,7 @@ export default function FirstTimeSetupWizard() {
     }
   };
 
-  const handleStepSixContinue = async () => {
+  const handleStepFiveContinue = async () => {
     if (!user || isSaving) return;
 
     const className = stepSixValues.className.trim();
@@ -2166,7 +1946,7 @@ export default function FirstTimeSetupWizard() {
           setupWizardFirstClass: true,
         },
       });
-      const nextStep = onboardingDecisionAgent.getNextWizardStep(6, {
+      const nextStep = onboardingDecisionAgent.getNextWizardStep(5, {
         instituteType: stepTwoValues.instituteType,
         educationType: stepFourValues.educationType,
         classRange: stepFourValues.classRange,
@@ -2191,7 +1971,7 @@ export default function FirstTimeSetupWizard() {
     }
   };
 
-  const handleStepSevenContinue = async () => {
+  const handleStepSixContinue = async () => {
     if (!user || isSaving) return;
 
     if (!teacherCount) {
@@ -2205,7 +1985,7 @@ export default function FirstTimeSetupWizard() {
     setError("");
 
     const isSelfManaged = teacherCount === "self";
-    const nextStep = onboardingDecisionAgent.getNextWizardStep(7, {
+    const nextStep = onboardingDecisionAgent.getNextWizardStep(6, {
       instituteType: stepTwoValues.instituteType,
       educationType: stepFourValues.educationType,
       classRange: stepFourValues.classRange,
@@ -2230,33 +2010,24 @@ export default function FirstTimeSetupWizard() {
     }
   };
 
-  const handleStepEightContinue = async () => {
+  const handleStepSevenContinue = async () => {
     if (!user || isSaving) return;
 
     const name = firstTeacherValues.name.trim();
     const phone = firstTeacherValues.phone.trim();
     const email = firstTeacherValues.email.trim();
-    const classId = firstTeacherValues.classId;
+    const classId = firstTeacherValues.classId.trim();
 
-    const nameError = validatePersonName(name);
-    if (nameError) {
-      setError(nameError);
+    if (!name) {
+      setError("Please enter the teacher's full name.");
       return;
     }
 
-    const phoneError = validateBangladeshPhone(phone);
-    if (phoneError) {
-      setError(phoneError);
+    if (!phone) {
+      setError("Please enter the teacher's phone number.");
       return;
     }
 
-    const emailError = validateEmail(email);
-    if (emailError) {
-      setError(emailError);
-      return;
-    }
-
-    const normalizedPhone = normalizeBangladeshPhone(phone);
     if (!classId) {
       setError("Please assign the teacher to a class.");
       return;
@@ -2269,45 +2040,39 @@ export default function FirstTimeSetupWizard() {
 
     const firstTeacherDraft: FirstTeacherDraft = {
       name,
-      phone: normalizedPhone,
+      phone,
       email,
       classId,
     };
 
     try {
-      // Flush the latest keystrokes before the one-time teacher write. This
-      // still only touches setupWizard.firstTeacherDraft.
-      await saveSetupWizardState(user.uid, { firstTeacherDraft });
       await createFirstTeacher.mutateAsync({
         data: {
           name,
-          phone: normalizedPhone,
+          phone,
           ...(email ? { email } : {}),
           classId,
         },
       });
+
       await saveSetupWizardState(user.uid, {
+        firstTeacherDraft,
         firstTeacherCreated: true,
-        currentStep: 9,
+        currentStep: TOTAL_SETUP_STEPS,
       });
-      setFirstTeacherValues({
-        name,
-        phone: normalizedPhone,
-        email,
-        classId,
-      });
-      setCurrentStep(9);
+
+      setCurrentStep(TOTAL_SETUP_STEPS);
       setSaveState("saved");
       await refreshProfile();
     } catch {
       setSaveState("error");
-      setError("We couldn’t create your first teacher. Please try again.");
+      setError("We couldn’t create the teacher. Please check the details and try again.");
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleStepNineContinue = async () => {
+  const handleStepEightContinue = async () => {
     if (!user || isSaving) return;
 
     if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
@@ -2345,21 +2110,12 @@ export default function FirstTimeSetupWizard() {
   return (
     <div
       ref={dialogRef}
-      className="fixed inset-0 z-[100] min-h-[100dvh] overflow-y-auto bg-[#080d2b] text-white outline-none"
+      className="signup-flow landing-shell fixed inset-0 z-[100] min-h-[100dvh] overflow-y-auto text-foreground outline-none"
       role="dialog"
       aria-modal="true"
       aria-labelledby="setup-wizard-title"
       tabIndex={-1}
     >
-      <div
-        className="pointer-events-none fixed inset-0 overflow-hidden"
-        aria-hidden="true"
-      >
-        <div className="absolute -left-24 top-[-10rem] h-[28rem] w-[28rem] rounded-full bg-teal-400/20 blur-[100px]" />
-        <div className="absolute -right-28 top-[18%] h-[26rem] w-[26rem] rounded-full bg-indigo-500/25 blur-[110px]" />
-        <div className="absolute bottom-[-12rem] left-[20%] h-[24rem] w-[24rem] rounded-full bg-amber-300/10 blur-[100px]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.1),transparent_42%)]" />
-      </div>
 
       <div className="relative mx-auto flex min-h-[100dvh] w-full max-w-6xl flex-col px-5 py-5 sm:px-8 sm:py-8">
         <header className="flex items-start justify-between gap-4">
@@ -2386,7 +2142,7 @@ export default function FirstTimeSetupWizard() {
         </div>
 
         <main className="flex flex-1 items-center justify-center py-10 sm:py-14">
-          <section className="relative w-full max-w-xl overflow-hidden rounded-[2rem] border border-white/20 bg-white/[0.085] p-6 shadow-[0_28px_100px_rgba(2,8,23,0.45)] backdrop-blur-2xl sm:p-10">
+          <section className="landing-glass-card relative w-full max-w-xl overflow-hidden rounded-[2rem] p-6 sm:p-10">
             <div
               className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent"
               aria-hidden="true"
@@ -2417,65 +2173,56 @@ export default function FirstTimeSetupWizard() {
                       saveState={saveState}
                     />
                   ) : visibleStep === 3 ? (
-                    <StepThreeContent
-                      values={stepThreeValues}
-                      onChange={updateStepThreeValues}
+                    <StepFourContent
+                      values={stepFourValues}
+                      instituteType={stepTwoValues.instituteType}
+                      onChange={updateStepFourValues}
                       onBack={() => void handleBack()}
                       onContinue={() => void handleStepThreeContinue()}
                       isSaving={isSaving}
                       saveState={saveState}
                     />
                   ) : visibleStep === 4 ? (
-                    <StepFourContent
-                      values={stepFourValues}
-                      instituteType={stepTwoValues.instituteType}
-                      onChange={updateStepFourValues}
+                    <StepFiveContent
+                      values={stepFiveValues}
+                      onChange={updateStepFiveValues}
                       onBack={() => void handleBack()}
                       onContinue={() => void handleStepFourContinue()}
                       isSaving={isSaving}
                       saveState={saveState}
                     />
                   ) : visibleStep === 5 ? (
-                    <StepFiveContent
-                      values={stepFiveValues}
-                      onChange={updateStepFiveValues}
+                    <StepSixContent
+                      values={stepSixValues}
+                      onChange={updateStepSixValues}
                       onBack={() => void handleBack()}
                       onContinue={() => void handleStepFiveContinue()}
                       isSaving={isSaving}
                       saveState={saveState}
                     />
                   ) : visibleStep === 6 ? (
-                    <StepSixContent
-                      values={stepSixValues}
-                      onChange={updateStepSixValues}
+                    <StepSevenTeacherDecision
+                      value={teacherCount}
+                      onChange={updateTeacherCount}
                       onBack={() => void handleBack()}
                       onContinue={() => void handleStepSixContinue()}
                       isSaving={isSaving}
                       saveState={saveState}
                     />
                   ) : visibleStep === 7 ? (
-                    <StepSevenTeacherDecision
-                      value={teacherCount}
-                      onChange={updateTeacherCount}
-                      onBack={() => void handleBack()}
-                      onContinue={() => void handleStepSevenContinue()}
-                      isSaving={isSaving}
-                      saveState={saveState}
-                    />
-                  ) : visibleStep === 8 ? (
                     <StepEightTeacherSetup
                       values={firstTeacherValues}
                       classes={setupClasses}
                       classesLoading={classesQuery.isLoading}
                       onChange={updateFirstTeacherValues}
                       onBack={() => void handleBack()}
-                      onContinue={() => void handleStepEightContinue()}
+                      onContinue={() => void handleStepSevenContinue()}
                       isSaving={isSaving}
                       saveState={saveState}
                     />
-                  ) : visibleStep === 9 ? (
+                  ) : visibleStep === 8 ? (
                     <SetupCompleteStep
-                      onContinue={() => void handleStepNineContinue()}
+                      onContinue={() => void handleStepEightContinue()}
                       isSaving={isSaving}
                     />
                   ) : (

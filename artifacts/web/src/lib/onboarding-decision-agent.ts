@@ -191,14 +191,14 @@ export function shouldSkipWizardStep(
   step: number,
   context: WizardDecisionContext,
 ): boolean {
-  if (step === 6) {
+  if (step === 5) {
     return (
       context.educationType === "university" ||
       context.educationType === "other"
     );
   }
 
-  if (step === 8) {
+  if (step === 7) {
     return context.teacherCount === "self";
   }
 
@@ -211,11 +211,11 @@ export function getNextWizardStep(
 ): number {
   let next = currentStep + 1;
 
-  while (next < 9 && shouldSkipWizardStep(next, context)) {
+  while (next < 8 && shouldSkipWizardStep(next, context)) {
     next += 1;
   }
 
-  return Math.min(next, 9);
+  return Math.min(next, 8);
 }
 
 export function getPreviousWizardStep(
