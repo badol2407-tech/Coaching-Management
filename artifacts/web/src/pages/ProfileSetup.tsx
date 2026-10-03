@@ -247,7 +247,7 @@ function Progress({ stage }: { stage: SetupStage }) {
 }
 
 function SetupShell({ children }: { children: React.ReactNode }) {
-  return <main className="landing-shell relative flex min-h-[100dvh] items-center justify-center overflow-hidden px-4 py-8 text-foreground sm:px-6"><div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-primary/15 blur-3xl" /><div className="pointer-events-none absolute -bottom-24 -right-16 h-80 w-80 rounded-full bg-orange-200/25 blur-3xl" /><section className="landing-glass-card relative w-full max-w-xl rounded-[2rem] p-6 sm:p-10">{children}<p className="mt-10 text-center text-xs text-slate-400">EduTrack · a calmer way to run your coaching center</p></section></main>;
+  return <main className="landing-shell relative flex min-h-[100dvh] items-center justify-center overflow-hidden px-4 py-8 text-foreground sm:px-6"><div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-indigo-300/20 blur-3xl" /><div className="pointer-events-none absolute -bottom-24 -right-16 h-80 w-80 rounded-full bg-purple-200/20 blur-3xl" /><section className="landing-glass-card relative w-full max-w-xl rounded-[2rem] border border-white/70 bg-white/65 p-6 backdrop-blur-xl sm:p-10">{children}<p className="mt-10 text-center text-xs text-slate-400">EduTrack · a calmer way to run your coaching center</p></section></main>;
 }
 
 function LoadingState() {

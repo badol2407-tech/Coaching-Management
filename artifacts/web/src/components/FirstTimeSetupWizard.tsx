@@ -287,21 +287,21 @@ function WelcomeStep({
 }) {
   return (
     <div className="space-y-7 text-center">
-      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[1.4rem] border border-amber-200/25 bg-gradient-to-br from-amber-200/20 to-teal-200/10 text-amber-100 shadow-[0_0_36px_rgba(251,191,36,0.16)]">
+      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[1.4rem] border border-indigo-100 bg-gradient-to-br from-indigo-50 to-purple-50 text-indigo-600 shadow-[0_12px_30px_-18px_rgba(79,70,229,0.45)]">
         <Sparkles className="h-8 w-8" aria-hidden="true" />
       </div>
       <div className="space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-100/80">
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-indigo-600">
           Welcome
         </p>
-        <h1 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
           Welcome to EduTrack !!!
         </h1>
-        <p className="text-base leading-8 text-white/70 sm:text-lg">
+        <p className="text-base leading-8 text-slate-600 sm:text-lg">
           চলুন ২ মিনিটে আপনার প্রতিষ্ঠান প্রস্তুত করি।
         </p>
       </div>
-      <div className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-left text-sm leading-6 text-white/60">
+      <div className="rounded-2xl border border-indigo-100/80 bg-white/65 px-4 py-3 text-left text-sm leading-6 text-slate-500 shadow-[0_10px_30px_-24px_rgba(79,70,229,0.35)]">
         আপনার workspace-টি সাজাতে কয়েকটি সহজ ধাপ অনুসরণ করব। আপনার progress
         automatically save হবে।
       </div>
@@ -309,7 +309,7 @@ function WelcomeStep({
         type="button"
         onClick={onStart}
         disabled={isSaving}
-        className="group inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-300 to-cyan-300 px-5 text-sm font-bold text-slate-950 shadow-[0_12px_30px_rgba(45,212,191,0.2)] transition-all hover:-translate-y-0.5 hover:from-teal-200 hover:to-cyan-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-100 focus-visible:ring-offset-2 focus-visible:ring-offset-[#12183b] disabled:cursor-not-allowed disabled:opacity-60"
+        className="group inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 text-sm font-bold text-white shadow-[0_12px_30px_-18px_rgba(79,70,229,0.55)] transition-all hover:-translate-y-0.5 hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-200 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isSaving ? (
           <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
@@ -347,7 +347,7 @@ function StepTwoContent({
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal-100/80">
           Step 2
         </p>
-        <h1 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
           Tell us about your institute
         </h1>
         <p className="text-sm leading-7 text-white/65 sm:text-base">
@@ -487,7 +487,7 @@ function StepFourContent({
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal-100/80">
           Step 3
         </p>
-        <h1 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
           Academic Structure
         </h1>
         <p className="text-sm leading-7 text-white/65 sm:text-base">
@@ -656,7 +656,7 @@ function StepFiveContent({
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal-100/80">
           Step 4
         </p>
-        <h1 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
           Working Schedule
         </h1>
         <p className="text-sm leading-7 text-white/65 sm:text-base">
@@ -785,7 +785,7 @@ function StepSixContent({
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal-100/80">
           Step 5
         </p>
-        <h1 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
           Create your first class
         </h1>
         <p className="max-w-md text-sm leading-7 text-white/65 sm:text-base">
@@ -910,7 +910,7 @@ function StepSevenTeacherDecision({
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal-100/80">
           Step 6
         </p>
-        <h1 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
           Teacher setup
         </h1>
         <p className="max-w-md text-sm leading-7 text-white/65 sm:text-base">
@@ -1021,7 +1021,7 @@ function StepEightTeacherSetup({
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal-100/80">
           Step 7
         </p>
-        <h1 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
           Create Your First Teacher
         </h1>
         <p className="max-w-md text-sm leading-7 text-white/65 sm:text-base">
@@ -1193,7 +1193,7 @@ function SetupCompleteStep({
         onClick={onContinue}
         disabled={isSaving}
         aria-busy={isSaving}
-        className="group inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-300 to-cyan-300 px-5 text-sm font-bold text-slate-950 shadow-[0_12px_30px_rgba(45,212,191,0.2)] transition-all hover:-translate-y-0.5 hover:from-teal-200 hover:to-cyan-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-100 focus-visible:ring-offset-2 focus-visible:ring-offset-[#12183b] disabled:cursor-not-allowed disabled:opacity-60"
+        className="group inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 text-sm font-bold text-white shadow-[0_12px_30px_-18px_rgba(79,70,229,0.55)] transition-all hover:-translate-y-0.5 hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-200 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isSaving ? (
           <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
@@ -2120,17 +2120,17 @@ export default function FirstTimeSetupWizard() {
       <div className="relative mx-auto flex min-h-[100dvh] w-full max-w-6xl flex-col px-5 py-5 sm:px-8 sm:py-8">
         <header className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3" aria-label="EduTrack">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/20 bg-white/10 shadow-[0_8px_30px_rgba(15,23,42,0.24)] backdrop-blur-xl">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-indigo-100 bg-white/80 text-indigo-600 shadow-[0_8px_30px_-18px_rgba(79,70,229,0.35)] backdrop-blur-xl">
               <Sparkles
-                className="h-5 w-5 text-teal-100"
+                className="h-5 w-5 text-indigo-600"
                 aria-hidden="true"
               />
             </div>
             <div>
-              <p className="font-display text-sm font-semibold tracking-wide text-white">
+              <p className="font-display text-sm font-semibold tracking-wide text-slate-900">
                 EduTrack
               </p>
-              <p className="text-[11px] text-white/45">
+              <p className="text-[11px] text-slate-500">
                 Your institution, in sync
               </p>
             </div>
