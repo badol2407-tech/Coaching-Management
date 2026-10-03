@@ -188,45 +188,48 @@ function ProgressBar({ currentStep }: { currentStep: number }) {
       className="w-full max-w-md"
       aria-label={`Setup progress: step ${visibleStep} of ${TOTAL_SETUP_STEPS}`}
     >
-      <div className="mb-3 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.2em] text-white/55">
+      <div className="mb-3 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-600">
         <span>Set up your workspace</span>
-        <span>
+        <span className="tracking-[0.12em] text-slate-500">
           Step {visibleStep} of {TOTAL_SETUP_STEPS}
         </span>
       </div>
-      <div className="h-1.5 overflow-hidden rounded-full bg-white/12">
+      <div
+        className="h-1.5 overflow-hidden rounded-full bg-slate-200/90 shadow-inner"
+        role="progressbar"
+        aria-valuemin={1}
+        aria-valuemax={TOTAL_SETUP_STEPS}
+        aria-valuenow={visibleStep}
+      >
         <div
-          className="h-full rounded-full bg-gradient-to-r from-teal-300 via-cyan-300 to-amber-200 transition-[width] duration-500 ease-out"
+          className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-indigo-500 to-purple-500 transition-[width] duration-500 ease-out"
           style={{ width: `${progress}%` }}
         />
       </div>
-      <div className="mt-2 grid grid-cols-8 gap-1 text-center text-[10px] text-white/40">
-        <span className={visibleStep >= 1 ? "text-teal-100" : undefined}>
+      <div className="mt-3 grid grid-cols-8 gap-1 text-center text-[10px] font-medium text-slate-400">
+        <span className={visibleStep >= 1 ? "font-semibold text-indigo-600" : undefined}>
           Welcome
         </span>
-        <span className={visibleStep >= 2 ? "text-teal-100" : undefined}>
+        <span className={visibleStep >= 2 ? "font-semibold text-indigo-600" : undefined}>
           Institute
         </span>
-        <span className={visibleStep >= 3 ? "text-teal-100" : undefined}>
-          Settings
-        </span>
-        <span className={visibleStep >= 4 ? "text-teal-100" : undefined}>
+        <span className={visibleStep >= 3 ? "font-semibold text-indigo-600" : undefined}>
           Academic
         </span>
-        <span className={visibleStep >= 5 ? "text-teal-100" : undefined}>
+        <span className={visibleStep >= 4 ? "font-semibold text-indigo-600" : undefined}>
           Schedule
         </span>
-        <span className={visibleStep >= 6 ? "text-teal-100" : undefined}>
+        <span className={visibleStep >= 5 ? "font-semibold text-indigo-600" : undefined}>
           Class
         </span>
-        <span className={visibleStep >= 7 ? "text-teal-100" : undefined}>
+        <span className={visibleStep >= 6 ? "font-semibold text-indigo-600" : undefined}>
           Teachers
         </span>
-        <span className={visibleStep >= 8 ? "text-teal-100" : undefined}>
-          Setup
+        <span className={visibleStep >= 7 ? "font-semibold text-indigo-600" : undefined}>
+          Teacher setup
         </span>
-        <span className={visibleStep >= 9 ? "text-teal-100" : undefined}>
-          Plan
+        <span className={visibleStep >= 8 ? "font-semibold text-indigo-600" : undefined}>
+          Complete
         </span>
       </div>
     </div>
@@ -286,11 +289,11 @@ function WelcomeStep({
   isSaving: boolean;
 }) {
   return (
-    <div className="space-y-7 text-center">
+    <div className="space-y-8 text-center">
       <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[1.4rem] border border-indigo-100 bg-gradient-to-br from-indigo-50 to-purple-50 text-indigo-600 shadow-[0_12px_30px_-18px_rgba(79,70,229,0.45)]">
         <Sparkles className="h-8 w-8" aria-hidden="true" />
       </div>
-      <div className="space-y-3">
+      <div className="space-y-4">
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-indigo-600">
           Welcome
         </p>
@@ -301,7 +304,7 @@ function WelcomeStep({
           চলুন ২ মিনিটে আপনার প্রতিষ্ঠান প্রস্তুত করি।
         </p>
       </div>
-      <div className="rounded-2xl border border-indigo-100/80 bg-white/65 px-4 py-3 text-left text-sm leading-6 text-slate-500 shadow-[0_10px_30px_-24px_rgba(79,70,229,0.35)]">
+      <div className="rounded-2xl border border-indigo-100 bg-white/85 px-5 py-4 text-left text-sm leading-7 text-slate-600 shadow-[0_12px_32px_-24px_rgba(79,70,229,0.38)]">
         আপনার workspace-টি সাজাতে কয়েকটি সহজ ধাপ অনুসরণ করব। আপনার progress
         automatically save হবে।
       </div>
