@@ -1,3 +1,14 @@
+import {
+  validateBangladeshPhone,
+  validateCampusName,
+  validateClassName,
+  validateEmail,
+  validateInstituteName,
+  validatePersonName,
+  validateSection,
+  normalizeBangladeshPhone,
+  validateAcademicYear,
+} from "@/lib/onboarding-validation";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
@@ -34,6 +45,10 @@ import {
 } from "@/lib/setup-wizard";
 import { useCreateFirstClass, useListClasses } from "@/lib/class-hooks";
 import { useCreateFirstTeacher } from "@/lib/hooks";
+import {
+  onboardingDecisionAgent,
+  sanitizeWizardContext,
+} from "@/lib/onboarding-decision-agent";
 
 const TOTAL_SETUP_STEPS = 9;
 const currentAcademicYear = String(new Date().getFullYear());
@@ -576,6 +591,7 @@ function StepThreeContent({
 
 function StepFourContent({
   values,
+  instituteType,
   onChange,
   onBack,
   onContinue,
@@ -583,15 +599,21 @@ function StepFourContent({
   saveState,
 }: {
   values: StepFourValues;
+  instituteType: InstituteType | "";
   onChange: (values: Partial<StepFourValues>) => void;
   onBack: () => void;
   onContinue: () => void;
   isSaving: boolean;
   saveState: "idle" | "saving" | "saved" | "error";
 }) {
-  const showClassRange =
-    values.educationType === "school" || values.educationType === "college";
-  const showPrograms = values.educationType === "coaching_centre";
+  const visibleEducationTypes =
+    onboardingDecisionAgent.getVisibleEducationTypes(instituteType);
+
+  const academicOptions = onboardingDecisionAgent.getVisibleAcademicOptions(
+    values.educationType,
+  );
+  const showClassRange = academicOptions.showClassRange;
+  const showPrograms = academicOptions.showPrograms;
 
   return (
     <div className="space-y-7">
@@ -614,7 +636,9 @@ function StepFourContent({
             Education Type <span className="text-amber-200">*</span>
           </legend>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {educationTypeOptions.map(({ value, label, Icon }) => {
+            {educationTypeOptions
+              .filter(({ value }) => visibleEducationTypes.includes(value))
+              .map(({ value, label, Icon }) => {
               const selected = values.educationType === value;
               return (
                 <button
@@ -652,7 +676,11 @@ function StepFourContent({
               Class Range <span className="text-amber-200">*</span>
             </legend>
             <div className="grid grid-cols-2 gap-3">
-              {classRangeOptions.map(({ value, label }) => {
+              {classRangeOptions
+                .filter(({ value }) =>
+                  academicOptions.classRanges.includes(value),
+                )
+                .map(({ value, label }) => {
                 const selected = values.classRange === value;
                 return (
                   <button
@@ -680,7 +708,11 @@ function StepFourContent({
               Program <span className="text-amber-200">*</span>
             </legend>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {programOptions.map(({ value, label }) => {
+              {programOptions
+                .filter(({ value }) =>
+                  academicOptions.programs.includes(value),
+                )
+                .map(({ value, label }) => {
                 const selected = values.programType === value;
                 return (
                   <button
@@ -1377,12 +1409,31 @@ export default function FirstTimeSetupWizard() {
     const persistedWizard = userProfile?.setupWizard;
     if (!persistedWizard) return;
 
-    const nextStep =
+    const persistedStep =
       persistedWizard.status === "in_progress"
         ? persistedWizard.firstClassCreated
           ? persistedWizard.currentStep ?? 7
           : persistedWizard.currentStep ?? 2
         : 1;
+
+    const wizardContext = {
+      instituteType: persistedWizard.instituteType ?? "",
+      educationType: persistedWizard.educationType ?? "",
+      classRange: persistedWizard.classRange ?? "",
+      programType: persistedWizard.programType ?? "",
+      teacherCount: persistedWizard.teacherCount ?? "",
+    };
+
+    const nextStep =
+      persistedWizard.status === "in_progress"
+        ? persistedStep > 1
+          ? onboardingDecisionAgent.getNextWizardStep(
+              persistedStep - 1,
+              wizardContext,
+            )
+          : 1
+        : 1;
+
     setStatus(persistedWizard.status);
     setCurrentStep(nextStep);
     setStepTwoValues({
@@ -1395,10 +1446,23 @@ export default function FirstTimeSetupWizard() {
       language: persistedWizard.language ?? "",
       timeZone: persistedWizard.timeZone ?? DEFAULT_TIME_ZONE,
     });
-    setStepFourValues({
+    const sanitizedAcademicContext = sanitizeWizardContext({
+      instituteType: persistedWizard.instituteType ?? "",
       educationType: persistedWizard.educationType ?? "",
       classRange: persistedWizard.classRange ?? "",
       programType: persistedWizard.programType ?? "",
+    });
+
+    setStepFourValues({
+      educationType:
+        (sanitizedAcademicContext.educationType as StepFourValues["educationType"]) ??
+        "",
+      classRange:
+        (sanitizedAcademicContext.classRange as StepFourValues["classRange"]) ??
+        "",
+      programType:
+        (sanitizedAcademicContext.programType as StepFourValues["programType"]) ??
+        "",
     });
     setStepFiveValues({
       weeklyHolidays: persistedWizard.weeklyHolidays ?? [],
@@ -1673,25 +1737,29 @@ export default function FirstTimeSetupWizard() {
     setError("");
     setSaveState("idle");
     setStepFourValues((current) => {
-      const nextEducationType = values.educationType ?? current.educationType;
-      const educationTypeChanged =
-        values.educationType !== undefined &&
-        values.educationType !== current.educationType;
-      const isSchoolOrCollege =
-        nextEducationType === "school" || nextEducationType === "college";
-      const isCoachingCentre = nextEducationType === "coaching_centre";
+      const merged = {
+        ...current,
+        ...values,
+        instituteType: stepTwoValues.instituteType,
+      };
+
+      const sanitized = sanitizeWizardContext(merged);
 
       return {
         ...current,
         ...values,
+        educationType: sanitized.educationType ?? "",
         classRange:
-          educationTypeChanged || !isSchoolOrCollege
-            ? ""
-            : (values.classRange ?? current.classRange),
+          sanitized.classRange ??
+          (merged.educationType === "school" ||
+          merged.educationType === "college"
+            ? (values.classRange ?? current.classRange)
+            : ""),
         programType:
-          educationTypeChanged || !isCoachingCentre
-            ? ""
-            : (values.programType ?? current.programType),
+          sanitized.programType ??
+          (merged.educationType === "coaching_centre"
+            ? (values.programType ?? current.programType)
+            : ""),
       };
     });
   };
@@ -1758,7 +1826,13 @@ export default function FirstTimeSetupWizard() {
     if (!user || isSaving || currentStep <= 1) return;
 
     if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
-    const nextStep = Math.max(1, currentStep - 1);
+    const nextStep = onboardingDecisionAgent.getPreviousWizardStep(currentStep, {
+      instituteType: stepTwoValues.instituteType,
+      educationType: stepFourValues.educationType,
+      classRange: stepFourValues.classRange,
+      programType: stepFourValues.programType,
+      teacherCount,
+    });
     setIsSaving(true);
     setError("");
     try {
@@ -1768,8 +1842,26 @@ export default function FirstTimeSetupWizard() {
       if (currentStep === 3) {
         await saveSetupWizardState(user.uid, getStepThreeDraft(stepThreeValues));
       }
-      if (currentStep === 4 && stepFourValues.educationType) {
-        await saveSetupWizardState(user.uid, getStepFourDraft(stepFourValues));
+      if (currentStep === 4) {
+        const sanitized = onboardingDecisionAgent.sanitizeWizardContext({
+          instituteType: stepTwoValues.instituteType,
+          educationType: stepFourValues.educationType,
+          classRange: stepFourValues.classRange,
+          programType: stepFourValues.programType,
+        });
+
+        const sanitizedStepFourValues = {
+          ...stepFourValues,
+          educationType: sanitized.educationType ?? "",
+          classRange: sanitized.classRange ?? "",
+          programType: sanitized.programType ?? "",
+        };
+
+        setStepFourValues(sanitizedStepFourValues);
+        await saveSetupWizardState(
+          user.uid,
+          getStepFourDraft(sanitizedStepFourValues),
+        );
       }
       if (
         currentStep === 5 &&
@@ -1779,20 +1871,47 @@ export default function FirstTimeSetupWizard() {
       ) {
         await saveSetupWizardState(user.uid, getStepFiveDraft(stepFiveValues));
       }
-      if (currentStep === 7 && teacherCount) {
-        await saveSetupWizardState(user.uid, { teacherCount });
+      if (currentStep === 6) {
+        const firstClassDraft: FirstClassDraft = {
+          className: stepSixValues.className.trim(),
+          section: stepSixValues.section.trim() || "A",
+          ...(stepSixValues.shift ? { shift: stepSixValues.shift } : {}),
+        };
+
+        setStepSixValues({
+          className: firstClassDraft.className ?? "",
+          section: firstClassDraft.section ?? "A",
+          shift: firstClassDraft.shift ?? "",
+        });
+
+        await saveSetupWizardState(user.uid, { firstClassDraft });
+      }
+      if (currentStep === 7) {
+        await saveSetupWizardState(user.uid, {
+          ...(teacherCount ? { teacherCount } : {}),
+          teacherSetupSkipped: false,
+        });
       }
       if (currentStep === 8) {
         const firstTeacherDraft: FirstTeacherDraft = {
-          name: firstTeacherValues.name,
-          phone: firstTeacherValues.phone,
-          email: firstTeacherValues.email,
+          name: firstTeacherValues.name.trim(),
+          phone: firstTeacherValues.phone.trim(),
+          email: firstTeacherValues.email.trim(),
           ...(firstTeacherValues.classId
             ? { classId: firstTeacherValues.classId }
             : {}),
         };
+
+        setFirstTeacherValues({
+          name: firstTeacherDraft.name ?? "",
+          phone: firstTeacherDraft.phone ?? "",
+          email: firstTeacherDraft.email ?? "",
+          classId: firstTeacherDraft.classId ?? "",
+        });
+
         await saveSetupWizardState(user.uid, { firstTeacherDraft });
       }
+
       await saveSetupWizardState(user.uid, { currentStep: nextStep });
       setCurrentStep(nextStep);
     } catch {
@@ -1808,16 +1927,20 @@ export default function FirstTimeSetupWizard() {
     const instituteName = stepTwoValues.instituteName.trim();
     const academicYear = stepTwoValues.academicYear.trim();
 
-    if (!instituteName) {
-      setError("Please enter your institute name.");
+    const instituteError = validateInstituteName(instituteName);
+    if (instituteError) {
+      setError(instituteError);
       return;
     }
+
     if (!stepTwoValues.instituteType) {
       setError("Please choose your institute type.");
       return;
     }
-    if (!/^\d{4}$/.test(academicYear)) {
-      setError("Please enter a valid four-digit academic year.");
+
+    const academicYearError = validateAcademicYear(academicYear);
+    if (academicYearError) {
+      setError(academicYearError);
       return;
     }
 
@@ -1835,6 +1958,23 @@ export default function FirstTimeSetupWizard() {
           academicYear,
         }),
       );
+
+      setStepFourValues((current) => {
+        const sanitized = sanitizeWizardContext({
+          instituteType: stepTwoValues.instituteType,
+          educationType: current.educationType,
+          classRange: current.classRange,
+          programType: current.programType,
+        });
+
+        return {
+          ...current,
+          educationType: sanitized.educationType ?? "",
+          classRange: sanitized.classRange ?? "",
+          programType: sanitized.programType ?? "",
+        };
+      });
+
       await saveSetupWizardState(user.uid, { currentStep: 3 });
       setStepTwoValues({
         instituteName,
@@ -1857,10 +1997,12 @@ export default function FirstTimeSetupWizard() {
     const campusName = stepThreeValues.campusName.trim();
     const timeZone = stepThreeValues.timeZone.trim();
 
-    if (!campusName) {
-      setError("Please enter your campus name.");
+    const campusError = validateCampusName(campusName);
+    if (campusError) {
+      setError(campusError);
       return;
     }
+
     if (!stepThreeValues.language) {
       setError("Please choose a language.");
       return;
@@ -1912,12 +2054,14 @@ export default function FirstTimeSetupWizard() {
       setError("Please choose an education type.");
       return;
     }
-    if (isSchoolOrCollege && !classRange) {
-      setError("Please choose a class range.");
-      return;
-    }
-    if (isCoachingCentre && !programType) {
-      setError("Please choose a program.");
+    const decisionError = onboardingDecisionAgent.validateWizardContext({
+      educationType,
+      classRange,
+      programType,
+    });
+
+    if (decisionError) {
+      setError(decisionError);
       return;
     }
 
@@ -1963,9 +2107,19 @@ export default function FirstTimeSetupWizard() {
     setError("");
 
     try {
-      await saveSetupWizardState(user.uid, getStepFiveDraft(stepFiveValues));
-      await saveSetupWizardState(user.uid, { currentStep: 6 });
-      setCurrentStep(6);
+      const nextStep = onboardingDecisionAgent.getNextWizardStep(5, {
+        instituteType: stepTwoValues.instituteType,
+        educationType: stepFourValues.educationType,
+        classRange: stepFourValues.classRange,
+        programType: stepFourValues.programType,
+        teacherCount,
+      });
+
+      await saveSetupWizardState(user.uid, {
+        ...getStepFiveDraft(stepFiveValues),
+        currentStep: nextStep,
+      });
+      setCurrentStep(nextStep);
       setSaveState("saved");
     } catch {
       setSaveState("error");
@@ -1981,8 +2135,15 @@ export default function FirstTimeSetupWizard() {
     const className = stepSixValues.className.trim();
     const section = stepSixValues.section.trim() || "A";
 
-    if (!className) {
-      setError("Please enter a class name.");
+    const classError = validateClassName(className);
+    if (classError) {
+      setError(classError);
+      return;
+    }
+
+    const sectionError = validateSection(section);
+    if (sectionError) {
+      setError(sectionError);
       return;
     }
 
@@ -2005,13 +2166,21 @@ export default function FirstTimeSetupWizard() {
           setupWizardFirstClass: true,
         },
       });
+      const nextStep = onboardingDecisionAgent.getNextWizardStep(6, {
+        instituteType: stepTwoValues.instituteType,
+        educationType: stepFourValues.educationType,
+        classRange: stepFourValues.classRange,
+        programType: stepFourValues.programType,
+        teacherCount,
+      });
+
       await saveSetupWizardState(user.uid, {
         firstClassDraft,
         firstClassCreated: true,
-        currentStep: 7,
+        currentStep: nextStep,
       });
       setStepSixValues({ className, section, shift: stepSixValues.shift });
-      setCurrentStep(7);
+      setCurrentStep(nextStep);
       setSaveState("saved");
       await refreshProfile();
     } catch {
@@ -2036,13 +2205,21 @@ export default function FirstTimeSetupWizard() {
     setError("");
 
     const isSelfManaged = teacherCount === "self";
+    const nextStep = onboardingDecisionAgent.getNextWizardStep(7, {
+      instituteType: stepTwoValues.instituteType,
+      educationType: stepFourValues.educationType,
+      classRange: stepFourValues.classRange,
+      programType: stepFourValues.programType,
+      teacherCount,
+    });
+
     try {
       await saveSetupWizardState(user.uid, {
         teacherCount,
         teacherSetupSkipped: isSelfManaged,
-        currentStep: isSelfManaged ? 9 : 8,
+        currentStep: nextStep,
       });
-      setCurrentStep(isSelfManaged ? 9 : 8);
+      setCurrentStep(nextStep);
       setSaveState("saved");
       await refreshProfile();
     } catch {
@@ -2061,18 +2238,25 @@ export default function FirstTimeSetupWizard() {
     const email = firstTeacherValues.email.trim();
     const classId = firstTeacherValues.classId;
 
-    if (!name) {
-      setError("Please enter the teacher’s full name.");
+    const nameError = validatePersonName(name);
+    if (nameError) {
+      setError(nameError);
       return;
     }
-    if (!phone) {
-      setError("Please enter the teacher’s phone number.");
+
+    const phoneError = validateBangladeshPhone(phone);
+    if (phoneError) {
+      setError(phoneError);
       return;
     }
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError("Please enter a valid email address or leave it blank.");
+
+    const emailError = validateEmail(email);
+    if (emailError) {
+      setError(emailError);
       return;
     }
+
+    const normalizedPhone = normalizeBangladeshPhone(phone);
     if (!classId) {
       setError("Please assign the teacher to a class.");
       return;
@@ -2085,7 +2269,7 @@ export default function FirstTimeSetupWizard() {
 
     const firstTeacherDraft: FirstTeacherDraft = {
       name,
-      phone,
+      phone: normalizedPhone,
       email,
       classId,
     };
@@ -2097,7 +2281,7 @@ export default function FirstTimeSetupWizard() {
       await createFirstTeacher.mutateAsync({
         data: {
           name,
-          phone,
+          phone: normalizedPhone,
           ...(email ? { email } : {}),
           classId,
         },
@@ -2106,7 +2290,12 @@ export default function FirstTimeSetupWizard() {
         firstTeacherCreated: true,
         currentStep: 9,
       });
-      setFirstTeacherValues({ name, phone, email, classId });
+      setFirstTeacherValues({
+        name,
+        phone: normalizedPhone,
+        email,
+        classId,
+      });
       setCurrentStep(9);
       setSaveState("saved");
       await refreshProfile();
@@ -2239,6 +2428,7 @@ export default function FirstTimeSetupWizard() {
                   ) : visibleStep === 4 ? (
                     <StepFourContent
                       values={stepFourValues}
+                      instituteType={stepTwoValues.instituteType}
                       onChange={updateStepFourValues}
                       onBack={() => void handleBack()}
                       onContinue={() => void handleStepFourContinue()}

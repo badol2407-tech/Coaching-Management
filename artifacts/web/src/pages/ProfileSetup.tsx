@@ -1,3 +1,4 @@
+import { validatePersonName, validateUsername } from "@/lib/onboarding-validation";
 import { useAuth } from "@/contexts/AuthContext";
 import { db } from "@/lib/firebase";
 import { AnimatePresence, motion } from "framer-motion";
@@ -88,8 +89,16 @@ export default function ProfileSetup() {
   const continueToUsername = async (event: React.FormEvent) => {
     event.preventDefault();
     setError("");
-    if (!lastName.trim()) {
-      setError("Add your last name to continue.");
+
+    const firstNameError = validatePersonName(firstName);
+    if (firstNameError) {
+      setError(firstNameError);
+      return;
+    }
+
+    const lastNameError = validatePersonName(lastName);
+    if (lastNameError) {
+      setError(lastNameError);
       return;
     }
     if (!user) {
@@ -117,6 +126,13 @@ export default function ProfileSetup() {
   const saveProfile = async (event: React.FormEvent) => {
     event.preventDefault();
     const candidate = cleanUsername(username);
+    const usernameError = validateUsername(candidate);
+
+    if (usernameError) {
+      setError(usernameError);
+      return;
+    }
+
     if (!user) {
       setError("Your session is still loading. Please try again.");
       return;

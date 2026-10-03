@@ -26,6 +26,11 @@ import {
 } from "lucide-react";
 import { doc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { useMemo, useState } from "react";
+import {
+  onboardingDecisionAgent,
+  sanitizeOnboardingAnswers,
+  getOnboardingQuestionIndex,
+} from "@/lib/onboarding-decision-agent";
 import type { LucideIcon } from "lucide-react";
 import { useLocation } from "wouter";
 
@@ -157,8 +162,12 @@ const baseQuestions: OnboardingQuestion[] = [
 export default function OnboardingQuestions() {
   const { user, userProfile, loading: authLoading, refreshProfile } = useAuth();
   const [, setLocation] = useLocation();
-  const [answers, setAnswers] = useState<Answer>(() => userProfile?.onboardingAnswers ?? {});
-  const [questionIndex, setQuestionIndex] = useState(0);
+  const [answers, setAnswers] = useState<Answer>(() =>
+    sanitizeOnboardingAnswers(userProfile?.onboardingAnswers ?? {}),
+  );
+  const [questionIndex, setQuestionIndex] = useState(() =>
+    getOnboardingQuestionIndex(userProfile?.onboardingAnswers ?? {}),
+  );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -175,7 +184,15 @@ export default function OnboardingQuestions() {
       return;
     }
 
-    const nextAnswers = { ...answers, [question.key]: value };
+    const nextAnswers = sanitizeOnboardingAnswers({
+      ...answers,
+      [question.key]: value,
+    });
+
+    const decision = onboardingDecisionAgent.decideOnboardingNextQuestion(
+      nextAnswers,
+    );
+
     setAnswers(nextAnswers);
     setError("");
     setSaving(true);
@@ -192,6 +209,14 @@ export default function OnboardingQuestions() {
       if (isLastQuestion) {
         await refreshProfile();
         setLocation("/");
+      } else if (decision.nextQuestionKey) {
+        const nextIndex = questions.findIndex(
+          (item) => item.key === decision.nextQuestionKey,
+        );
+
+        setQuestionIndex(
+          nextIndex >= 0 ? nextIndex : (index) => index + 1,
+        );
       } else {
         setQuestionIndex((index) => index + 1);
       }
@@ -221,7 +246,14 @@ export default function OnboardingQuestions() {
         <button
           type="button"
           data-testid="button-back-onboarding"
-          onClick={() => questionIndex ? setQuestionIndex((index) => index - 1) : setLocation("/profile-setup")}
+          onClick={() => {
+            if (!questionIndex) {
+              setLocation("/profile-setup");
+              return;
+            }
+
+            setQuestionIndex((index) => Math.max(0, index - 1));
+          }}
           className="flex items-center gap-1.5 text-sm font-semibold text-slate-500 transition hover:text-slate-900"
         >
           <ArrowLeft size={16} /> Back
