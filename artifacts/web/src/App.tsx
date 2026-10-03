@@ -306,12 +306,17 @@ function AuthenticatedRoutes() {
     return <ImpersonatedView />;
   }
 
-  if (!userProfile)
+  if (!userProfile) {
+    if (sessionStorage.getItem("edutrack_public_signup_in_progress") === "true") {
+      return <Spinner />;
+    }
+
     return (
       <Suspense fallback={<Spinner />}>
         <Setup />
       </Suspense>
     );
+  }
 
   // Normalize at the routing boundary so legacy casing/whitespace cannot
   // fall through to the org-admin layout.
