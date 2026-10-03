@@ -2144,7 +2144,7 @@ export default function FirstTimeSetupWizard() {
           <ProgressBar currentStep={visibleStep} />
         </div>
 
-        <main className="flex flex-1 items-center justify-center py-10 sm:py-14">
+        <main className="flex flex-1 items-center justify-center py-10 sm:py-14 [@media(max-height:720px)]:items-start">
           <section className="landing-glass-card relative w-full max-w-xl overflow-hidden rounded-[2rem] p-6 sm:p-10">
             <div
               className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent"
