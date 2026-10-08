@@ -15,6 +15,30 @@ export type OpportunityStatus =
 
 export type StudyRisk = "on_track" | "at_risk" | "critical";
 
+export type StoredRoutineSlot = {
+  id: string;
+  day?: string;
+  subject?: string;
+  startTime?: string;
+  endTime?: string;
+  studentIds?: string[];
+  className?: string;
+  batch?: string;
+};
+
+export type RoutineDateOverride = {
+  status: OpportunityStatus;
+  note?: string;
+};
+
+export type StudentOpportunityInput = {
+  studentId: string;
+  startDate: string;
+  endDate: string;
+  routine: StoredRoutineSlot[];
+  overrides?: Record<string, RoutineDateOverride | undefined>;
+};
+
 export type WeeklyRoutineEntry = {
   weekday: Weekday;
   subject: string;
@@ -149,6 +173,127 @@ export function buildRoutineOccurrences(
   }
 
   return occurrences;
+}
+
+/**
+ * Converts the existing Firestore `routine` records into real
+ * student-specific teaching opportunities.
+ *
+ * Friday or any other non-routine day naturally produces no occurrence.
+ * Existing routine records remain the source of truth.
+ */
+export function buildStudentRoutineOccurrences({
+  studentId,
+  startDate,
+  endDate,
+  routine,
+  overrides = {},
+}: StudentOpportunityInput): RoutineOccurrence[] {
+  const weeklyEntries: WeeklyRoutineEntry[] = routine.flatMap((slot) => {
+    if (
+      !Array.isArray(slot.studentIds) ||
+      !slot.studentIds.includes(studentId) ||
+      !slot.day ||
+      !slot.subject
+    ) {
+      return [];
+    }
+
+    const weekday = normalizeRoutineWeekday(slot.day);
+
+    if (!weekday) {
+      return [];
+    }
+
+    return [
+      {
+        weekday,
+        subject: slot.subject.trim(),
+        ...(slot.startTime ? { startTime: slot.startTime } : {}),
+        ...(slot.endTime ? { endTime: slot.endTime } : {}),
+        enabled: true,
+      },
+    ];
+  });
+
+  const normalizedOverrides: Record<
+    string,
+    OpportunityStatus | undefined
+  > = {};
+
+  for (const [key, value] of Object.entries(overrides)) {
+    normalizedOverrides[key] = value?.status;
+  }
+
+  return buildRoutineOccurrences(
+    startDate,
+    endDate,
+    weeklyEntries,
+    normalizedOverrides,
+  );
+}
+
+export function normalizeRoutineWeekday(day: string): Weekday | null {
+  const normalized = day.trim().toLowerCase();
+
+  const aliases: Record<string, Weekday> = {
+    sunday: "sunday",
+    sun: "sunday",
+    monday: "monday",
+    mon: "monday",
+    tuesday: "tuesday",
+    tue: "tuesday",
+    wednesday: "wednesday",
+    wed: "wednesday",
+    thursday: "thursday",
+    thu: "thursday",
+    friday: "friday",
+    fri: "friday",
+    saturday: "saturday",
+    sat: "saturday",
+  };
+
+  return aliases[normalized] ?? null;
+}
+
+export function summarizeStudentRoutine(
+  input: StudentOpportunityInput,
+): {
+  calendarDays: number;
+  totalOpportunities: number;
+  remainingOpportunities: number;
+  completed: number;
+  cancelled: number;
+  absent: number;
+  bySubject: SubjectOpportunitySummary[];
+} {
+  const occurrences = buildStudentRoutineOccurrences(input);
+
+  const bySubject = summarizeOpportunities(occurrences);
+
+  const completed = occurrences.filter(
+    (item) => item.status === "completed",
+  ).length;
+
+  const cancelled = occurrences.filter(
+    (item) => item.status === "cancelled",
+  ).length;
+
+  const absent = occurrences.filter(
+    (item) => item.status === "absent",
+  ).length;
+
+  return {
+    calendarDays: countCalendarDays(input.startDate, input.endDate),
+    totalOpportunities: occurrences.length,
+    remainingOpportunities: occurrences.filter(
+      (item) => item.status === "scheduled",
+    ).length,
+    completed,
+    cancelled,
+    absent,
+    bySubject,
+  };
 }
 
 export function summarizeOpportunities(
