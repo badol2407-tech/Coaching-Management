@@ -221,6 +221,7 @@ function ImpersonatedView() {
               <Route path="/students" component={TeacherStudents} />
               <Route path="/exams" component={TeacherExams} />
               <Route path="/routine" component={TeacherRoutine} />
+              <Route path="/study-tracker" component={TeacherStudyTracker} />
               <Route path="/notices" component={Notices} />
               <Route path="/homework" component={Homework} />
               <Route path="/settings" component={TeacherSettings} />
@@ -425,6 +426,7 @@ function AuthenticatedRoutes() {
             <Route path="/students" component={TeacherStudents} />
             <Route path="/exams" component={TeacherExams} />
             <Route path="/routine" component={TeacherRoutine} />
+            <Route path="/study-tracker" component={TeacherStudyTracker} />
             <Route path="/notices" component={Notices} />
             <Route path="/homework" component={Homework} />
             <Route path="/settings" component={TeacherSettings} />

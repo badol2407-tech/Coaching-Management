@@ -23,6 +23,7 @@ const navItems = [
   { title: "Add Student", href: "/students/add", icon: UserPlus },
   { title: "Teachers",    href: "/teachers",     icon: GraduationCap },
   { title: "Classes",     href: "/classes",      icon: BookOpen },
+  { title: "Routine",     href: "/routine",       icon: CalendarRange },
   { title: "Attendance",  href: "/attendance",   icon: CalendarCheck },
   { title: "Fees",        href: "/fees",         icon: Wallet },
   { title: "Notices",     href: "/notices",      icon: Bell },
