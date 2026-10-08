@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import {
   LayoutDashboard, CalendarCheck, Users, ClipboardList, Bell,
-  GraduationCap, LogOut, CalendarDays, Settings, NotebookPen,
+  GraduationCap, LogOut, CalendarDays, Settings, NotebookPen, BookOpenCheck,
   PanelLeft, X, ChevronRight, ChevronLeft, IdCard,
   MessageSquareText,
 } from "lucide-react";
@@ -19,6 +19,7 @@ const navItems = [
   { title: "My Students", href: "/students",  icon: Users },
   { title: "Attendance",  href: "/attendance", icon: CalendarCheck },
   { title: "Homework",    href: "/homework",   icon: NotebookPen },
+  { title: "Study Tracker", href: "/study-tracker", icon: BookOpenCheck },
   { title: "Exams",       href: "/exams",      icon: ClipboardList },
   { title: "Routine",     href: "/routine",    icon: CalendarDays },
   { title: "Notices",     href: "/notices",    icon: Bell },

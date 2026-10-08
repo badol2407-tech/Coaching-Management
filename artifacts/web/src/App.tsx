@@ -98,6 +98,7 @@ const TeacherStudents = lazy(() => import("@/pages/teacher/TeacherStudents"));
 const TeacherExams = lazy(() => import("@/pages/teacher/TeacherExams"));
 const TeacherRoutine = lazy(() => import("@/pages/teacher/TeacherRoutine"));
 const TeacherSettings = lazy(() => import("@/pages/teacher/TeacherSettings"));
+import TeacherStudyTracker from "@/pages/teacher/TeacherStudyTracker";
 const StudentIdCard = lazy(() => import("@/pages/StudentIdCard"));
 const Reports = lazy(() => import("@/pages/Reports"));
 const StudentPortal = lazy(() => import("@/pages/student/StudentPortal"));
@@ -179,6 +180,7 @@ function ImpersonatedView() {
           <AppLayout>
             <Switch>
               <Route path="/" component={Dashboard} />
+        <Route path="/study-tracker" component={TeacherStudyTracker} />
               <Route path="/students" component={Students} />
               <Route path="/students/add" component={AddStudents} />
               <Route path="/students/:id" component={StudentProfile} />
