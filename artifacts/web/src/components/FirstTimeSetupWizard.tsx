@@ -2113,14 +2113,14 @@ export default function FirstTimeSetupWizard() {
   return (
     <div
       ref={dialogRef}
-      className="signup-flow landing-shell fixed inset-0 z-[100] min-h-[100dvh] overflow-y-auto text-foreground outline-none"
+      className="signup-flow landing-shell fixed inset-0 z-[100] h-[100dvh] overflow-y-auto overscroll-contain text-foreground outline-none"
       role="dialog"
       aria-modal="true"
       aria-labelledby="setup-wizard-title"
       tabIndex={-1}
     >
 
-      <div className="relative mx-auto flex min-h-[100dvh] w-full max-w-6xl flex-col px-5 py-5 sm:px-8 sm:py-8">
+      <div className="relative mx-auto flex min-h-full w-full max-w-6xl flex-col px-5 py-5 sm:px-8 sm:py-8">
         <header className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3" aria-label="EduTrack">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-indigo-100 bg-white/80 text-indigo-600 shadow-[0_8px_30px_-18px_rgba(79,70,229,0.35)] backdrop-blur-xl">
