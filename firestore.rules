@@ -599,6 +599,20 @@ function isFloworaRole(role) {
         allow write: if isOrgStaffWithPermission(orgId, 'results.write') || isSuperAdmin();
       }
 
+      // Academic Study Tracker data is managed by organization staff.
+      // Teachers and org admins can create, update, and delete tracking records.
+      match /academicSyllabus/{itemId} {
+        allow read, write: if isOrgStaff(orgId) || isSuperAdmin();
+      }
+
+      match /academicRoutines/{routineId} {
+        allow read, write: if isOrgStaff(orgId) || isSuperAdmin();
+      }
+
+      match /academicAssessments/{assessmentId} {
+        allow read, write: if isOrgStaff(orgId) || isSuperAdmin();
+      }
+
       match /routine/{slotId} {
         allow read: if isOrgStaffWithPermission(orgId, 'routine.read') || isSuperAdmin() || isStudent(orgId) || isLinkedResource(orgId);
         allow write: if isOrgStaffWithPermission(orgId, 'routine.write') || isSuperAdmin();
